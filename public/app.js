@@ -218,7 +218,7 @@ function renderScrapedDone(done, filter = '') {
   const tbody = document.getElementById('scraped-done-table');
   tbody.innerHTML = list.length
     ? list.map(b => `
-      <tr class="table-row">
+      <tr class="table-row" id="scraped-row-${b.id}">
         <td class="px-6 py-4">
           <div class="font-medium text-slate-800">${b.name}</div>
           <div class="text-xs text-slate-400 mt-0.5">${b.address || ''}</div>
@@ -227,14 +227,21 @@ function renderScrapedDone(done, filter = '') {
         <td class="px-6 py-4">
           ${b.email
             ? `<a href="mailto:${b.email}" class="text-xs text-emerald-600 font-medium hover:underline">${b.email}</a>`
-            : '<span class="text-xs text-red-400">No encontrado</span>'}
+            : '<span class="text-xs text-red-400">Sin email</span>'}
         </td>
         <td class="px-6 py-4">
-          ${b.website ? `<a href="${b.website}" target="_blank" class="text-xs text-blue-500 hover:underline">Ver →</a>` : '—'}
+          ${b.phone
+            ? `<a href="tel:${b.phone}" class="text-xs text-emerald-600 font-medium">📱 ${b.phone}</a>`
+            : '<span class="text-xs text-red-400">Sin teléfono</span>'}
         </td>
         <td class="px-6 py-4">${badge(b.status)}</td>
+        <td class="px-6 py-4 text-right">
+          <button class="action-btn btn-scrape" onclick="rescrapeOne('${b.id}', this)" title="Re-scrapear para actualizar teléfono y datos">
+            ↻ Re-scrapear
+          </button>
+        </td>
       </tr>`).join('')
-    : emptyRow(5, 'Sin negocios scrapeados todavía.', '◈');
+    : emptyRow(6, 'Sin negocios scrapeados todavía.', '◈');
 }
 
 function filterScraped() {
@@ -402,6 +409,31 @@ async function scrapeOne(id, btn) {
     if (d.success) {
       toast('Scraping completado');
       await loadSection('scraping');
+    } else {
+      toast('Error: ' + d.error, 'error');
+      btn.innerHTML = original;
+      btn.disabled = false;
+    }
+  } catch (e) {
+    toast('Error de red', 'error');
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }
+}
+
+async function rescrapeOne(id, btn) {
+  const original = btn.innerHTML;
+  btn.textContent = 'Re-scrapeando...';
+  btn.disabled = true;
+  try {
+    const r = await fetch(`/api/scrape/${id}`, { method: 'POST' });
+    const d = await r.json();
+    if (d.success) {
+      const phone = d.profile?.phone;
+      toast(phone ? `✓ Actualizado — teléfono: ${phone}` : '✓ Re-scrapeado (sin teléfono encontrado)');
+      await fetchAll();
+      const done = allBusinesses.filter(b => ['scraped','generated','active'].includes(b.status));
+      renderScrapedDone(done);
     } else {
       toast('Error: ' + d.error, 'error');
       btn.innerHTML = original;

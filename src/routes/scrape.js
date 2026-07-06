@@ -18,7 +18,9 @@ router.post('/:businessId', async (req, res) => {
   try {
     const profile = await scrapeBusinessProfile(business);
 
-    const { description, services, social_networks, hours, language, email, value_proposition } = profile;
+    const { description, services, social_networks, hours, language, email, value_proposition, phone } = profile;
+
+    // Upsert web data
     const { error: insertErr } = await supabase
       .from('business_web_data')
       .upsert(
@@ -28,7 +30,10 @@ router.post('/:businessId', async (req, res) => {
 
     if (insertErr) throw insertErr;
 
-    await supabase.from('businesses').update({ status: 'scraped' }).eq('id', businessId);
+    // Update businesses status + phone (freshly scraped always wins over Google Places)
+    const bizUpdate = { status: 'scraped' };
+    if (phone) bizUpdate.phone = phone;
+    await supabase.from('businesses').update(bizUpdate).eq('id', businessId);
 
     res.json({ success: true, profile });
   } catch (err) {
