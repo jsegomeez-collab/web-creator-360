@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facturación — Web Creator 360</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    body { background: #050814; color: #F0F4FF; }
+    .card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); }
+    .plan-popular { border: 2px solid #8B5CF6; box-shadow: 0 0 30px rgba(139,92,246,.15); }
+    .btn-cta { background: linear-gradient(135deg,#6366F1,#8B5CF6); transition: all .2s; }
+    .btn-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(99,102,241,.4); }
+    .toggle-active { background: #6366F1; color: white; }
+    .badge-active { background: rgba(52,211,153,.1); color: #34D399; border: 1px solid rgba(52,211,153,.2); }
+    .badge-inactive { background: rgba(100,116,139,.1); color: #94A3B8; border: 1px solid rgba(100,116,139,.2); }
+    .badge-pastdue { background: rgba(239,68,68,.1); color: #F87171; border: 1px solid rgba(239,68,68,.2); }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Nav -->
+  <nav class="border-b border-white/5 px-6 py-4 flex items-center justify-between" style="background:rgba(5,8,20,.9)">
+    <a href="/index.html" class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,#6366F1,#8B5CF6)">W</div>
+      <span class="font-bold">Web Creator <span class="text-indigo-400">360</span></span>
+    </a>
+    <div class="flex items-center gap-4">
+      <a href="/settings.html" class="text-sm text-slate-400 hover:text-white">Ajustes</a>
+      <a href="/index.html" class="text-sm text-slate-400 hover:text-white">Dashboard</a>
+      <button onclick="logout()" class="text-sm text-slate-500 hover:text-red-400">Salir</button>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <div class="mb-10">
+      <h1 class="text-3xl font-black text-white">Facturación</h1>
+      <p class="text-slate-400 mt-1">Gestiona tu suscripción y plan</p>
+    </div>
+
+    <!-- Current plan card -->
+    <div class="card rounded-2xl p-6 mb-10" id="current-plan-card">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Plan actual</p>
+          <div class="flex items-center gap-3">
+            <h2 class="text-2xl font-black text-white capitalize" id="plan-name">—</h2>
+            <span id="plan-badge" class="badge-inactive text-xs font-semibold px-3 py-1 rounded-full">Cargando...</span>
+          </div>
+          <p class="text-sm text-slate-400 mt-1" id="plan-detail"></p>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="openPortal()" id="portal-btn"
+            class="hidden text-sm bg-white/10 border border-white/10 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-white/15 transition-colors">
+            Gestionar suscripción
+          </button>
+        </div>
+      </div>
+      <!-- Usage bars -->
+      <div id="usage-section" class="mt-6 pt-6 border-t border-white/5 grid grid-cols-3 gap-6 hidden">
+        <div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>Prospectos</span><span id="u-prospects">0/0</span>
+          </div>
+          <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div id="bar-prospects" class="h-full bg-indigo-500 rounded-full transition-all" style="width:0%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>Webs generadas</span><span id="u-sites">0/0</span>
+          </div>
+          <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div id="bar-sites" class="h-full bg-violet-500 rounded-full transition-all" style="width:0%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>Emails</span><span id="u-emails">0/0</span>
+          </div>
+          <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div id="bar-emails" class="h-full bg-emerald-500 rounded-full transition-all" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interval toggle -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center bg-white/5 border border-white/10 rounded-xl p-1">
+        <button id="toggle-monthly" onclick="setInt('monthly')"
+          class="toggle-active px-5 py-2 rounded-lg text-sm font-semibold transition-all">Mensual</button>
+        <button id="toggle-annual" onclick="setInt('annual')"
+          class="px-5 py-2 rounded-lg text-sm font-semibold text-slate-400 transition-all">
+          Anual <span class="text-emerald-400 text-xs ml-1">–17%</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Plans grid -->
+    <div class="grid md:grid-cols-3 gap-6">
+
+      <div class="card rounded-2xl p-7 flex flex-col">
+        <p class="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1">Starter</p>
+        <div class="flex items-end gap-1 mb-4">
+          <span class="text-4xl font-black text-white" id="p-starter">€47</span>
+          <span class="text-slate-400 text-xs mb-1">/mes</span>
+        </div>
+        <ul class="space-y-2 text-xs text-slate-400 mb-6 flex-1">
+          <li>✓ 100 prospectos/mes</li>
+          <li>✓ 50 webs generadas/mes</li>
+          <li>✓ 500 emails/mes</li>
+          <li>✓ Email outreach automático</li>
+        </ul>
+        <button onclick="subscribe('starter')" data-plan="starter"
+          class="subscribe-btn w-full bg-white/10 border border-white/10 text-white font-semibold py-2.5 rounded-xl text-sm hover:bg-white/15 transition-colors">
+          Elegir Starter
+        </button>
+      </div>
+
+      <div class="plan-popular rounded-2xl p-7 flex flex-col relative" style="background:rgba(99,102,241,.07)">
+        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+          MÁS POPULAR
+        </div>
+        <p class="text-xs font-semibold text-violet-400 uppercase tracking-wide mb-1">Pro</p>
+        <div class="flex items-end gap-1 mb-4">
+          <span class="text-4xl font-black text-white" id="p-pro">€147</span>
+          <span class="text-slate-400 text-xs mb-1">/mes</span>
+        </div>
+        <ul class="space-y-2 text-xs text-slate-400 mb-6 flex-1">
+          <li>✓ 500 prospectos/mes</li>
+          <li>✓ 200 webs generadas/mes</li>
+          <li>✓ 2.000 emails/mes</li>
+          <li>✓ Email + WhatsApp automático</li>
+          <li>✓ Pipeline automático</li>
+          <li>✓ Soporte prioritario</li>
+        </ul>
+        <button onclick="subscribe('pro')" data-plan="pro"
+          class="subscribe-btn btn-cta w-full text-white font-bold py-2.5 rounded-xl text-sm">
+          Elegir Pro
+        </button>
+      </div>
+
+      <div class="card rounded-2xl p-7 flex flex-col">
+        <p class="text-xs font-semibold text-emerald-400 uppercase tracking-wide mb-1">Agency</p>
+        <div class="flex items-end gap-1 mb-4">
+          <span class="text-4xl font-black text-white" id="p-agency">€297</span>
+          <span class="text-slate-400 text-xs mb-1">/mes</span>
+        </div>
+        <ul class="space-y-2 text-xs text-slate-400 mb-6 flex-1">
+          <li>✓ <strong class="text-white">Prospectos ilimitados</strong></li>
+          <li>✓ <strong class="text-white">Webs ilimitadas</strong></li>
+          <li>✓ <strong class="text-white">Emails ilimitados</strong></li>
+          <li>✓ Email + WhatsApp automático</li>
+          <li>✓ Soporte dedicado</li>
+        </ul>
+        <button onclick="subscribe('agency')" data-plan="agency"
+          class="subscribe-btn w-full bg-white/10 border border-white/10 text-white font-semibold py-2.5 rounded-xl text-sm hover:bg-white/15 transition-colors">
+          Elegir Agency
+        </button>
+      </div>
+    </div>
+
+    <p class="text-center text-xs text-slate-600 mt-6">
+      14 días gratis en todos los planes · Sin compromiso · Cancela desde el portal de suscripciones
+    </p>
+  </div>
+
+  <script>
+    const LIMITS = { free:{prospects:10,sites:3,emails:10}, starter:{prospects:100,sites:50,emails:500}, pro:{prospects:500,sites:200,emails:2000}, agency:{prospects:9999,sites:9999,emails:9999} };
+    const monthly = { starter:'€47', pro:'€147', agency:'€297' };
+    const annual  = { starter:'€39', pro:'€122', agency:'€247' };
+    let interval = 'monthly';
+    const token = localStorage.getItem('wc360_token');
+
+    if (!token) window.location.href = '/login.html';
+
+    function setInt(v) {
+      interval = v;
+      const prices = v === 'annual' ? annual : monthly;
+      ['starter','pro','agency'].forEach(p => document.getElementById(`p-${p}`).textContent = prices[p]);
+      document.getElementById('toggle-monthly').classList.toggle('toggle-active', v === 'monthly');
+      document.getElementById('toggle-monthly').classList.toggle('text-slate-400', v !== 'monthly');
+      document.getElementById('toggle-annual').classList.toggle('toggle-active', v === 'annual');
+      document.getElementById('toggle-annual').classList.toggle('text-slate-400', v !== 'annual');
+    }
+
+    async function api(path, opts = {}) {
+      const r = await fetch(path, { ...opts, headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${token}`, ...(opts.headers||{}) }});
+      return r.json();
+    }
+
+    async function loadPlan() {
+      try {
+        const data = await api('/api/settings/plan');
+        const plan = data.plan || 'free';
+        const status = data.status || 'inactive';
+        document.getElementById('plan-name').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+
+        const badge = document.getElementById('plan-badge');
+        badge.textContent = status === 'active' ? 'Activo' : status === 'trialing' ? 'Prueba gratis' : status === 'past_due' ? 'Pago vencido' : 'Inactivo';
+        badge.className = `text-xs font-semibold px-3 py-1 rounded-full ${status === 'active' || status === 'trialing' ? 'badge-active' : status === 'past_due' ? 'badge-pastdue' : 'badge-inactive'}`;
+
+        if (data.expires_at) {
+          document.getElementById('plan-detail').textContent = `Renueva el ${new Date(data.expires_at).toLocaleDateString('es-ES')}`;
+        }
+
+        if (status === 'active' || status === 'trialing') {
+          document.getElementById('portal-btn').classList.remove('hidden');
+        }
+
+        // Usage
+        if (data.usage && plan !== 'free') {
+          const lim = LIMITS[plan] || LIMITS.free;
+          const u = data.usage;
+          document.getElementById('usage-section').classList.remove('hidden');
+          setBar('prospects', u.prospects, lim.prospects);
+          setBar('sites', u.sites, lim.sites);
+          setBar('emails', u.emails, lim.emails);
+        }
+
+        // Highlight current plan
+        document.querySelectorAll('.subscribe-btn').forEach(btn => {
+          if (btn.dataset.plan === plan) btn.textContent = 'Plan actual ✓';
+        });
+      } catch(e) { console.error(e); }
+    }
+
+    function setBar(key, used, limit) {
+      const pct = limit >= 9999 ? 0 : Math.min(100, Math.round(used / limit * 100));
+      document.getElementById(`u-${key}`).textContent = limit >= 9999 ? `${used} / ∞` : `${used}/${limit}`;
+      document.getElementById(`bar-${key}`).style.width = pct + '%';
+    }
+
+    async function subscribe(plan) {
+      try {
+        const data = await api('/api/billing/checkout', { method: 'POST', body: JSON.stringify({ plan, interval }) });
+        if (data.url) window.location.href = data.url;
+        else if (data.error) alert(data.error);
+      } catch(e) { alert('Error al iniciar el pago'); }
+    }
+
+    async function openPortal() {
+      try {
+        const data = await api('/api/billing/portal', { method: 'POST' });
+        if (data.url) window.location.href = data.url;
+        else alert(data.error || 'Error al abrir el portal');
+      } catch(e) { alert('Error'); }
+    }
+
+    function logout() {
+      localStorage.removeItem('wc360_token');
+      localStorage.removeItem('wc360_refresh');
+      window.location.href = '/login.html';
+    }
+
+    loadPlan();
+
+    // Handle checkout success
+    if (new URLSearchParams(window.location.search).get('checkout') === 'success') {
+      setTimeout(loadPlan, 2000);
+    }
+  </script>
+</body>
+</html>

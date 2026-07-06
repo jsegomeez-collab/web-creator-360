@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar — Web Creator 360</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    body { background: #050814; }
+    .gradient-text { background: linear-gradient(135deg,#A78BFA,#60A5FA); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .btn-cta { background: linear-gradient(135deg,#6366F1,#8B5CF6); transition: all .2s; }
+    .btn-cta:hover { box-shadow: 0 8px 30px rgba(99,102,241,.5); }
+    .card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); }
+    input { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: #F0F4FF; }
+    input:focus { outline: none; border-color: #6366F1; background: rgba(99,102,241,.08); }
+    input::placeholder { color: rgba(255,255,255,.3); }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4">
+
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <a href="/" class="inline-flex items-center gap-2 mb-6">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold" style="background:linear-gradient(135deg,#6366F1,#8B5CF6)">W</div>
+        <span class="font-bold text-white text-lg">Web Creator <span class="text-indigo-400">360</span></span>
+      </a>
+      <h1 class="text-2xl font-bold text-white">Bienvenido de vuelta</h1>
+      <p class="text-slate-400 text-sm mt-1">Entra a tu cuenta para continuar</p>
+    </div>
+
+    <div class="card rounded-2xl p-8">
+      <div id="error-msg" class="hidden bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl mb-5"></div>
+
+      <form id="login-form" class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+          <input id="email" type="email" placeholder="tu@email.com" required
+            class="w-full px-4 py-3 rounded-xl text-sm" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña</label>
+          <input id="password" type="password" placeholder="••••••••" required
+            class="w-full px-4 py-3 rounded-xl text-sm" />
+        </div>
+        <button type="submit" id="submit-btn"
+          class="btn-cta w-full text-white font-bold py-3 rounded-xl text-sm">
+          Entrar →
+        </button>
+      </form>
+
+      <div class="mt-6 pt-6 border-t border-white/5 text-center">
+        <p class="text-slate-500 text-sm">
+          ¿No tienes cuenta?
+          <a href="/register.html" class="text-indigo-400 hover:text-indigo-300 font-medium">Regístrate gratis</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let sb;
+
+    async function initSupabase() {
+      try {
+        const cfg = await fetch('/api/config').then(r => r.json());
+        if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) return;
+        sb = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) {
+          localStorage.setItem('wc360_token', session.access_token);
+          window.location.href = '/index.html';
+        }
+      } catch(e) { console.warn('Supabase init:', e); }
+    }
+    initSupabase();
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const errEl = document.getElementById('error-msg');
+      errEl.classList.add('hidden');
+      btn.textContent = 'Entrando...';
+      btn.disabled = true;
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        if (!sb) throw new Error('Supabase no configurado. Añade SUPABASE_URL y SUPABASE_ANON_KEY.');
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        localStorage.setItem('wc360_token', data.session.access_token);
+        localStorage.setItem('wc360_refresh', data.session.refresh_token);
+        window.location.href = '/index.html';
+      } catch(err) {
+        errEl.textContent = err.message || 'Error al iniciar sesión';
+        errEl.classList.remove('hidden');
+        btn.textContent = 'Entrar →';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

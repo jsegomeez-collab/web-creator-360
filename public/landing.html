@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web Creator 360 — Vende webs con IA mientras duermes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    body { background: #050814; color: #F0F4FF; }
+
+    .glow { text-shadow: 0 0 60px rgba(139,92,246,.6); }
+    .gradient-text { background: linear-gradient(135deg, #A78BFA, #60A5FA, #34D399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card-glass { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(12px); }
+    .btn-cta { background: linear-gradient(135deg, #6366F1, #8B5CF6); transition: all .2s; }
+    .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(99,102,241,.5); }
+    .plan-popular { border: 2px solid #8B5CF6; box-shadow: 0 0 40px rgba(139,92,246,.2); }
+    .toggle-active { background: #6366F1; color: white; }
+    .halo { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .float { animation: float 4s ease-in-out infinite; }
+
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="overflow-x-hidden">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/5" style="background:rgba(5,8,20,.85);backdrop-filter:blur(20px)">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#6366F1,#8B5CF6)">W</div>
+        <span class="font-bold text-white">Web Creator <span class="text-indigo-400">360</span></span>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm text-slate-400">
+        <a href="#features" class="hover:text-white transition-colors">Funcionalidades</a>
+        <a href="#how" class="hover:text-white transition-colors">Cómo funciona</a>
+        <a href="#pricing" class="hover:text-white transition-colors">Precios</a>
+        <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/login.html" class="text-sm text-slate-400 hover:text-white transition-colors px-4 py-2">Entrar</a>
+        <a href="/register.html" class="btn-cta text-sm font-semibold text-white px-5 py-2 rounded-lg">Empezar gratis →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="relative pt-32 pb-24 px-6 text-center overflow-hidden">
+    <div class="halo w-96 h-96 top-0 left-1/4 -translate-x-1/2" style="background:rgba(99,102,241,.15)"></div>
+    <div class="halo w-72 h-72 top-20 right-1/4" style="background:rgba(139,92,246,.1)"></div>
+
+    <div class="relative max-w-4xl mx-auto">
+      <div class="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold px-4 py-2 rounded-full mb-8">
+        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+        Automatiza tu agencia de diseño web con IA
+      </div>
+
+      <h1 class="text-5xl md:text-7xl font-black leading-[1.05] mb-6 glow">
+        Vende webs con IA<br>
+        <span class="gradient-text">mientras duermes</span>
+      </h1>
+
+      <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+        Prospecta negocios locales, genera webs personalizadas con Claude AI y contacta automáticamente por email y WhatsApp.
+        <strong class="text-white">Sin diseñar. Sin programar. Sin esfuerzo.</strong>
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+        <a href="/register.html" class="btn-cta text-white font-bold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+          Empezar gratis 14 días →
+        </a>
+        <a href="#how" class="bg-white/5 border border-white/10 text-white font-semibold px-8 py-4 rounded-xl text-base hover:bg-white/10 transition-colors">
+          Ver cómo funciona
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-6 max-w-xl mx-auto text-center">
+        <div>
+          <p class="text-3xl font-black text-white">€347</p>
+          <p class="text-xs text-slate-500 mt-1">precio medio por web</p>
+        </div>
+        <div class="border-x border-white/10">
+          <p class="text-3xl font-black text-white">&lt;2min</p>
+          <p class="text-xs text-slate-500 mt-1">por web generada</p>
+        </div>
+        <div>
+          <p class="text-3xl font-black text-white">100%</p>
+          <p class="text-xs text-slate-500 mt-1">automatizado</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard preview -->
+    <div class="relative max-w-5xl mx-auto mt-20 float">
+      <div class="card-glass rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+        <div class="bg-slate-900/80 px-4 py-3 flex items-center gap-2 border-b border-white/5">
+          <div class="w-3 h-3 rounded-full bg-red-500/60"></div>
+          <div class="w-3 h-3 rounded-full bg-amber-500/60"></div>
+          <div class="w-3 h-3 rounded-full bg-emerald-500/60"></div>
+          <span class="text-slate-500 text-xs ml-2">Web Creator 360 — Dashboard</span>
+        </div>
+        <div class="grid grid-cols-4 gap-0 divide-x divide-white/5 p-6">
+          <div class="text-center px-4">
+            <p class="text-3xl font-black text-indigo-400">247</p>
+            <p class="text-xs text-slate-500 mt-1">Prospectados</p>
+          </div>
+          <div class="text-center px-4">
+            <p class="text-3xl font-black text-amber-400">183</p>
+            <p class="text-xs text-slate-500 mt-1">Scrapeados</p>
+          </div>
+          <div class="text-center px-4">
+            <p class="text-3xl font-black text-violet-400">97</p>
+            <p class="text-xs text-slate-500 mt-1">Webs creadas</p>
+          </div>
+          <div class="text-center px-4">
+            <p class="text-3xl font-black text-emerald-400">12</p>
+            <p class="text-xs text-slate-500 mt-1">Ventas cerradas</p>
+          </div>
+        </div>
+        <div class="px-6 pb-6 space-y-2">
+          <div class="flex items-center gap-3 bg-white/3 rounded-lg p-3">
+            <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+            <span class="text-sm text-slate-300">✓ Restaurante La Marina — web generada y enviada</span>
+            <span class="ml-auto text-xs text-emerald-400">hace 2min</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/3 rounded-lg p-3">
+            <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+            <span class="text-sm text-slate-300">📧 Clínica Dental Pérez — email enviado + WhatsApp</span>
+            <span class="ml-auto text-xs text-slate-500">hace 8min</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/3 rounded-lg p-3">
+            <span class="w-2 h-2 bg-violet-400 rounded-full"></span>
+            <span class="text-sm text-slate-300">✦ Fisioterapia CentroMed — generando web...</span>
+            <span class="ml-auto text-xs text-violet-400 animate-pulse">en proceso</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16">
+        <p class="text-indigo-400 text-sm font-semibold uppercase tracking-widest mb-3">El proceso</p>
+        <h2 class="text-4xl md:text-5xl font-black">De 0 a cliente en 4 pasos</h2>
+      </div>
+      <div class="grid md:grid-cols-4 gap-6">
+        <div class="card-glass rounded-2xl p-6 text-center relative">
+          <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">⊕</div>
+          <div class="absolute -top-3 -right-3 w-7 h-7 bg-indigo-500 rounded-full text-xs font-bold flex items-center justify-center">1</div>
+          <h3 class="font-bold text-white mb-2">Prospecta</h3>
+          <p class="text-sm text-slate-400">Encuentra negocios locales sin web moderna con Google Places. Miles de leads en segundos.</p>
+        </div>
+        <div class="card-glass rounded-2xl p-6 text-center relative">
+          <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">⊙</div>
+          <div class="absolute -top-3 -right-3 w-7 h-7 bg-amber-500 rounded-full text-xs font-bold flex items-center justify-center">2</div>
+          <h3 class="font-bold text-white mb-2">Analiza</h3>
+          <p class="text-sm text-slate-400">La IA extrae descripción, servicios, fotos, email y teléfono de la web actual del negocio.</p>
+        </div>
+        <div class="card-glass rounded-2xl p-6 text-center relative">
+          <div class="w-12 h-12 bg-violet-500/20 text-violet-400 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">✦</div>
+          <div class="absolute -top-3 -right-3 w-7 h-7 bg-violet-500 rounded-full text-xs font-bold flex items-center justify-center">3</div>
+          <h3 class="font-bold text-white mb-2">Genera</h3>
+          <p class="text-sm text-slate-400">Claude AI crea una landing premium personalizada y la despliega en Vercel en 2 minutos.</p>
+        </div>
+        <div class="card-glass rounded-2xl p-6 text-center relative">
+          <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">✉</div>
+          <div class="absolute -top-3 -right-3 w-7 h-7 bg-emerald-500 rounded-full text-xs font-bold flex items-center justify-center">4</div>
+          <h3 class="font-bold text-white mb-2">Contacta</h3>
+          <p class="text-sm text-slate-400">Email y WhatsApp automático al negocio con el link a su web. Follow-ups incluidos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16">
+        <p class="text-indigo-400 text-sm font-semibold uppercase tracking-widest mb-3">Funcionalidades</p>
+        <h2 class="text-4xl md:text-5xl font-black">Todo lo que necesitas para escalar</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="card-glass rounded-2xl p-6">
+          <div class="text-3xl mb-4">🤖</div>
+          <h3 class="font-bold text-white mb-2">IA de élite</h3>
+          <p class="text-sm text-slate-400">Claude AI genera webs completas con diseño Halo Theme: glassmorphism, animaciones, secciones personalizadas con los datos reales del negocio.</p>
+        </div>
+        <div class="card-glass rounded-2xl p-6">
+          <div class="text-3xl mb-4">📧</div>
+          <h3 class="font-bold text-white mb-2">Outreach multicanal</h3>
+          <p class="text-sm text-slate-400">Email profesional + WhatsApp automático. Follow-ups programados. El negocio recibe su web en bandeja de entrada.</p>
+        </div>
+        <div class="card-glass rounded-2xl p-6">
+          <div class="text-3xl mb-4">⚡</div>
+          <h3 class="font-bold text-white mb-2">Pipeline automático</h3>
+          <p class="text-sm text-slate-400">Cron job cada 30 minutos: prospecta, genera y envía solo. Solo supervisas las ventas.</p>
+        </div>
+        <div class="card-glass rounded-2xl p-6">
+          <div class="text-3xl mb-4">🌍</div>
+          <h3 class="font-bold text-white mb-2">Multiidioma</h3>
+          <p class="text-sm text-slate-400">Detecta automáticamente si el negocio es español o inglés y adapta web y email. $497 para EE.UU., 347€ para España.</p>
+        </div>
+        <div class="card-glass rounded-2xl p-6">
+          <div class="text-3xl mb-4">🔑</div>
+          <h3 class="font-bold text-white mb-2">Tus propias APIs</h3>
+          <p class="text-sm text-slate-400">Conecta tu Claude, Resend, Google Places y Vercel. Tus créditos, tus datos, tu control total.</p>
+        </div>
+        <div class="card-glass rounded-2xl p-6">
+          <div class="text-3xl mb-4">📊</div>
+          <h3 class="font-bold text-white mb-2">Dashboard completo</h3>
+          <p class="text-sm text-slate-400">Visualiza todo el pipeline: prospectos, scraping, webs generadas, envíos y conversiones en tiempo real.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <p class="text-indigo-400 text-sm font-semibold uppercase tracking-widest mb-3">Precios</p>
+        <h2 class="text-4xl md:text-5xl font-black mb-4">Elige tu plan</h2>
+        <p class="text-slate-400 mb-8">Cancela cuando quieras. Empieza con 14 días gratis.</p>
+
+        <!-- Monthly/Annual toggle -->
+        <div class="inline-flex items-center bg-white/5 border border-white/10 rounded-xl p-1">
+          <button id="toggle-monthly" onclick="setInterval_('monthly')"
+            class="toggle-active px-5 py-2 rounded-lg text-sm font-semibold transition-all">
+            Mensual
+          </button>
+          <button id="toggle-annual" onclick="setInterval_('annual')"
+            class="px-5 py-2 rounded-lg text-sm font-semibold text-slate-400 transition-all">
+            Anual <span class="text-emerald-400 text-xs ml-1">–17%</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+
+        <!-- Starter -->
+        <div class="card-glass rounded-2xl p-8 flex flex-col">
+          <div class="mb-6">
+            <p class="text-sm font-semibold text-indigo-400 uppercase tracking-wide mb-2">Starter</p>
+            <div class="flex items-end gap-1 mb-1">
+              <span class="text-5xl font-black text-white" id="price-starter">€47</span>
+              <span class="text-slate-400 text-sm mb-2">/mes</span>
+            </div>
+            <p class="text-xs text-slate-500" id="price-starter-sub">Facturado mensualmente</p>
+          </div>
+          <ul class="space-y-3 text-sm text-slate-300 mb-8 flex-1">
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> 100 prospectos/mes</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> 50 webs generadas/mes</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> 500 emails/mes</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> Email outreach automático</li>
+            <li class="flex gap-2"><span class="text-slate-600 font-bold">–</span> <span class="text-slate-500">WhatsApp</span></li>
+            <li class="flex gap-2"><span class="text-slate-600 font-bold">–</span> <span class="text-slate-500">Pipeline automático</span></li>
+          </ul>
+          <a href="/register.html?plan=starter" class="block text-center bg-white/10 border border-white/10 text-white font-semibold py-3 rounded-xl hover:bg-white/15 transition-colors">
+            Empezar gratis →
+          </a>
+        </div>
+
+        <!-- Pro (popular) -->
+        <div class="plan-popular rounded-2xl p-8 flex flex-col relative" style="background:rgba(99,102,241,.08)">
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-bold px-4 py-1.5 rounded-full">
+            MÁS POPULAR
+          </div>
+          <div class="mb-6">
+            <p class="text-sm font-semibold text-violet-400 uppercase tracking-wide mb-2">Pro</p>
+            <div class="flex items-end gap-1 mb-1">
+              <span class="text-5xl font-black text-white" id="price-pro">€147</span>
+              <span class="text-slate-400 text-sm mb-2">/mes</span>
+            </div>
+            <p class="text-xs text-slate-500" id="price-pro-sub">Facturado mensualmente</p>
+          </div>
+          <ul class="space-y-3 text-sm text-slate-300 mb-8 flex-1">
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> 500 prospectos/mes</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> 200 webs generadas/mes</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> 2.000 emails/mes</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> Email + WhatsApp automático</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> Pipeline automático</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> Soporte prioritario</li>
+          </ul>
+          <a href="/register.html?plan=pro" class="btn-cta block text-center text-white font-bold py-3 rounded-xl">
+            Empezar gratis →
+          </a>
+        </div>
+
+        <!-- Agency -->
+        <div class="card-glass rounded-2xl p-8 flex flex-col">
+          <div class="mb-6">
+            <p class="text-sm font-semibold text-emerald-400 uppercase tracking-wide mb-2">Agency</p>
+            <div class="flex items-end gap-1 mb-1">
+              <span class="text-5xl font-black text-white" id="price-agency">€297</span>
+              <span class="text-slate-400 text-sm mb-2">/mes</span>
+            </div>
+            <p class="text-xs text-slate-500" id="price-agency-sub">Facturado mensualmente</p>
+          </div>
+          <ul class="space-y-3 text-sm text-slate-300 mb-8 flex-1">
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> <strong>Prospectos ilimitados</strong></li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> <strong>Webs ilimitadas</strong></li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> <strong>Emails ilimitados</strong></li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> Email + WhatsApp automático</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> Pipeline automático 24/7</li>
+            <li class="flex gap-2"><span class="text-emerald-400 font-bold">✓</span> Soporte dedicado</li>
+          </ul>
+          <a href="/register.html?plan=agency" class="block text-center bg-white/10 border border-white/10 text-white font-semibold py-3 rounded-xl hover:bg-white/15 transition-colors">
+            Empezar gratis →
+          </a>
+        </div>
+      </div>
+
+      <p class="text-center text-xs text-slate-600 mt-8">
+        Todos los planes incluyen 14 días gratis · Sin compromiso · Cancela cuando quieras
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="py-24 px-6">
+    <div class="max-w-2xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-black">Preguntas frecuentes</h2>
+      </div>
+      <div class="space-y-4" id="faq-list"></div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="py-24 px-6 text-center">
+    <div class="relative max-w-3xl mx-auto">
+      <div class="halo w-96 h-96 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="background:rgba(99,102,241,.12)"></div>
+      <h2 class="text-4xl md:text-6xl font-black mb-6 relative">
+        Empieza a vender webs<br>
+        <span class="gradient-text">esta semana</span>
+      </h2>
+      <p class="text-slate-400 text-lg mb-10 relative">14 días gratis. Sin tarjeta de crédito. Cancela cuando quieras.</p>
+      <a href="/register.html" class="btn-cta text-white font-bold px-10 py-5 rounded-2xl text-lg inline-block relative">
+        Crear mi cuenta gratis →
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-white/5 py-12 px-6">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,#6366F1,#8B5CF6)">W</div>
+        <span class="font-bold">Web Creator 360</span>
+      </div>
+      <div class="flex gap-6 text-sm text-slate-500">
+        <a href="#" class="hover:text-white">Términos</a>
+        <a href="#" class="hover:text-white">Privacidad</a>
+        <a href="mailto:info@eternity.llc" class="hover:text-white">Contacto</a>
+      </div>
+      <p class="text-xs text-slate-600">© 2025 Web Creator 360. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Pricing toggle
+    let currentInterval = 'monthly';
+    const monthly = { starter: '€47', pro: '€147', agency: '€297' };
+    const annual = { starter: '€39', pro: '€122', agency: '€247' };
+
+    function setInterval_(v) {
+      currentInterval = v;
+      const prices = v === 'annual' ? annual : monthly;
+      document.getElementById('price-starter').textContent = prices.starter;
+      document.getElementById('price-pro').textContent = prices.pro;
+      document.getElementById('price-agency').textContent = prices.agency;
+      const sub = v === 'annual' ? 'Facturado anualmente (ahorra 17%)' : 'Facturado mensualmente';
+      ['starter','pro','agency'].forEach(p => document.getElementById(`price-${p}-sub`).textContent = sub);
+      document.getElementById('toggle-monthly').classList.toggle('toggle-active', v === 'monthly');
+      document.getElementById('toggle-monthly').classList.toggle('text-slate-400', v !== 'monthly');
+      document.getElementById('toggle-annual').classList.toggle('toggle-active', v === 'annual');
+      document.getElementById('toggle-annual').classList.toggle('text-slate-400', v !== 'annual');
+    }
+
+    // FAQ
+    const faqs = [
+      { q: '¿Necesito saber programar?', a: 'No. Web Creator 360 hace todo el trabajo. Solo configuras tus APIs una vez y el sistema trabaja solo.' },
+      { q: '¿Qué APIs necesito?', a: 'Necesitas: Claude (Anthropic) para generar las webs, Resend para enviar emails, Google Places para prospectar, y Vercel para alojar las previews. Todas tienen plan gratuito o de bajo coste.' },
+      { q: '¿Cuánto puedo ganar?', a: 'Con un precio de 347€ por web activada y el plan Pro (200 webs/mes), si cierras un 3% de conversión son aprox. 6 ventas = €2.082/mes de beneficio bruto. Sin contar costes de APIs.' },
+      { q: '¿Funciona en cualquier país?', a: 'Sí. El sistema detecta el idioma automáticamente y envía el email y genera la web en español o inglés. El precio se adapta a €347 o $497.' },
+      { q: '¿Puedo cancelar en cualquier momento?', a: 'Sí, sin penalizaciones. Gestionas tu suscripción desde el portal de Stripe incluido en el dashboard.' },
+      { q: '¿Los 14 días gratis requieren tarjeta?', a: 'No, no necesitas tarjeta para empezar. Solo al pasar al plan de pago.' },
+    ];
+
+    document.getElementById('faq-list').innerHTML = faqs.map((f, i) => `
+      <div class="card-glass rounded-xl overflow-hidden">
+        <button onclick="toggleFaq(${i})" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
+          <span class="font-semibold text-white">${f.q}</span>
+          <span id="faq-icon-${i}" class="text-indigo-400 text-xl flex-shrink-0">+</span>
+        </button>
+        <div id="faq-body-${i}" class="hidden px-6 pb-5 text-sm text-slate-400 leading-relaxed">${f.a}</div>
+      </div>
+    `).join('');
+
+    function toggleFaq(i) {
+      const body = document.getElementById(`faq-body-${i}`);
+      const icon = document.getElementById(`faq-icon-${i}`);
+      body.classList.toggle('hidden');
+      icon.textContent = body.classList.contains('hidden') ? '+' : '−';
+    }
+  </script>
+</body>
+</html>

@@ -1,3 +1,19 @@
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+const _token = localStorage.getItem('wc360_token');
+// Soft guard: redirect to login if no token (Supabase auth required for settings/billing)
+// Existing API routes still work without auth during development
+function authHeaders() {
+  return _token ? { 'Authorization': `Bearer ${_token}` } : {};
+}
+function authFetch(url, opts = {}) {
+  return fetch(url, { ...opts, headers: { ...(opts.headers || {}), ...authHeaders() } });
+}
+function logout() {
+  localStorage.removeItem('wc360_token');
+  localStorage.removeItem('wc360_refresh');
+  window.location.href = '/login.html';
+}
+
 // ─── State ────────────────────────────────────────────────────────────────────
 let allBusinesses = [];
 let allSites = [];
