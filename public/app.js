@@ -1,7 +1,7 @@
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 const _token = localStorage.getItem('wc360_token');
-// Soft guard: redirect to login if no token (Supabase auth required for settings/billing)
-// Existing API routes still work without auth during development
+let _saasMode = false;
+
 function authHeaders() {
   return _token ? { 'Authorization': `Bearer ${_token}` } : {};
 }
@@ -13,6 +13,13 @@ function logout() {
   localStorage.removeItem('wc360_refresh');
   window.location.href = '/login.html';
 }
+
+// Fetch config once on load — hide account sidebar links when running locally
+fetch('/api/config').then(r => r.json()).then(cfg => {
+  _saasMode = cfg.saasMode;
+  const accountNav = document.getElementById('account-nav');
+  if (accountNav) accountNav.style.display = _saasMode ? '' : 'none';
+}).catch(() => {});
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let allBusinesses = [];

@@ -35,8 +35,12 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// Landing page at root (overrides express.static index)
-app.get('/', (req, res) => res.sendFile(join(__dirname, '../public/landing.html')));
+const SAAS_MODE = !!process.env.SAAS_MODE;
+
+// In SaaS mode (production): / → landing page. Locally: / → dashboard directly.
+if (SAAS_MODE) {
+  app.get('/', (req, res) => res.sendFile(join(__dirname, '../public/landing.html')));
+}
 
 app.use(express.static(join(__dirname, '../public')));
 
@@ -55,10 +59,11 @@ app.use('/', paymentsRouter);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-// Public config for frontend Supabase client (anon key is safe to expose)
+// Public config for frontend
 app.get('/api/config', (req, res) => res.json({
   supabaseUrl: process.env.SUPABASE_URL || '',
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+  saasMode: SAAS_MODE,
 }));
 
 app.listen(PORT, () => {

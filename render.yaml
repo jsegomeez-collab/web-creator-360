@@ -3,18 +3,22 @@ services:
     name: web-creator-360
     env: node
     region: frankfurt
-    plan: free
+    plan: starter
     buildCommand: npm install
     startCommand: node src/index.js
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
+      - key: SAAS_MODE
+        value: "true"
       - key: BASE_URL
-        sync: false
+        sync: false                     # e.g. https://web-creator-360.onrender.com
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
         sync: false
       - key: GOOGLE_PLACES_API_KEY
         sync: false
@@ -26,11 +30,25 @@ services:
         sync: false
       - key: RESEND_FROM_EMAIL
         sync: false
+      - key: VERCEL_TOKEN
+        sync: false
+      - key: VERCEL_SCOPE
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
-      - key: STRIPE_PRICE_AMOUNT
-        value: "29900"
+      - key: STRIPE_STARTER_MONTHLY
+        sync: false
+      - key: STRIPE_STARTER_ANNUAL
+        sync: false
+      - key: STRIPE_PRO_MONTHLY
+        sync: false
+      - key: STRIPE_PRO_ANNUAL
+        sync: false
+      - key: STRIPE_AGENCY_MONTHLY
+        sync: false
+      - key: STRIPE_AGENCY_ANNUAL
+        sync: false
       - key: PREVIEW_EXPIRY_DAYS
         value: "15"
