@@ -882,7 +882,9 @@ async function sendAll() {
           if (d.status === 'start') {
             entries.innerHTML += `<div class="text-slate-500">Procesando ${d.total} negocio${d.total !== 1 ? 's' : ''}...</div>`;
           } else if (d.status === 'ok') {
-            const flag = d.language === 'en' ? '🇺🇸 $497' : '🇪🇸 347€';
+            const addr = (d.address || '').toLowerCase();
+            const isUS = addr.includes('united states') || addr.includes('ee. uu.') || addr.includes('ee.uu.');
+            const flag = isUS ? '🇺🇸 $497' : '🇪🇸 347€';
             const waIcon = d.wa ? ' 📱' : '';
             entries.innerHTML += `<div class="text-emerald-600">✓ ${d.name} → ${d.email} <span class="text-slate-400">${flag}${waIcon}</span></div>`;
             entries.scrollTop = entries.scrollHeight;

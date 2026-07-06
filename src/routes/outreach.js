@@ -62,7 +62,7 @@ router.post('/batch', async (req, res) => {
       const wa = await tryWhatsApp(biz, { ...item, contact_email: item.email }, item.language);
 
       sent++;
-      res.write(JSON.stringify({ status: 'ok', slug: item.slug, name: biz.name, email: item.email, language: item.language, wa: wa.sent }) + '\n');
+      res.write(JSON.stringify({ status: 'ok', slug: item.slug, name: biz.name, email: item.email, language: item.language, address: biz.address, wa: wa.sent }) + '\n');
     } catch (err) {
       errors++;
       res.write(JSON.stringify({ status: 'error', slug: item.slug, reason: err.message }) + '\n');
