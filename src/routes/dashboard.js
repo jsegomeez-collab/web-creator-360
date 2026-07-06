@@ -63,7 +63,7 @@ router.get('/sites', async (req, res) => {
   const [{ data, error }, { data: wdRows }] = await Promise.all([
     supabase
       .from('generated_sites')
-      .select('id, business_id, slug, preview_url, status, expires_at, created_at, businesses(name, category)')
+      .select('id, business_id, slug, preview_url, status, expires_at, created_at, businesses(name, category, phone)')
       .order('created_at', { ascending: false })
       .limit(100),
     supabase.from('business_web_data').select('business_id, email'),

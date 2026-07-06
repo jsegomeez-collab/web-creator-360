@@ -107,10 +107,16 @@ export async function sendText(phone, message) {
 
 export function formatPhone(raw) {
   let digits = String(raw || '').replace(/\D/g, '');
+  // Strip leading 00 (alternative international prefix)
   if (digits.startsWith('00')) digits = digits.slice(2);
-  else if (digits.startsWith('0')) digits = digits.slice(1);
-  // 9-digit Spanish mobile (6xx / 7xx) → add country code 34
-  if (digits.length === 9 && /^[67]/.test(digits)) digits = '34' + digits;
+  // Already has country code (11+ digits or starts with known prefix)
+  if (digits.length >= 11) return digits;
+  // US/Canada: 10 digits starting with 2-9 → add 1
+  if (digits.length === 10 && /^[2-9]/.test(digits)) return '1' + digits;
+  // Spanish mobile: 9 digits starting with 6 or 7 → add 34
+  if (digits.length === 9 && /^[67]/.test(digits)) return '34' + digits;
+  // Spanish landline: 9 digits starting with 9 → add 34
+  if (digits.length === 9 && digits.startsWith('9')) return '34' + digits;
   return digits;
 }
 
@@ -130,7 +136,7 @@ export function buildMessage(business, site, language = 'es') {
     `Hola 👋`,
     `Hemos creado una web para *${name}* — personalizada con sus servicios e imagen de marca.`,
     `Puede verla aquí: ${url}`,
-    `Si le gusta, por solo *347€* la activamos en su dominio. Sin permanencia.`,
+    `Si le gusta, por solo *$497* la activamos en su dominio. Sin permanencia.`,
     `Responda a este mensaje si tiene alguna pregunta 😊`,
   ].join('\n\n');
 }

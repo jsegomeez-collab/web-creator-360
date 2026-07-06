@@ -296,8 +296,8 @@ function renderOutreach() {
   const toSend = allSites.filter(s => s.status === 'preview');
   const tbody = document.getElementById('outreach-table');
 
-  // Update bulk-send counter
-  const readyCount = toSend.filter(s => s.scraped_email).length;
+  // Ready = has email OR phone
+  const readyCount = toSend.filter(s => s.scraped_email || s.businesses?.phone).length;
   const countEl = document.getElementById('bulk-ready-count');
   if (countEl) countEl.textContent = readyCount;
 
@@ -307,28 +307,36 @@ function renderOutreach() {
   }
   tbody.innerHTML = toSend.map(s => {
     const email = s.scraped_email;
-    const sendBtn = email
-      ? `<button class="action-btn btn-send" onclick="sendDirect('${s.id}', this)" title="Enviar a ${email}">
-           ✉ Enviar a ${email}
+    const phone = s.businesses?.phone;
+    const hasContact = email || phone;
+
+    // Channel badges
+    const emailBadge = email
+      ? `<span class="text-xs text-emerald-600 font-medium">✉ ${email}</span>`
+      : `<span class="text-xs text-slate-400">Sin email</span>`;
+    const phoneBadge = phone
+      ? `<span class="text-xs text-emerald-600 font-medium">📱 ${phone}</span>`
+      : `<span class="text-xs text-slate-400">Sin tel.</span>`;
+
+    const sendBtn = hasContact
+      ? `<button class="action-btn btn-send" onclick="sendDirect('${s.id}', this)">
+           ✉ Enviar
          </button>`
       : `<button class="action-btn btn-secondary" onclick="openEmailModal('${s.id}')">
-           ✉ Introducir email
+           + Añadir email
          </button>`;
+
     return `
     <tr class="table-row" id="outreach-row-${s.id}">
       <td class="px-6 py-4">
         <div class="font-medium text-slate-800">${s.businesses?.name || '—'}</div>
         <div class="text-xs text-slate-400 mt-0.5">${s.businesses?.category || ''}</div>
       </td>
+      <td class="px-6 py-4 space-y-1">${emailBadge}</td>
+      <td class="px-6 py-4 space-y-1">${phoneBadge}</td>
       <td class="px-6 py-4">
-        ${email
-          ? `<span class="text-xs text-emerald-600 font-medium">✓ ${email}</span>`
-          : `<span class="text-xs text-red-400">Sin email</span>`}
+        <a href="${s.preview_url}" target="_blank" class="text-xs text-blue-500 hover:underline">Ver →</a>
       </td>
-      <td class="px-6 py-4">
-        <a href="${s.preview_url}" target="_blank" class="text-xs text-blue-500 hover:underline">Ver preview →</a>
-      </td>
-      <td class="px-6 py-4 text-xs text-slate-400">${fmtDate(s.expires_at)}</td>
       <td class="px-6 py-4 text-right">${sendBtn}</td>
     </tr>`;
   }).join('');
@@ -342,7 +350,11 @@ async function sendDirect(siteId, btn) {
     const r = await fetch(`/api/outreach/${siteId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
     const d = await r.json();
     if (d.success) {
-      toast(`✉ Email enviado a ${d.contact}`);
+      const parts = [];
+      if (d.email) parts.push(`✉ ${d.email}`);
+      if (d.whatsapp?.sent) parts.push('📱 WhatsApp');
+      else if (!d.email && !d.whatsapp?.sent) parts.push('⚠ Sin canales disponibles');
+      toast(parts.join(' + ') || 'Enviado');
       const row = document.getElementById(`outreach-row-${siteId}`);
       if (row) row.remove();
     } else {
@@ -921,9 +933,11 @@ async function sendAll() {
           if (d.status === 'start') {
             entries.innerHTML += `<div class="text-slate-500">Procesando ${d.total} negocio${d.total !== 1 ? 's' : ''}...</div>`;
           } else if (d.status === 'ok') {
-            const flag = '$497';
-            const waIcon = d.wa ? ' 📱' : '';
-            entries.innerHTML += `<div class="text-emerald-600">✓ ${d.name} → ${d.email} <span class="text-slate-400">${flag}${waIcon}</span></div>`;
+            const channels = [];
+            if (d.email) channels.push(`✉ ${d.email}`);
+            if (d.wa) channels.push('📱 WA');
+            const channelStr = channels.length ? channels.join(' + ') : '⚠ sin canales';
+            entries.innerHTML += `<div class="text-emerald-600">✓ ${d.name} — ${channelStr} <span class="text-slate-400">$497</span></div>`;
             entries.scrollTop = entries.scrollHeight;
           } else if (d.status === 'skipped') {
             entries.innerHTML += `<div class="text-slate-400">– ${d.slug} — ${d.reason}</div>`;

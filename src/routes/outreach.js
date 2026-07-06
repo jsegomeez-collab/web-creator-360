@@ -5,6 +5,7 @@ import { getConnectionState, sendText, buildMessage, formatPhone } from '../serv
 
 const router = Router();
 
+// ─── Batch send ───────────────────────────────────────────────────────────────
 router.post('/batch', async (req, res) => {
   res.setHeader('Content-Type', 'application/x-ndjson');
   res.setHeader('Transfer-Encoding', 'chunked');
@@ -15,15 +16,16 @@ router.post('/batch', async (req, res) => {
     .eq('status', 'preview')
     .not('preview_url', 'is', null);
 
-  // Collect sites that have a scraped email
+  // Collect sites that have email OR phone — fetch both in parallel per site
   const toSend = [];
   for (const site of sites || []) {
-    const { data: wd } = await supabase
-      .from('business_web_data')
-      .select('email, language')
-      .eq('business_id', site.business_id)
-      .single();
-    if (wd?.email) toSend.push({ ...site, email: wd.email, language: wd.language || 'es' });
+    const [{ data: wd }, { data: biz }] = await Promise.all([
+      supabase.from('business_web_data').select('email, language').eq('business_id', site.business_id).single(),
+      supabase.from('businesses').select('*').eq('id', site.business_id).single(),
+    ]);
+    if (wd?.email || biz?.phone) {
+      toSend.push({ ...site, email: wd?.email || null, language: wd?.language || 'es', biz });
+    }
   }
 
   res.write(JSON.stringify({ status: 'start', total: toSend.length }) + '\n');
@@ -32,6 +34,7 @@ router.post('/batch', async (req, res) => {
 
   for (const item of toSend) {
     try {
+      // Skip if already contacted today
       const { data: existing } = await supabase
         .from('outreach_log')
         .select('id')
@@ -41,28 +44,25 @@ router.post('/batch', async (req, res) => {
 
       if (existing?.length) {
         skipped++;
-        res.write(JSON.stringify({ slug: item.slug, status: 'skipped', reason: 'ya enviado hoy' }) + '\n');
+        res.write(JSON.stringify({ status: 'skipped', slug: item.slug, reason: 'ya enviado hoy' }) + '\n');
         continue;
       }
 
-      const { data: biz } = await supabase.from('businesses').select('*').eq('id', item.business_id).single();
-      await sendOutreachEmail(biz, { ...item, contact_email: item.email }, 0, item.language);
-
-      await supabase.from('outreach_log').insert({
-        business_id: biz.id,
-        site_id: item.id,
-        channel: 'email',
-        contact: item.email,
-        follow_up_number: 0,
-        next_follow_up_at: nextFollowUpDate(0),
-      });
-      await supabase.from('generated_sites').update({ status: 'sent' }).eq('id', item.id);
-      await supabase.from('businesses').update({ status: 'active' }).eq('id', biz.id);
-
-      const wa = await tryWhatsApp(biz, { ...item, contact_email: item.email }, item.language);
+      const biz = item.biz;
+      const enrichedSite = { ...item, contact_email: item.email };
+      const result = await sendOutreach(biz, enrichedSite, item.email, item.language, 0);
 
       sent++;
-      res.write(JSON.stringify({ status: 'ok', slug: item.slug, name: biz.name, email: item.email, language: item.language, address: biz.address, wa: wa.sent }) + '\n');
+      res.write(JSON.stringify({
+        status: 'ok',
+        slug: item.slug,
+        name: biz.name,
+        email: result.emailSent ? item.email : null,
+        wa: result.waSent,
+        waReason: result.waReason,
+        address: biz.address,
+        language: item.language,
+      }) + '\n');
     } catch (err) {
       errors++;
       res.write(JSON.stringify({ status: 'error', slug: item.slug, reason: err.message }) + '\n');
@@ -74,9 +74,10 @@ router.post('/batch', async (req, res) => {
   res.end();
 });
 
+// ─── Single send ──────────────────────────────────────────────────────────────
 router.post('/:siteId', async (req, res) => {
   const { siteId } = req.params;
-  const { email } = req.body;
+  const { email: bodyEmail } = req.body;
 
   const { data: site, error: sErr } = await supabase
     .from('generated_sites')
@@ -88,19 +89,18 @@ router.post('/:siteId', async (req, res) => {
 
   const business = site.businesses;
 
-  // Fetch web_data directly (nested join fails for this FK direction)
   const { data: webData } = await supabase
     .from('business_web_data')
     .select('email, language')
     .eq('business_id', business.id)
     .single();
 
-  const scrapedEmail = webData?.email || null;
-  const contactEmail = email || scrapedEmail || null;
+  const contactEmail = bodyEmail || webData?.email || null;
   const language = webData?.language || 'es';
 
-  if (!contactEmail) {
-    return res.status(400).json({ error: 'No email address available. Provide one in the request body: { "email": "..." }' });
+  // Need at least email or phone
+  if (!contactEmail && !business.phone) {
+    return res.status(400).json({ error: 'Sin email ni teléfono disponibles para contactar este negocio' });
   }
 
   // Check not already contacted today
@@ -111,44 +111,74 @@ router.post('/:siteId', async (req, res) => {
     .gte('sent_at', new Date(Date.now() - 86400000).toISOString())
     .limit(1);
 
-  if (existing && existing.length > 0) {
-    return res.status(409).json({ error: 'Already contacted in the last 24 hours' });
+  if (existing?.length) {
+    return res.status(409).json({ error: 'Ya contactado en las últimas 24 horas' });
   }
 
   try {
     const enrichedSite = { ...site, contact_email: contactEmail };
-    await sendOutreachEmail(business, enrichedSite, 0, language);
+    const result = await sendOutreach(business, enrichedSite, contactEmail, language, 0);
 
-    await supabase.from('outreach_log').insert({
-      business_id: business.id,
-      site_id: siteId,
-      channel: 'email',
-      contact: contactEmail,
-      follow_up_number: 0,
-      next_follow_up_at: nextFollowUpDate(0),
+    res.json({
+      success: true,
+      email: result.emailSent ? contactEmail : null,
+      whatsapp: { sent: result.waSent, reason: result.waReason },
     });
-
-    await supabase.from('generated_sites').update({ status: 'sent' }).eq('id', siteId);
-
-    const waResult = await tryWhatsApp(business, { ...site, contact_email: contactEmail }, language);
-    res.json({ success: true, contact: contactEmail, whatsapp: waResult });
   } catch (err) {
     console.error('Outreach error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
+// ─── Core outreach logic (email + WA) ─────────────────────────────────────────
+async function sendOutreach(business, site, contactEmail, language, followUpNumber) {
+  const siteId = site.id;
+  let emailSent = false;
+  let waSent = false;
+  let waReason = null;
+
+  // 1. Send email if available
+  if (contactEmail) {
+    await sendOutreachEmail(business, { ...site, contact_email: contactEmail }, followUpNumber, language);
+    emailSent = true;
+  }
+
+  // 2. Send WhatsApp if phone available and connected
+  const waResult = await tryWhatsApp(business, site, language);
+  waSent = waResult.sent;
+  waReason = waResult.reason || null;
+
+  // 3. Log to outreach_log
+  const channel = emailSent && waSent ? 'email+whatsapp' : emailSent ? 'email' : 'whatsapp';
+  const contact = contactEmail || business.phone;
+  await supabase.from('outreach_log').insert({
+    business_id: business.id,
+    site_id: siteId,
+    channel,
+    contact,
+    follow_up_number: followUpNumber,
+    next_follow_up_at: nextFollowUpDate(followUpNumber),
+  });
+
+  // 4. Update statuses
+  await supabase.from('generated_sites').update({ status: 'sent' }).eq('id', siteId);
+  await supabase.from('businesses').update({ status: 'active' }).eq('id', business.id);
+
+  return { emailSent, waSent, waReason };
+}
+
+// ─── WhatsApp helper ──────────────────────────────────────────────────────────
 async function tryWhatsApp(business, site, language) {
-  if (!business.phone) return { sent: false, reason: 'no phone' };
+  if (!business.phone) return { sent: false, reason: 'sin_telefono' };
   try {
     const state = await getConnectionState();
-    if (state !== 'open') return { sent: false, reason: 'wa_disconnected' };
+    if (state !== 'open') return { sent: false, reason: 'whatsapp_desconectado' };
     const msg = buildMessage(business, site, language);
     await sendText(business.phone, msg);
-    console.log(`[wa] Sent to ${formatPhone(business.phone)} for "${business.name}"`);
+    console.log(`[wa] ✓ ${formatPhone(business.phone)} — "${business.name}"`);
     return { sent: true };
   } catch (err) {
-    console.warn(`[wa] Failed for "${business.name}":`, err.message);
+    console.warn(`[wa] ✗ "${business.name}":`, err.message);
     return { sent: false, reason: err.message };
   }
 }
