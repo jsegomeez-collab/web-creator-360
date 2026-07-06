@@ -1,0 +1,8 @@
+node_modules/
+.env
+npm-install.log
+*.log
+
+.wwebjs_auth/
+.DS_Store
+tmp/

@@ -1,0 +1,25 @@
+{
+  "name": "web-creator-360",
+  "version": "1.0.0",
+  "description": "Automated pipeline to prospect local businesses, generate personalized websites with AI, and convert them via Stripe.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google/generative-ai": "^0.21.0",
+    "@supabase/supabase-js": "^2.49.4",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "node-cron": "^3.0.3",
+    "qrcode": "^1.5.4",
+    "resend": "^4.5.1",
+    "slugify": "^1.6.6",
+    "stripe": "^17.7.0",
+    "vercel": "^54.18.0",
+    "whatsapp-web.js": "^1.34.7"
+  }
+}
