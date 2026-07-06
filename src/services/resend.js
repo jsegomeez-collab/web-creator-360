@@ -9,21 +9,14 @@ function getClient() {
 
 const FOLLOW_UP_INTERVALS = [5, 5]; // days after each follow-up
 
-// Detect US-based business from Google Places address string
-function isUSBusiness(business) {
-  const addr = (business.address || '').toLowerCase();
-  return addr.includes('united states') || addr.includes('ee. uu.') || addr.includes('ee.uu.');
-}
-
 export async function sendOutreachEmail(business, site, followUpNumber = 0, language = 'es') {
   const isFollowUp = followUpNumber > 0;
   const isEn = language === 'en';
-  const isUS = isUSBusiness(business);
   const subject = isFollowUp
     ? (isEn ? `Hey, the website we built for ${business.name} is still waiting` : `Oye, tu web de ${business.name} sigue ahí esperándote`)
     : (isEn ? `${business.name}, we built you a website — take a look` : `${business.name}, te hemos creado una web — mírala`);
 
-  const html = buildEmailHtml(business, site, isFollowUp, language, isUS);
+  const html = buildEmailHtml(business, site, isFollowUp, language);
 
   await getClient().emails.send({
     from: process.env.RESEND_FROM_EMAIL,
@@ -46,9 +39,9 @@ const COPY = {
     body: 'No es una maqueta ni una plantilla genérica. Es una web completa, con tu nombre, tus servicios y tu imagen de marca — lista para activarse en tu dominio.',
     previewBtn: '👀 Ver mi web',
     priceLabel: '¿Te gusta? Actívala por',
-    price: '347€',
+    price: '$497',
     priceDetail: 'Incluye activación en tu dominio, hosting 1 año y soporte de puesta en marcha. Sin sorpresas.',
-    customNote: null,
+    customNote: 'Esto es solo un ejemplo — podemos hacer los cambios que necesites para que quede 100% a tu gusto antes de activarla.',
     waBtn: 'Hablar por WhatsApp',
     footer: 'Respondemos en minutos. Si tienes cualquier duda sobre la web o quieres hacer algún ajuste antes de activar, también puedes escribirnos.',
     expiry: 'Esta preview estará disponible 15 días',
@@ -73,19 +66,9 @@ const COPY = {
   },
 };
 
-function buildEmailHtml(business, site, isFollowUp, language = 'es', isUS = false) {
+function buildEmailHtml(business, site, isFollowUp, language = 'es') {
   const lang = language === 'en' ? 'en' : 'es';
-  const t = { ...COPY[lang] };
-  // Override price based on location, not language
-  if (isUS) {
-    t.price = '$497';
-    t.priceDetail = lang === 'es'
-      ? 'Incluye activación en tu dominio, hosting 1 año y soporte de puesta en marcha. Sin sorpresas.'
-      : 'Includes domain activation, 1 year hosting and onboarding support. No hidden fees.';
-    t.customNote = lang === 'es'
-      ? 'Esto es solo un ejemplo — podemos hacer los cambios que necesites para que quede 100% a tu gusto antes de activarla.'
-      : 'This is just an example — we can make any changes you need so the site is 100% tailored to your taste before going live. Just send us a message.';
-  }
+  const t = COPY[lang];
   const WA_LINK = WA_LINKS[lang];
   const introParagraph = t.intro(business.name, isFollowUp);
 

@@ -133,8 +133,40 @@ A. Botón WhatsApp (esquina inferior izquierda):
 
 B. Botón "Activar mi web" (esquina inferior derecha) — enlaza a WhatsApp para contacto cálido:
    <a href="https://wa.me/34672577986?text=Buenas%20Jose%2C%20me%20gustar%C3%ADa%20activar%20la%20web%20que%20me%20enviaste%20en%20mi%20dominio%20personalizado!" target="_blank" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:[COLOR_ACENTO];color:white;font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:12px 20px;border-radius:50px;box-shadow:0 4px 20px rgba([RGB_ACENTO],0.5);text-decoration:none;display:flex;align-items:center;gap:8px;">
-     ✦ Activar mi web · 347€
+     ✦ Activar mi web · $497
    </a>
+
+C. Selector de idioma EN/ES (esquina superior derecha, fixed, encima del header):
+   Incluye SIEMPRE este bloque exacto justo antes del </body>:
+
+   <div id="lang-switcher" style="position:fixed;top:16px;right:20px;z-index:10000;display:flex;gap:4px;background:rgba(5,8,20,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:4px;font-family:Inter,sans-serif;">
+     <button id="btn-es" onclick="setLang('es')" style="background:transparent;border:none;color:#F0F4FF;font-size:12px;font-weight:700;padding:5px 10px;border-radius:5px;cursor:pointer;letter-spacing:.05em;transition:background .15s;">ES</button>
+     <button id="btn-en" onclick="setLang('en')" style="background:transparent;border:none;color:#F0F4FF;font-size:12px;font-weight:700;padding:5px 10px;border-radius:5px;cursor:pointer;letter-spacing:.05em;transition:background .15s;">EN</button>
+   </div>
+   <script>
+   (function(){
+     var LANG={};
+     // Rellena LANG con todas las cadenas de texto de la web en ambos idiomas
+     // Formato: LANG['es']={key:'texto español',...}  LANG['en']={key:'texto inglés',...}
+     // Cada elemento traducible lleva data-t="key"
+     function setLang(l){
+       document.querySelectorAll('[data-t]').forEach(function(el){
+         if(LANG[l]&&LANG[l][el.dataset.t]) el.textContent=LANG[l][el.dataset.t];
+       });
+       var btns={es:document.getElementById('btn-es'),en:document.getElementById('btn-en')};
+       Object.keys(btns).forEach(function(k){if(btns[k])btns[k].style.background=k===l?'rgba(99,102,241,.6)':'transparent';});
+       localStorage.setItem('wc360lang',l);
+     }
+     window.setLang=setLang;
+     setLang(localStorage.getItem('wc360lang')||'${webData.language || 'es'}');
+   })();
+   </script>
+
+   INSTRUCCIÓN CRÍTICA para el selector de idioma:
+   - Añade data-t="key" a TODOS los textos visibles de la web (títulos, subtítulos, botones, párrafos, items de servicios, testimonios, FAQ preguntas y respuestas, footer, etc.)
+   - Define el objeto LANG completo con las traducciones ES y EN de cada key antes de la función setLang
+   - El idioma inicial por defecto es: ${webData.language || 'es'}
+   - Los botones del switcher deben resaltar visualmente el idioma activo
 
 ═══════════════════════════════════════
 REQUISITOS TÉCNICOS
