@@ -97,7 +97,11 @@ services:
         sync: false
       - key: INSTANTLY_CAMPAIGN_ID
         sync: false
+      - key: CAMPAIGN_PUBLIC_URL              # this service's own https URL — needed for autopilot's send cron to build each lead's link
+        sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: AUTOPILOT_PUSH_LIMIT             # optional; how many leads the autopilot sends every 3 hours (default 20)
         sync: false
