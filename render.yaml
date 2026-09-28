@@ -14,6 +14,12 @@ services:
         value: "true"
       - key: BASE_URL
         sync: false                     # e.g. https://web-creator-360.onrender.com
+      # This app has no per-route login: without these two, anyone with the URL sees your data and can trigger real
+      # sends. Any username/password you choose; set both.
+      - key: DASHBOARD_USER
+        sync: false
+      - key: DASHBOARD_PASSWORD
+        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_KEY
@@ -52,6 +58,19 @@ services:
         sync: false
       - key: PREVIEW_EXPIRY_DAYS
         value: "15"
+      # New-business leads (LLCs) pipeline: same values as the campaign service below
+      - key: NEW_LEADS_OWNER_USER_ID
+        sync: false
+      - key: INSTANTLY_API_KEY
+        sync: false
+      - key: INSTANTLY_CAMPAIGN_ID
+        sync: false
+      - key: CAMPAIGN_PUBLIC_URL
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
 
   # Public server of the new-business campaign: the page each lead opens from the email (to ask for a call), plus a cron
   # that asks Instantly's API every 5 minutes what happened to each lead (sent, bounced, unsubscribed, replied — no

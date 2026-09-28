@@ -16,12 +16,17 @@ import settingsRouter from './routes/settings.js';
 import billingRouter from './routes/billing.js';
 import { createLeadsRouter } from './routes/leads.js';
 import { alertReply } from './services/telegram.js';
+import { dashboardAuth } from './middleware/dashboardAuth.js';
 import supabase from './db/supabase.js';
 import { startCronJobs } from './cron/jobs.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// This app has no per-route login: everything (dashboard, prospecting, sending real emails/leads) is open to whoever
+// can reach it. Set DASHBOARD_USER + DASHBOARD_PASSWORD (in production, always) to lock it behind one shared login.
+app.use(dashboardAuth);
 
 // Raw body capture for Stripe webhooks (must come before json middleware)
 app.use((req, res, next) => {
