@@ -114,6 +114,7 @@ async function fetchAll() {
 }
 
 async function loadSection(tab) {
+  if (tab.startsWith('leads-')) return loadLeadsSection(tab);   // pipeline "LLCs nuevas" (leads.js)
   await fetchAll();
   if (tab === 'overview' || tab === 'prospecting') renderProspecting();
   if (tab === 'scraping') renderScraping();

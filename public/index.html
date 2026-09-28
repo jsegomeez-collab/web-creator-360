@@ -109,7 +109,7 @@
     <!-- Nav -->
     <nav class="flex flex-col gap-1 flex-1">
 
-      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mb-2">Pipeline</div>
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mb-2">Google Maps</div>
 
       <button class="nav-item active flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="overview">
         <span class="nav-icon text-slate-400 text-lg">◈</span>
@@ -138,6 +138,24 @@
         <span class="nav-icon text-slate-400 text-lg">✉</span>
         <span class="nav-label text-slate-300 text-sm font-medium flex-1">Enviar</span>
         <span class="nav-count" id="count-to-send">0</span>
+      </button>
+
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mt-5 mb-2">LLCs nuevas</div>
+
+      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="leads-sources">
+        <span class="nav-icon text-slate-400 text-lg">⇩</span>
+        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Fuentes</span>
+      </button>
+
+      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="leads-list">
+        <span class="nav-icon text-slate-400 text-lg">☰</span>
+        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Leads</span>
+        <span class="nav-count" id="count-leads-new">0</span>
+      </button>
+
+      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="leads-send">
+        <span class="nav-icon text-slate-400 text-lg">➤</span>
+        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Envío</span>
       </button>
 
       <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mt-5 mb-2">Gestión</div>
@@ -518,6 +536,165 @@
       </div>
     </div>
 
+    <!-- LLCs NUEVAS: FUENTES TAB -->
+    <div id="tab-leads-sources" class="tab-hidden p-8">
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-slate-800">Fuentes de LLCs nuevas</h1>
+        <p class="text-slate-500 mt-1 text-sm">Empresas recién registradas que llegan de fuentes públicas o de un CSV. Es un pipeline aparte del de Google Maps: estos leads no pasan por Scraping ni Crear Webs; se envían a Instantly y la web se crea cuando agendan llamada.</p>
+      </div>
+
+      <div class="leads-error hidden mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3"></div>
+
+      <!-- Connecticut -->
+      <div class="card p-6 mb-6">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-700">Registro de empresas de Connecticut</h2>
+            <p class="text-xs text-slate-400 mt-1">Descarga las LLCs registradas en data.ct.gov, se queda con las de dueños latinos con email propio y comprueba que el dominio del email existe.</p>
+            <p id="ct-last-run" class="text-xs text-slate-500 mt-2"></p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-end gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="ct-days">Últimos días (opcional)</label>
+            <input type="number" id="ct-days" min="1" max="3650" class="w-52 border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm" placeholder="Desde la última importación" />
+          </div>
+          <button id="ct-preview-btn" class="btn-secondary px-5 py-2.5 text-sm">Vista previa (no guarda)</button>
+          <button id="ct-import-btn" class="btn-primary px-5 py-2.5 text-sm">Importar</button>
+        </div>
+        <p class="text-xs text-slate-400 mt-2">La primera vez descarga los últimos 90 días. Repetir la importación nunca duplica leads.</p>
+        <div id="ct-result" class="hidden mt-5"></div>
+      </div>
+
+      <!-- CSV -->
+      <div class="card p-6">
+        <h2 class="text-sm font-semibold text-slate-700">Importar un CSV</h2>
+        <p class="text-xs text-slate-400 mt-1 mb-4">Por ejemplo el archivo que crea el script de Python. Elige el archivo, indica qué columna es cada dato (se rellena solo cuando los nombres son habituales) y revisa antes de importar. Solo son obligatorios el nombre de la empresa y el email.</p>
+
+        <input type="file" id="csv-file" accept=".csv,.txt,text/csv" class="block text-sm text-slate-600 file:mr-3 file:px-4 file:py-2 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:font-semibold file:cursor-pointer" />
+
+        <div id="csv-mapper" class="hidden mt-6">
+          <p id="csv-file-info" class="text-xs text-slate-500 mb-4"></p>
+
+          <div class="grid md:grid-cols-2 gap-x-6 gap-y-3" id="csv-mapping-grid"></div>
+
+          <div class="mt-6">
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Primeras filas del archivo</div>
+            <div class="overflow-x-auto border border-slate-100 rounded-lg">
+              <table class="w-full text-xs" id="csv-sample"></table>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 mt-6">
+            <button id="csv-check-btn" class="btn-secondary px-5 py-2.5 text-sm">Comprobar (no guarda)</button>
+            <button id="csv-import-btn" class="btn-primary px-5 py-2.5 text-sm">Importar</button>
+            <span id="csv-missing" class="text-xs text-amber-600"></span>
+          </div>
+        </div>
+        <div id="csv-result" class="hidden mt-5"></div>
+      </div>
+    </div>
+
+    <!-- LLCs NUEVAS: LEADS TAB -->
+    <div id="tab-leads-list" class="tab-hidden p-8">
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-slate-800">Leads de LLCs nuevas</h1>
+        <p class="text-slate-500 mt-1 text-sm">Cada lead avanza solo: se envía a Instantly, se marca como enviado, y pasa a "Interesado" cuando abre el enlace del calendario. Tú marcas lo que pasa después.</p>
+      </div>
+
+      <div class="leads-error hidden mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3"></div>
+
+      <div id="leads-funnel" class="flex flex-wrap gap-3 mb-6"></div>
+
+      <div class="card overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center gap-3">
+          <select id="lf-status" class="border border-slate-200 rounded-lg px-3 py-2 text-sm"></select>
+          <select id="lf-sector" class="border border-slate-200 rounded-lg px-3 py-2 text-sm"></select>
+          <select id="lf-priority" class="border border-slate-200 rounded-lg px-3 py-2 text-sm">
+            <option value="">Toda prioridad</option>
+            <option value="A">Prioridad A</option>
+            <option value="B">Prioridad B</option>
+          </select>
+          <select id="lf-source" class="border border-slate-200 rounded-lg px-3 py-2 text-sm">
+            <option value="">Todo origen</option>
+            <option value="ct_registry">Registro CT</option>
+            <option value="csv_import">CSV</option>
+          </select>
+          <input type="search" id="lf-q" class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1 min-w-[180px]" placeholder="Buscar empresa, email o ciudad" />
+        </div>
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50">
+            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left">Empresa</th>
+              <th class="px-6 py-3 text-left">Email</th>
+              <th class="px-6 py-3 text-left">Sector</th>
+              <th class="px-6 py-3 text-left">Registro</th>
+              <th class="px-6 py-3 text-left">Estado</th>
+              <th class="px-6 py-3 text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="leads-table" class="divide-y divide-slate-50"></tbody>
+        </table>
+        <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span id="leads-range"></span>
+          <div class="flex gap-2">
+            <button id="leads-prev" class="btn-secondary px-3 py-1.5 text-xs">← Anterior</button>
+            <button id="leads-next" class="btn-secondary px-3 py-1.5 text-xs">Siguiente →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LLCs NUEVAS: ENVÍO TAB -->
+    <div id="tab-leads-send" class="tab-hidden p-8">
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-slate-800">Envío con Instantly</h1>
+        <p class="text-slate-500 mt-1 text-sm">Instantly envía un solo email por lead, desde sus propios buzones. Aquí mandas los leads nuevos a la campaña y copias el texto del email.</p>
+      </div>
+
+      <div class="leads-error hidden mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3"></div>
+
+      <div class="card p-6 mb-6">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-700">Enviar leads a la campaña</h2>
+            <p class="text-xs text-slate-400 mt-1">
+              <span id="send-new-count" class="font-semibold text-slate-600">—</span> leads nuevos listos. Se envían primero los registrados más recientemente.
+            </p>
+          </div>
+          <span id="send-mode" class="badge shrink-0"></span>
+        </div>
+        <p id="send-hint" class="hidden text-xs rounded-lg px-3 py-2 mb-4"></p>
+        <div class="flex flex-wrap items-end gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-limit">Cuántos enviar ahora</label>
+            <input type="number" id="send-limit" min="1" max="1000" value="100" class="w-32 border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm" />
+          </div>
+          <button id="send-btn" class="btn-primary px-5 py-2.5 text-sm">➤ Enviar a Instantly</button>
+        </div>
+        <div id="send-result" class="hidden mt-5"></div>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-sm font-semibold text-slate-700">Texto del email</h2>
+        <p class="text-xs text-slate-400 mt-1 mb-4">Pégalo en el paso de la campaña dentro de Instantly. Las variables entre llaves las rellena Instantly con los datos de cada lead. Es un solo email, sin seguimientos.</p>
+
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-xs font-medium text-slate-600" for="tpl-subject">Asunto</label>
+          <button data-copy="tpl-subject" class="text-xs text-indigo-500 hover:text-indigo-700 font-medium">Copiar</button>
+        </div>
+        <input type="text" id="tpl-subject" readonly class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3.5 py-2.5 text-sm mb-4" />
+
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-xs font-medium text-slate-600" for="tpl-body">Mensaje</label>
+          <button data-copy="tpl-body" class="text-xs text-indigo-500 hover:text-indigo-700 font-medium">Copiar</button>
+        </div>
+        <textarea id="tpl-body" readonly rows="17" class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3.5 py-2.5 text-sm font-mono"></textarea>
+
+        <p class="text-xs text-slate-400 mt-3">Variables: <span id="tpl-vars"></span></p>
+      </div>
+    </div>
+
   </main>
 
   <!-- EMAIL MODAL -->
@@ -543,5 +720,6 @@
   </div>
 
   <script src="app.js"></script>
+  <script src="leads.js"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 // In-memory Supabase-like client WITH state, for multi-step simulations (a 25-day email sequence, several cycles a day…).
-// Supports the calls the campaign code uses: select / insert / update / upsert / delete, eq neq in gte gt lte lt is not like,
+// Supports the calls the campaign code uses: select (honours the column list) / insert / update / upsert / delete, eq neq in gte gt lte lt is not like,
 // order, limit, single / maybeSingle, and `.select()` after update/insert to get the affected rows back.
 //   const db = createMemoryDb({ new_business_leads: [ {...}, ... ] });
 //   db.tables.new_business_leads   → live array of rows
@@ -14,6 +14,13 @@ function compare(a, b) {
   return String(a) < String(b) ? -1 : String(a) > String(b) ? 1 : 0;
 }
 
+// 'id, name' → ['id', 'name'];  '*', nothing or embedded relations → null (all columns)
+const columnList = (spec) => {
+  if (typeof spec !== 'string' || /[*()]/.test(spec)) return null;
+  const cols = spec.split(',').map(c => c.trim()).filter(Boolean);
+  return cols.length ? cols : null;
+};
+
 export function createMemoryDb(seed = {}) {
   const tables = {};
   for (const [name, rows] of Object.entries(seed)) tables[name] = rows.map(r => ({ ...r }));
@@ -22,7 +29,7 @@ export function createMemoryDb(seed = {}) {
   const rowsOf = (name) => (tables[name] ??= []);
 
   function builder(table) {
-    const q = { table, op: 'select', payload: null, options: {}, preds: [], order: null, limit: null, returning: false };
+    const q = { table, op: 'select', payload: null, options: {}, preds: [], order: null, limit: null, returning: false, columns: null };
 
     const run = () => {
       log.push({ table, op: q.op, payload: q.payload });
@@ -35,6 +42,7 @@ export function createMemoryDb(seed = {}) {
         let out = rows.map(r => ({ ...r }));
         if (q.order) out.sort((a, b) => { const c = compare(a[q.order.col], b[q.order.col]) ?? 0; return q.order.asc ? c : -c; });
         if (q.limit != null) out = out.slice(0, q.limit);
+        if (q.columns) out = out.map(r => Object.fromEntries(q.columns.map(c => [c, r[c]])));   // like PostgREST: only the columns asked for
         return out;
       };
 
@@ -79,7 +87,7 @@ export function createMemoryDb(seed = {}) {
         if (prop === 'single' || prop === 'maybeSingle') return () => Promise.resolve(run()).then(r => ({ ...r, data: Array.isArray(r.data) ? (r.data[0] ?? null) : r.data }));
         return (...args) => {
           switch (prop) {
-            case 'select': if (q.op !== 'select') q.returning = true; break;
+            case 'select': if (q.op !== 'select') q.returning = true; q.columns = columnList(args[0]); break;
             case 'insert': case 'update': case 'upsert': q.op = prop; q.payload = args[0]; q.options = args[1] || {}; break;
             case 'delete': q.op = 'delete'; break;
             case 'eq': q.preds.push(r => r[args[0]] === args[1]); break;

@@ -1,8 +1,7 @@
 // One ingest run: download Connecticut registrations → filter → dedupe → verify emails → store.
 // Used by `npm run ct:ingest` and (phase 7) by the daily cron. With dryRun it never writes to the database.
 import { CT_SOURCE, fetchRegistrations, classifyRegistrations } from './ctRegistry.js';
-import { verifyMany } from './emailVerify.js';
-import { getWatermark, recordRun, filterNewLeads, insertLeads } from './newLeads.js';
+import { getWatermark, recordRun, storeLeads, summarizeLeads } from './newLeads.js';
 
 export const FIRST_RUN_DAYS = 90;   // first load: last 90 days
 export const MARGIN_DAYS = 2;       // later runs re-read the last 2 days (late registrations); dedupe makes it harmless
@@ -19,25 +18,6 @@ export function shiftDate(ymd, days) {
   const d = new Date(`${ymd}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
   return isoDay(d);
-}
-
-function tally(leads, key) {
-  const out = {};
-  for (const l of leads) out[l[key]] = (out[l[key]] || 0) + 1;
-  return out;
-}
-
-export function summarize(leads) {
-  const dates = leads.map(l => l.registered_at).filter(Boolean).sort();
-  return {
-    total: leads.length,
-    byPriority: tally(leads, 'priority'),
-    bySector: tally(leads, 'sector'),
-    latinoStrong: leads.filter(l => l.latino_strong).length,
-    minorityOwned: leads.filter(l => l.minority_owned).length,
-    oldest: dates[0] ?? null,
-    newest: dates.at(-1) ?? null,
-  };
 }
 
 // Options:
@@ -81,46 +61,24 @@ export async function runCtIngest({
     // 3. Filter (port of the Python script)
     const { leads: candidates, stats } = classifyRegistrations(raw, { latinOnly });
 
-    // 4. Dedupe against what we already have (existing leads, suppressions, shared emails)
-    let fresh = candidates;
-    let skipped = { existing: 0, suppressed: 0, emailTaken: 0, batchDuplicate: 0 };
-    if (canReadDb) {
-      try {
-        ({ fresh, skipped } = await filterNewLeads(db, ownerId, CT_SOURCE, candidates));
-      } catch (err) {
-        if (!dryRun) throw err;
-        notes.push(`No se pudo consultar la base de datos (${err.message}): el recuento no descuenta leads ya guardados ni bajas.`);
-      }
-    } else {
-      notes.push('Sin base de datos: el recuento no descuenta leads ya guardados ni bajas.');
-    }
-
-    // 5. Verify email domains (only the ones that would enter)
-    const verdicts = verify && fresh.length ? await verifyMany(fresh.map(l => l.email), verifyOptions) : new Map();
-    const bad = (l) => { const v = verdicts.get(l.email); return v && !v.ok ? v : null; };
-    const valid = fresh.filter(l => !bad(l));
-    const invalid = fresh.filter(l => bad(l));
-    const invalidReasons = {};
-    for (const l of invalid) { const r = bad(l).reason; invalidReasons[r] = (invalidReasons[r] || 0) + 1; }
-    stats.invalidEmail = invalid.length;
-
-    // 6. Store (never in dry-run)
-    let inserted = 0;
+    // 4. Dedupe, verify email domains and store (never writes in dry-run)
+    const stored = await storeLeads({ db: canReadDb ? db : null, ownerId, source: CT_SOURCE, candidates, dryRun, verify, verifyOptions });
+    stats.invalidEmail = stored.invalid.length;
+    notes.push(...stored.notes);
     if (!dryRun) {
-      inserted = await insertLeads(db, ownerId, CT_SOURCE, fresh, l => (bad(l) ? 'invalid_email' : 'new'));
       await recordRun(db, {
         user_id: ownerId, source: CT_SOURCE, from_date: since, newest_registration: newest,
-        fetched: raw.length, inserted, ok: true, stats: { ...stats, skipped, invalidReasons },
+        fetched: raw.length, inserted: stored.inserted, ok: true, stats: { ...stats, skipped: stored.skipped, invalidReasons: stored.invalidReasons },
       });
     }
 
     return {
       dryRun, since, watermark, fetched: raw.length, newestRegistration: newest,
-      stats, skipped, invalidReasons, notes,
-      leads: valid,                       // what enters the queue as status "new"
-      invalid,                            // stored as "invalid_email" (not emailed)
-      summary: summarize(valid),
-      inserted,
+      stats, skipped: stored.skipped, invalidReasons: stored.invalidReasons, notes,
+      leads: stored.valid,                // what enters as status "new"
+      invalid: stored.invalid,            // stored as "invalid_email" (not emailed)
+      summary: summarizeLeads(stored.valid),
+      inserted: stored.inserted,
     };
   } catch (err) {
     if (!dryRun && canReadDb) {

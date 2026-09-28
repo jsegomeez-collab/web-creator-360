@@ -1,6 +1,7 @@
 // Persistence for new_business_leads / email_suppressions / lead_ingest_runs.
 // `db` is a Supabase client (injected so it can be tested). Every row carries user_id (multi-tenant).
 import { randomBytes } from 'crypto';
+import { verifyMany } from './emailVerify.js';
 
 // `businesses.source` of the rows created for these leads: the Google Places pipeline never touches them
 export const LEAD_BUSINESS_SOURCE = 'new_business_lead';
@@ -120,4 +121,52 @@ export async function insertLeads(db, ownerId, source, leads, statusOf = () => '
     if (error) throw fail('insertar leads', error);
   }
   return rows.length;
+}
+
+// ─── Store: dedupe → verify → insert (shared by the Connecticut ingest and the CSV import) ───────────────────────────
+
+const tally = (leads, key) => leads.reduce((acc, l) => { acc[l[key]] = (acc[l[key]] || 0) + 1; return acc; }, {});
+
+// Counts for the screen / the CLI
+export function summarizeLeads(leads) {
+  const dates = leads.map(l => l.registered_at).filter(Boolean).sort();
+  return {
+    total: leads.length,
+    byPriority: tally(leads, 'priority'),
+    bySector: tally(leads, 'sector'),
+    latinoStrong: leads.filter(l => l.latino_strong).length,
+    minorityOwned: leads.filter(l => l.minority_owned).length,
+    oldest: dates[0] ?? null,
+    newest: dates.at(-1) ?? null,
+  };
+}
+
+// candidates: lead objects (see ctRegistry / csvImport). Steps: skip what we already have or must not email (existing leads,
+// suppressions, an email that belongs to another lead), DNS-check the email domains, then insert (status "new", or
+// "invalid_email" when the domain can't receive mail). Never writes when dryRun; `db` may be null only with dryRun.
+export async function storeLeads({ db, ownerId, source, candidates, dryRun = false, verify = true, verifyOptions = {} }) {
+  const notes = [];
+  let fresh = candidates;
+  let skipped = { existing: 0, suppressed: 0, emailTaken: 0, batchDuplicate: 0 };
+
+  if (db && ownerId) {
+    try {
+      ({ fresh, skipped } = await filterNewLeads(db, ownerId, source, candidates));
+    } catch (err) {
+      if (!dryRun) throw err;
+      notes.push(`No se pudo consultar la base de datos (${err.message}): el recuento no descuenta leads ya guardados ni bajas.`);
+    }
+  } else {
+    notes.push('Sin base de datos: el recuento no descuenta leads ya guardados ni bajas.');
+  }
+
+  const verdicts = verify && fresh.length ? await verifyMany(fresh.map(l => l.email), verifyOptions) : new Map();
+  const bad = (l) => { const v = verdicts.get(l.email); return v && !v.ok ? v : null; };
+  const valid = fresh.filter(l => !bad(l));
+  const invalid = fresh.filter(l => bad(l));
+  const invalidReasons = {};
+  for (const l of invalid) { const r = bad(l).reason; invalidReasons[r] = (invalidReasons[r] || 0) + 1; }
+
+  const inserted = dryRun ? 0 : await insertLeads(db, ownerId, source, fresh, l => (bad(l) ? 'invalid_email' : 'new'));
+  return { fresh, skipped, valid, invalid, invalidReasons, inserted, notes };
 }

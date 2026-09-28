@@ -14,6 +14,8 @@ import regenerateRouter from './routes/regenerate.js';
 import pipelineRouter from './routes/pipeline.js';
 import settingsRouter from './routes/settings.js';
 import billingRouter from './routes/billing.js';
+import { createLeadsRouter } from './routes/leads.js';
+import supabase from './db/supabase.js';
 import { startCronJobs } from './cron/jobs.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -32,6 +34,8 @@ app.use((req, res, next) => {
   }
 });
 
+// A CSV travels inside the JSON body: give the import routes room before the default 100 kb parser sees them
+app.use('/api/leads/import', express.json({ limit: '10mb' }));
 app.use(express.json());
 
 const SAAS_MODE = !!process.env.SAAS_MODE;
@@ -53,6 +57,7 @@ app.use('/api/pipeline', pipelineRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/billing', billingRouter);
+app.use('/api/leads', createLeadsRouter({ db: supabase, ownerId: (process.env.NEW_LEADS_OWNER_USER_ID || '').trim() }));
 app.use('/', paymentsRouter);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
