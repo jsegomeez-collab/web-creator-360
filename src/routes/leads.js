@@ -5,8 +5,9 @@
 //   PATCH /:id                     manual status: replied | called | won | lost
 //   POST  /ingest/ct               Connecticut registry ({ days?, dryRun? })
 //   POST  /import/csv/preview      read a CSV: columns, first rows and a suggested mapping
-//   POST  /import/csv              import a CSV with a column mapping ({ csv, mapping, dryRun? })
-//   POST  /push                    send the newest "new" leads to the Instantly campaign ({ limit })
+//   POST  /import/csv              import a CSV with a column mapping ({ csv, mapping, filename?, dryRun? })
+//   GET   /import-batches          past CSV imports still with "new" leads, so you can pick one to send ({ batch, count })
+//   POST  /push                    send the newest "new" leads to the Instantly campaign ({ limit, source?, sector?, priority?, batch? })
 //   POST  /poll-instantly          check Instantly now for sent/bounced/unsubscribed/replied (the cron does this every 5 min)
 //   GET   /email-template          the email text to paste in Instantly
 import { Router } from 'express';
@@ -65,6 +66,7 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     if (req.query.sector) query = query.eq('sector', String(req.query.sector));
     if (req.query.priority) query = query.eq('priority', String(req.query.priority));
     if (req.query.source) query = query.eq('source', String(req.query.source));
+    if (req.query.batch) query = query.eq('import_batch', String(req.query.batch));
     // Call requests: the newest first (they are waiting for you); everything else: the most recently registered
     const requests = statuses.length === 1 && statuses[0] === 'requested';
     const { data, error } = await query.order(requests ? 'requested_at' : 'registered_at', { ascending: false }).limit(20000);
@@ -96,9 +98,9 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
   }));
 
   router.post('/import/csv', guard(async (req, res) => {
-    const { csv, mapping, dryRun = false } = req.body || {};
+    const { csv, mapping, filename, dryRun = false } = req.body || {};
     try {
-      res.json(await importCsvLeads({ db, ownerId, csv, mapping, dryRun: !!dryRun, verifyOptions }));
+      res.json(await importCsvLeads({ db, ownerId, csv, mapping, filename, dryRun: !!dryRun, verifyOptions }));
     } catch (err) {
       // Problems with the file or the mapping are the user's to fix (400); database errors fall to the guard (500)
       if (/CSV|columna|asignar|filas/i.test(err.message)) return res.status(400).json({ error: err.message });
@@ -107,11 +109,23 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
   }));
 
   router.post('/push', guard(async (req, res) => {
-    const limit = Number.isInteger(req.body?.limit) ? req.body.limit : 100;
+    const body = req.body || {};
+    const limit = Number.isInteger(body.limit) ? body.limit : 100;
+    const filters = {};
+    for (const k of ['source', 'sector', 'priority', 'batch']) if (body[k]) filters[k] = String(body[k]);
     const dryRun = isDryRun();
     let config;
     try { config = loadInstantlyConfig(process.env, { dryRun }); } catch (err) { return res.status(400).json({ error: err.message }); }
-    res.json(await pushLeads({ db, ownerId, config, limit, dryRun }));
+    res.json(await pushLeads({ db, ownerId, config, limit, filters, dryRun }));
+  }));
+
+  // Distinct CSV imports that still have leads waiting to send, most leads first — lets you pick "just this file" in Envío
+  router.get('/import-batches', guard(async (req, res) => {
+    const { data, error } = await db.from(TABLE).select('import_batch').eq('user_id', ownerId).eq('status', 'new').eq('source', 'csv_import').not('import_batch', 'is', null).limit(20000);
+    if (error) throw new Error(error.message);
+    const counts = {};
+    for (const l of data || []) counts[l.import_batch] = (counts[l.import_batch] || 0) + 1;
+    res.json(Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([batch, count]) => ({ batch, count })));
   }));
 
   router.post('/poll-instantly', guard(async (req, res) => {

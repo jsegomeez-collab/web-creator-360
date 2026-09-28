@@ -113,6 +113,7 @@ export async function insertLeads(db, ownerId, source, leads, statusOf = () => '
     latino_signal: l.latino_signal,
     latino_strong: l.latino_strong,
     minority_owned: l.minority_owned,
+    import_batch: l.import_batch ?? null,
     notes: l.notes,
     status: statusOf(l),
     link_token: newLinkToken(),

@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createMemoryDb } from './helpers/memoryDb.mjs';
-import { LEAD_FIELDS, suggestMapping, mapRows, parseDate, previewCsv, importCsvLeads, CSV_SOURCE } from '../src/services/csvImport.js';
+import { LEAD_FIELDS, suggestMapping, mapRows, parseDate, previewCsv, importCsvLeads, buildBatchLabel, CSV_SOURCE } from '../src/services/csvImport.js';
 import { parseCsv } from '../src/lib/csv.js';
 import { clearDomainCache } from '../src/services/emailVerify.js';
 
@@ -164,6 +164,29 @@ test('importación real: guarda con source csv_import, user_id, token y status n
   assert.deepEqual(rows.map(l => [l.external_id, l.status]).sort(), [['3510002', 'invalid_email'], ['3515900', 'new'], ['3518914', 'new']]);
   assert.ok(rows.every(l => l.user_id === OWNER && l.source === CSV_SOURCE && /^[A-Za-z0-9_-]{24}$/.test(l.link_token)));
   assert.equal(new Set(rows.map(l => l.link_token)).size, 3);
+});
+
+test('buildBatchLabel: nombre de archivo + minuto; sin nombre cae en "CSV"', () => {
+  const now = new Date('2026-09-29T15:32:07.000Z');
+  assert.equal(buildBatchLabel('prueba-lead.csv', now), 'prueba-lead.csv · 2026-09-29 15:32');
+  assert.equal(buildBatchLabel('', now), 'CSV · 2026-09-29 15:32');
+  assert.equal(buildBatchLabel(undefined, now), 'CSV · 2026-09-29 15:32');
+  assert.equal(buildBatchLabel('  espacios.csv  ', now), 'espacios.csv · 2026-09-29 15:32');
+  assert.equal(buildBatchLabel('x'.repeat(200), now), `${'x'.repeat(80)} · 2026-09-29 15:32`);
+});
+
+test('cada importación marca sus leads con el mismo import_batch (el nombre del archivo y cuándo); importar dos veces da lotes distintos', async () => {
+  const db = fresh();
+  const now = new Date('2026-09-29T15:32:00.000Z');
+  const r = await importCsvLeads({ db, ownerId: OWNER, csv: PYTHON_CSV, mapping: FULL, verifyOptions, filename: 'prueba-lead.csv', now });
+  assert.equal(r.batch, 'prueba-lead.csv · 2026-09-29 15:32');
+  const rows = db.rows('new_business_leads');
+  assert.ok(rows.every(l => l.import_batch === 'prueba-lead.csv · 2026-09-29 15:32'));
+
+  const db2 = fresh();
+  const noName = await importCsvLeads({ db: db2, ownerId: OWNER, csv: PYTHON_CSV, mapping: FULL, verifyOptions, now });
+  assert.equal(noName.batch, 'CSV · 2026-09-29 15:32');                        // sin filename: "CSV" a secas
+  assert.ok(db2.rows('new_business_leads').every(l => l.import_batch === 'CSV · 2026-09-29 15:32'));
 });
 
 test('re-importar el mismo archivo no duplica nada; los emails suprimidos no entran', async () => {

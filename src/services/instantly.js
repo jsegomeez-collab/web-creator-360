@@ -53,11 +53,16 @@ const call = (config, path, body, { fetchImpl, sleep } = {}) => requestJson({
 //   pushed    → status "queued" (Instantly will send it on its schedule), with the Instantly lead id
 //   rejected  → status "rejected": Instantly didn't create it (already in the workspace, blocklist or invalid email)
 // In dry-run nothing is sent and nothing is written.
-export async function pushLeads({ db, ownerId, config, limit = 100, dryRun = isDryRun(), fetchImpl, sleep, now = new Date() }) {
+// filters: source, sector, priority, batch (import_batch) — narrow which "new" leads are eligible, e.g. just one CSV import
+export async function pushLeads({ db, ownerId, config, limit = 100, filters = {}, dryRun = isDryRun(), fetchImpl, sleep, now = new Date() }) {
   if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('limit debe ser un entero entre 1 y 5000');
 
-  const { data: leads, error } = await db.from(LEADS_TABLE).select('*')
-    .eq('user_id', ownerId).eq('status', 'new').order('registered_at', { ascending: false }).limit(limit);
+  let query = db.from(LEADS_TABLE).select('*').eq('user_id', ownerId).eq('status', 'new');
+  if (filters.source) query = query.eq('source', filters.source);
+  if (filters.sector) query = query.eq('sector', filters.sector);
+  if (filters.priority) query = query.eq('priority', filters.priority);
+  if (filters.batch) query = query.eq('import_batch', filters.batch);
+  const { data: leads, error } = await query.order('registered_at', { ascending: false }).limit(limit);
   if (error) throw new Error(`cargar leads: ${error.message}`);
   if (!leads?.length) return { dryRun, pushed: 0, rejected: 0 };
 

@@ -671,6 +671,36 @@
           <span id="send-mode" class="badge shrink-0"></span>
         </div>
         <p id="send-hint" class="hidden text-xs rounded-lg px-3 py-2 mb-4"></p>
+
+        <div class="flex flex-wrap items-end gap-3 mb-4 pb-4 border-b border-slate-100">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-source">Origen</label>
+            <select id="send-source" class="border border-slate-200 rounded-lg px-3 py-2 text-sm">
+              <option value="">Todo origen</option>
+              <option value="ct_registry">Registro CT</option>
+              <option value="csv_import">CSV</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-batch">Importación</label>
+            <select id="send-batch" class="border border-slate-200 rounded-lg px-3 py-2 text-sm max-w-[240px]">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-sector">Sector</label>
+            <select id="send-sector" class="border border-slate-200 rounded-lg px-3 py-2 text-sm"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-priority">Prioridad</label>
+            <select id="send-priority" class="border border-slate-200 rounded-lg px-3 py-2 text-sm">
+              <option value="">Toda prioridad</option>
+              <option value="A">Prioridad A</option>
+              <option value="B">Prioridad B</option>
+            </select>
+          </div>
+        </div>
+
         <div class="flex flex-wrap items-end gap-3">
           <div>
             <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-limit">Cuántos enviar ahora</label>

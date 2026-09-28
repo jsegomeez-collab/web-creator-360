@@ -268,9 +268,10 @@ async function runCsvImport(dryRun, btn) {
 
 const view = { status: '', sector: '', priority: '', source: '', q: '', offset: 0, limit: 50, total: 0 };
 
+const opt = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
+
 function fillFilterOptions() {
   if ($('lf-status').options.length) return;
-  const opt = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
   $('lf-status').innerHTML = opt('', 'Todo estado') + Object.entries(STATUS).map(([k, s]) => opt(k, s.label)).join('') + opt(DISCARDED.join(','), 'Descartados (baja, rebote, inválido, rechazado)');
   $('lf-sector').innerHTML = opt('', 'Todo sector') + Object.entries(SECTORS).map(([k, l]) => opt(k, l)).join('');
 }
@@ -331,17 +332,51 @@ function setLeadFilter(key, value) {
 
 // ─── Tab: Envío ──────────────────────────────────────────────────────────────
 
+// Which "new" leads the send targets. Empty string = no filter on that field.
+const sendFilters = () => ({ source: $('send-source').value, batch: $('send-batch').value, sector: $('send-sector').value, priority: $('send-priority').value });
+
+function fillSendFilterOptions() {
+  if ($('send-sector').options.length) return;
+  $('send-sector').innerHTML = opt('', 'Todo sector') + Object.entries(SECTORS).map(([k, l]) => opt(k, l)).join('');
+}
+
+// Only CSV imports have a "batch"; keep Origen and Importación from contradicting each other
+function onSendSourceChange() {
+  if ($('send-source').value !== 'csv_import') $('send-batch').value = '';
+  updateSendCount();
+}
+function onSendBatchChange() {
+  if ($('send-batch').value) $('send-source').value = 'csv_import';
+  updateSendCount();
+}
+
+async function loadSendBatches() {
+  const batches = await leadsApi('/import-batches').catch(() => []);
+  const current = $('send-batch').value;
+  $('send-batch').innerHTML = opt('', 'Todas') + batches.map(b => opt(b.batch, `${b.batch} (${nf(b.count)})`)).join('');
+  if (batches.some(b => b.batch === current)) $('send-batch').value = current;
+}
+
+// The live count of "new" leads matching the filters (not just the grand total)
+async function updateSendCount() {
+  const f = sendFilters();
+  const qs = new URLSearchParams({ status: 'new', limit: '1' });
+  for (const [k, v] of Object.entries(f)) if (v) qs.set(k, v);
+  const { total } = await leadsApi(`/?${qs}`).catch(() => ({ total: 0 }));
+  $('send-new-count').textContent = nf(total);
+  $('send-btn').disabled = total === 0;
+  return total;
+}
+
 async function loadLeadsSend() {
-  const [stats, tpl] = await Promise.all([loadLeadStats(), leadsApi('/email-template')]);
+  fillSendFilterOptions();
+  const [stats, tpl] = await Promise.all([loadLeadStats(), leadsApi('/email-template'), loadSendBatches()]);
   $('tpl-subject').value = tpl.subject;
   $('tpl-body').value = tpl.body;
   $('tpl-vars').innerHTML = tpl.variables.map(v => `<code class="bg-slate-100 rounded px-1.5 py-0.5">{{${esc(v)}}}</code>`).join(' ');
-  if (!stats) return;
-
-  const ready = stats.byStatus.new || 0;
-  $('send-new-count').textContent = nf(ready);
+  await updateSendCount();
   $('send-limit').max = 1000;
-  $('send-btn').disabled = ready === 0;
+  if (!stats) return;
 
   const { dryRun, ready: configured } = stats.instantly;
   const mode = $('send-mode'), hint = $('send-hint');
@@ -374,11 +409,14 @@ async function pollInstantly(btn) {
 async function pushToInstantly(btn) {
   const limit = Number($('send-limit').value);
   if (!Number.isInteger(limit) || limit < 1 || limit > 1000) return toast('Indica un número entre 1 y 1000', 'error');
+  const filters = sendFilters();
+  const filterCount = Object.values(filters).filter(Boolean).length;
   const dryRun = leadStats?.instantly?.dryRun;
-  if (!dryRun && !confirm(`¿Enviar hasta ${nf(limit)} leads a la campaña de Instantly? Empezarán a recibir el email según el horario de la campaña.`)) return;
+  const filterNote = filterCount ? ` (con los filtros elegidos)` : '';
+  if (!dryRun && !confirm(`¿Enviar hasta ${nf(limit)} leads a la campaña de Instantly${filterNote}? Empezarán a recibir el email según el horario de la campaña.`)) return;
 
   await withBusy(btn, 'Enviando…', async () => {
-    const r = await leadsApi('/push', { method: 'POST', body: { limit } });
+    const r = await leadsApi('/push', { method: 'POST', body: { limit, ...filters } });
     const body = r.dryRun
       ? statLine('Leads que se habrían enviado', r.pushed)
       : statLine('Enviados a Instantly', r.pushed, 'text-emerald-700') + (r.rejected ? statLine('Rechazados por Instantly (ya en tu cuenta, bloqueados o email no válido)', r.rejected, 'text-red-600') : '');
@@ -437,6 +475,10 @@ $('leads-table').addEventListener('click', async (e) => {
   });
 });
 
+$('send-source').addEventListener('change', onSendSourceChange);
+$('send-batch').addEventListener('change', onSendBatchChange);
+$('send-sector').addEventListener('change', updateSendCount);
+$('send-priority').addEventListener('change', updateSendCount);
 $('send-btn').addEventListener('click', (e) => pushToInstantly(e.currentTarget));
 $('poll-btn').addEventListener('click', (e) => pollInstantly(e.currentTarget));
 document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', () => copyField(btn.dataset.copy, btn)));

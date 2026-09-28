@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS new_business_leads (
   latino_signal     BOOLEAN NOT NULL DEFAULT FALSE,
   latino_strong     BOOLEAN NOT NULL DEFAULT FALSE, -- Spanish words in the BUSINESS NAME (adds the "comunidad latina" phrase to the email)
   minority_owned    BOOLEAN NOT NULL DEFAULT FALSE,
+  import_batch      TEXT,                            -- which CSV import this came from (file name + when), so you can send just that list
 
   -- Funnel: new → queued (sent to Instantly) → emailed → engaged (opened the link) → requested (asked for a call in the form)
   --         → called → won | lost
@@ -74,7 +75,8 @@ ALTER TABLE new_business_leads
   ADD COLUMN IF NOT EXISTS preferred_time    TEXT,
   ADD COLUMN IF NOT EXISTS consent_at        TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS consent_text      TEXT,
-  ADD COLUMN IF NOT EXISTS consent_ip        TEXT;
+  ADD COLUMN IF NOT EXISTS consent_ip        TEXT,
+  ADD COLUMN IF NOT EXISTS import_batch      TEXT;
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'new_business_leads' AND column_name = 'form_token') THEN
     ALTER TABLE new_business_leads RENAME COLUMN form_token TO link_token;
@@ -83,6 +85,7 @@ END $$;
 
 DROP INDEX IF EXISTS idx_nbl_queue;
 CREATE INDEX IF NOT EXISTS idx_nbl_push       ON new_business_leads (user_id, status, registered_at DESC);
+CREATE INDEX IF NOT EXISTS idx_nbl_batch      ON new_business_leads (user_id, source, import_batch);
 CREATE INDEX IF NOT EXISTS idx_nbl_email      ON new_business_leads (user_id, email);
 CREATE INDEX IF NOT EXISTS idx_nbl_registered ON new_business_leads (user_id, registered_at DESC);
 

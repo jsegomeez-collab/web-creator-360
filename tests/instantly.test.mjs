@@ -91,6 +91,27 @@ test('real: sube los leads "new" más recientes primero, con la clave, la campa�
   assert.equal(calls[0].body.leads[0].custom_variables.calendario, 'https://campana.example.com/c/TOKEN0000000000000000001');
 });
 
+test('filtros: source, sector, priority y batch limitan qué "new" se envía', async () => {
+  const seed = () => [
+    mkLead(1, { source: 'csv_import', import_batch: 'a.csv · 2026-09-29 10:00' }),
+    mkLead(2, { source: 'csv_import', import_batch: 'b.csv · 2026-09-29 11:00' }),
+    mkLead(3, { source: 'ct_registry', sector: 'auto', priority: 'A' }),
+    mkLead(4, { source: 'ct_registry', sector: 'limpieza', priority: 'B' }),
+  ];
+  // cada caso con su propia base de datos: un envío real cambia el estado, y no debe contaminar el siguiente caso
+  const only = async (filters) => {
+    const { fetchImpl, calls } = fakeInstantly(acceptAll);
+    await pushLeads({ db: dbWith(seed()), ownerId: OWNER, config: config(), filters, dryRun: false, fetchImpl, sleep: noSleep });
+    return (calls[0]?.body.leads ?? []).map(l => l.email).sort();
+  };
+  assert.deepEqual(await only({ source: 'csv_import' }), ['l1@gmail.com', 'l2@gmail.com']);
+  assert.deepEqual(await only({ batch: 'b.csv · 2026-09-29 11:00' }), ['l2@gmail.com']);
+  assert.deepEqual(await only({ source: 'ct_registry', sector: 'auto' }), ['l3@gmail.com']);
+  assert.deepEqual(await only({ priority: 'B' }), ['l4@gmail.com']);
+  assert.deepEqual(await only({ sector: 'no-existe' }), []);
+  assert.deepEqual((await only({})).length, 4);                    // sin filtros: todos
+});
+
 test('los aceptados pasan a "queued" con su id de Instantly; solo cambian los enviados', async () => {
   const db = dbWith([mkLead(1), mkLead(2), mkLead(3, { status: 'emailed' })]);
   const { fetchImpl } = fakeInstantly(acceptAll);

@@ -255,6 +255,54 @@ test('push en modo prueba (OUTREACH_DRY_RUN): cuenta lo que enviaría y no cambi
   assert.deepEqual(db.rows('new_business_leads').map(l => l.status), ['new', 'new', 'invalid_email']);
 });
 
+test('push: los filtros (origen, sector, prioridad, importación) limitan qué se envía', async () => {
+  process.env.OUTREACH_DRY_RUN = 'true';
+  db.tables.new_business_leads = [
+    lead('A', { source: 'csv_import', import_batch: 'x.csv · 2026-09-29 10:00' }),
+    lead('B', { source: 'csv_import', import_batch: 'y.csv · 2026-09-29 11:00' }),
+    lead('C', { source: 'ct_registry', sector: 'auto', priority: 'A' }),
+    lead('D', { source: 'ct_registry', sector: 'limpieza', priority: 'B' }),
+  ];
+  const pushed = async (body) => (await api('/push', { method: 'POST', body })).body.pushed;
+  assert.equal(await pushed({ source: 'csv_import' }), 2);
+  assert.equal(await pushed({ batch: 'y.csv · 2026-09-29 11:00' }), 1);
+  assert.equal(await pushed({ sector: 'auto' }), 1);
+  assert.equal(await pushed({ priority: 'B' }), 1);
+  assert.equal(await pushed({}), 4);
+});
+
+test('listado: filtra también por import_batch', async () => {
+  db.tables.new_business_leads = [
+    lead('A', { source: 'csv_import', import_batch: 'x.csv · 2026-09-29 10:00' }),
+    lead('B', { source: 'csv_import', import_batch: 'y.csv · 2026-09-29 11:00' }),
+  ];
+  const r = await api(`/?batch=${encodeURIComponent('y.csv · 2026-09-29 11:00')}`);
+  assert.deepEqual(r.body.leads.map(l => l.id), ['B']);
+});
+
+test('import-batches: importaciones de CSV con leads nuevos, ordenadas por cuántos hay, sin mezclar con el registro CT ni con lo ya enviado', async () => {
+  db.tables.new_business_leads = [
+    lead('A', { source: 'csv_import', import_batch: 'grande.csv · 2026-09-29 10:00' }),
+    lead('B', { source: 'csv_import', import_batch: 'grande.csv · 2026-09-29 10:00' }),
+    lead('C', { source: 'csv_import', import_batch: 'grande.csv · 2026-09-29 10:00' }),
+    lead('D', { source: 'csv_import', import_batch: 'pequeno.csv · 2026-09-29 11:00' }),
+    lead('E', { source: 'csv_import', import_batch: 'ya-enviado.csv · 2026-09-28', status: 'queued' }),   // ya no es "new"
+    lead('F', { source: 'ct_registry' }),                                                                  // sin import_batch, no es CSV
+    lead('G', { source: 'csv_import', import_batch: 'otro.csv · 2026-09-27', user_id: OTHER }),
+  ];
+  const r = await api('/import-batches');
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.body, [
+    { batch: 'grande.csv · 2026-09-29 10:00', count: 3 },
+    { batch: 'pequeno.csv · 2026-09-29 11:00', count: 1 },
+  ]);
+});
+
+test('import-batches: sin importaciones de CSV, lista vacía', async () => {
+  db.tables.new_business_leads = [lead('A', { source: 'ct_registry' })];
+  assert.deepEqual((await api('/import-batches')).body, []);
+});
+
 // ─── comprobar Instantly (reemplaza al webhook) ──────────────────────────────
 test('poll-instantly sin configuración de Instantly → 400 con las variables que faltan', async () => {
   db.tables.new_business_leads = [lead('A', { status: 'queued', instantly_lead_id: 'inst-a' })];

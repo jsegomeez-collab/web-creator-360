@@ -114,6 +114,15 @@ export function mapRows(rows, mapping) {
 
 // ─── Preview and import ──────────────────────────────────────────────────────
 
+// What sends a single import apart from the others, so "Envío" can target just this list.
+// "prueba-lead.csv · 2026-09-29 15:32" — the minute is enough to tell two imports apart; a second import of the same
+// file a minute later just gets a different label, which is fine (nothing keys off it besides being distinct).
+export function buildBatchLabel(filename, now = new Date()) {
+  const stamp = now.toISOString().slice(0, 16).replace('T', ' ');
+  const name = String(filename ?? '').trim().slice(0, 80);
+  return `${name || 'CSV'} · ${stamp}`;
+}
+
 export function previewCsv(csv) {
   const { headers, rows, delimiter } = parseCsv(csv);
   if (!headers.length) throw new Error('El archivo está vacío o no es un CSV');
@@ -129,7 +138,8 @@ export function previewCsv(csv) {
 }
 
 // mapping: { fieldKey: headerName | null }. With dryRun nothing is written ("what would happen").
-export async function importCsvLeads({ db, ownerId, csv, mapping, dryRun = false, verify = true, verifyOptions = {} }) {
+// filename: the original file name, shown in "Envío" so you can send just this import; falls back to "CSV" without it.
+export async function importCsvLeads({ db, ownerId, csv, mapping, dryRun = false, verify = true, verifyOptions = {}, filename = '', now = new Date() }) {
   const { headers, rows } = parseCsv(csv);
   if (!rows.length) throw new Error('El CSV no tiene filas de datos');
   if (rows.length > MAX_ROWS) throw new Error(`El CSV tiene ${rows.length} filas; el máximo por importación es ${MAX_ROWS}`);
@@ -144,10 +154,13 @@ export async function importCsvLeads({ db, ownerId, csv, mapping, dryRun = false
   if (missing.length) throw new Error(`Falta asignar una columna a: ${missing.join(', ')}`);
 
   const { leads, invalid } = mapRows(rows, clean);
+  const batch = buildBatchLabel(filename, now);
+  for (const l of leads) l.import_batch = batch;
   const stored = await storeLeads({ db, ownerId, source: CSV_SOURCE, candidates: leads, dryRun, verify, verifyOptions });
 
   return {
     dryRun,
+    batch,
     totalRows: rows.length,
     invalidCount: invalid.length,
     invalid: invalid.slice(0, 50),                            // enough to show what's wrong without flooding the screen
