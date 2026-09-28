@@ -9,7 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const VERCEL_BIN = join(__dirname, '../../node_modules/.bin/vercel.cmd');
 
 export async function deployToVercel(slug, htmlContent) {
-  const projectName = `wc360-${slug}`
+  const projectName = slug
     .slice(0, 52)
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, '-')

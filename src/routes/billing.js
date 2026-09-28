@@ -139,10 +139,11 @@ function derivePlanFromPrice(priceId) {
 
 // POST /api/billing/setup-products — create Stripe products+prices (run once)
 router.post('/setup-products', requireAuth, async (req, res) => {
+  // Amounts in cents. Annual = 10× monthly (2 months free, ≈17% off — matches landing/billing pages)
   const plans = [
-    { name: 'Starter', key: 'starter', monthly: 4700, annual: 47000 * 10 },
-    { name: 'Pro',     key: 'pro',     monthly: 14700, annual: 147000 * 10 },
-    { name: 'Agency',  key: 'agency',  monthly: 29700, annual: 297000 * 10 },
+    { name: 'Starter', key: 'starter', monthly: 4700,  annual: 47000 },
+    { name: 'Pro',     key: 'pro',     monthly: 14700, annual: 147000 },
+    { name: 'Agency',  key: 'agency',  monthly: 29700, annual: 297000 },
   ];
 
   const created = {};

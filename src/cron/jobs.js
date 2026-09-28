@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import supabase from '../db/supabase.js';
 import { sendOutreachEmail, nextFollowUpDate } from '../services/resend.js';
+import { tryWhatsApp } from '../services/outreach.js';
 import { runAutoPipeline } from '../pipeline/auto.js';
 
 export function startCronJobs() {
@@ -19,7 +20,7 @@ export function startCronJobs() {
   console.log('Cron jobs scheduled (pipeline every 30min · follow-ups daily at 10:00)');
 }
 
-async function runFollowUps() {
+export async function runFollowUps() {
   const { data: pending, error } = await supabase
     .from('outreach_log')
     .select('*, businesses(*), generated_sites(*)')
@@ -33,13 +34,41 @@ async function runFollowUps() {
   for (const log of pending) {
     try {
       const nextFollowUp = log.follow_up_number + 1;
+
+      // Stop (for good) when the site is no longer waiting on a reply (e.g. they already paid)
+      if (log.generated_sites?.status !== 'sent') {
+        console.log(`Follow-ups stopped for ${log.contact}: la web ya no está pendiente (${log.generated_sites?.status ?? 'sin web'})`);
+        await supabase.from('outreach_log').update({ next_follow_up_at: null }).eq('id', log.id);
+        continue;
+      }
+
       const { data: webData } = await supabase
         .from('business_web_data')
         .select('language')
         .eq('business_id', log.business_id)
         .single();
       const language = webData?.language || 'es';
-      await sendOutreachEmail(log.businesses, log.generated_sites, nextFollowUp, language);
+
+      // Follow up over the same channels as the first contact.
+      // For email logs `contact` is the address; WhatsApp uses the business phone.
+      const channels = (log.channel || 'email').split('+');
+      let emailSent = false;
+      let waSent = false;
+
+      if (channels.includes('email')) {
+        await sendOutreachEmail(log.businesses, { ...log.generated_sites, contact_email: log.contact }, nextFollowUp, language);
+        emailSent = true;
+      }
+      if (channels.includes('whatsapp')) {
+        const wa = await tryWhatsApp(log.businesses, log.generated_sites, language, true);
+        waSent = wa.sent;
+      }
+
+      // Nothing went out (e.g. WhatsApp disconnected): leave it pending and retry on the next run
+      if (!emailSent && !waSent) {
+        console.warn(`Follow-up ${nextFollowUp} postponed for ${log.contact}: no channel available`);
+        continue;
+      }
 
       await supabase.from('outreach_log').update({
         follow_up_number: nextFollowUp,

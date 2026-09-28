@@ -67,4 +67,34 @@ router.post('/:businessId', async (req, res) => {
   }
 });
 
+// ─── Redeploy existing HTML to Vercel (no Claude) ────────────────────────────
+router.post('/redeploy/:siteId', async (req, res) => {
+  const { siteId } = req.params;
+
+  const { data: site, error } = await supabase
+    .from('generated_sites')
+    .select('id, slug, html_content')
+    .eq('id', siteId)
+    .single();
+
+  if (error || !site) return res.status(404).json({ error: 'Site not found' });
+  if (!site.html_content) return res.status(400).json({ error: 'No hay HTML guardado para este site' });
+
+  try {
+    console.log(`[redeploy] Deploying "${site.slug}" to Vercel...`);
+    const previewUrl = await deployToVercel(site.slug, site.html_content);
+
+    await supabase
+      .from('generated_sites')
+      .update({ preview_url: previewUrl })
+      .eq('id', site.id);
+
+    console.log(`[redeploy] Done: ${previewUrl}`);
+    res.json({ success: true, preview_url: previewUrl });
+  } catch (err) {
+    console.error('[redeploy] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

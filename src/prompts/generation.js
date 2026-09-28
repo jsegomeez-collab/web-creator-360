@@ -16,6 +16,11 @@ ${galleryImages.map((img, i) => `- Imagen ${i + 2}: ${img}`).join('\n')}
 Úsalas en las secciones correspondientes mediante <img src="..."> con object-fit: cover.`
     : `El negocio no tiene imágenes disponibles. Usa fondos con gradientes CSS oscuros elegantes en lugar de imágenes.`;
 
+  // Without a phone the wa.me link would be broken: tell the model to leave the floating WhatsApp button out
+  const noPhoneNote = business.phone
+    ? ''
+    : '\n   ⚠ ESTE NEGOCIO NO TIENE TELÉFONO: OMITE POR COMPLETO ESTE BOTÓN (no generes el <a> siguiente) y no pongas ningún enlace tel:.';
+
   return `Eres un diseñador web de élite especializado en landing pages de alta conversión. Crea una web completa con el "Halo Theme" para el siguiente negocio local.
 
 ═══════════════════════════════════════
@@ -126,7 +131,7 @@ SECCIONES OBLIGATORIAS (en orden exacto)
 ═══════════════════════════════════════
 ELEMENTOS FLOTANTES
 ═══════════════════════════════════════
-A. Botón WhatsApp (esquina inferior izquierda):
+A. Botón WhatsApp (esquina inferior izquierda):${noPhoneNote}
    <a href="https://wa.me/${(business.phone || '').replace(/[^0-9]/g, '')}" target="_blank" style="position:fixed;bottom:24px;left:24px;z-index:9999;width:52px;height:52px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,0.4);text-decoration:none;">
      [icono WhatsApp SVG blanco]
    </a>

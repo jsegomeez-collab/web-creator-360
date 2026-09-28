@@ -7,6 +7,12 @@ function getClient() {
   return resend;
 }
 
+// The SDK returns API failures as { error } instead of throwing — surface them so a rejected send is never counted as sent
+async function send(payload) {
+  const { error } = await getClient().emails.send(payload);
+  if (error) throw new Error(`Resend: ${error.message || error.name || 'error al enviar el email'}`);
+}
+
 const FOLLOW_UP_INTERVALS = [5, 5]; // days after each follow-up
 
 export async function sendOutreachEmail(business, site, followUpNumber = 0, language = 'es') {
@@ -18,7 +24,7 @@ export async function sendOutreachEmail(business, site, followUpNumber = 0, lang
 
   const html = buildEmailHtml(business, site, isFollowUp, language);
 
-  await getClient().emails.send({
+  await send({
     from: process.env.RESEND_FROM_EMAIL,
     to: site.contact_email || business.email,
     subject,

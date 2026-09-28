@@ -1,7 +1,7 @@
 const UA = 'Mozilla/5.0 (compatible; WebCreator360/1.0; +https://webcreator360.com)';
 
 export async function extractFromWebsite(url) {
-  if (!url) return { images: [], brandColor: null, emails: [] };
+  if (!url) return { images: [], brandColor: null, emails: [], phones: [] };
 
   try {
     const controller = new AbortController();
@@ -14,7 +14,7 @@ export async function extractFromWebsite(url) {
     });
     clearTimeout(timer);
 
-    if (!res.ok) return { images: [], brandColor: null, emails: [] };
+    if (!res.ok) return { images: [], brandColor: null, emails: [], phones: [] };
     const html = await res.text();
     const base = new URL(res.url);
 
@@ -44,7 +44,7 @@ function extractPhones(html) {
   const telRe = /href=["']tel:([+\d\s\-().]{7,20})["']/gi;
   let m;
   while ((m = telRe.exec(html)) !== null) {
-    const p = m[1].replace(/[\s\-.()]/g, '').trim();
+    const p = m[1].replace(/\D/g, '');
     if (p.length >= 7) found.add(p);
   }
 
@@ -53,7 +53,7 @@ function extractPhones(html) {
     const textRe = /(?:(?:\+|00)\d{1,3}[\s\-.]?)?\(?\d{2,4}\)?[\s\-.]?\d{3,4}[\s\-.]?\d{3,4}/g;
     const plain = html.replace(/<[^>]+>/g, ' ');
     while ((m = textRe.exec(plain)) !== null) {
-      const p = m[0].replace(/[\s\-.()]/g, '').trim();
+      const p = m[0].replace(/\D/g, '');
       if (p.length >= 7 && p.length <= 15) found.add(p);
       if (found.size >= 3) break;
     }

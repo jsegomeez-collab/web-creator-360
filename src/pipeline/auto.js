@@ -3,8 +3,8 @@ import supabase from '../db/supabase.js';
 import { scrapeBusinessProfile } from '../services/gemini.js';
 import { generateWebsite } from '../services/claude.js';
 import { deployToVercel } from '../services/vercel.js';
-import { sendOutreachEmail, nextFollowUpDate } from '../services/resend.js';
-import { getConnectionState, sendText, buildMessage, formatPhone } from '../services/whatsapp.js';
+import { sendOutreach } from '../services/outreach.js';
+import { getConnectionState } from '../services/whatsapp.js';
 
 const BATCH = 3; // businesses per stage per run (keep API costs controlled)
 const INTER_DELAY = 3000; // ms between API calls
@@ -48,13 +48,17 @@ async function stageScrap(stats, log) {
     try {
       console.log(`[pipeline] Scraping "${biz.name}"...`);
       const profile = await scrapeBusinessProfile(biz);
-      const { description, services, social_networks, hours, language, email, value_proposition } = profile;
+      const { description, services, social_networks, hours, language, email, value_proposition, phone } = profile;
 
       await supabase.from('business_web_data').upsert(
         { business_id: biz.id, description, services, social_networks, hours, language, email, value_proposition, raw_data: profile },
         { onConflict: 'business_id' }
       );
-      await supabase.from('businesses').update({ status: 'scraped' }).eq('id', biz.id);
+
+      // Freshly scraped phone always wins over Google Places (same as routes/scrape.js)
+      const bizUpdate = { status: 'scraped' };
+      if (phone) bizUpdate.phone = phone;
+      await supabase.from('businesses').update(bizUpdate).eq('id', biz.id);
 
       stats.scraped++;
       log.push({ stage: 'scrape', name: biz.name, status: 'ok', email: email || null });
@@ -171,44 +175,21 @@ async function stageOutreach(stats, log) {
       const contactEmail = webData?.email || null;
       const language = webData?.language || 'es';
 
-      if (!contactEmail) {
+      // Need at least one channel: an email, or a phone with WhatsApp connected
+      const hasWhatsApp = !!biz?.phone && (await getConnectionState()) === 'open';
+      if (!contactEmail && !hasWhatsApp) {
         stats.skipped_no_email++;
-        log.push({ stage: 'outreach', name: biz?.name, status: 'skipped', reason: 'no email' });
-        console.log(`[pipeline] ⚠ No email for "${biz?.name}" — skipping outreach`);
+        log.push({ stage: 'outreach', name: biz?.name, status: 'skipped', reason: 'sin email ni WhatsApp disponible' });
+        console.log(`[pipeline] ⚠ No email/WhatsApp for "${biz?.name}" — skipping outreach`);
         continue;
       }
 
-      console.log(`[pipeline] Sending email to ${contactEmail} for "${biz.name}"...`);
-      await sendOutreachEmail(biz, { ...site, contact_email: contactEmail }, 0, language);
-
-      await supabase.from('outreach_log').insert({
-        business_id: biz.id,
-        site_id: site.id,
-        channel: 'email',
-        contact: contactEmail,
-        follow_up_number: 0,
-        next_follow_up_at: nextFollowUpDate(0),
-      });
-
-      await supabase.from('generated_sites').update({ status: 'sent' }).eq('id', site.id);
-      await supabase.from('businesses').update({ status: 'active' }).eq('id', biz.id);
-
-      // Try WhatsApp if connected and phone available
-      if (biz.phone) {
-        try {
-          const waState = await getConnectionState();
-          if (waState === 'open') {
-            await sendText(biz.phone, buildMessage(biz, { ...site, contact_email: contactEmail }, language));
-            console.log(`[pipeline] ✓ WA sent to ${formatPhone(biz.phone)}`);
-          }
-        } catch (waErr) {
-          console.warn(`[pipeline] WA failed for "${biz.name}":`, waErr.message);
-        }
-      }
+      console.log(`[pipeline] Contacting "${biz.name}"...`);
+      const result = await sendOutreach(biz, site, contactEmail, language, 0);
 
       stats.sent++;
-      log.push({ stage: 'outreach', name: biz.name, status: 'ok', email: contactEmail });
-      console.log(`[pipeline] ✓ Email sent to ${contactEmail}`);
+      log.push({ stage: 'outreach', name: biz.name, status: 'ok', email: result.emailSent ? contactEmail : null, wa: result.waSent });
+      console.log(`[pipeline] ✓ Sent to "${biz.name}" — email:${result.emailSent} wa:${result.waSent}`);
     } catch (err) {
       stats.errors++;
       log.push({ stage: 'outreach', name: sites.find(s => s.id === site.id)?.slug, status: 'error', reason: err.message });

@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import supabase from '../db/supabase.js';
-import { sendOutreachEmail, nextFollowUpDate } from '../services/resend.js';
-import { getConnectionState, sendText, buildMessage, formatPhone } from '../services/whatsapp.js';
+import { sendOutreach } from '../services/outreach.js';
 
 const router = Router();
 
@@ -129,58 +128,5 @@ router.post('/:siteId', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// ─── Core outreach logic (email + WA) ─────────────────────────────────────────
-async function sendOutreach(business, site, contactEmail, language, followUpNumber) {
-  const siteId = site.id;
-  let emailSent = false;
-  let waSent = false;
-  let waReason = null;
-
-  // 1. Send email if available
-  if (contactEmail) {
-    await sendOutreachEmail(business, { ...site, contact_email: contactEmail }, followUpNumber, language);
-    emailSent = true;
-  }
-
-  // 2. Send WhatsApp if phone available and connected
-  const waResult = await tryWhatsApp(business, site, language);
-  waSent = waResult.sent;
-  waReason = waResult.reason || null;
-
-  // 3. Log to outreach_log
-  const channel = emailSent && waSent ? 'email+whatsapp' : emailSent ? 'email' : 'whatsapp';
-  const contact = contactEmail || business.phone;
-  await supabase.from('outreach_log').insert({
-    business_id: business.id,
-    site_id: siteId,
-    channel,
-    contact,
-    follow_up_number: followUpNumber,
-    next_follow_up_at: nextFollowUpDate(followUpNumber),
-  });
-
-  // 4. Update statuses
-  await supabase.from('generated_sites').update({ status: 'sent' }).eq('id', siteId);
-  await supabase.from('businesses').update({ status: 'active' }).eq('id', business.id);
-
-  return { emailSent, waSent, waReason };
-}
-
-// ─── WhatsApp helper ──────────────────────────────────────────────────────────
-async function tryWhatsApp(business, site, language) {
-  if (!business.phone) return { sent: false, reason: 'sin_telefono' };
-  try {
-    const state = await getConnectionState();
-    if (state !== 'open') return { sent: false, reason: 'whatsapp_desconectado' };
-    const msg = buildMessage(business, site, language);
-    await sendText(business.phone, msg);
-    console.log(`[wa] ✓ ${formatPhone(business.phone)} — "${business.name}"`);
-    return { sent: true };
-  } catch (err) {
-    console.warn(`[wa] ✗ "${business.name}":`, err.message);
-    return { sent: false, reason: err.message };
-  }
-}
 
 export default router;

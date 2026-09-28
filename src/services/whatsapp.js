@@ -109,10 +109,10 @@ export function formatPhone(raw) {
   let digits = String(raw || '').replace(/\D/g, '');
   // Strip leading 00 (alternative international prefix)
   if (digits.startsWith('00')) digits = digits.slice(2);
-  // Already has country code (11+ digits or starts with known prefix)
+  // Already has country code (11+ digits)
   if (digits.length >= 11) return digits;
-  // US/Canada: 10 digits starting with 2-9 → add 1
-  if (digits.length === 10 && /^[2-9]/.test(digits)) return '1' + digits;
+  // US/Canada: all 10-digit NANP numbers — Spanish numbers are always 9 digits
+  if (digits.length === 10) return '1' + digits;
   // Spanish mobile: 9 digits starting with 6 or 7 → add 34
   if (digits.length === 9 && /^[67]/.test(digits)) return '34' + digits;
   // Spanish landline: 9 digits starting with 9 → add 34
@@ -120,9 +120,25 @@ export function formatPhone(raw) {
   return digits;
 }
 
-export function buildMessage(business, site, language = 'es') {
+export function buildMessage(business, site, language = 'es', isFollowUp = false) {
   const name = business.name;
   const url = site.preview_url;
+  if (isFollowUp) {
+    if (language === 'en') {
+      return [
+        `Hi again 👋`,
+        `A few days ago we sent you the website we built for *${name}*. In case you missed it, here it is again: ${url}`,
+        `If you like it, we can activate it on your domain for just *$497*. No commitments.`,
+        `Just reply if you have any questions 😊`,
+      ].join('\n\n');
+    }
+    return [
+      `Hola de nuevo 👋`,
+      `Hace unos días le enviamos la web que creamos para *${name}*. Por si no pudo verla, aquí la tiene de nuevo: ${url}`,
+      `Si le gusta, por solo *$497* la activamos en su dominio. Sin permanencia.`,
+      `Responda a este mensaje si tiene alguna pregunta 😊`,
+    ].join('\n\n');
+  }
   if (language === 'en') {
     return [
       `Hi 👋`,

@@ -285,8 +285,9 @@ function renderGeneration() {
         <td class="px-6 py-4">
           ${s.preview_url ? `<a href="${s.preview_url}" target="_blank" class="action-btn btn-preview">Ver →</a>` : '<span class="text-xs text-slate-300">Pendiente</span>'}
         </td>
-        <td class="px-6 py-4">
+        <td class="px-6 py-4 flex flex-col gap-1">
           <button class="action-btn btn-generate" id="regen-btn-${s.id}" onclick="regenerateOne('${s.id}', this)">✦ Halo</button>
+          <button class="action-btn btn-preview" id="redeploy-btn-${s.id}" onclick="redeployOne('${s.id}', this)">☁ Redesplegar</button>
         </td>
       </tr>`).join('');
   }
@@ -630,6 +631,33 @@ async function regenerateOne(siteId, btn) {
     }
   } catch {
     toast('Error de red', 'error');
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }
+}
+
+async function redeployOne(siteId, btn) {
+  const original = btn.innerHTML;
+  btn.textContent = 'Desplegando...';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(`/api/generate/redeploy/${siteId}`, { method: 'POST' });
+    const d = await r.json();
+    if (d.success) {
+      toast(`☁ Publicado: ${d.preview_url}`);
+      // Update the preview link in the row without full reload
+      const row = document.getElementById(`site-row-${siteId}`);
+      if (row) {
+        const previewCell = row.querySelector('td:nth-child(5)');
+        if (previewCell) previewCell.innerHTML = `<a href="${d.preview_url}" target="_blank" class="action-btn btn-preview">Ver →</a>`;
+      }
+    } else {
+      toast('Error: ' + d.error, 'error');
+    }
+  } catch {
+    toast('Error de red', 'error');
+  } finally {
     btn.innerHTML = original;
     btn.disabled = false;
   }
