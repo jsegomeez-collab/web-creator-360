@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import supabase from '../db/supabase.js';
 import { sendOutreach } from '../services/outreach.js';
+import { LEAD_BUSINESS_SOURCE } from '../services/newLeads.js';
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.post('/batch', async (req, res) => {
       supabase.from('business_web_data').select('email, language').eq('business_id', site.business_id).single(),
       supabase.from('businesses').select('*').eq('id', site.business_id).single(),
     ]);
+    if (biz?.source === LEAD_BUSINESS_SOURCE) continue;   // new-business campaign: contacted only by its own email sequence
     if (wd?.email || biz?.phone) {
       toSend.push({ ...site, email: wd?.email || null, language: wd?.language || 'es', biz });
     }

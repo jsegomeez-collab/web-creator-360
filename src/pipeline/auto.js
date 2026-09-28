@@ -4,6 +4,7 @@ import { scrapeBusinessProfile } from '../services/gemini.js';
 import { generateWebsite } from '../services/claude.js';
 import { deployToVercel } from '../services/vercel.js';
 import { sendOutreach } from '../services/outreach.js';
+import { LEAD_BUSINESS_SOURCE } from '../services/newLeads.js';
 import { getConnectionState } from '../services/whatsapp.js';
 
 const BATCH = 3; // businesses per stage per run (keep API costs controlled)
@@ -145,14 +146,19 @@ async function stageOutreach(stats, log) {
   }
 
   // Sites in preview state with a deployed Vercel URL, not yet sent
-  const { data: sites } = await supabase
+  const { data: candidates } = await supabase
     .from('generated_sites')
     .select('id, slug, preview_url, business_id')
     .eq('status', 'preview')
-    .not('preview_url', 'is', null)
-    .limit(BATCH);
+    .not('preview_url', 'is', null);
 
-  for (const site of sites || []) {
+  // Demos of the new-business campaign leads are never sent from here: their contact is the campaign's own flow.
+  // (If the `source` column doesn't exist yet the query returns nothing and everything stays as before.)
+  const { data: leadBusinesses } = await supabase.from('businesses').select('id').eq('source', LEAD_BUSINESS_SOURCE);
+  const campaignOnly = new Set((leadBusinesses || []).map(b => b.id));
+  const sites = (candidates || []).filter(s => !campaignOnly.has(s.business_id)).slice(0, BATCH);
+
+  for (const site of sites) {
     try {
       // Check not already contacted
       const { data: existing } = await supabase

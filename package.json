@@ -8,6 +8,7 @@
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
     "ct:ingest": "node scripts/ct-ingest.js",
+    "ct:send": "node scripts/ct-send.js",
     "leads:preview-emails": "node scripts/preview-lead-emails.js",
     "test": "node --experimental-test-module-mocks --test \"tests/**/*.test.mjs\""
   },

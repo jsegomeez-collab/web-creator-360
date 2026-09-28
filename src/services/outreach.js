@@ -1,6 +1,8 @@
 import supabase from '../db/supabase.js';
 import { sendOutreachEmail, nextFollowUpDate } from './resend.js';
 import { getConnectionState, sendText, buildMessage, formatPhone } from './whatsapp.js';
+import { LEAD_BUSINESS_SOURCE } from './newLeads.js';
+import { suppressionReason } from './suppressions.js';
 
 // ─── Core outreach logic (email + WA) ─────────────────────────────────────────
 // Shared by the manual routes and the auto pipeline.
@@ -9,9 +11,20 @@ export async function sendOutreach(business, site, contactEmail, language, follo
   const siteId = site.id;
   let emailSent = false;
 
+  // Businesses of the new-business campaign are contacted ONLY by its own email sequence: they never gave consent
+  // for WhatsApp and must not go out through this (Resend / manual) path either.
+  if (business.source === LEAD_BUSINESS_SOURCE) {
+    throw new Error('Este negocio viene de la campaña de LLCs nuevas: solo se contacta con su secuencia de emails');
+  }
+
+  // Never email an address that unsubscribed or bounced, whatever its source
+  const owner = business.user_id || process.env.NEW_LEADS_OWNER_USER_ID;
+  const suppressed = !!contactEmail && !!owner && !!(await suppressionReason(supabase, owner, contactEmail, { failOpen: true }));
+  const email = suppressed ? null : contactEmail;
+
   // 1. Send email if available
-  if (contactEmail) {
-    await sendOutreachEmail(business, { ...site, contact_email: contactEmail }, followUpNumber, language);
+  if (email) {
+    await sendOutreachEmail(business, { ...site, contact_email: email }, followUpNumber, language);
     emailSent = true;
   }
 
@@ -21,12 +34,12 @@ export async function sendOutreach(business, site, contactEmail, language, follo
   const waReason = waResult.reason || null;
 
   if (!emailSent && !waSent) {
-    throw new Error(`No se pudo enviar por ningún canal (${waReason})`);
+    throw new Error(suppressed ? 'Contacto dado de baja o con rebote (lista de supresiones)' : `No se pudo enviar por ningún canal (${waReason})`);
   }
 
   // 3. Log to outreach_log
   const channel = emailSent && waSent ? 'email+whatsapp' : emailSent ? 'email' : 'whatsapp';
-  const contact = contactEmail || business.phone;
+  const contact = email || business.phone;
   await supabase.from('outreach_log').insert({
     business_id: business.id,
     site_id: siteId,
@@ -45,6 +58,7 @@ export async function sendOutreach(business, site, contactEmail, language, follo
 
 // ─── WhatsApp helper ──────────────────────────────────────────────────────────
 export async function tryWhatsApp(business, site, language, isFollowUp = false) {
+  if (business.source === LEAD_BUSINESS_SOURCE) return { sent: false, reason: 'sin_consentimiento' };   // no automatic WhatsApp for these leads
   if (!business.phone) return { sent: false, reason: 'sin_telefono' };
   try {
     const state = await getConnectionState();

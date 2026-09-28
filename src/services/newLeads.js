@@ -2,6 +2,9 @@
 // `db` is a Supabase client (injected so it can be tested). Every row carries user_id (multi-tenant).
 import { randomBytes } from 'crypto';
 
+// `businesses.source` of the rows created for these leads: the Google Places pipeline and WhatsApp never touch them
+export const LEAD_BUSINESS_SOURCE = 'new_business_lead';
+
 // Supabase filters put `in (...)` lists in the URL: keep them short
 const CHUNK = 150;
 function* chunks(arr, size = CHUNK) {
