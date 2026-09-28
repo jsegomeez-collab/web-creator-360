@@ -215,10 +215,21 @@ function updateMapperState() {
   $('csv-check-btn').disabled = $('csv-import-btn').disabled = missing.length > 0;
 }
 
+function clearCsvFile() {
+  $('csv-file').value = '';
+  $('csv-file-row').classList.add('hidden');
+  $('csv-mapper').classList.add('hidden');
+  $('csv-result').classList.add('hidden');
+  csv.text = '';
+  csv.preview = null;
+}
+
 async function onCsvFile(file) {
   $('csv-result').classList.add('hidden');
   $('csv-mapper').classList.add('hidden');
-  if (!file) return;
+  if (!file) { $('csv-file-row').classList.add('hidden'); return; }
+  $('csv-file-name').textContent = file.name;
+  $('csv-file-row').classList.remove('hidden');
   if (file.size > CSV_MAX_BYTES) return toast('El archivo pesa más de 8 MB: divídelo en partes', 'error');
   try {
     csv.text = await file.text();
@@ -395,6 +406,7 @@ $('ct-preview-btn').addEventListener('click', (e) => runCtIngest(true, e.current
 $('ct-import-btn').addEventListener('click', (e) => runCtIngest(false, e.currentTarget));
 
 $('csv-file').addEventListener('change', (e) => onCsvFile(e.target.files[0]));
+$('csv-file-clear').addEventListener('click', clearCsvFile);
 $('csv-mapping-grid').addEventListener('change', updateMapperState);
 $('csv-check-btn').addEventListener('click', (e) => runCsvImport(true, e.currentTarget));
 $('csv-import-btn').addEventListener('click', (e) => runCsvImport(false, e.currentTarget));

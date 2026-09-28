@@ -572,6 +572,11 @@
         <p class="text-xs text-slate-400 mt-1 mb-4">Por ejemplo el archivo que crea el script de Python. Elige el archivo, indica qué columna es cada dato (se rellena solo cuando los nombres son habituales) y revisa antes de importar. Solo son obligatorios el nombre de la empresa y el email.</p>
 
         <input type="file" id="csv-file" accept=".csv,.txt,text/csv" class="block text-sm text-slate-600 file:mr-3 file:px-4 file:py-2 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:font-semibold file:cursor-pointer" />
+        <div id="csv-file-row" class="hidden mt-2.5 flex items-center gap-2 text-sm">
+          <span class="text-slate-500">📄</span>
+          <span id="csv-file-name" class="font-medium text-slate-700 truncate"></span>
+          <button id="csv-file-clear" type="button" title="Quitar archivo" class="ml-1 w-5 h-5 flex items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-500 shrink-0">✕</button>
+        </div>
 
         <div id="csv-mapper" class="hidden mt-6">
           <p id="csv-file-info" class="text-xs text-slate-500 mb-4"></p>
