@@ -13,6 +13,7 @@
     "leads:email-template": "node scripts/preview-lead-emails.js",
     "leads:push": "node scripts/leads-push.js",
     "telegram:setup": "node scripts/telegram-setup.js",
+    "leads:link": "node scripts/lead-link.js",
     "instantly:webhook": "node scripts/instantly-webhook.js"
   },
   "dependencies": {
