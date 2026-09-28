@@ -1,7 +1,9 @@
 // Starts the public campaign server (see campaignApp.js). Run it with: npm run start:campaign
 import 'dotenv/config';
+import cron from 'node-cron';
 import supabase from './db/supabase.js';
 import { createCampaignApp } from './campaignApp.js';
+import { isCalendlyConfigured, loadCalendlyConfig, syncBookings } from './services/calendly.js';
 
 const ownerId = (process.env.NEW_LEADS_OWNER_USER_ID || '').trim();
 if (!ownerId) {
@@ -25,3 +27,24 @@ const app = createCampaignApp({
 
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => console.log(`Campaign server on port ${PORT}`));
+
+// Who booked a call? Calendly's free plan has no webhooks, so we ask its API every 5 minutes
+if (isCalendlyConfigured()) {
+  const config = loadCalendlyConfig();
+  let running = false;
+  cron.schedule('*/5 * * * *', async () => {
+    if (running) return;
+    running = true;
+    try {
+      const r = await syncBookings({ db: supabase, ownerId, config });
+      if (r.booked || r.rescheduled) console.log(`[calendly] ${r.booked} reservas nuevas, ${r.rescheduled} cambiadas de hora`);
+    } catch (err) {
+      console.error('[calendly] no se pudo comprobar las reservas:', err.message);
+    } finally {
+      running = false;
+    }
+  });
+  console.log('Calendly: comprobando reservas cada 5 minutos');
+} else {
+  console.log('Sin CALENDLY_API_TOKEN: las reservas no se detectan solas (usa el botón "Comprobar reservas" del dashboard)');
+}

@@ -8,7 +8,7 @@ export const LEAD_BUSINESS_SOURCE = 'new_business_lead';
 
 // Supabase filters put `in (...)` lists in the URL: keep them short
 const CHUNK = 150;
-function* chunks(arr, size = CHUNK) {
+export function* chunks(arr, size = CHUNK) {
   for (let i = 0; i < arr.length; i += size) yield arr.slice(i, i + size);
 }
 
@@ -20,6 +20,7 @@ function fail(step, error) {
 
 // Unguessable URL-safe token of the lead's own link in the email (/c/:token)
 export const newLinkToken = () => randomBytes(18).toString('base64url');
+export const LINK_TOKEN_RE = /^[A-Za-z0-9_-]{24}$/;
 
 // ─── Ingest bookkeeping ──────────────────────────────────────────────────────
 

@@ -12,6 +12,7 @@
     "start:campaign": "node src/campaign-server.js",
     "leads:email-template": "node scripts/preview-lead-emails.js",
     "leads:push": "node scripts/leads-push.js",
+    "calendly:sync": "node scripts/calendly-sync.js",
     "instantly:webhook": "node scripts/instantly-webhook.js"
   },
   "dependencies": {

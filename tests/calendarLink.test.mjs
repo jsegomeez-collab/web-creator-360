@@ -31,6 +31,8 @@ test('un clic normal: redirige al calendario con su email y marca al lead como "
   const to = new URL(r.headers.get('location'));
   assert.equal(`${to.origin}${to.pathname}`, CAL);
   assert.equal(to.searchParams.get('email'), 'Dueno1@Gmail.com');
+  assert.equal(to.searchParams.get('utm_content'), TOK(1));        // Calendly lo devuelve al reservar: así se sabe qué lead agendó
+  assert.equal(to.searchParams.get('utm_source'), 'instantly');
   assert.equal(r.headers.get('x-robots-tag'), 'noindex, nofollow');
   assert.match(r.headers.get('cache-control'), /no-store/);
   const l = row('L1');
@@ -47,7 +49,7 @@ test('estados previos al interés (new, queued, emailed) pasan a engaged', async
 });
 
 test('quien ya avanzó (engaged, replied, called, won, lost…) NO cambia de estado ni se pisa su fecha', async () => {
-  for (const status of ['engaged', 'replied', 'called', 'won', 'lost', 'unsubscribed', 'bounced']) {
+  for (const status of ['engaged', 'booked', 'replied', 'called', 'won', 'lost', 'unsubscribed', 'bounced']) {
     seed([lead(1, { status, engaged_at: '2026-09-01T00:00:00.000Z' })]);
     const r = await hit(`/c/${TOK(1)}`);
     assert.equal(r.status, 302, status);                       // el calendario se abre igualmente

@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS new_business_leads (
   latino_strong     BOOLEAN NOT NULL DEFAULT FALSE, -- Spanish words in the BUSINESS NAME (adds the "comunidad latina" phrase to the email)
   minority_owned    BOOLEAN NOT NULL DEFAULT FALSE,
 
-  -- Funnel: new → queued (sent to Instantly) → emailed → engaged (opened the calendar link) → called → won | lost
+  -- Funnel: new → queued (sent to Instantly) → emailed → engaged (opened the calendar link) → booked (booked a call in Calendly)
+  --         → called → won | lost
   -- Exits:  replied | unsubscribed | bounced | invalid_email | rejected (Instantly didn't accept it)
   status            TEXT NOT NULL DEFAULT 'new',
   instantly_lead_id TEXT,
@@ -30,6 +31,8 @@ CREATE TABLE IF NOT EXISTS new_business_leads (
   emailed_at        TIMESTAMPTZ,
   engaged_at        TIMESTAMPTZ,
   replied_at        TIMESTAMPTZ,
+  booked_at         TIMESTAMPTZ,                   -- when they booked the call
+  call_at           TIMESTAMPTZ,                   -- when the call is (start time in Calendly)
 
   -- Unguessable token of the lead's own link in the email (/c/:token → tracked redirect to your calendar)
   link_token        TEXT NOT NULL UNIQUE,
@@ -57,7 +60,9 @@ ALTER TABLE new_business_leads
   ADD COLUMN IF NOT EXISTS pushed_at         TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS emailed_at        TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS engaged_at        TIMESTAMPTZ,
-  ADD COLUMN IF NOT EXISTS replied_at        TIMESTAMPTZ;
+  ADD COLUMN IF NOT EXISTS replied_at        TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS booked_at         TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS call_at           TIMESTAMPTZ;
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'new_business_leads' AND column_name = 'form_token') THEN
     ALTER TABLE new_business_leads RENAME COLUMN form_token TO link_token;

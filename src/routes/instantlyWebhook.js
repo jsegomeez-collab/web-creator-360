@@ -6,7 +6,7 @@
 //   lead_unsubscribed   new/queued/emailed    → unsubscribed (+ suppression list)
 //   reply_received      new/queued/emailed    → replied      (replied_at is always recorded)
 // Any other event, or a lead we don't know, is acknowledged and ignored. A lead that already engaged (opened the calendar
-// link) or later never goes backwards.
+// link) or later (booked, called…) never goes backwards.
 import { timingSafeEqual } from 'crypto';
 import { Router, json } from 'express';
 import { normEmail, suppress } from '../services/suppressions.js';

@@ -4,6 +4,7 @@
 //   POST /leads/add   up to 1000 leads per request, with per-lead custom variables ({{empresa}}, {{ciudad}}…)
 //   POST /webhooks    one webhook for all events, protected by a secret header
 import { isDryRun, dryRunLog } from '../lib/dryRun.js';
+import { requestJson } from '../lib/http.js';
 import { displayName, leadVariables } from '../prompts/newBusinessEmails.js';
 
 export const API = 'https://api.instantly.ai/api/v2';
@@ -11,8 +12,6 @@ const MAX_PER_REQUEST = 1000;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LEADS_TABLE = 'new_business_leads';
 const REJECTED_NOTE = 'Instantly no lo aceptó (ya estaba en tu workspace, está en la lista de bloqueo o el email no es válido)';
-
-const sleepDefault = (ms) => new Promise(r => setTimeout(r, ms));
 
 // Settings for pushing leads. A real push needs an API key, a campaign, the public URL of the campaign server (the link
 // in each email points there) and the calendar the link finally opens. In dry-run placeholders are used.
@@ -47,27 +46,11 @@ export const buildInstantlyLead = (lead, config) => ({
   custom_variables: leadVariables(lead, trackedCalendarUrl(config, lead.link_token)),
 });
 
-// One API call with retries on 429 / 5xx. Errors carry Instantly's own message.
-async function call(config, path, body, { fetchImpl = globalThis.fetch, sleep = sleepDefault, retries = 3 } = {}) {
-  for (let attempt = 1; ; attempt++) {
-    let res;
-    try {
-      res = await fetchImpl(`${API}${path}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${config.apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-    } catch (err) {
-      if (attempt >= retries) throw new Error(`No se pudo conectar con Instantly: ${err.message}`);
-      await sleep(1000 * attempt);
-      continue;
-    }
-    if (res.ok) return res.json();
-    if ((res.status === 429 || res.status >= 500) && attempt < retries) { await sleep(1000 * attempt); continue; }
-    const detail = await res.json().then(j => j.message || j.error || JSON.stringify(j)).catch(() => res.statusText);
-    throw new Error(`Instantly respondió ${res.status}: ${detail}${res.status === 401 ? ' (¿INSTANTLY_API_KEY correcta y con permiso para leads?)' : ''}`);
-  }
-}
+// POST to the Instantly API (retries and error messages come from lib/http.js)
+const call = (config, path, body, { fetchImpl, sleep } = {}) => requestJson({
+  service: 'Instantly', url: `${API}${path}`, method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, body, fetchImpl, sleep,
+  hint401: '(¿INSTANTLY_API_KEY correcta y con permiso para leads?)',
+});
 
 // Pushes the newest leads with status "new" into the campaign. Returns { dryRun, pushed, rejected }.
 //   pushed    → status "queued" (Instantly will send it on its schedule), with the Instantly lead id
