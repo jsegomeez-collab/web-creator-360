@@ -6,9 +6,9 @@ export function createFakeDb() {
   const handlers = {};
 
   function builder(table) {
-    const ctx = { table, op: 'select', payload: null, filters: {} };
+    const ctx = { table, op: 'select', payload: null, options: undefined, filters: {} };
     const finish = (single) => {
-      calls.push({ table, op: ctx.op, payload: ctx.payload, filters: { ...ctx.filters } });
+      calls.push({ table, op: ctx.op, payload: ctx.payload, options: ctx.options, filters: { ...ctx.filters } });
       let data = handlers[table]?.(ctx) ?? null;
       if (data && data.__error) return { data: null, error: { message: data.__error } };
       if (single) data = Array.isArray(data) ? (data[0] ?? null) : data;
@@ -19,7 +19,7 @@ export function createFakeDb() {
         if (prop === 'then') return (resolve, reject) => Promise.resolve(finish(false)).then(resolve, reject);
         if (prop === 'single' || prop === 'maybeSingle') return () => Promise.resolve(finish(true));
         return (...args) => {
-          if (['insert', 'update', 'upsert'].includes(prop)) { ctx.op = prop; ctx.payload = args[0]; }
+          if (['insert', 'update', 'upsert'].includes(prop)) { ctx.op = prop; ctx.payload = args[0]; ctx.options = args[1]; }
           else if (prop === 'eq') ctx.filters[args[0]] = args[1];
           else if (prop === 'in') ctx.filters[`${args[0]}__in`] = args[1];
           return b;
