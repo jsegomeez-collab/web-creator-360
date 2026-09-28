@@ -76,3 +76,5 @@ services:
         sync: false
       - key: INSTANTLY_WEBHOOK_SECRET
         sync: false
+      - key: CALENDAR_URL
+        sync: false
