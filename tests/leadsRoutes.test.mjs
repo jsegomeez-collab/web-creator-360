@@ -1,5 +1,5 @@
 // API del pipeline "LLCs nuevas" del dashboard: contadores, listado con filtros, estados manuales, ingesta CT, CSV y envío a Instantly.
-import { test, before, after, beforeEach } from 'node:test';
+import { test, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import express from 'express';
 import { createMemoryDb } from './helpers/memoryDb.mjs';
@@ -23,14 +23,16 @@ const registryRow = (n, o = {}) => ({
   minority_owned_organization: false, billingstreet: '1 Main St', billingcity: 'HARTFORD', billingpostalcode: '06103', ...o,
 });
 let registryCalls = [];
-const fetchImpl = async (url) => {
+let instantlyHandler = async () => ({ ok: true, status: 200, json: async () => ({ items: [] }) });   // overridden per test
+const fetchImpl = async (url, opts) => {
+  if (new URL(url).host === 'api.instantly.ai') return instantlyHandler(url, opts);
   registryCalls.push(String(url));
   const offset = Number(new URL(url).searchParams.get('$offset') || 0);
   const rows = offset === 0 ? [registryRow(1), registryRow(2)] : [];
   return { ok: true, status: 200, json: async () => rows, text: async () => JSON.stringify(rows) };
 };
 
-let db, server, base;
+let db, server, base, onReply;
 const lead = (id, o = {}) => ({
   id, user_id: OWNER, source: 'ct_registry', external_id: id, name: `Empresa ${id}`, email: `${id.toLowerCase()}@gmail.com`, city: 'Hartford', zip: '06103',
   sector: 'limpieza', priority: 'A', status: 'new', registered_at: '2026-09-14', latino_signal: true, latino_strong: false, minority_owned: false,
@@ -43,9 +45,10 @@ const api = (path, { method = 'GET', body } = {}) => fetch(`${base}/api/leads${p
 
 before(async () => {
   db = createMemoryDb();
+  onReply = mock.fn(async () => {});
   const app = express();
   app.use(express.json({ limit: '10mb' }));
-  app.use('/api/leads', createLeadsRouter({ db, ownerId: OWNER, verifyOptions, fetchImpl }));
+  app.use('/api/leads', createLeadsRouter({ db, ownerId: OWNER, verifyOptions, fetchImpl, onReply: (...a) => onReply(...a) }));
   server = await new Promise(r => { const s = app.listen(0, () => r(s)); });
   base = `http://127.0.0.1:${server.address().port}`;
 });
@@ -53,6 +56,8 @@ after(() => { server.closeAllConnections?.(); server.close(); });
 beforeEach(() => {
   clearDomainCache();
   registryCalls = [];
+  instantlyHandler = async () => ({ ok: true, status: 200, json: async () => ({ items: [] }) });
+  onReply.mock.resetCalls();
   db.tables.new_business_leads = [];
   db.tables.email_suppressions = [];
   db.tables.lead_ingest_runs = [];
@@ -248,6 +253,89 @@ test('push en modo prueba (OUTREACH_DRY_RUN): cuenta lo que enviaría y no cambi
   assert.equal(r.status, 200);
   assert.deepEqual(r.body, { dryRun: true, pushed: 2, rejected: 0 });
   assert.deepEqual(db.rows('new_business_leads').map(l => l.status), ['new', 'new', 'invalid_email']);
+});
+
+// ─── comprobar Instantly (reemplaza al webhook) ──────────────────────────────
+test('poll-instantly sin configuración de Instantly → 400 con las variables que faltan', async () => {
+  db.tables.new_business_leads = [lead('A', { status: 'queued', instantly_lead_id: 'inst-a' })];
+  const r = await api('/poll-instantly', { method: 'POST' });
+  assert.equal(r.status, 400);
+  assert.match(r.body.error, /INSTANTLY_API_KEY/);
+});
+
+test('poll-instantly: marca enviado, rebotado o de baja según lo que diga Instantly', async () => {
+  process.env.INSTANTLY_API_KEY = 'k';
+  process.env.INSTANTLY_CAMPAIGN_ID = '5a1d6d4e-8a0b-4e9c-9a53-2f4c8e7f1b10';
+  process.env.CAMPAIGN_PUBLIC_URL = 'https://campana.example.com';
+  db.tables.new_business_leads = [
+    lead('A', { status: 'queued', instantly_lead_id: 'inst-a' }),
+    lead('B', { status: 'queued', instantly_lead_id: 'inst-b' }),
+    lead('C', { status: 'emailed', instantly_lead_id: 'inst-c' }),
+    lead('D', { status: 'new' }),                          // sin instantly_lead_id: no se pregunta por él
+  ];
+  instantlyHandler = async (url, opts) => {
+    const body = JSON.parse(opts.body);
+    assert.deepEqual(body.ids.sort(), ['inst-a', 'inst-b', 'inst-c']);
+    const items = [
+      { id: 'inst-a', status: 1, email_reply_count: 0, timestamp_last_contact: '2026-09-29T10:00:00.000Z' },
+      { id: 'inst-b', status: -1, email_reply_count: 0 },
+      { id: 'inst-c', status: -2, email_reply_count: 0 },
+    ];
+    return { ok: true, status: 200, json: async () => ({ items }) };
+  };
+  const r = await api('/poll-instantly', { method: 'POST' });
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.body, { checked: 3, updated: 3, suppressed: 2, replied: 0 });
+  const byId = Object.fromEntries(db.rows('new_business_leads').map(l => [l.id, l]));
+  assert.deepEqual([byId.A.status, byId.A.emailed_at], ['emailed', '2026-09-29T10:00:00.000Z']);
+  assert.equal(byId.B.status, 'bounced');
+  assert.equal(byId.C.status, 'unsubscribed');              // "emailed" es previo a interactuar: la baja sí lo mueve
+  assert.deepEqual(db.rows('email_suppressions').map(s => [s.email, s.reason]).sort(), [['b@gmail.com', 'bounced'], ['c@gmail.com', 'unsubscribed']]);
+});
+
+test('poll-instantly: la primera respuesta avisa por Telegram y guarda el consentimiento del funnel; la segunda no vuelve a avisar', async () => {
+  process.env.INSTANTLY_API_KEY = 'k';
+  process.env.INSTANTLY_CAMPAIGN_ID = '5a1d6d4e-8a0b-4e9c-9a53-2f4c8e7f1b10';
+  process.env.CAMPAIGN_PUBLIC_URL = 'https://campana.example.com';
+  db.tables.new_business_leads = [lead('A', { status: 'emailed', instantly_lead_id: 'inst-a', name: 'Taller Ramos LLC' })];
+  instantlyHandler = async () => ({ ok: true, status: 200, json: async () => ({ items: [{ id: 'inst-a', status: 1, email_reply_count: 1, timestamp_last_reply: '2026-09-29T11:00:00.000Z' }] }) });
+
+  const r = await api('/poll-instantly', { method: 'POST' });
+  assert.deepEqual(r.body, { checked: 1, updated: 1, suppressed: 0, replied: 1 });
+  const lead1 = db.rows('new_business_leads')[0];
+  assert.deepEqual([lead1.status, lead1.replied_at], ['replied', '2026-09-29T11:00:00.000Z']);
+  await new Promise(r2 => setTimeout(r2, 25));
+  assert.equal(onReply.mock.callCount(), 1);
+  assert.equal(onReply.mock.calls[0].arguments[0].name, 'Taller Ramos LLC');
+
+  const again = await api('/poll-instantly', { method: 'POST' });
+  assert.deepEqual(again.body, { checked: 0, updated: 0, suppressed: 0, replied: 0 });   // "replied" ya no se vuelve a preguntar
+  await new Promise(r2 => setTimeout(r2, 25));
+  assert.equal(onReply.mock.callCount(), 1);
+});
+
+test('poll-instantly: un lead que ya interactuó (engaged/requested) conserva su estado al recibir una respuesta', async () => {
+  process.env.INSTANTLY_API_KEY = 'k';
+  process.env.INSTANTLY_CAMPAIGN_ID = '5a1d6d4e-8a0b-4e9c-9a53-2f4c8e7f1b10';
+  process.env.CAMPAIGN_PUBLIC_URL = 'https://campana.example.com';
+  db.tables.new_business_leads = [lead('A', { status: 'requested', instantly_lead_id: 'inst-a', phone: '+18605550100' })];
+  instantlyHandler = async () => ({ ok: true, status: 200, json: async () => ({ items: [{ id: 'inst-a', status: 1, email_reply_count: 1, timestamp_last_reply: '2026-09-29T11:00:00.000Z' }] }) });
+  const r = await api('/poll-instantly', { method: 'POST' });
+  assert.deepEqual(r.body, { checked: 1, updated: 1, suppressed: 0, replied: 1 });
+  const l = db.rows('new_business_leads')[0];
+  assert.deepEqual([l.status, l.phone, !!l.replied_at], ['requested', '+18605550100', true]);
+});
+
+test('poll-instantly: quien ya está fuera (baja, rebote, llamado, ganado…) no se vuelve a preguntar', async () => {
+  process.env.INSTANTLY_API_KEY = 'k';
+  process.env.INSTANTLY_CAMPAIGN_ID = '5a1d6d4e-8a0b-4e9c-9a53-2f4c8e7f1b10';
+  process.env.CAMPAIGN_PUBLIC_URL = 'https://campana.example.com';
+  db.tables.new_business_leads = ['unsubscribed', 'bounced', 'invalid_email', 'rejected', 'called', 'won', 'lost'].map((s, i) => lead(`L${i}`, { status: s, instantly_lead_id: `inst-${i}` }));
+  let called = false;
+  instantlyHandler = async () => { called = true; return { ok: true, status: 200, json: async () => ({ items: [] }) }; };
+  const r = await api('/poll-instantly', { method: 'POST' });
+  assert.deepEqual(r.body, { checked: 0, updated: 0, suppressed: 0, replied: 0 });
+  assert.equal(called, false);
 });
 
 test('email-template: asunto, cuerpo y variables del texto único', async () => {

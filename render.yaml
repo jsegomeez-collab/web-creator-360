@@ -53,9 +53,10 @@ services:
       - key: PREVIEW_EXPIRY_DAYS
         value: "15"
 
-  # Public server of the new-business campaign: the page each lead opens from the email (to ask for a call) and Instantly's
-  # webhook. It has no dashboard and no cron of the main app, so it is safe to expose. Create ONLY this service for the
-  # campaign (New > Web Service), not the whole blueprint: the service above (full app) is not needed for it.
+  # Public server of the new-business campaign: the page each lead opens from the email (to ask for a call), plus a cron
+  # that asks Instantly's API every 5 minutes what happened to each lead (sent, bounced, unsubscribed, replied — no
+  # webhook needed). It has no dashboard and no cron of the main app, so it is safe to expose. Create ONLY this service
+  # for the campaign (New > Web Service), not the whole blueprint: the service above (full app) is not needed for it.
   - type: web
     name: web-creator-360-campaign
     env: node
@@ -73,9 +74,9 @@ services:
         sync: false
       - key: NEW_LEADS_OWNER_USER_ID
         sync: false
-      - key: INSTANTLY_CAMPAIGN_ID
+      - key: INSTANTLY_API_KEY
         sync: false
-      - key: INSTANTLY_WEBHOOK_SECRET
+      - key: INSTANTLY_CAMPAIGN_ID
         sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false

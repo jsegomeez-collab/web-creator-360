@@ -21,7 +21,7 @@ const quiet = async (fn) => { const orig = console.error; console.error = () => 
 before(async () => {
   db = createMemoryDb({ new_business_leads: [] });
   onRequested = mock.fn(async () => {});
-  server = await new Promise(r => { const s = createCampaignApp({ db, ownerId: OWNER, webhookSecret: 's', campaignId: null, onRequested: (...a) => onRequested(...a) }).listen(0, () => r(s)); });
+  server = await new Promise(r => { const s = createCampaignApp({ db, ownerId: OWNER, onRequested: (...a) => onRequested(...a) }).listen(0, () => r(s)); });
   base = `http://127.0.0.1:${server.address().port}`;
 });
 after(() => { server.closeAllConnections?.(); server.close(); });

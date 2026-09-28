@@ -340,6 +340,24 @@ async function loadLeadsSend() {
   hint.textContent = dryRun
     ? 'OUTREACH_DRY_RUN=true: al pulsar el botón no se envía nada a Instantly; solo se cuenta y se anota en el registro del servidor. Ponlo en false en tu .env para enviar de verdad.'
     : 'Instantly no está configurado. Revisa en tu .env: INSTANTLY_API_KEY, INSTANTLY_CAMPAIGN_ID, y CAMPAIGN_PUBLIC_URL.';
+
+  $('poll-btn').disabled = !configured;
+  $('poll-hint').textContent = configured
+    ? 'El servidor de la campaña lo comprueba solo cada 5 minutos; aquí puedes hacerlo ahora mismo.'
+    : 'Necesita Instantly configurado (arriba).';
+}
+
+async function pollInstantly(btn) {
+  await withBusy(btn, 'Comprobando…', async () => {
+    const r = await leadsApi('/poll-instantly', { method: 'POST' });
+    const body = statLine('Leads revisados', r.checked)
+      + statLine('Actualizados (enviado, rebotado, respondió…)', r.updated, 'text-emerald-700')
+      + (r.suppressed ? statLine('Bajas o rebotes añadidos a tu lista de supresión', r.suppressed, 'text-red-600') : '')
+      + (r.replied ? statLine('Respuestas nuevas (te ha llegado un aviso a Telegram)', r.replied, 'text-emerald-700') : '');
+    $('poll-result').innerHTML = resultBox('Comprobado', false, body);
+    $('poll-result').classList.remove('hidden');
+    await loadLeadStats();
+  });
 }
 
 async function pushToInstantly(btn) {
@@ -408,6 +426,7 @@ $('leads-table').addEventListener('click', async (e) => {
 });
 
 $('send-btn').addEventListener('click', (e) => pushToInstantly(e.currentTarget));
+$('poll-btn').addEventListener('click', (e) => pollInstantly(e.currentTarget));
 document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', () => copyField(btn.dataset.copy, btn)));
 
 loadLeadStats();

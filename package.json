@@ -14,7 +14,7 @@
     "leads:push": "node scripts/leads-push.js",
     "telegram:setup": "node scripts/telegram-setup.js",
     "leads:link": "node scripts/lead-link.js",
-    "instantly:webhook": "node scripts/instantly-webhook.js"
+    "instantly:poll": "node scripts/instantly-poll.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

@@ -1,8 +1,7 @@
 // Instantly (cold email sender, API v2). We push new leads into ONE campaign and Instantly does the rest: its own
-// mailboxes, warm-up, schedule, daily limits and the unsubscribe link. What happens afterwards comes back to us through
-// a webhook (src/routes/instantlyWebhook.js).
+// mailboxes, warm-up, schedule, daily limits and the unsubscribe link. What happens afterwards (sent, bounced,
+// unsubscribed, replied) is found by polling, not a webhook (services/instantlyPoll.js) — webhooks need a paid plan.
 //   POST /leads/add   up to 1000 leads per request, with per-lead custom variables ({{empresa}}, {{ciudad}}…)
-//   POST /webhooks    one webhook for all events, protected by a secret header
 import { isDryRun, dryRunLog } from '../lib/dryRun.js';
 import { requestJson } from '../lib/http.js';
 import { displayName, leadVariables } from '../prompts/newBusinessEmails.js';
@@ -103,17 +102,4 @@ export async function pushLeads({ db, ownerId, config, limit = 100, dryRun = isD
     rejected += notAccepted.length;
   }
   return { dryRun: false, pushed, rejected };
-}
-
-// Creates the single webhook (all events) that calls our server, protected by a secret header.
-export async function createWebhook({ config, targetUrl, secret, fetchImpl, sleep }) {
-  if (!/^https:\/\//i.test(targetUrl || '')) throw new Error('La URL del webhook debe ser https://');
-  if (!secret) throw new Error('Falta INSTANTLY_WEBHOOK_SECRET');
-  return call(config, '/webhooks', {
-    name: 'Web Creator 360',
-    target_hook_url: targetUrl,
-    event_type: 'all_events',
-    campaign: config.campaignId,
-    headers: { 'x-webhook-secret': secret },
-  }, { fetchImpl, sleep });
 }

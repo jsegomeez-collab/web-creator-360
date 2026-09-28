@@ -7,12 +7,14 @@
 //   POST  /import/csv/preview      read a CSV: columns, first rows and a suggested mapping
 //   POST  /import/csv              import a CSV with a column mapping ({ csv, mapping, dryRun? })
 //   POST  /push                    send the newest "new" leads to the Instantly campaign ({ limit })
+//   POST  /poll-instantly          check Instantly now for sent/bounced/unsubscribed/replied (the cron does this every 5 min)
 //   GET   /email-template          the email text to paste in Instantly
 import { Router } from 'express';
 import { isDryRun } from '../lib/dryRun.js';
 import { runCtIngest, FIRST_RUN_DAYS } from '../services/ctIngest.js';
 import { previewCsv, importCsvLeads } from '../services/csvImport.js';
 import { loadInstantlyConfig, pushLeads } from '../services/instantly.js';
+import { pollInstantlyEvents } from '../services/instantlyPoll.js';
 import { EMAIL_SUBJECT, EMAIL_BODY, templateVariables } from '../prompts/newBusinessEmails.js';
 
 const TABLE = 'new_business_leads';
@@ -22,7 +24,8 @@ const LIST_COLUMNS = 'id, name, email, city, zip, sector, priority, status, regi
 const asList = (v) => String(v ?? '').split(',').map(s => s.trim()).filter(Boolean);
 
 // verifyOptions / fetchImpl: only for tests (a fake DNS resolver and a fake registry download); production uses the real ones
-export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl }) {
+// onReply(lead): the Telegram alert for a lead's first reply, fired from /poll-instantly (the campaign server's cron also polls on its own)
+export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, onReply = null }) {
   const router = Router();
 
   router.use((req, res, next) => {
@@ -109,6 +112,12 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl }
     let config;
     try { config = loadInstantlyConfig(process.env, { dryRun }); } catch (err) { return res.status(400).json({ error: err.message }); }
     res.json(await pushLeads({ db, ownerId, config, limit, dryRun }));
+  }));
+
+  router.post('/poll-instantly', guard(async (req, res) => {
+    let config;
+    try { config = loadInstantlyConfig(process.env, { dryRun: false }); } catch (err) { return res.status(400).json({ error: err.message }); }
+    res.json(await pollInstantlyEvents({ db, ownerId, config, fetchImpl, onReply }));
   }));
 
   router.get('/email-template', (req, res) => {

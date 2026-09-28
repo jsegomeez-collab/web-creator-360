@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createMemoryDb } from './helpers/memoryDb.mjs';
-import { loadInstantlyConfig, buildInstantlyLead, leadLinkUrl, pushLeads, createWebhook, API } from '../src/services/instantly.js';
+import { loadInstantlyConfig, buildInstantlyLead, leadLinkUrl, pushLeads, API } from '../src/services/instantly.js';
 
 const OWNER = 'owner-1';
 const CAMPAIGN = '5a1d6d4e-8a0b-4e9c-9a53-2f4c8e7f1b10';
@@ -174,21 +174,4 @@ test('si Instantly acepta pero falla el guardado local, avisa claramente de no r
   db.failNext('new_business_leads', 'update', 'timeout');
   const { fetchImpl } = fakeInstantly(acceptAll);
   await assert.rejects(() => pushLeads({ db, ownerId: OWNER, config: config(), dryRun: false, fetchImpl, sleep: noSleep }), /Instantly aceptó los leads pero no se pudo guardar.*No vuelvas a enviar/);
-});
-
-// ─── webhook ─────────────────────────────────────────────────────────────────
-test('createWebhook: un solo webhook con todos los eventos, filtrado a la campaña y con el secreto en una cabecera', async () => {
-  const { fetchImpl, calls } = fakeInstantly(() => ({ json: { id: 'wh-1' } }));
-  const r = await createWebhook({ config: config(), targetUrl: 'https://campana.example.com/webhooks/instantly', secret: 's3cret', fetchImpl });
-  assert.equal(r.id, 'wh-1');
-  assert.equal(calls[0].url, `${API}/webhooks`);
-  assert.deepEqual(calls[0].body, {
-    name: 'Web Creator 360', target_hook_url: 'https://campana.example.com/webhooks/instantly', event_type: 'all_events', campaign: CAMPAIGN,
-    headers: { 'x-webhook-secret': 's3cret' },
-  });
-});
-
-test('createWebhook: exige URL https y secreto', async () => {
-  await assert.rejects(() => createWebhook({ config: config(), targetUrl: 'http://x.com/hook', secret: 's' }), /https/);
-  await assert.rejects(() => createWebhook({ config: config(), targetUrl: 'https://x.com/hook', secret: '' }), /INSTANTLY_WEBHOOK_SECRET/);
 });
