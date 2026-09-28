@@ -2,11 +2,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createMemoryDb } from './helpers/memoryDb.mjs';
-import { loadInstantlyConfig, buildInstantlyLead, trackedCalendarUrl, pushLeads, createWebhook, API } from '../src/services/instantly.js';
+import { loadInstantlyConfig, buildInstantlyLead, leadLinkUrl, pushLeads, createWebhook, API } from '../src/services/instantly.js';
 
 const OWNER = 'owner-1';
 const CAMPAIGN = '5a1d6d4e-8a0b-4e9c-9a53-2f4c8e7f1b10';
-const goodEnv = { INSTANTLY_API_KEY: 'key-123', INSTANTLY_CAMPAIGN_ID: CAMPAIGN, CAMPAIGN_PUBLIC_URL: 'https://campana.example.com/', CALENDAR_URL: 'https://cal.example.com/jose/15min' };
+const goodEnv = { INSTANTLY_API_KEY: 'key-123', INSTANTLY_CAMPAIGN_ID: CAMPAIGN, CAMPAIGN_PUBLIC_URL: 'https://campana.example.com/' };
 const config = () => loadInstantlyConfig(goodEnv, { dryRun: false });
 const noSleep = async () => {};
 
@@ -35,21 +35,19 @@ const acceptAll = (body) => ({ json: { status: 'success', created_leads: body.le
 test('config real completa: URL sin barra final', () => {
   const c = config();
   assert.deepEqual([c.apiKey, c.campaignId, c.publicUrl, c.warnings], ['key-123', CAMPAIGN, 'https://campana.example.com', []]);
-  assert.equal(trackedCalendarUrl(c, 'TOK'), 'https://campana.example.com/c/TOK');
+  assert.equal(leadLinkUrl(c, 'TOK'), 'https://campana.example.com/c/TOK');
 });
 
-test('config real: se niega si falta la clave, la campaña, la URL pública https o el calendario', () => {
+test('config real: se niega si falta la clave, la campaña, o la URL pública https', () => {
   const bad = (over, re) => assert.throws(() => loadInstantlyConfig({ ...goodEnv, ...over }, { dryRun: false }), re);
   bad({ INSTANTLY_API_KEY: '' }, /INSTANTLY_API_KEY/);
   bad({ INSTANTLY_CAMPAIGN_ID: 'no-es-uuid' }, /INSTANTLY_CAMPAIGN_ID/);
-  bad({ CALENDAR_URL: '' }, /CALENDAR_URL/);
-  bad({ CALENDAR_URL: 'calendly.com/x' }, /CALENDAR_URL/);
   for (const url of ['', 'http://campana.example.com', 'https://localhost:3002', 'http://127.0.0.1:3002']) bad({ CAMPAIGN_PUBLIC_URL: url }, /CAMPAIGN_PUBLIC_URL/);
 });
 
 test('config en dry-run: usa marcadores y lista lo que faltaría', () => {
   const c = loadInstantlyConfig({}, { dryRun: true });
-  assert.equal(c.warnings.length, 4);
+  assert.equal(c.warnings.length, 3);
   assert.equal(c.publicUrl, 'http://localhost:3002');
 });
 

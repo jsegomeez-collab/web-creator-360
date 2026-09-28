@@ -133,3 +133,59 @@ test('/health responde y nada más (sin dashboard ni API interna)', async () => 
     assert.equal((await fetch(base + p)).status, 404, p);
   }
 });
+
+// ─── aviso de la primera respuesta ───────────────────────────────────────────
+async function withReplyHook(onReply, fn) {
+  const s = await new Promise(r => { const x = createCampaignApp({ db, ownerId: OWNER, webhookSecret: SECRET, campaignId: CAMPAIGN, onReply }).listen(0, () => r(x)); });
+  const send = (event) => fetch(`http://127.0.0.1:${s.address().port}/webhooks/instantly`, {
+    method: 'POST', headers: { 'content-type': 'application/json', 'x-webhook-secret': SECRET },
+    body: JSON.stringify({ campaign_id: CAMPAIGN, timestamp: '2026-09-29T14:00:00.000Z', ...event }),
+  });
+  try { await fn(send); } finally { s.closeAllConnections?.(); s.close(); }
+}
+const tick = () => new Promise(r => setTimeout(r, 25));
+
+test('la primera respuesta avisa una vez (con los datos del lead); las siguientes no', async () => {
+  seed([mkLead('L1', { name: 'Taller Ramos LLC', city: 'New Britain', sector: 'auto', replied_at: null })]);
+  const calls = [];
+  await withReplyHook(async (lead) => { calls.push(lead); }, async (send) => {
+    assert.equal((await send({ event_type: 'reply_received', lead_email: 'l1@gmail.com' })).status, 200);
+    await tick();
+    assert.equal(calls.length, 1);
+    assert.deepEqual([calls[0].id, calls[0].name, calls[0].email, calls[0].city, calls[0].sector], ['L1', 'Taller Ramos LLC', 'l1@gmail.com', 'New Britain', 'auto']);
+    await send({ event_type: 'reply_received', lead_email: 'l1@gmail.com' });
+    await tick();
+    assert.equal(calls.length, 1);
+  });
+  assert.equal(row('L1').status, 'replied');
+});
+
+test('quien ya pidió la llamada y luego responde: se avisa, pero su estado no retrocede', async () => {
+  seed([mkLead('L1', { status: 'requested' })]);
+  const calls = [];
+  await withReplyHook(async (lead) => { calls.push(lead.id); }, async (send) => {
+    await send({ event_type: 'reply_received', lead_email: 'l1@gmail.com' });
+    await tick();
+  });
+  assert.deepEqual(calls, ['L1']);
+  assert.equal(row('L1').status, 'requested');
+  assert.ok(row('L1').replied_at);
+});
+
+test('otros eventos y leads desconocidos no avisan; si el aviso falla, Instantly recibe 200 igualmente', async () => {
+  seed([mkLead('L1')]);
+  const calls = [];
+  const orig = console.error; console.error = () => {};
+  try {
+    await withReplyHook(async (lead) => { calls.push(lead.id); throw new Error('telegram caído'); }, async (send) => {
+      await send({ event_type: 'email_sent', lead_email: 'l1@gmail.com' });
+      await send({ event_type: 'reply_received', lead_email: 'desconocido@gmail.com' });
+      await tick();
+      assert.deepEqual(calls, []);
+      const r = await send({ event_type: 'reply_received', lead_email: 'l1@gmail.com' });
+      assert.equal(r.status, 200);
+      await tick();
+      assert.deepEqual(calls, ['L1']);
+    });
+  } finally { console.error = orig; }
+});

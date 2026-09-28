@@ -7,23 +7,21 @@
 //   POST  /import/csv/preview      read a CSV: columns, first rows and a suggested mapping
 //   POST  /import/csv              import a CSV with a column mapping ({ csv, mapping, dryRun? })
 //   POST  /push                    send the newest "new" leads to the Instantly campaign ({ limit })
-//   POST  /sync-bookings           look in Calendly for leads that booked a call
 //   GET   /email-template          the email text to paste in Instantly
 import { Router } from 'express';
 import { isDryRun } from '../lib/dryRun.js';
 import { runCtIngest, FIRST_RUN_DAYS } from '../services/ctIngest.js';
 import { previewCsv, importCsvLeads } from '../services/csvImport.js';
 import { loadInstantlyConfig, pushLeads } from '../services/instantly.js';
-import { loadCalendlyConfig, isCalendlyConfigured, syncBookings } from '../services/calendly.js';
 import { EMAIL_SUBJECT, EMAIL_BODY, templateVariables } from '../prompts/newBusinessEmails.js';
 
 const TABLE = 'new_business_leads';
 const MANUAL_STATUSES = new Set(['replied', 'called', 'won', 'lost']);
-const LIST_COLUMNS = 'id, name, email, city, zip, sector, priority, status, registered_at, latino_signal, latino_strong, minority_owned, notes, source, pushed_at, emailed_at, engaged_at, replied_at, booked_at, call_at, site_id, created_at';
+const LIST_COLUMNS = 'id, name, email, city, zip, sector, priority, status, registered_at, latino_signal, latino_strong, minority_owned, notes, source, pushed_at, emailed_at, engaged_at, replied_at, requested_at, phone, contact_name, preferred_time, site_id, created_at';
 
 const asList = (v) => String(v ?? '').split(',').map(s => s.trim()).filter(Boolean);
 
-// verifyOptions / fetchImpl: only for tests (a fake DNS resolver and fake registry / Calendly downloads); production uses the real ones
+// verifyOptions / fetchImpl: only for tests (a fake DNS resolver and a fake registry download); production uses the real ones
 export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl }) {
   const router = Router();
 
@@ -51,7 +49,7 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl }
     let instantlyReady = true;
     try { loadInstantlyConfig(process.env, { dryRun: false }); } catch { instantlyReady = false; }
 
-    res.json({ total: (data || []).length, byStatus, lastRun: runs?.[0] ?? null, instantly: { ready: instantlyReady, dryRun }, calendly: { ready: isCalendlyConfigured() } });
+    res.json({ total: (data || []).length, byStatus, lastRun: runs?.[0] ?? null, instantly: { ready: instantlyReady, dryRun } });
   }));
 
   router.get('/', guard(async (req, res) => {
@@ -64,9 +62,9 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl }
     if (req.query.sector) query = query.eq('sector', String(req.query.sector));
     if (req.query.priority) query = query.eq('priority', String(req.query.priority));
     if (req.query.source) query = query.eq('source', String(req.query.source));
-    // Booked calls: the soonest first; everything else: the most recently registered
-    const byCall = statuses.length === 1 && statuses[0] === 'booked';
-    const { data, error } = await query.order(byCall ? 'call_at' : 'registered_at', { ascending: byCall }).limit(20000);
+    // Call requests: the newest first (they are waiting for you); everything else: the most recently registered
+    const requests = statuses.length === 1 && statuses[0] === 'requested';
+    const { data, error } = await query.order(requests ? 'requested_at' : 'registered_at', { ascending: false }).limit(20000);
     if (error) throw new Error(error.message);
 
     const q = String(req.query.q ?? '').trim().toLowerCase();
@@ -111,12 +109,6 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl }
     let config;
     try { config = loadInstantlyConfig(process.env, { dryRun }); } catch (err) { return res.status(400).json({ error: err.message }); }
     res.json(await pushLeads({ db, ownerId, config, limit, dryRun }));
-  }));
-
-  router.post('/sync-bookings', guard(async (req, res) => {
-    let config;
-    try { config = loadCalendlyConfig(); } catch (err) { return res.status(400).json({ error: err.message }); }
-    res.json(await syncBookings({ db, ownerId, config, fetchImpl }));
   }));
 
   router.get('/email-template', (req, res) => {

@@ -23,9 +23,7 @@ const registryRow = (n, o = {}) => ({
   minority_owned_organization: false, billingstreet: '1 Main St', billingcity: 'HARTFORD', billingpostalcode: '06103', ...o,
 });
 let registryCalls = [];
-let calendlyHandler = null;               // respuestas falsas de Calendly, según el test
-const fetchImpl = async (url, opts) => {
-  if (String(url).includes('api.calendly.com')) return calendlyHandler(new URL(url), opts);
+const fetchImpl = async (url) => {
   registryCalls.push(String(url));
   const offset = Number(new URL(url).searchParams.get('$offset') || 0);
   const rows = offset === 0 ? [registryRow(1), registryRow(2)] : [];
@@ -58,7 +56,7 @@ beforeEach(() => {
   db.tables.new_business_leads = [];
   db.tables.email_suppressions = [];
   db.tables.lead_ingest_runs = [];
-  for (const k of ['OUTREACH_DRY_RUN', 'INSTANTLY_API_KEY', 'INSTANTLY_CAMPAIGN_ID', 'CAMPAIGN_PUBLIC_URL', 'CALENDAR_URL', 'CALENDLY_API_TOKEN']) delete process.env[k];
+  for (const k of ['OUTREACH_DRY_RUN', 'INSTANTLY_API_KEY', 'INSTANTLY_CAMPAIGN_ID', 'CAMPAIGN_PUBLIC_URL']) delete process.env[k];
 });
 
 // ─── sin propietario configurado ─────────────────────────────────────────────
@@ -86,9 +84,6 @@ test('stats: cuenta por estado solo los leads del propietario, última ingesta y
   assert.deepEqual(r.body.byStatus, { new: 2, engaged: 1 });
   assert.equal(r.body.lastRun.inserted, 5);
   assert.deepEqual(r.body.instantly, { ready: false, dryRun: false });
-  assert.deepEqual(r.body.calendly, { ready: false });
-  process.env.CALENDLY_API_TOKEN = 'tok';
-  assert.deepEqual((await api('/stats')).body.calendly, { ready: true });
   process.env.OUTREACH_DRY_RUN = 'true';
   assert.equal((await api('/stats')).body.instantly.dryRun, true);
 });
@@ -113,15 +108,24 @@ test('listado: solo del propietario, más recientes primero, con filtros combina
   assert.deepEqual(ids(page), ['C']);
 });
 
-test('listado de "Agendó llamada": la llamada más próxima primero y con su hora', async () => {
+test('listado de "Pidió llamada": las más recientes primero y con el teléfono', async () => {
   db.tables.new_business_leads = [
-    lead('A', { status: 'booked', call_at: '2026-10-02T18:00:00.000Z', registered_at: '2026-09-20' }),
-    lead('B', { status: 'booked', call_at: '2026-09-30T15:30:00.000Z', registered_at: '2026-09-10' }),
+    lead('A', { status: 'requested', phone: '+18605550100', contact_name: 'Ana', preferred_time: 'Lo antes posible', requested_at: '2026-09-29T10:00:00.000Z', registered_at: '2026-09-20' }),
+    lead('B', { status: 'requested', phone: '+12035550111', preferred_time: 'Mañana por la tarde', requested_at: '2026-09-29T12:00:00.000Z', registered_at: '2026-09-10' }),
     lead('C', { status: 'emailed', registered_at: '2026-09-25' }),
   ];
-  const booked = await api('/?status=booked');
-  assert.deepEqual(booked.body.leads.map(l => [l.id, l.call_at]), [['B', '2026-09-30T15:30:00.000Z'], ['A', '2026-10-02T18:00:00.000Z']]);
+  const asked = await api('/?status=requested');
+  assert.deepEqual(asked.body.leads.map(l => [l.id, l.phone, l.preferred_time]), [['B', '+12035550111', 'Mañana por la tarde'], ['A', '+18605550100', 'Lo antes posible']]);
+  assert.equal(asked.body.leads[1].contact_name, 'Ana');
   assert.deepEqual((await api('/')).body.leads.map(l => l.id), ['C', 'A', 'B']);      // sin filtro: por fecha de registro
+});
+
+test('listado: no expone el consentimiento (IP y texto) ni el token del enlace', async () => {
+  db.tables.new_business_leads = [lead('A', { status: 'requested', phone: '+18605550100', consent_ip: '1.2.3.4', consent_text: 'x', consent_at: '2026-09-29T10:00:00.000Z' })];
+  const [l] = (await api('/')).body.leads;
+  assert.equal(l.consent_ip, undefined);
+  assert.equal(l.consent_text, undefined);
+  assert.equal(l.link_token, undefined);
 });
 
 test('listado: no expone el token del enlace ni el id de Instantly', async () => {
@@ -226,38 +230,6 @@ test('CSV importación: un fallo de la base de datos es un 500 con pista sobre e
   const r = await api('/import/csv', { method: 'POST', body: { csv: CSV, mapping: { name: 'empresa', email: 'email' } } });
   assert.equal(r.status, 500);
   assert.match(r.body.error, /schema-new-business-leads\.sql/);
-});
-
-// ─── reservas de Calendly ────────────────────────────────────────────────────
-const calendlyWith = (invitees) => async (url) => {
-  const json = (status, body) => ({ ok: status < 400, status, statusText: 'x', json: async () => body });
-  if (url.pathname === '/users/me') return json(200, { resource: { uri: 'https://api.calendly.com/users/U1' } });
-  if (url.pathname === '/scheduled_events') return json(200, { collection: [{ uri: 'https://api.calendly.com/scheduled_events/E1', start_time: new Date(Date.now() + 86_400_000).toISOString() }], pagination: {} });
-  return json(200, { collection: invitees, pagination: {} });
-};
-
-test('sync-bookings sin CALENDLY_API_TOKEN → 400 con la variable que falta', async () => {
-  const r = await api('/sync-bookings', { method: 'POST' });
-  assert.equal(r.status, 400);
-  assert.match(r.body.error, /CALENDLY_API_TOKEN/);
-});
-
-test('sync-bookings: el lead que agendó pasa a "booked" y se devuelve el recuento', async () => {
-  process.env.CALENDLY_API_TOKEN = 'tok';
-  db.tables.new_business_leads = [lead('A', { status: 'engaged', link_token: 'AAAAAAAAAAAAAAAAAAAAAAAA' }), lead('B')];
-  calendlyHandler = calendlyWith([{ email: 'otro@x.com', created_at: '2026-09-29T10:00:00.000Z', tracking: { utm_content: 'AAAAAAAAAAAAAAAAAAAAAAAA' } }]);
-  const r = await api('/sync-bookings', { method: 'POST' });
-  assert.equal(r.status, 200);
-  assert.deepEqual([r.body.bookings, r.body.booked, r.body.rescheduled, r.body.unmatched], [1, 1, 0, 0]);
-  assert.deepEqual(db.rows('new_business_leads').map(l => l.status), ['booked', 'new']);
-});
-
-test('sync-bookings: token de Calendly incorrecto → error legible (500 con el mensaje de Calendly)', async () => {
-  process.env.CALENDLY_API_TOKEN = 'malo';
-  calendlyHandler = async () => ({ ok: false, status: 401, statusText: 'Unauthorized', json: async () => ({ message: 'The access token is invalid' }) });
-  const r = await api('/sync-bookings', { method: 'POST' });
-  assert.equal(r.status, 500);
-  assert.match(r.body.error, /Calendly respondió 401: The access token is invalid/);
 });
 
 // ─── envío a Instantly ───────────────────────────────────────────────────────

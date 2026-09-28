@@ -46,15 +46,15 @@ export function displayName(raw) {
   }).join(' ');
 }
 
-// The values Instantly puts into the {{variables}} for one lead. `calendarUrl` is that lead's own tracked link.
-export function leadVariables(lead, calendarUrl) {
+// The values Instantly puts into the {{variables}} for one lead. `linkUrl` is that lead's own link (the page to ask for the call).
+export function leadVariables(lead, linkUrl) {
   const label = sectorLabel(lead.sector);
   return {
     empresa: displayName(lead.name),
     ciudad: lead.city || 'Connecticut',
     latina: lead.latino_strong ? ' y por aportar a nuestra comunidad latina' : '',
     sector_de: label ? ` de ${label}` : '',
-    calendario: calendarUrl,
+    calendario: linkUrl,
   };
 }
 
@@ -67,7 +67,7 @@ const fill = (text, vars) => text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
 });
 
 // What one lead will read (same substitution Instantly does) — for previews and tests
-export function renderEmail(lead, calendarUrl) {
-  const vars = leadVariables(lead, calendarUrl);
+export function renderEmail(lead, linkUrl) {
+  const vars = leadVariables(lead, linkUrl);
   return { subject: fill(EMAIL_SUBJECT, vars), body: fill(EMAIL_BODY, vars) };
 }

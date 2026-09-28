@@ -76,7 +76,7 @@ services:
         sync: false
       - key: INSTANTLY_WEBHOOK_SECRET
         sync: false
-      - key: CALENDAR_URL
+      - key: TELEGRAM_BOT_TOKEN
         sync: false
-      - key: CALENDLY_API_TOKEN
+      - key: TELEGRAM_CHAT_ID
         sync: false

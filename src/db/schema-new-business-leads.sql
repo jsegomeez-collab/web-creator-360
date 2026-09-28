@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS new_business_leads (
   latino_strong     BOOLEAN NOT NULL DEFAULT FALSE, -- Spanish words in the BUSINESS NAME (adds the "comunidad latina" phrase to the email)
   minority_owned    BOOLEAN NOT NULL DEFAULT FALSE,
 
-  -- Funnel: new → queued (sent to Instantly) → emailed → engaged (opened the calendar link) → booked (booked a call in Calendly)
+  -- Funnel: new → queued (sent to Instantly) → emailed → engaged (opened the link) → requested (asked for a call in the form)
   --         → called → won | lost
   -- Exits:  replied | unsubscribed | bounced | invalid_email | rejected (Instantly didn't accept it)
   status            TEXT NOT NULL DEFAULT 'new',
@@ -31,10 +31,17 @@ CREATE TABLE IF NOT EXISTS new_business_leads (
   emailed_at        TIMESTAMPTZ,
   engaged_at        TIMESTAMPTZ,
   replied_at        TIMESTAMPTZ,
-  booked_at         TIMESTAMPTZ,                   -- when they booked the call
-  call_at           TIMESTAMPTZ,                   -- when the call is (start time in Calendly)
+  requested_at      TIMESTAMPTZ,                   -- when they asked for the call
 
-  -- Unguessable token of the lead's own link in the email (/c/:token → tracked redirect to your calendar)
+  -- What the lead typed in the form, and the consent to be called (exact wording, moment and IP: proof)
+  phone             TEXT,                          -- E.164, e.g. +18605550100
+  contact_name      TEXT,
+  preferred_time    TEXT,                          -- the option they chose ("Lo antes posible", "Mañana por la tarde"…)
+  consent_at        TIMESTAMPTZ,
+  consent_text      TEXT,
+  consent_ip        TEXT,
+
+  -- Unguessable token of the lead's own link in the email (/c/:token → their page to ask for the call)
   link_token        TEXT NOT NULL UNIQUE,
 
   -- Filled when the demo is generated (after the lead opens the link)
@@ -48,21 +55,26 @@ CREATE TABLE IF NOT EXISTS new_business_leads (
   UNIQUE (user_id, source, external_id)
 );
 
--- Upgrade from the first version (own SMTP sender + phone form): Instantly now handles mailboxes, schedule and
--- follow-ups, and there is no form. Nothing of value is lost: those columns were never filled.
+-- Upgrade from the earlier versions: Instantly now handles mailboxes, schedule and follow-ups, so the columns of our own
+-- SMTP sender go away (they were never filled), and so do the Calendly ones of the previous step. The form columns
+-- (phone, contact_name…) are kept if they exist and added if they don't.
 ALTER TABLE new_business_leads
   DROP COLUMN IF EXISTS sequence_step,   DROP COLUMN IF EXISTS next_send_at,     DROP COLUMN IF EXISTS last_sent_at,
   DROP COLUMN IF EXISTS mailbox,         DROP COLUMN IF EXISTS first_message_id, DROP COLUMN IF EXISTS first_subject,
-  DROP COLUMN IF EXISTS contact_name,    DROP COLUMN IF EXISTS phone,            DROP COLUMN IF EXISTS preferred_time,
-  DROP COLUMN IF EXISTS consent_at,      DROP COLUMN IF EXISTS consent_text,     DROP COLUMN IF EXISTS consent_ip;
+  DROP COLUMN IF EXISTS booked_at,       DROP COLUMN IF EXISTS call_at;
 ALTER TABLE new_business_leads
   ADD COLUMN IF NOT EXISTS instantly_lead_id TEXT,
   ADD COLUMN IF NOT EXISTS pushed_at         TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS emailed_at        TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS engaged_at        TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS replied_at        TIMESTAMPTZ,
-  ADD COLUMN IF NOT EXISTS booked_at         TIMESTAMPTZ,
-  ADD COLUMN IF NOT EXISTS call_at           TIMESTAMPTZ;
+  ADD COLUMN IF NOT EXISTS requested_at      TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS phone             TEXT,
+  ADD COLUMN IF NOT EXISTS contact_name      TEXT,
+  ADD COLUMN IF NOT EXISTS preferred_time    TEXT,
+  ADD COLUMN IF NOT EXISTS consent_at        TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS consent_text      TEXT,
+  ADD COLUMN IF NOT EXISTS consent_ip        TEXT;
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'new_business_leads' AND column_name = 'form_token') THEN
     ALTER TABLE new_business_leads RENAME COLUMN form_token TO link_token;

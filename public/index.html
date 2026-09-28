@@ -540,7 +540,7 @@
     <div id="tab-leads-sources" class="tab-hidden p-8">
       <div class="mb-8">
         <h1 class="text-2xl font-bold text-slate-800">Fuentes de LLCs nuevas</h1>
-        <p class="text-slate-500 mt-1 text-sm">Empresas recién registradas que llegan de fuentes públicas o de un CSV. Es un pipeline aparte del de Google Maps: estos leads no pasan por Scraping ni Crear Webs; se envían a Instantly y la web se crea cuando agendan llamada.</p>
+        <p class="text-slate-500 mt-1 text-sm">Empresas recién registradas que llegan de fuentes públicas o de un CSV. Es un pipeline aparte del de Google Maps: estos leads no pasan por Scraping ni Crear Webs; se envían a Instantly y la web se crea cuando piden llamada.</p>
       </div>
 
       <div class="leads-error hidden mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3"></div>
@@ -599,17 +599,13 @@
     <div id="tab-leads-list" class="tab-hidden p-8">
       <div class="mb-8">
         <h1 class="text-2xl font-bold text-slate-800">Leads de LLCs nuevas</h1>
-        <p class="text-slate-500 mt-1 text-sm">Cada lead avanza solo: Instantly lo envía, pasa a "Abrió el enlace" cuando abre el calendario y a "Agendó llamada" cuando reserva hueco en Calendly. Tú marcas lo que pasa después.</p>
+        <p class="text-slate-500 mt-1 text-sm">Cada lead avanza solo: Instantly lo envía, pasa a "Abrió el enlace" cuando abre su página y a "Pidió llamada" cuando deja su teléfono (te llega un aviso a Telegram). Tú marcas lo que pasa después.</p>
       </div>
 
       <div class="leads-error hidden mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3"></div>
 
-      <div id="leads-funnel" class="flex flex-wrap gap-3 mb-4"></div>
+      <div id="leads-funnel" class="flex flex-wrap gap-3 mb-6"></div>
 
-      <div class="flex flex-wrap items-center gap-3 mb-6">
-        <button id="sync-bookings-btn" class="btn-secondary px-4 py-2 text-sm">↻ Comprobar reservas</button>
-        <span id="sync-hint" class="text-xs text-slate-400"></span>
-      </div>
 
       <div class="card overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center gap-3">

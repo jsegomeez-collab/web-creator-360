@@ -4,7 +4,7 @@
 //   email_sent          new/queued            → emailed
 //   email_bounced       new/queued/emailed    → bounced      (+ email goes to the suppression list)
 //   lead_unsubscribed   new/queued/emailed    → unsubscribed (+ suppression list)
-//   reply_received      new/queued/emailed    → replied      (replied_at is always recorded)
+//   reply_received      new/queued/emailed    → replied      (replied_at is always recorded; the first reply fires onReply)
 // Any other event, or a lead we don't know, is acknowledged and ignored. A lead that already engaged (opened the calendar
 // link) or later (booked, called…) never goes backwards.
 import { timingSafeEqual } from 'crypto';
@@ -36,7 +36,8 @@ function effectOf(type, lead, at) {
 }
 
 // db: Supabase client · secret: INSTANTLY_WEBHOOK_SECRET · ownerId: NEW_LEADS_OWNER_USER_ID · campaignId: only this campaign
-export function instantlyWebhookRouter(db, { secret, ownerId, campaignId = null }) {
+// onReply(lead): called (not awaited) the first time a lead replies
+export function instantlyWebhookRouter(db, { secret, ownerId, campaignId = null, onReply = null }) {
   const router = Router();
 
   router.post('/webhooks/instantly', json({ limit: '1mb' }), async (req, res) => {
@@ -49,7 +50,7 @@ export function instantlyWebhookRouter(db, { secret, ownerId, campaignId = null 
     if (campaignId && event.campaign_id && event.campaign_id !== campaignId) return res.json({ ok: true, ignored: 'otra campaña' });
 
     try {
-      const { data: lead, error } = await db.from(TABLE).select('id, status').eq('user_id', ownerId).eq('email', email).maybeSingle();
+      const { data: lead, error } = await db.from(TABLE).select('id, status, name, email, city, sector, replied_at').eq('user_id', ownerId).eq('email', email).maybeSingle();
       if (error) throw new Error(error.message);
       if (!lead) return res.json({ ok: true, ignored: 'lead desconocido' });
 
@@ -61,6 +62,9 @@ export function instantlyWebhookRouter(db, { secret, ownerId, campaignId = null 
       if (Object.keys(effect.patch).length) {
         const { error: uErr } = await db.from(TABLE).update({ ...effect.patch, updated_at: new Date().toISOString() }).eq('id', lead.id);
         if (uErr) throw new Error(uErr.message);
+      }
+      if (event.event_type === 'reply_received' && !lead.replied_at && onReply) {
+        Promise.resolve().then(() => onReply(lead)).catch(err => console.error('[instantly-webhook] onReply failed:', err.message));
       }
       res.json({ ok: true, event: event.event_type, lead: lead.id });
     } catch (err) {

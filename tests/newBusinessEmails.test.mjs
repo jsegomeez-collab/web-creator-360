@@ -63,7 +63,7 @@ test('leadVariables: valores para Instantly', () => {
   assert.ok(Object.values(v).every(x => typeof x === 'string'), 'Instantly solo admite texto/números/booleanos');
 });
 
-test('un solo email: sin seguimientos, sin precio y sin WhatsApp; un único enlace (el calendario)', () => {
+test('un solo email: sin seguimientos, sin precio y sin WhatsApp; un único enlace (su página para pedir la llamada)', () => {
   const text = `${EMAIL_SUBJECT}\n${EMAIL_BODY}`;
   assert.ok(!/\$|USD|€|497|precio|whatsapp|wa\.me/i.test(text));
   assert.equal((EMAIL_BODY.match(/\{\{calendario\}\}/g) || []).length, 1);

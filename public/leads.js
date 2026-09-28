@@ -10,7 +10,7 @@ const STATUS = {
   queued:        { label: 'En Instantly',    badge: 'badge-blue' },
   emailed:       { label: 'Enviado',         badge: 'badge-sent' },
   engaged:       { label: 'Abrió el enlace', badge: 'badge-scraped' },
-  booked:        { label: 'Agendó llamada',  badge: 'badge-generated' },
+  requested:     { label: 'Pidió llamada',   badge: 'badge-generated' },
   replied:       { label: 'Respondió',       badge: 'badge-blue' },
   called:        { label: 'Llamado',         badge: 'badge-sent' },
   won:           { label: 'Ganado',          badge: 'badge-green' },
@@ -20,12 +20,12 @@ const STATUS = {
   invalid_email: { label: 'Email inválido',  badge: 'badge-red' },
   rejected:      { label: 'Rechazado',       badge: 'badge-prospected' },
 };
-const FUNNEL = ['new', 'queued', 'emailed', 'engaged', 'booked', 'replied', 'called', 'won', 'lost'];
+const FUNNEL = ['new', 'queued', 'emailed', 'engaged', 'requested', 'replied', 'called', 'won', 'lost'];
 const DISCARDED = ['unsubscribed', 'bounced', 'invalid_email', 'rejected'];
 
 // What you can mark by hand from each status
 const NEXT_STATUS = {
-  queued: ['replied'], emailed: ['replied'], engaged: ['replied', 'called', 'lost'], booked: ['called', 'lost'], replied: ['called', 'lost'], called: ['won', 'lost'],
+  queued: ['replied'], emailed: ['replied'], engaged: ['replied', 'called', 'lost'], requested: ['called', 'lost'], replied: ['called', 'lost'], called: ['won', 'lost'],
 };
 const ACTION_LABEL = { replied: 'Respondió', called: 'Llamado', won: 'Ganado', lost: 'Perdido' };
 
@@ -276,7 +276,8 @@ function renderFunnel() {
     + chip(DISCARDED.join(','), 'Descartados', discarded, view.status === DISCARDED.join(','));
 }
 
-const fmtCall = (iso) => new Date(iso).toLocaleString('es-ES', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+// Who to call: the phone they typed (tap to call), their name and when they prefer
+const requestInfo = (l) => `<div class="text-xs mt-1"><a href="tel:${esc(l.phone)}" class="text-indigo-600 font-semibold">${esc(l.phone)}</a>${l.contact_name ? ` · ${esc(l.contact_name)}` : ''}</div><div class="text-xs text-slate-500">${esc(l.preferred_time || '')}${l.requested_at ? ` · pedida ${esc(fmtDate(l.requested_at))}` : ''}</div>`;
 
 function leadRow(l) {
   const st = STATUS[l.status] || { label: l.status, badge: 'badge-prospected' };
@@ -289,7 +290,7 @@ function leadRow(l) {
       <td class="px-6 py-3 text-slate-500">${esc(l.email)}</td>
       <td class="px-6 py-3 text-slate-500">${esc(SECTORS[l.sector] || l.sector || '—')} <span class="text-xs text-indigo-500 font-semibold whitespace-nowrap" title="A = sector conocido · ★ = nombre en español">${esc(flags)}</span></td>
       <td class="px-6 py-3 text-slate-400">${l.registered_at ? fmtDate(l.registered_at) : '—'}</td>
-      <td class="px-6 py-3"><span class="badge whitespace-nowrap ${st.badge}">${esc(st.label)}</span>${l.status === 'booked' && l.call_at ? `<div class="text-xs text-slate-500 mt-1">Llamada: ${esc(fmtCall(l.call_at))}</div>` : ''}</td>
+      <td class="px-6 py-3"><span class="badge whitespace-nowrap ${st.badge}">${esc(st.label)}</span>${l.status === 'requested' ? requestInfo(l) : ''}</td>
       <td class="px-6 py-3 text-right whitespace-nowrap">${actions}</td>
     </tr>`;
 }
@@ -309,23 +310,6 @@ async function loadLeadsList() {
   $('leads-prev').disabled = view.offset === 0;
   $('leads-next').disabled = view.offset + view.limit >= total;
   renderFunnel();
-  renderSyncHint();
-}
-
-function renderSyncHint() {
-  const ready = leadStats?.calendly?.ready;
-  $('sync-hint').className = `text-xs ${ready ? 'text-slate-400' : 'text-amber-600'}`;
-  $('sync-hint').textContent = ready
-    ? 'El servidor de la campaña las comprueba cada 5 minutos; aquí puedes hacerlo ahora mismo.'
-    : 'Falta CALENDLY_API_TOKEN en tu .env para ver quién agenda una llamada.';
-}
-
-async function checkBookings(btn) {
-  await withBusy(btn, 'Comprobando…', async () => {
-    const r = await leadsApi('/sync-bookings', { method: 'POST' });
-    toast(r.booked || r.rescheduled ? `${nf(r.booked)} reservas nuevas · ${nf(r.rescheduled)} cambiadas de hora` : 'Sin reservas nuevas');
-  });
-  await loadLeadsList();
 }
 
 function setLeadFilter(key, value) {
@@ -355,7 +339,7 @@ async function loadLeadsSend() {
   hint.className = `text-xs rounded-lg px-3 py-2 mb-4 ${dryRun ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}${!dryRun && configured ? ' hidden' : ''}`;
   hint.textContent = dryRun
     ? 'OUTREACH_DRY_RUN=true: al pulsar el botón no se envía nada a Instantly; solo se cuenta y se anota en el registro del servidor. Ponlo en false en tu .env para enviar de verdad.'
-    : 'Instantly no está configurado. Revisa en tu .env: INSTANTLY_API_KEY, INSTANTLY_CAMPAIGN_ID, CAMPAIGN_PUBLIC_URL y CALENDAR_URL.';
+    : 'Instantly no está configurado. Revisa en tu .env: INSTANTLY_API_KEY, INSTANTLY_CAMPAIGN_ID, y CAMPAIGN_PUBLIC_URL.';
 }
 
 async function pushToInstantly(btn) {
@@ -402,7 +386,6 @@ for (const [id, key] of [['lf-status', 'status'], ['lf-sector', 'sector'], ['lf-
 }
 let searchTimer;
 $('lf-q').addEventListener('input', (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => setLeadFilter('q', e.target.value.trim()), 300); });
-$('sync-bookings-btn').addEventListener('click', (e) => checkBookings(e.currentTarget));
 $('leads-prev').addEventListener('click', () => { view.offset = Math.max(0, view.offset - view.limit); loadLeadsSection('leads-list'); });
 $('leads-next').addEventListener('click', () => { view.offset += view.limit; loadLeadsSection('leads-list'); });
 

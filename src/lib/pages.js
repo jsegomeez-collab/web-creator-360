@@ -1,4 +1,4 @@
-// Tiny HTML page helpers for the public pages (unsubscribe now, the lead form later). Mobile-first, Halo-theme look.
+// Tiny HTML page helpers for the public pages (the lead's page to ask for the call). Mobile-first, Halo-theme look.
 
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -34,7 +34,10 @@ export function page(title, body, { lang = 'es' } = {}) {
 
 // Private, never cached, never indexed
 export function sendPage(res, status, html) {
-  res.status(status).set({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' }).send(html);
+  res.status(status).set({
+    'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow',
+    'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  }).send(html);
 }
 
 export const notFoundPage = (res) =>

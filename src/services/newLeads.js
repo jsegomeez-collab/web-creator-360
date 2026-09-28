@@ -8,7 +8,7 @@ export const LEAD_BUSINESS_SOURCE = 'new_business_lead';
 
 // Supabase filters put `in (...)` lists in the URL: keep them short
 const CHUNK = 150;
-export function* chunks(arr, size = CHUNK) {
+function* chunks(arr, size = CHUNK) {
   for (let i = 0; i < arr.length; i += size) yield arr.slice(i, i + size);
 }
 

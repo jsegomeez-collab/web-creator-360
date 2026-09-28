@@ -14,12 +14,11 @@ const LEADS_TABLE = 'new_business_leads';
 const REJECTED_NOTE = 'Instantly no lo aceptó (ya estaba en tu workspace, está en la lista de bloqueo o el email no es válido)';
 
 // Settings for pushing leads. A real push needs an API key, a campaign, the public URL of the campaign server (the link
-// in each email points there) and the calendar the link finally opens. In dry-run placeholders are used.
+// in each email points there). In dry-run placeholders are used.
 export function loadInstantlyConfig(env = process.env, { dryRun = isDryRun() } = {}) {
   const apiKey = String(env.INSTANTLY_API_KEY || '').trim();
   const campaignId = String(env.INSTANTLY_CAMPAIGN_ID || '').trim();
   const publicUrl = String(env.CAMPAIGN_PUBLIC_URL || '').trim().replace(/\/+$/, '');
-  const calendarUrl = String(env.CALENDAR_URL || '').trim();
 
   const problems = [];
   if (!apiKey) problems.push('INSTANTLY_API_KEY');
@@ -27,7 +26,6 @@ export function loadInstantlyConfig(env = process.env, { dryRun = isDryRun() } =
   if (!/^https:\/\//i.test(publicUrl) || /^https?:\/\/(localhost|127\.|0\.0\.0\.0|\[::1\])/i.test(publicUrl)) {
     problems.push('CAMPAIGN_PUBLIC_URL (URL pública https:// del servidor de la campaña, no localhost)');
   }
-  if (!/^https?:\/\//i.test(calendarUrl)) problems.push('CALENDAR_URL (tu página para agendar la llamada)');
 
   if (problems.length && !dryRun) throw new Error(`Configuración incompleta para enviar leads a Instantly. Revisa en tu .env: ${problems.join(', ')}`);
   return {
@@ -37,13 +35,13 @@ export function loadInstantlyConfig(env = process.env, { dryRun = isDryRun() } =
   };
 }
 
-// The link each lead gets in {{calendario}}: tracked, then redirects to the calendar
-export const trackedCalendarUrl = (config, token) => `${config.publicUrl}/c/${token}`;
+// The link each lead gets in {{calendario}}: their own page to ask for the call (routes/leadLink.js)
+export const leadLinkUrl = (config, token) => `${config.publicUrl}/c/${token}`;
 
 export const buildInstantlyLead = (lead, config) => ({
   email: lead.email,
   company_name: displayName(lead.name),
-  custom_variables: leadVariables(lead, trackedCalendarUrl(config, lead.link_token)),
+  custom_variables: leadVariables(lead, leadLinkUrl(config, lead.link_token)),
 });
 
 // POST to the Instantly API (retries and error messages come from lib/http.js)
