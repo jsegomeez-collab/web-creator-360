@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS lead_ingest_runs (
 );
 CREATE INDEX IF NOT EXISTS idx_lead_ingest_runs ON lead_ingest_runs (user_id, source, ran_at DESC);
 
--- 4. Marks businesses created for these leads so the current Google Places pipeline (and WhatsApp) never touches them
+-- 4. Marks businesses created for these leads so the current Google Places pipeline never touches them
 ALTER TABLE businesses ADD COLUMN IF NOT EXISTS source TEXT;
 
 -- 5. Personal data (emails, phones): block the public (anon) API key entirely.

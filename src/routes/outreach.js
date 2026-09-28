@@ -16,7 +16,7 @@ router.post('/batch', async (req, res) => {
     .eq('status', 'preview')
     .not('preview_url', 'is', null);
 
-  // Collect sites that have email OR phone — fetch both in parallel per site
+  // Collect sites that have an email — fetch email and business in parallel per site
   const toSend = [];
   for (const site of sites || []) {
     const [{ data: wd }, { data: biz }] = await Promise.all([
@@ -24,8 +24,8 @@ router.post('/batch', async (req, res) => {
       supabase.from('businesses').select('*').eq('id', site.business_id).single(),
     ]);
     if (biz?.source === LEAD_BUSINESS_SOURCE) continue;   // new-business campaign: contacted only by its own email sequence
-    if (wd?.email || biz?.phone) {
-      toSend.push({ ...site, email: wd?.email || null, language: wd?.language || 'es', biz });
+    if (wd?.email) {
+      toSend.push({ ...site, email: wd.email, language: wd.language || 'es', biz });
     }
   }
 
@@ -51,16 +51,14 @@ router.post('/batch', async (req, res) => {
 
       const biz = item.biz;
       const enrichedSite = { ...item, contact_email: item.email };
-      const result = await sendOutreach(biz, enrichedSite, item.email, item.language, 0);
+      await sendOutreach(biz, enrichedSite, item.email, item.language, 0);
 
       sent++;
       res.write(JSON.stringify({
         status: 'ok',
         slug: item.slug,
         name: biz.name,
-        email: result.emailSent ? item.email : null,
-        wa: result.waSent,
-        waReason: result.waReason,
+        email: item.email,
         address: biz.address,
         language: item.language,
       }) + '\n');
@@ -99,9 +97,8 @@ router.post('/:siteId', async (req, res) => {
   const contactEmail = bodyEmail || webData?.email || null;
   const language = webData?.language || 'es';
 
-  // Need at least email or phone
-  if (!contactEmail && !business.phone) {
-    return res.status(400).json({ error: 'Sin email ni teléfono disponibles para contactar este negocio' });
+  if (!contactEmail) {
+    return res.status(400).json({ error: 'Sin email disponible para contactar este negocio' });
   }
 
   // Check not already contacted today
@@ -118,13 +115,9 @@ router.post('/:siteId', async (req, res) => {
 
   try {
     const enrichedSite = { ...site, contact_email: contactEmail };
-    const result = await sendOutreach(business, enrichedSite, contactEmail, language, 0);
+    await sendOutreach(business, enrichedSite, contactEmail, language, 0);
 
-    res.json({
-      success: true,
-      email: result.emailSent ? contactEmail : null,
-      whatsapp: { sent: result.waSent, reason: result.waReason },
-    });
+    res.json({ success: true, email: contactEmail });
   } catch (err) {
     console.error('Outreach error:', err.message);
     res.status(500).json({ error: err.message });

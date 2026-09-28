@@ -20,11 +20,9 @@
     "express": "^4.21.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^10.0.12",
-    "qrcode": "^1.5.4",
     "resend": "^4.5.1",
     "slugify": "^1.6.6",
     "stripe": "^17.7.0",
-    "vercel": "^54.18.0",
-    "whatsapp-web.js": "^1.34.7"
+    "vercel": "^54.18.0"
   }
 }

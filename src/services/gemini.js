@@ -10,13 +10,12 @@ function getClient() {
 }
 
 export async function scrapeBusinessProfile(business) {
-  // Extract images, brand color, emails AND phones from the website in one pass
-  const { images = [], brandColor = null, emails = [], phones = [] } = await extractFromWebsite(business.website);
+  // Extract images, brand color and emails from the website in one pass
+  const { images = [], brandColor = null, emails = [] } = await extractFromWebsite(business.website);
 
   if (emails.length) console.log(`[scrape] Found emails for "${business.name}":`, emails);
-  if (phones.length) console.log(`[scrape] Found phones for "${business.name}":`, phones);
 
-  const prompt = buildScrapingPrompt(business, emails, phones);
+  const prompt = buildScrapingPrompt(business, emails);
 
   const message = await getClient().messages.create({
     model: 'claude-haiku-4-5-20251001',
@@ -30,9 +29,8 @@ export async function scrapeBusinessProfile(business) {
 
   validateProfile(data);
 
-  // Prefer emails/phones found directly on the site (more reliable than Claude inference)
+  // Prefer the email found directly on the site (more reliable than Claude inference)
   if (emails.length) data.email = emails[0];
-  if (phones.length) data.phone = phones[0];
 
   data.images = images;
   data.brandColor = brandColor;

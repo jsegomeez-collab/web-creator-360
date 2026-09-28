@@ -16,10 +16,8 @@ ${galleryImages.map((img, i) => `- Imagen ${i + 2}: ${img}`).join('\n')}
 Úsalas en las secciones correspondientes mediante <img src="..."> con object-fit: cover.`
     : `El negocio no tiene imágenes disponibles. Usa fondos con gradientes CSS oscuros elegantes en lugar de imágenes.`;
 
-  // Without a phone the wa.me link would be broken: tell the model to leave the floating WhatsApp button out
-  const noPhoneNote = business.phone
-    ? ''
-    : '\n   ⚠ ESTE NEGOCIO NO TIENE TELÉFONO: OMITE POR COMPLETO ESTE BOTÓN (no generes el <a> siguiente) y no pongas ningún enlace tel:.';
+  // "Activar mi web" opens the booking page of the call; without CALENDAR_URL the button is left out
+  const calendarUrl = (process.env.CALENDAR_URL || '').trim();
 
   return `Eres un diseñador web de élite especializado en landing pages de alta conversión. Crea una web completa con el "Halo Theme" para el siguiente negocio local.
 
@@ -131,17 +129,12 @@ SECCIONES OBLIGATORIAS (en orden exacto)
 ═══════════════════════════════════════
 ELEMENTOS FLOTANTES
 ═══════════════════════════════════════
-A. Botón WhatsApp (esquina inferior izquierda):${noPhoneNote}
-   <a href="https://wa.me/${(business.phone || '').replace(/[^0-9]/g, '')}" target="_blank" style="position:fixed;bottom:24px;left:24px;z-index:9999;width:52px;height:52px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,0.4);text-decoration:none;">
-     [icono WhatsApp SVG blanco]
-   </a>
-
-B. Botón "Activar mi web" (esquina inferior derecha) — enlaza a WhatsApp para contacto cálido:
-   <a href="https://wa.me/34672577986?text=Buenas%20Jose%2C%20me%20gustar%C3%ADa%20activar%20la%20web%20que%20me%20enviaste%20en%20mi%20dominio%20personalizado!" target="_blank" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:[COLOR_ACENTO];color:white;font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:12px 20px;border-radius:50px;box-shadow:0 4px 20px rgba([RGB_ACENTO],0.5);text-decoration:none;display:flex;align-items:center;gap:8px;">
+${calendarUrl ? `Botón "Activar mi web" (esquina inferior derecha) — abre el calendario para reservar una llamada:
+   <a href="${calendarUrl}" target="_blank" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:[COLOR_ACENTO];color:white;font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:12px 20px;border-radius:50px;box-shadow:0 4px 20px rgba([RGB_ACENTO],0.5);text-decoration:none;display:flex;align-items:center;gap:8px;">
      ✦ Activar mi web · $497
-   </a>
+   </a>` : ''}
 
-C. Selector de idioma EN/ES (esquina superior derecha, fixed, encima del header):
+Selector de idioma EN/ES (esquina superior derecha, fixed, encima del header):
    Incluye SIEMPRE este bloque exacto justo antes del </body>:
 
    <div id="lang-switcher" style="position:fixed;top:16px;right:20px;z-index:10000;display:flex;gap:4px;background:rgba(5,8,20,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:4px;font-family:Inter,sans-serif;">

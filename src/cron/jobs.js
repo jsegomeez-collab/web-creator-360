@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 import supabase from '../db/supabase.js';
 import { sendOutreachEmail, nextFollowUpDate } from '../services/resend.js';
-import { tryWhatsApp } from '../services/outreach.js';
+import { isSuppressedFor } from '../services/outreach.js';
 import { runAutoPipeline } from '../pipeline/auto.js';
 
 export function startCronJobs() {
@@ -49,26 +49,14 @@ export async function runFollowUps() {
         .single();
       const language = webData?.language || 'es';
 
-      // Follow up over the same channels as the first contact.
-      // For email logs `contact` is the address; WhatsApp uses the business phone.
-      const channels = (log.channel || 'email').split('+');
-      let emailSent = false;
-      let waSent = false;
-
-      if (channels.includes('email')) {
-        await sendOutreachEmail(log.businesses, { ...log.generated_sites, contact_email: log.contact }, nextFollowUp, language);
-        emailSent = true;
-      }
-      if (channels.includes('whatsapp')) {
-        const wa = await tryWhatsApp(log.businesses, log.generated_sites, language, true);
-        waSent = wa.sent;
-      }
-
-      // Nothing went out (e.g. WhatsApp disconnected): leave it pending and retry on the next run
-      if (!emailSent && !waSent) {
-        console.warn(`Follow-up ${nextFollowUp} postponed for ${log.contact}: no channel available`);
+      // Never follow up an address that unsubscribed or bounced meanwhile
+      if (await isSuppressedFor(log.businesses, log.contact)) {
+        console.log(`Follow-ups stopped for ${log.contact}: dado de baja o con rebote`);
+        await supabase.from('outreach_log').update({ next_follow_up_at: null }).eq('id', log.id);
         continue;
       }
+
+      await sendOutreachEmail(log.businesses, { ...log.generated_sites, contact_email: log.contact }, nextFollowUp, language);
 
       await supabase.from('outreach_log').update({
         follow_up_number: nextFollowUp,

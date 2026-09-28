@@ -119,7 +119,6 @@ async function loadSection(tab) {
   if (tab === 'scraping') renderScraping();
   if (tab === 'generation') renderGeneration();
   if (tab === 'outreach') renderOutreach();
-  if (tab === 'whatsapp') renderWhatsApp();
   if (tab === 'followup') renderFollowup();
   if (tab === 'payments') renderPayments();
   loadStats();
@@ -297,29 +296,21 @@ function renderOutreach() {
   const toSend = allSites.filter(s => s.status === 'preview');
   const tbody = document.getElementById('outreach-table');
 
-  // Ready = has email OR phone
-  const readyCount = toSend.filter(s => s.scraped_email || s.businesses?.phone).length;
+  const readyCount = toSend.filter(s => s.scraped_email).length;
   const countEl = document.getElementById('bulk-ready-count');
   if (countEl) countEl.textContent = readyCount;
 
   if (!toSend.length) {
-    tbody.innerHTML = emptyRow(5, 'No hay webs listas para enviar. Genera webs primero.', '✉');
+    tbody.innerHTML = emptyRow(4, 'No hay webs listas para enviar. Genera webs primero.', '✉');
     return;
   }
   tbody.innerHTML = toSend.map(s => {
     const email = s.scraped_email;
-    const phone = s.businesses?.phone;
-    const hasContact = email || phone;
-
-    // Channel badges
     const emailBadge = email
       ? `<span class="text-xs text-emerald-600 font-medium">✉ ${email}</span>`
       : `<span class="text-xs text-slate-400">Sin email</span>`;
-    const phoneBadge = phone
-      ? `<span class="text-xs text-emerald-600 font-medium">📱 ${phone}</span>`
-      : `<span class="text-xs text-slate-400">Sin tel.</span>`;
 
-    const sendBtn = hasContact
+    const sendBtn = email
       ? `<button class="action-btn btn-send" onclick="sendDirect('${s.id}', this)">
            ✉ Enviar
          </button>`
@@ -334,7 +325,6 @@ function renderOutreach() {
         <div class="text-xs text-slate-400 mt-0.5">${s.businesses?.category || ''}</div>
       </td>
       <td class="px-6 py-4 space-y-1">${emailBadge}</td>
-      <td class="px-6 py-4 space-y-1">${phoneBadge}</td>
       <td class="px-6 py-4">
         <a href="${s.preview_url}" target="_blank" class="text-xs text-blue-500 hover:underline">Ver →</a>
       </td>
@@ -351,11 +341,7 @@ async function sendDirect(siteId, btn) {
     const r = await fetch(`/api/outreach/${siteId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
     const d = await r.json();
     if (d.success) {
-      const parts = [];
-      if (d.email) parts.push(`✉ ${d.email}`);
-      if (d.whatsapp?.sent) parts.push('📱 WhatsApp');
-      else if (!d.email && !d.whatsapp?.sent) parts.push('⚠ Sin canales disponibles');
-      toast(parts.join(' + ') || 'Enviado');
+      toast(`✉ Enviado a ${d.email}`);
       const row = document.getElementById(`outreach-row-${siteId}`);
       if (row) row.remove();
     } else {
@@ -442,8 +428,7 @@ async function rescrapeOne(id, btn) {
     const r = await fetch(`/api/scrape/${id}`, { method: 'POST' });
     const d = await r.json();
     if (d.success) {
-      const phone = d.profile?.phone;
-      toast(phone ? `✓ Actualizado — teléfono: ${phone}` : '✓ Re-scrapeado (sin teléfono encontrado)');
+      toast('✓ Re-scrapeado');
       await fetchAll();
       const done = allBusinesses.filter(b => ['scraped','generated','active'].includes(b.status));
       renderScrapedDone(done);
@@ -794,133 +779,6 @@ async function runPipeline() {
   btn.disabled = false;
 }
 
-// ─── WhatsApp Tab ─────────────────────────────────────────────────────────────
-let waQrPollTimer = null;
-
-async function renderWhatsApp() {
-  clearInterval(waQrPollTimer);
-  await refreshWAStatus();
-  // Poll every 5s while on this tab
-  waQrPollTimer = setInterval(async () => {
-    const tab = document.querySelector('[data-tab="whatsapp"]');
-    if (!tab || !tab.classList.contains('active')) { clearInterval(waQrPollTimer); return; }
-    await refreshWAStatus();
-  }, 5000);
-}
-
-async function refreshWAStatus() {
-  try {
-    const d = await fetch('/api/whatsapp/status').then(r => r.json());
-    applyWAStatus(d);
-  } catch {
-    applyWAStatus({ state: 'unavailable', qr: null });
-  }
-}
-
-function applyWAStatus({ state, qr }) {
-  const badge = document.getElementById('wa-status-badge');
-  const desc = document.getElementById('wa-status-desc');
-  const qrArea = document.getElementById('wa-qr-area');
-  const qrImg = document.getElementById('wa-qr-img');
-  const setupHelp = document.getElementById('wa-setup-help');
-  const navDot = document.getElementById('wa-nav-dot');
-  const connectBtn = document.getElementById('wa-connect-btn');
-
-  // Nav dot color
-  const dotColor = state === 'open' ? '#10B981' : state === 'unavailable' ? '#94A3B8' : '#F59E0B';
-  if (navDot) navDot.style.background = dotColor;
-
-  if (state === 'connecting' && !qr) {
-    // Initializing — browser launching, QR not ready yet
-    badge.className = 'badge badge-blue';
-    badge.textContent = 'Iniciando...';
-    desc.textContent = 'Cargando WhatsApp Web... el QR aparecerá en unos segundos.';
-    qrArea.classList.add('hidden');
-    setupHelp.classList.remove('hidden');
-    if (connectBtn) { connectBtn.textContent = 'Iniciando...'; connectBtn.disabled = true; }
-  } else if (state === 'unavailable') {
-    badge.className = 'badge badge-pending';
-    badge.textContent = 'No disponible';
-    desc.textContent = 'WhatsApp no está disponible. Pulsa Conectar para iniciar.';
-    qrArea.classList.add('hidden');
-    setupHelp.classList.add('hidden');
-    if (connectBtn) { connectBtn.textContent = 'Conectar'; connectBtn.disabled = false; }
-  } else if (state === 'open') {
-    badge.className = 'badge badge-active';
-    badge.textContent = '● Conectado';
-    desc.textContent = 'WhatsApp vinculado y listo. Los outreach incluirán mensaje de WhatsApp.';
-    qrArea.classList.add('hidden');
-    setupHelp.classList.add('hidden');
-    if (connectBtn) { connectBtn.textContent = 'Conectado'; connectBtn.disabled = true; }
-    clearInterval(waQrPollTimer);
-  } else if (qr && state !== 'open') {
-    badge.className = 'badge badge-blue';
-    badge.textContent = 'Escanea el QR';
-    desc.textContent = 'Escanea el código QR con tu WhatsApp para vincular el dispositivo.';
-    setupHelp.classList.add('hidden');
-    if (qr) {
-      qrImg.src = qr.startsWith('data:') ? qr : `data:image/png;base64,${qr}`;
-      qrArea.classList.remove('hidden');
-    }
-    if (connectBtn) { connectBtn.textContent = 'Actualizar QR'; connectBtn.disabled = false; }
-  } else {
-    badge.className = 'badge badge-pending';
-    badge.textContent = 'Desconectado';
-    desc.textContent = 'Pulsa "Conectar" para generar el código QR.';
-    qrArea.classList.add('hidden');
-    setupHelp.classList.add('hidden');
-    if (connectBtn) { connectBtn.textContent = 'Conectar'; connectBtn.disabled = false; }
-  }
-}
-
-async function connectWA() {
-  const btn = document.getElementById('wa-connect-btn');
-  btn.textContent = 'Conectando...';
-  btn.disabled = true;
-  try {
-    const d = await fetch('/api/whatsapp/connect', { method: 'POST' }).then(r => r.json());
-    if (d.error) { toast(d.error, 'error'); btn.textContent = 'Conectar'; btn.disabled = false; return; }
-    applyWAStatus(d);
-  } catch (e) {
-    toast('Error: ' + e.message, 'error');
-    btn.textContent = 'Conectar';
-    btn.disabled = false;
-  }
-}
-
-async function disconnectWA() {
-  if (!confirm('¿Desconectar WhatsApp? Tendrás que escanear el QR de nuevo.')) return;
-  try {
-    await fetch('/api/whatsapp/disconnect', { method: 'DELETE' });
-    toast('WhatsApp desconectado');
-    await refreshWAStatus();
-  } catch (e) {
-    toast('Error: ' + e.message, 'error');
-  }
-}
-
-async function testWA() {
-  const phone = document.getElementById('wa-test-phone').value.trim();
-  const message = document.getElementById('wa-test-msg').value.trim();
-  if (!phone) { toast('Introduce un teléfono', 'error'); return; }
-  const btn = document.getElementById('wa-test-btn');
-  btn.textContent = 'Enviando...';
-  btn.disabled = true;
-  try {
-    const d = await fetch('/api/whatsapp/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, message }),
-    }).then(r => r.json());
-    if (d.success) toast('✓ Mensaje enviado');
-    else toast('Error: ' + d.error, 'error');
-  } catch (e) {
-    toast('Error: ' + e.message, 'error');
-  }
-  btn.textContent = 'Enviar prueba';
-  btn.disabled = false;
-}
-
 // ─── Bulk Send ────────────────────────────────────────────────────────────────
 async function sendAll() {
   const ready = allSites.filter(s => s.status === 'preview' && s.scraped_email);
@@ -961,11 +819,7 @@ async function sendAll() {
           if (d.status === 'start') {
             entries.innerHTML += `<div class="text-slate-500">Procesando ${d.total} negocio${d.total !== 1 ? 's' : ''}...</div>`;
           } else if (d.status === 'ok') {
-            const channels = [];
-            if (d.email) channels.push(`✉ ${d.email}`);
-            if (d.wa) channels.push('📱 WA');
-            const channelStr = channels.length ? channels.join(' + ') : '⚠ sin canales';
-            entries.innerHTML += `<div class="text-emerald-600">✓ ${d.name} — ${channelStr} <span class="text-slate-400">$497</span></div>`;
+            entries.innerHTML += `<div class="text-emerald-600">✓ ${d.name} — ✉ ${d.email} <span class="text-slate-400">$497</span></div>`;
             entries.scrollTop = entries.scrollHeight;
           } else if (d.status === 'skipped') {
             entries.innerHTML += `<div class="text-slate-400">– ${d.slug} — ${d.reason}</div>`;

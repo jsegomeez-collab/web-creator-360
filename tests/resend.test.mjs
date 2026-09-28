@@ -40,6 +40,23 @@ test('envío correcto: asunto en español, destinatario y HTML con enlace y prec
   assert.ok(sent[0].html.includes('https://x.vercel.app') && sent[0].html.includes('$497'));
 });
 
+test('con CALENDAR_URL el email lleva el botón de la llamada (sin WhatsApp); sin ella, no hay botón', async () => {
+  const prev = process.env.CALENDAR_URL;
+  try {
+    process.env.CALENDAR_URL = 'https://cal.example.com/jose/15min';
+    let sent = stubResend(200, { id: 'abc' });
+    await sendOutreachEmail(business, site, 0, 'es');
+    assert.ok(sent[0].html.includes('href="https://cal.example.com/jose/15min"') && sent[0].html.includes('Agenda una llamada de 15 minutos'));
+    sent = stubResend(200, { id: 'abc' });
+    await sendOutreachEmail(business, site, 0, 'en');
+    assert.ok(sent[0].html.includes('Book a 15-minute call'));
+    delete process.env.CALENDAR_URL;
+    sent = stubResend(200, { id: 'abc' });
+    await sendOutreachEmail(business, site, 0, 'es');
+    assert.ok(!sent[0].html.includes('Agenda una llamada') && !/whatsapp|wa.me/i.test(sent[0].html));
+  } finally { if (prev === undefined) delete process.env.CALENDAR_URL; else process.env.CALENDAR_URL = prev; }
+});
+
 test('seguimiento en inglés', async () => {
   const sent = stubResend(200, { id: 'abc' });
   await sendOutreachEmail(business, site, 1, 'en');

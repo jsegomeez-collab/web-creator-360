@@ -31,9 +31,8 @@ after(() => { server.closeAllConnections?.(); server.close(); });
 
 const biz = (website) => ({ name: 'Test', address: 'X', phone: null, website, category: 'c', rating: 4 });
 
-test('web que responde 404: ya no falla por "phones" indefinido', async () => {
+test('web que responde 404: el scraping no falla y devuelve el perfil sin email', async () => {
   const p = await scrapeBusinessProfile(biz(`${base}/404`));
-  assert.equal(p.phone, undefined);
   assert.equal(p.email, null);
   assert.ok(Array.isArray(p.images));
 });
@@ -43,8 +42,8 @@ test('negocio sin website (null)', async () => {
   assert.equal(p.description, 'Negocio de prueba');
 });
 
-test('web con tel: y mailto: → teléfono (solo dígitos) y email', async () => {
+test('web con tel: y mailto: → usa el email de la web y NO extrae teléfonos', async () => {
   const p = await scrapeBusinessProfile(biz(`${base}/ok`));
-  assert.equal(p.phone, '34672577986');
   assert.equal(p.email, 'hola@negocio.es');
+  assert.equal('phone' in p, false);
 });

@@ -140,12 +140,6 @@
         <span class="nav-count" id="count-to-send">0</span>
       </button>
 
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="whatsapp">
-        <span class="nav-icon text-slate-400 text-lg">📱</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">WhatsApp</span>
-        <span id="wa-nav-dot" class="w-2 h-2 rounded-full bg-slate-600 flex-shrink-0"></span>
-      </button>
-
       <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mt-5 mb-2">Gestión</div>
 
       <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="followup">
@@ -443,7 +437,6 @@
             <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
               <th class="px-6 py-3 text-left">Negocio</th>
               <th class="px-6 py-3 text-left">Email</th>
-              <th class="px-6 py-3 text-left">Teléfono</th>
               <th class="px-6 py-3 text-left">Preview</th>
               <th class="px-6 py-3 text-right">Acción</th>
             </tr>
@@ -475,89 +468,6 @@
             <span id="bulk-status-badge" class="badge badge-blue">Enviando...</span>
           </div>
           <div id="bulk-log-entries" class="space-y-1 max-h-52 overflow-y-auto text-slate-600"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- WHATSAPP TAB -->
-    <div id="tab-whatsapp" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">WhatsApp</h1>
-        <p class="text-slate-500 mt-1 text-sm">Vincula tu WhatsApp para enviar mensajes automáticos junto con el email de outreach.</p>
-      </div>
-
-      <!-- Connection card -->
-      <div class="card p-6 mb-6">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-1">
-              <span id="wa-status-badge" class="badge badge-pending">Comprobando...</span>
-              <h2 class="text-sm font-semibold text-slate-700">Estado de conexión</h2>
-            </div>
-            <p id="wa-status-desc" class="text-xs text-slate-400 mt-1">Iniciando comprobación...</p>
-          </div>
-          <div class="flex gap-2 shrink-0">
-            <button id="wa-connect-btn" onclick="connectWA()"
-              class="btn-primary px-4 py-2 text-sm">
-              Conectar
-            </button>
-            <button onclick="disconnectWA()"
-              class="btn-secondary px-4 py-2 text-sm">
-              Desconectar
-            </button>
-          </div>
-        </div>
-
-        <!-- QR Code area -->
-        <div id="wa-qr-area" class="hidden mt-6 flex flex-col items-center gap-4">
-          <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm inline-block">
-            <img id="wa-qr-img" src="" alt="QR WhatsApp" class="w-52 h-52 object-contain" />
-          </div>
-          <div class="text-center">
-            <p class="text-sm font-semibold text-slate-700">Escanea con tu WhatsApp</p>
-            <p class="text-xs text-slate-400 mt-1">Abre WhatsApp → Tres puntos → Dispositivos vinculados → Vincular dispositivo</p>
-            <p class="text-xs text-slate-400 mt-1">El QR se renueva automáticamente cada 30 segundos</p>
-          </div>
-        </div>
-
-        <!-- Initializing message -->
-        <div id="wa-setup-help" class="hidden mt-5 bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-          <p class="text-sm text-slate-500">⏳ Iniciando WhatsApp Web, espera unos segundos...</p>
-          <p class="text-xs text-slate-400 mt-1">La primera vez descarga el navegador interno — puede tardar 1-2 min</p>
-        </div>
-      </div>
-
-      <!-- Info + test send -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- How it works -->
-        <div class="card p-5">
-          <h3 class="text-sm font-semibold text-slate-700 mb-3">Cómo funciona</h3>
-          <ul class="space-y-2 text-xs text-slate-500">
-            <li class="flex gap-2"><span class="text-emerald-500 font-bold mt-0.5">✓</span> Al enviar una web, se manda también un mensaje de WhatsApp al teléfono del negocio</li>
-            <li class="flex gap-2"><span class="text-emerald-500 font-bold mt-0.5">✓</span> El mensaje incluye el link a la preview y el precio (347€ o $497 según idioma)</li>
-            <li class="flex gap-2"><span class="text-emerald-500 font-bold mt-0.5">✓</span> Si no hay teléfono disponible, se omite el WhatsApp sin afectar al email</li>
-            <li class="flex gap-2"><span class="text-amber-500 font-bold mt-0.5">!</span> Usa un número secundario para el outreach, no tu WhatsApp principal de negocio</li>
-          </ul>
-        </div>
-
-        <!-- Test send -->
-        <div class="card p-5">
-          <h3 class="text-sm font-semibold text-slate-700 mb-3">Envío de prueba</h3>
-          <div class="space-y-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-500 mb-1">Teléfono (con prefijo, ej: 34612345678)</label>
-              <input id="wa-test-phone" type="text" placeholder="34612345678"
-                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-500 mb-1">Mensaje (opcional)</label>
-              <input id="wa-test-msg" type="text" placeholder="Test desde Web Creator 360 🚀"
-                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
-            </div>
-            <button id="wa-test-btn" onclick="testWA()" class="btn-primary px-4 py-2 text-sm w-full">
-              Enviar prueba
-            </button>
-          </div>
         </div>
       </div>
     </div>

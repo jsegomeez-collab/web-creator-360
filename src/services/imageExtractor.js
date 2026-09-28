@@ -1,7 +1,7 @@
 const UA = 'Mozilla/5.0 (compatible; WebCreator360/1.0; +https://webcreator360.com)';
 
 export async function extractFromWebsite(url) {
-  if (!url) return { images: [], brandColor: null, emails: [], phones: [] };
+  if (!url) return { images: [], brandColor: null, emails: [] };
 
   try {
     const controller = new AbortController();
@@ -14,12 +14,11 @@ export async function extractFromWebsite(url) {
     });
     clearTimeout(timer);
 
-    if (!res.ok) return { images: [], brandColor: null, emails: [], phones: [] };
+    if (!res.ok) return { images: [], brandColor: null, emails: [] };
     const html = await res.text();
     const base = new URL(res.url);
 
     let emails = extractEmails(html);
-    const phones = extractPhones(html);
 
     // If no email on main page, try common contact pages (one attempt only)
     if (emails.length === 0) {
@@ -30,36 +29,10 @@ export async function extractFromWebsite(url) {
       images: extractImages(html, base),
       brandColor: extractBrandColor(html),
       emails,
-      phones,
     };
   } catch {
-    return { images: [], brandColor: null, emails: [], phones: [] };
+    return { images: [], brandColor: null, emails: [] };
   }
-}
-
-function extractPhones(html) {
-  const found = new Set();
-
-  // 1. tel: links — most reliable (business put them intentionally)
-  const telRe = /href=["']tel:([+\d\s\-().]{7,20})["']/gi;
-  let m;
-  while ((m = telRe.exec(html)) !== null) {
-    const p = m[1].replace(/\D/g, '');
-    if (p.length >= 7) found.add(p);
-  }
-
-  // 2. Common phone patterns visible in page text (fallback)
-  if (found.size === 0) {
-    const textRe = /(?:(?:\+|00)\d{1,3}[\s\-.]?)?\(?\d{2,4}\)?[\s\-.]?\d{3,4}[\s\-.]?\d{3,4}/g;
-    const plain = html.replace(/<[^>]+>/g, ' ');
-    while ((m = textRe.exec(plain)) !== null) {
-      const p = m[0].replace(/\D/g, '');
-      if (p.length >= 7 && p.length <= 15) found.add(p);
-      if (found.size >= 3) break;
-    }
-  }
-
-  return [...found].slice(0, 3);
 }
 
 function extractEmails(html) {

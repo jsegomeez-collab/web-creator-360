@@ -3,6 +3,5 @@ node_modules/
 npm-install.log
 *.log
 
-.wwebjs_auth/
 .DS_Store
 tmp/
