@@ -17,8 +17,8 @@ function fail(step, error) {
   return err;
 }
 
-// Unguessable URL-safe token for /f/:token and /u/:token
-export const newFormToken = () => randomBytes(18).toString('base64url');
+// Unguessable URL-safe token of the lead's own link in the email (/c/:token)
+export const newLinkToken = () => randomBytes(18).toString('base64url');
 
 // ─── Ingest bookkeeping ──────────────────────────────────────────────────────
 
@@ -113,7 +113,7 @@ export async function insertLeads(db, ownerId, source, leads, statusOf = () => '
     minority_owned: l.minority_owned,
     notes: l.notes,
     status: statusOf(l),
-    form_token: newFormToken(),
+    link_token: newLinkToken(),
   }));
   for (const part of chunks(rows, 200)) {
     const { error } = await db.from('new_business_leads').upsert(part, { onConflict: 'user_id,source,external_id', ignoreDuplicates: true });

@@ -2,7 +2,7 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { createFakeDb } from './helpers/fakeSupabase.mjs';
-import { newFormToken, getWatermark, recordRun, filterNewLeads, insertLeads } from '../src/services/newLeads.js';
+import { newLinkToken, getWatermark, recordRun, filterNewLeads, insertLeads } from '../src/services/newLeads.js';
 
 const db = createFakeDb();
 beforeEach(() => db.reset());
@@ -14,8 +14,8 @@ const lead = (n, extra = {}) => ({
   latino_signal: true, latino_strong: false, minority_owned: false, notes: 'señal latina: email: rivera', ...extra,
 });
 
-test('newFormToken: 24 caracteres URL-safe y no se repite', () => {
-  const tokens = new Set(Array.from({ length: 2000 }, newFormToken));
+test('newLinkToken: 24 caracteres URL-safe y no se repite', () => {
+  const tokens = new Set(Array.from({ length: 2000 }, newLinkToken));
   assert.equal(tokens.size, 2000);
   for (const t of [...tokens].slice(0, 50)) assert.match(t, /^[A-Za-z0-9_-]{24}$/);
 });
@@ -100,8 +100,8 @@ test('insertLeads: cada fila lleva user_id, source, token único, status y los c
   assert.deepEqual(up.options, { onConflict: 'user_id,source,external_id', ignoreDuplicates: true });
   const [a, b] = up.payload;
   assert.deepEqual([a.user_id, a.source, a.external_id, a.status, a.email, a.sector, a.priority], [OWNER, 'ct_registry', '1', 'new', 'e1@gmail.com', 'limpieza', 'A']);
-  assert.notEqual(a.form_token, b.form_token);
-  assert.match(a.form_token, /^[A-Za-z0-9_-]{24}$/);
+  assert.notEqual(a.link_token, b.link_token);
+  assert.match(a.link_token, /^[A-Za-z0-9_-]{24}$/);
   assert.equal(a.latino_signal, true);
   assert.equal('sequence_step' in a, false);           // lo demás lo pone el default de la tabla
 });

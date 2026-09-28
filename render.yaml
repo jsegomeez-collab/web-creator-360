@@ -52,3 +52,27 @@ services:
         sync: false
       - key: PREVIEW_EXPIRY_DAYS
         value: "15"
+
+  # Public server of the new-business campaign: receives Instantly's webhook. It has no dashboard and no cron of the
+  # main app, so it is safe to expose. Deploy THIS one for the campaign; the service above (full app) has no login.
+  - type: web
+    name: web-creator-360-campaign
+    env: node
+    region: frankfurt
+    plan: starter
+    buildCommand: npm install --omit=dev
+    startCommand: node src/campaign-server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: NEW_LEADS_OWNER_USER_ID
+        sync: false
+      - key: INSTANTLY_CAMPAIGN_ID
+        sync: false
+      - key: INSTANTLY_WEBHOOK_SECRET
+        sync: false
