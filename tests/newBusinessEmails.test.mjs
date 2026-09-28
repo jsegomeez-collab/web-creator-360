@@ -20,13 +20,13 @@ Nos tomamos la libertad de diseñarte una web para Limpieza Rivera LLC, totalmen
 Me encantaría enseñártela. Agenda una llamada de 15 minutos aquí y te la muestro en directo: https://campana.example.com/c/TOKEN123
 
 Un abrazo,
-Jose — Eternity Strategy
+Jose — Get ur Web
 
-Eternity Strategy · 7901 4th St N, St. Petersburg, FL 33702, EE. UU.`);
+TRUDSALES LLC (dba Get ur Web) · 7901 4th St N, St. Petersburg, FL 33702, EE. UU.`);
 });
 
-test('lleva la dirección postal del remitente (obligatoria por ley en un email comercial en EE. UU.)', () => {
-  assert.match(EMAIL_BODY, /7901 4th St N, St\. Petersburg, FL 33702, EE\. UU\./);
+test('lleva la razón social, el DBA y la dirección postal del remitente (obligatorio por ley en un email comercial en EE. UU.)', () => {
+  assert.match(EMAIL_BODY, /TRUDSALES LLC \(dba Get ur Web\) · 7901 4th St N, St\. Petersburg, FL 33702, EE\. UU\./);
 });
 
 test('versión no latina: sin la frase de la comunidad latina', () => {

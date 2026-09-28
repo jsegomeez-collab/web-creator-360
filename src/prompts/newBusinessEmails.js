@@ -15,9 +15,9 @@ Nos tomamos la libertad de diseñarte una web para {{empresa}}, totalmente grati
 Me encantaría enseñártela. Agenda una llamada de 15 minutos aquí y te la muestro en directo: {{calendario}}
 
 Un abrazo,
-Jose — Eternity Strategy
+Jose — Get ur Web
 
-Eternity Strategy · 7901 4th St N, St. Petersburg, FL 33702, EE. UU.`;
+TRUDSALES LLC (dba Get ur Web) · 7901 4th St N, St. Petersburg, FL 33702, EE. UU.`;
 
 // Sector key (from the registry NAICS mapping) → Spanish label. "otro" has none: the text then just says "tu negocio".
 const SECTOR_LABELS = {

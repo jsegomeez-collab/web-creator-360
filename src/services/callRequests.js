@@ -5,7 +5,7 @@ const TABLE = 'new_business_leads';
 // What the "when" menu offers. The text itself is what gets saved and shown in the dashboard and in the Telegram alert.
 export const PREFERRED_TIMES = ['Lo antes posible', 'Hoy, más tarde', 'Mañana por la mañana', 'Mañana por la tarde'];
 
-export const CONSENT_TEXT = 'Acepto que Eternity Strategy me llame por teléfono al número indicado para enseñarme la web. Puedo pedir que no me contacten más.';
+export const CONSENT_TEXT = 'Acepto que Get ur Web me llame por teléfono al número indicado para enseñarme la web. Puedo pedir que no me contacten más.';
 
 // A lead moves to "requested" from any of these. A lead that already asked only gets its details refreshed.
 export const REQUESTABLE = ['new', 'queued', 'emailed', 'engaged', 'replied'];
