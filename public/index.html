@@ -2,790 +2,775 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Web Creator 360</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0E1D" />
+  <title>Panel · Web Creator 360</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366F1'/%3E%3Cstop offset='1' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='16' fill='white' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { font-family: 'Inter', system-ui, sans-serif; }
-    body { background: #0F172A; }
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'] },
+          colors: {
+            brand: { 50: '#EEF2FF', 100: '#E0E7FF', 200: '#C7D2FE', 300: '#A5B4FC', 400: '#818CF8', 500: '#6366F1', 600: '#4F46E5', 700: '#4338CA', 800: '#3730A3', 900: '#312E81' },
+          },
+          boxShadow: {
+            card: '0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.05)',
+            lift: '0 12px 32px -12px rgba(16,24,40,.22)',
+          },
+        },
+      },
+    };
+  </script>
+  <style type="text/tailwindcss">
+    @layer base {
+      html { -webkit-tap-highlight-color: transparent; }
+      body { @apply bg-[#F4F5F9] text-slate-800 antialiased; font-feature-settings: "cv11", "ss01"; }
+      ::selection { @apply bg-brand-500/20; }
+    }
 
-    .sidebar { background: linear-gradient(180deg, #0F172A 0%, #1E1B4B 100%); }
-    .nav-item { transition: all .15s ease; border-radius: 10px; }
-    .nav-item:hover { background: rgba(255,255,255,.07); }
-    .nav-item.active { background: rgba(99,102,241,.25); border: 1px solid rgba(99,102,241,.4); }
-    .nav-item.active .nav-label { color: #A5B4FC; }
-    .nav-item.active .nav-icon { color: #818CF8; }
-    .nav-count { background: rgba(99,102,241,.35); color: #A5B4FC; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+    @layer components {
+      /* Page structure */
+      .page-head { @apply mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between lg:mb-8; }
+      .page-title { @apply text-2xl font-bold tracking-tight text-slate-900 sm:text-[28px]; text-wrap: balance; }
+      .page-sub { @apply mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-500; }
+      .eyebrow { @apply text-xs font-semibold uppercase tracking-[.12em] text-brand-600; }
 
-    .content-area { background: #F8FAFC; min-height: 100vh; border-radius: 20px 0 0 20px; }
+      .card { @apply rounded-2xl border border-slate-200/80 bg-white shadow-card; }
+      .card-header { @apply flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6; }
+      .card-title { @apply text-[15px] font-semibold text-slate-900; }
+      .card-sub { @apply mt-0.5 text-[13px] leading-relaxed text-slate-500; }
+      .card-body { @apply p-5 sm:p-6; }
+      .icon-tile { @apply grid h-10 w-10 shrink-0 place-items-center rounded-xl; }
+      .icon-tile svg { @apply h-5 w-5; }
 
-    .card { background: #fff; border-radius: 14px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-    .card-hover:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); transform: translateY(-1px); transition: all .2s; }
+      /* KPIs */
+      .kpi { @apply rounded-2xl border border-slate-200/80 bg-white p-4 shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-lift sm:p-5; }
+      .kpi-label { @apply text-[13px] font-medium text-slate-500; }
+      .kpi-value { @apply mt-3 text-[28px] font-bold leading-none tracking-tight text-slate-900 tabular-nums sm:text-[34px]; }
+      .kpi-foot { @apply mt-2 text-xs text-slate-400; }
 
-    .stat-chip { border-radius: 12px; }
+      /* Buttons */
+      .btn-primary { @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-b from-brand-500 to-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_8px_20px_-8px_rgba(79,70,229,.7)] transition hover:brightness-110 active:scale-[.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/25; }
+      .btn-secondary { @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 active:scale-[.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/15; }
+      .btn-danger { @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-b from-rose-500 to-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-8px_rgba(225,29,72,.6)] transition hover:brightness-110 active:scale-[.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/25; }
+      .btn-ghost { @apply inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold text-brand-600 transition hover:bg-brand-50 disabled:opacity-50; }
+      .btn-primary svg, .btn-secondary svg, .btn-danger svg, .btn-ghost svg { @apply h-4 w-4 shrink-0; }
+      .icon-btn { @apply grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:bg-slate-50 hover:text-slate-800; }
+      .icon-btn svg { @apply h-4 w-4; }
 
-    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: .02em; }
-    .badge-prospected { background: #F1F5F9; color: #64748B; }
-    .badge-scraped    { background: #FEF3C7; color: #92400E; }
-    .badge-generated  { background: #EDE9FE; color: #5B21B6; }
-    .badge-sent       { background: #DBEAFE; color: #1D4ED8; }
-    .badge-active     { background: #DCFCE7; color: #15803D; }
-    .badge-expired    { background: #FEE2E2; color: #B91C1C; }
-    .badge-preview    { background: #EDE9FE; color: #5B21B6; }
-    .badge-completed  { background: #DCFCE7; color: #15803D; }
-    .badge-pending    { background: #FEF3C7; color: #92400E; }
-    .badge-blue       { background: #DBEAFE; color: #1D4ED8; }
-    .badge-green      { background: #DCFCE7; color: #15803D; }
-    .badge-red        { background: #FEE2E2; color: #B91C1C; }
+      /* Small in-table actions (class names used by the JS renders) */
+      .action-btn { @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-semibold ring-1 ring-inset transition active:scale-[.97] disabled:pointer-events-none disabled:opacity-60; }
+      .action-btn svg { @apply h-3.5 w-3.5 shrink-0; }
+      .btn-scrape { @apply bg-amber-50 text-amber-800 ring-amber-200 hover:bg-amber-100; }
+      .btn-generate { @apply bg-violet-50 text-violet-700 ring-violet-200 hover:bg-violet-100; }
+      .btn-send { @apply bg-brand-50 text-brand-700 ring-brand-200 hover:bg-brand-100; }
+      .btn-preview { @apply bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100; }
+      .btn-soft-danger { @apply bg-rose-50 text-rose-700 ring-rose-200 hover:bg-rose-100; }
+      .action-btn.btn-secondary { @apply rounded-lg border-0 px-2.5 py-1.5 text-xs shadow-none ring-slate-200; }
 
-    .btn-primary   { background: #4F46E5; color: #fff; border-radius: 9px; font-weight: 600; transition: all .15s; }
-    .btn-primary:hover { background: #4338CA; box-shadow: 0 4px 12px rgba(79,70,229,.3); }
-    .btn-secondary { background: #F1F5F9; color: #475569; border-radius: 9px; font-weight: 500; transition: all .15s; border: 1px solid #E2E8F0; }
-    .btn-secondary:hover { background: #E2E8F0; }
+      /* Forms */
+      .input { @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10 disabled:bg-slate-50; }
+      .input-icon { @apply pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400; }
+      .label { @apply mb-1.5 block text-[13px] font-medium text-slate-700; }
+      .hint { @apply mt-2 text-xs text-slate-500; }
 
-    .action-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; border: none; }
-    .btn-scrape    { background: #FEF3C7; color: #92400E; }
-    .btn-scrape:hover { background: #FDE68A; }
-    .btn-generate  { background: #EDE9FE; color: #5B21B6; }
-    .btn-generate:hover { background: #DDD6FE; }
-    .btn-send      { background: #DBEAFE; color: #1D4ED8; }
-    .btn-send:hover { background: #BFDBFE; }
-    .btn-preview   { background: #F0FDF4; color: #15803D; }
-    .btn-preview:hover { background: #DCFCE7; }
+      /* Badges (class names used by the JS renders) */
+      .badge { @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11.5px] font-semibold leading-none ring-1 ring-inset; }
+      .badge::before { content: ''; @apply h-1.5 w-1.5 rounded-full bg-current opacity-80; }
+      .badge-prospected { @apply bg-slate-100 text-slate-600 ring-slate-200; }
+      .badge-scraped, .badge-pending { @apply bg-amber-50 text-amber-700 ring-amber-200; }
+      .badge-generated, .badge-preview { @apply bg-violet-50 text-violet-700 ring-violet-200; }
+      .badge-sent, .badge-blue { @apply bg-sky-50 text-sky-700 ring-sky-200; }
+      .badge-active, .badge-completed, .badge-green { @apply bg-emerald-50 text-emerald-700 ring-emerald-200; }
+      .badge-expired, .badge-red { @apply bg-rose-50 text-rose-700 ring-rose-200; }
 
-    .table-row:hover { background: #F8FAFC; }
-    .table-row { transition: background .1s; }
+      /* Tables */
+      .table-wrap { @apply overflow-x-auto; }
+      .data-table { @apply w-full text-sm; }
+      .data-table thead th:first-child, .data-table tbody td:first-child { @apply pl-4 sm:pl-6; }
+      .data-table thead th:last-child, .data-table tbody td:last-child { @apply pr-4 sm:pr-6; }
+      .data-table thead th { @apply whitespace-nowrap border-b border-slate-100 bg-slate-50/80 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[.08em] text-slate-500 sm:px-6; }
+      .data-table tbody td { @apply px-3 py-3.5 align-middle sm:px-6; }
+      .data-table tbody tr { @apply border-b border-slate-100 transition-colors last:border-0; }
+      .data-table tbody tr.table-row:hover { @apply bg-slate-50/70; }
+      .avatar { @apply grid h-9 w-9 shrink-0 place-items-center rounded-xl text-xs font-bold; }
 
-    input, select { transition: border-color .15s, box-shadow .15s; }
-    input:focus, select:focus { outline: none; border-color: #6366F1; box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+      .empty-state { @apply flex flex-col items-center gap-3 px-6 py-14 text-center; }
+      .empty-icon { @apply grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-400; }
+      .empty-icon svg { @apply h-6 w-6; }
+      .empty-title { @apply max-w-sm text-sm font-medium text-slate-500; }
+      .skeleton { @apply animate-pulse rounded-md bg-slate-200/70; }
 
-    .modal-backdrop { backdrop-filter: blur(4px); background: rgba(15,23,42,.5); }
-    .modal-box { border-radius: 18px; box-shadow: 0 25px 60px rgba(0,0,0,.25); }
+      /* Sidebar */
+      .nav-group { @apply px-3 pb-1.5 pt-6 text-[10.5px] font-semibold uppercase tracking-[.14em] text-slate-500; }
+      .nav-item { @apply relative flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[13.5px] font-medium text-slate-400 transition hover:bg-white/[.06] hover:text-white; }
+      .nav-item svg { @apply h-[18px] w-[18px] shrink-0 opacity-80; }
+      .nav-item.active { @apply bg-white/[.08] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]; }
+      .nav-item.active svg { @apply text-brand-300 opacity-100; }
+      .nav-item.active::before { content: ''; @apply absolute -left-3 bottom-1.5 top-1.5 w-1 rounded-r-full bg-gradient-to-b from-brand-400 to-violet-500; }
+      .nav-count { @apply ml-auto min-w-[1.6rem] rounded-full bg-white/[.08] px-1.5 py-0.5 text-center text-[11px] font-semibold tabular-nums text-slate-300 transition-opacity; }
+      .nav-item.active .nav-count { @apply bg-brand-500/25 text-brand-200; }
 
-    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-    .pulse-dot.online { background: #10B981; animation: pulse 2s infinite; }
-    .pulse-dot.offline { background: #EF4444; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+      /* Lead funnel pills */
+      .stat-pill { @apply flex shrink-0 snap-start items-center gap-3 rounded-2xl border border-slate-200/80 bg-white px-4 py-3 text-left shadow-card transition hover:-translate-y-0.5 hover:border-slate-300; }
+      .stat-pill.is-active { @apply border-brand-300 ring-4 ring-brand-500/10; }
 
-    .pipeline-step { position: relative; }
-    .pipeline-step:not(:last-child)::after { content:''; position:absolute; right:-1px; top:50%; transform:translateY(-50%); width:2px; height:40%; background: #E2E8F0; }
+      /* CSV drop zone */
+      .dropzone { @apply flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 px-6 py-8 text-center transition hover:border-brand-300 hover:bg-brand-50/40 focus-within:border-brand-400 focus-within:ring-4 focus-within:ring-brand-500/10; }
+      .dropzone.is-dragging { @apply border-brand-400 bg-brand-50 ring-4 ring-brand-500/10; }
+      .dropzone > * { pointer-events: none; }
 
-    .empty-state { text-align: center; padding: 56px 24px; }
-    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+      /* Live logs */
+      .console { @apply max-h-64 space-y-1 overflow-y-auto bg-[#0B1022] p-4 font-mono text-[12.5px] leading-relaxed text-slate-300; }
+      .alert-error { @apply rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-700; }
 
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+      /* Toasts and dialogs (the JS creates them) */
+      .toast { @apply pointer-events-auto flex w-full items-start gap-3 rounded-2xl border bg-white p-3.5 pr-3 text-sm shadow-lift sm:w-[380px]; animation: toast-in .3s cubic-bezier(.2,.9,.3,1.15) both; }
+      .toast.toast-out { animation: toast-out .2s ease both; }
+      .modal-backdrop { @apply fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 p-4 backdrop-blur-sm sm:items-center; animation: fade .18s ease both; }
+      .modal-box { @apply w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl sm:p-7; animation: pop .24s cubic-bezier(.2,.9,.3,1.15) both; }
+      .modal-backdrop.closing { animation: fade-out .15s ease both; }
+    }
 
     .tab-hidden { display: none !important; }
+    .fade-in { animation: fade-up .32s ease both; }
+    select.input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .75rem center; background-size: 16px; padding-right: 2.25rem; }
+
+    .pulse-dot { width: 8px; height: 8px; border-radius: 9999px; display: inline-block; flex-shrink: 0; }
+    .pulse-dot.online { background: #10B981; animation: ping 2.2s infinite; }
+    .pulse-dot.offline { background: #F43F5E; }
+
+    /* Sidebar: always visible on large screens, a drawer below that */
+    #sidebar { transform: translateX(-100%); transition: transform .25s ease; background: radial-gradient(120% 55% at 0% 0%, rgba(99,102,241,.20), transparent 60%), radial-gradient(90% 40% at 100% 100%, rgba(139,92,246,.10), transparent 60%), #0A0E1D; }
+    #sidebar-backdrop { display: none; }
+    body.sidebar-open #sidebar { transform: none; }
+    body.sidebar-open #sidebar-backdrop { display: block; animation: fade .2s ease both; }
+    @media (max-width: 1023px) { body.sidebar-open { overflow: hidden; } }
+    @media (min-width: 1024px) { #sidebar { transform: none; } body.sidebar-open #sidebar-backdrop { display: none; } }
+
+    @keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fade-out { to { opacity: 0; } }
+    @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(-8px) scale(.97); } to { opacity: 1; transform: none; } }
+    @keyframes toast-out { to { opacity: 0; transform: translateY(-6px); } }
+    @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.45); } 70% { box-shadow: 0 0 0 7px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
   </style>
 </head>
-<body class="flex min-h-screen">
+<body>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar w-60 min-h-screen flex flex-col py-6 px-4 flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
-
-    <!-- Logo -->
-    <div class="px-2 mb-8">
-      <div class="flex items-center gap-3 mb-1">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-base" style="background: linear-gradient(135deg,#6366F1,#8B5CF6)">W</div>
-        <div>
-          <div class="text-white font-semibold text-sm leading-tight">Web Creator</div>
-          <div class="text-indigo-400 font-bold text-xs tracking-widest">360</div>
-        </div>
+  <!-- ─── SIDEBAR ─────────────────────────────────────────────────────────── -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col text-slate-300" aria-label="Navegación principal">
+    <div class="flex h-16 items-center gap-3 border-b border-white/[.06] px-5">
+      <div class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-500 text-sm font-bold text-white shadow-[0_8px_20px_-6px_rgba(99,102,241,.8)]">W</div>
+      <div class="leading-tight">
+        <div class="text-[15px] font-semibold text-white">Web Creator</div>
+        <div class="text-[11px] font-semibold tracking-[.22em] text-brand-300">360</div>
       </div>
+      <button id="sidebar-close" type="button" class="ml-auto grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-white/10 hover:text-white lg:hidden" aria-label="Cerrar menú"><i data-lucide="x" class="h-5 w-5"></i></button>
     </div>
 
-    <!-- Status -->
-    <div class="px-2 mb-6">
-      <div class="flex items-center gap-2">
-        <span class="pulse-dot offline" id="status-dot"></span>
-        <span class="text-xs text-slate-400" id="status-text">Conectando...</span>
-      </div>
-    </div>
+    <nav class="flex-1 overflow-y-auto px-3 pb-4">
+      <div class="nav-group">Google Maps</div>
+      <button class="nav-item active" data-tab="overview"><i data-lucide="layout-dashboard"></i><span>Resumen</span></button>
+      <button class="nav-item" data-tab="prospecting"><i data-lucide="search"></i><span>Prospección</span><span class="nav-count" id="count-prospected">0</span></button>
+      <button class="nav-item" data-tab="scraping"><i data-lucide="scan-search"></i><span>Scraping</span><span class="nav-count" id="count-to-scrape">0</span></button>
+      <button class="nav-item" data-tab="generation"><i data-lucide="wand-sparkles"></i><span>Crear webs</span><span class="nav-count" id="count-to-generate">0</span></button>
+      <button class="nav-item" data-tab="outreach"><i data-lucide="send"></i><span>Enviar</span><span class="nav-count" id="count-to-send">0</span></button>
 
-    <!-- Nav -->
-    <nav class="flex flex-col gap-1 flex-1">
+      <div class="nav-group">LLCs nuevas</div>
+      <button class="nav-item" data-tab="leads-sources"><i data-lucide="database"></i><span>Fuentes</span></button>
+      <button class="nav-item" data-tab="leads-list"><i data-lucide="users"></i><span>Leads</span><span class="nav-count" id="count-leads-new">0</span></button>
+      <button class="nav-item" data-tab="leads-send"><i data-lucide="rocket"></i><span>Envío</span></button>
 
-      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mb-2">Google Maps</div>
-
-      <button class="nav-item active flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="overview">
-        <span class="nav-icon text-slate-400 text-lg">◈</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Resumen</span>
-      </button>
-
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="prospecting">
-        <span class="nav-icon text-slate-400 text-lg">⊕</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Prospección</span>
-        <span class="nav-count" id="count-prospected">0</span>
-      </button>
-
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="scraping">
-        <span class="nav-icon text-slate-400 text-lg">⊙</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Scraping</span>
-        <span class="nav-count" id="count-to-scrape">0</span>
-      </button>
-
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="generation">
-        <span class="nav-icon text-slate-400 text-lg">✦</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Crear Webs</span>
-        <span class="nav-count" id="count-to-generate">0</span>
-      </button>
-
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="outreach">
-        <span class="nav-icon text-slate-400 text-lg">✉</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Enviar</span>
-        <span class="nav-count" id="count-to-send">0</span>
-      </button>
-
-      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mt-5 mb-2">LLCs nuevas</div>
-
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="leads-sources">
-        <span class="nav-icon text-slate-400 text-lg">⇩</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Fuentes</span>
-      </button>
-
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="leads-list">
-        <span class="nav-icon text-slate-400 text-lg">☰</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Leads</span>
-        <span class="nav-count" id="count-leads-new">0</span>
-      </button>
-
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="leads-send">
-        <span class="nav-icon text-slate-400 text-lg">➤</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Envío</span>
-      </button>
-
-      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mt-5 mb-2">Gestión</div>
-
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="followup">
-        <span class="nav-icon text-slate-400 text-lg">↻</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Seguimiento</span>
-      </button>
-
-      <button class="nav-item flex items-center gap-3 px-3 py-2.5 w-full text-left" data-tab="payments">
-        <span class="nav-icon text-slate-400 text-lg">◎</span>
-        <span class="nav-label text-slate-300 text-sm font-medium flex-1">Pagos</span>
-        <span class="nav-count" id="count-paid">0</span>
-      </button>
-
+      <div class="nav-group">Gestión</div>
+      <button class="nav-item" data-tab="followup"><i data-lucide="repeat"></i><span>Seguimiento</span></button>
+      <button class="nav-item" data-tab="payments"><i data-lucide="credit-card"></i><span>Pagos</span><span class="nav-count" id="count-paid">0</span></button>
     </nav>
 
-    <!-- Account links (hidden in local mode, shown in SaaS/production) -->
-    <div id="account-nav" class="px-2 pt-4 border-t border-slate-800 mt-4 space-y-1" style="display:none">
-      <a href="/settings.html" class="nav-item flex items-center gap-3 px-3 py-2 w-full text-left text-slate-400 hover:text-slate-200 text-sm">
-        <span class="text-base">⚙</span> Ajustes
-      </a>
-      <a href="/billing.html" class="nav-item flex items-center gap-3 px-3 py-2 w-full text-left text-slate-400 hover:text-slate-200 text-sm">
-        <span class="text-base">◎</span> Facturación
-      </a>
-      <button onclick="logout()" class="nav-item flex items-center gap-3 px-3 py-2 w-full text-left text-slate-500 hover:text-red-400 text-sm">
-        <span class="text-base">→</span> Salir
-      </button>
-      <p class="text-xs text-slate-700 px-2 pt-2">Previews: 15 días</p>
+    <!-- Account links (shown in SaaS mode only) -->
+    <div id="account-nav" class="space-y-0.5 border-t border-white/[.06] px-3 py-3" style="display:none">
+      <a href="/settings.html" class="nav-item"><i data-lucide="settings"></i><span>Ajustes</span></a>
+      <a href="/billing.html" class="nav-item"><i data-lucide="receipt"></i><span>Facturación</span></a>
+      <button onclick="logout()" class="nav-item hover:!text-rose-300"><i data-lucide="log-out"></i><span>Salir</span></button>
     </div>
+    <div class="border-t border-white/[.06] px-5 py-4 text-[11px] text-slate-500">Las webs de prueba caducan a los 15 días.</div>
   </aside>
+  <div id="sidebar-backdrop" class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden"></div>
 
-  <!-- MAIN CONTENT -->
-  <main class="content-area flex-1 overflow-x-hidden">
+  <div class="min-h-screen lg:pl-64">
 
-    <!-- OVERVIEW TAB -->
-    <div id="tab-overview" class="p-8">
-      <div class="mb-8 flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 class="text-2xl font-bold text-slate-800">Resumen del pipeline</h1>
-          <p class="text-slate-500 mt-1 text-sm">Vista general del estado de todos los negocios.</p>
-        </div>
-        <button id="run-pipeline-btn" onclick="runPipeline()"
-          class="btn-primary px-5 py-2.5 text-sm flex items-center gap-2 shrink-0">
-          ▶ Ejecutar pipeline ahora
-        </button>
-      </div>
-
-      <!-- Pipeline log (hidden until run) -->
-      <div id="pipeline-log" class="hidden card p-5 mb-6 text-sm font-mono">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Log en tiempo real</span>
-          <span id="pipeline-status-badge" class="badge badge-blue">Ejecutando...</span>
-        </div>
-        <div id="pipeline-log-entries" class="space-y-1 max-h-48 overflow-y-auto text-xs text-slate-600"></div>
-      </div>
-
-      <!-- Stats row -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="card p-5">
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Prospectados</p>
-          <p class="text-3xl font-bold text-slate-800" id="ov-total">—</p>
-          <p class="text-xs text-slate-400 mt-1">Total en base de datos</p>
-        </div>
-        <div class="card p-5">
-          <p class="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-2">Pendientes</p>
-          <p class="text-3xl font-bold text-amber-600" id="ov-pending">—</p>
-          <p class="text-xs text-slate-400 mt-1">Sin scrapear todavía</p>
-        </div>
-        <div class="card p-5">
-          <p class="text-xs font-semibold text-violet-500 uppercase tracking-wide mb-2">Webs generadas</p>
-          <p class="text-3xl font-bold text-violet-600" id="ov-generated">—</p>
-          <p class="text-xs text-slate-400 mt-1">Listas para enviar</p>
-        </div>
-        <div class="card p-5">
-          <p class="text-xs font-semibold text-emerald-500 uppercase tracking-wide mb-2">Ventas</p>
-          <p class="text-3xl font-bold text-emerald-600" id="ov-paid">—</p>
-          <p class="text-xs text-slate-400 mt-1">Pagos completados</p>
+    <!-- ─── TOPBAR ────────────────────────────────────────────────────────── -->
+    <header class="sticky top-0 z-20 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
+      <div class="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
+        <button id="menu-btn" type="button" class="-ml-1 grid h-10 w-10 place-items-center rounded-xl text-slate-600 hover:bg-slate-100 lg:hidden" aria-label="Abrir menú"><i data-lucide="menu" class="h-5 w-5"></i></button>
+        <nav class="flex min-w-0 items-center gap-2 text-sm" aria-label="Ruta">
+          <span id="crumb-section" class="hidden text-slate-400 sm:inline">Google Maps</span>
+          <i data-lucide="chevron-right" class="hidden h-4 w-4 text-slate-300 sm:block"></i>
+          <span id="crumb-page" class="truncate font-semibold text-slate-900">Resumen</span>
+        </nav>
+        <div class="ml-auto flex items-center gap-2">
+          <div class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm" title="Estado del servidor">
+            <span class="pulse-dot offline" id="status-dot"></span><span id="status-text" class="hidden sm:inline">Conectando…</span>
+          </div>
+          <button data-goto="leads-send" type="button" class="btn-secondary hidden !px-3 !py-2 text-[13px] md:inline-flex"><i data-lucide="bot"></i>Autopilot</button>
         </div>
       </div>
+    </header>
 
-      <!-- Pipeline visual -->
-      <div class="card p-6 mb-8">
-        <h2 class="text-sm font-semibold text-slate-700 mb-4">Estado del pipeline</h2>
-        <div class="grid grid-cols-5 gap-0 divide-x divide-slate-100">
-          <div class="pipeline-step text-center px-4 py-2">
-            <p class="text-2xl font-bold text-slate-700" id="pipe-prospected">—</p>
-            <p class="text-xs text-slate-400 mt-1">Prospectados</p>
-          </div>
-          <div class="pipeline-step text-center px-4 py-2">
-            <p class="text-2xl font-bold text-amber-500" id="pipe-scraped">—</p>
-            <p class="text-xs text-slate-400 mt-1">Scrapeados</p>
-          </div>
-          <div class="pipeline-step text-center px-4 py-2">
-            <p class="text-2xl font-bold text-violet-500" id="pipe-generated">—</p>
-            <p class="text-xs text-slate-400 mt-1">Webs creadas</p>
-          </div>
-          <div class="pipeline-step text-center px-4 py-2">
-            <p class="text-2xl font-bold text-blue-500" id="pipe-sent">—</p>
-            <p class="text-xs text-slate-400 mt-1">Enviados</p>
-          </div>
-          <div class="pipeline-step text-center px-4 py-2">
-            <p class="text-2xl font-bold text-emerald-500" id="pipe-active">—</p>
-            <p class="text-xs text-slate-400 mt-1">Activos</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
 
-    <!-- PROSPECTING TAB -->
-    <div id="tab-prospecting" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">Prospección</h1>
-        <p class="text-slate-500 mt-1 text-sm">Busca negocios locales con Google Places y añádelos al pipeline.</p>
-      </div>
-
-      <!-- Prospect form card -->
-      <div class="card p-6 mb-6">
-        <h2 class="text-sm font-semibold text-slate-700 mb-4">Nueva búsqueda</h2>
-        <form id="prospect-form" class="flex flex-wrap gap-4 items-end">
+      <!-- ─── RESUMEN ─────────────────────────────────────────────────────── -->
+      <section id="tab-overview" class="fade-in">
+        <div class="page-head">
           <div>
-            <label class="block text-xs font-medium text-slate-500 mb-1.5">Zona o ciudad</label>
-            <input type="text" id="prospect-zone" placeholder="ej: Madrid, Barcelona..." class="border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm w-52 bg-white" required />
+            <p id="greeting" class="eyebrow">Hola</p>
+            <h1 class="page-title mt-1.5">Resumen</h1>
+            <p class="page-sub">Tus dos fuentes de clientes en una sola vista: los negocios de Google Maps y la campaña de LLCs nuevas.</p>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-500 mb-1.5">Categoría de negocio</label>
-            <input type="text" id="prospect-category" placeholder="ej: restaurantes, dentistas..." class="border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm w-52 bg-white" required />
+          <button id="run-pipeline-btn" onclick="runPipeline()" class="btn-primary"><i data-lucide="play"></i>Ejecutar pipeline</button>
+        </div>
+
+        <div id="pipeline-log" class="card mb-6 hidden overflow-hidden">
+          <div class="flex items-center justify-between gap-3 border-b border-white/5 bg-[#0B1022] px-4 py-3">
+            <div class="flex items-center gap-3">
+              <span class="flex gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-rose-400/80"></span><span class="h-2.5 w-2.5 rounded-full bg-amber-400/80"></span><span class="h-2.5 w-2.5 rounded-full bg-emerald-400/80"></span></span>
+              <span class="text-xs font-medium text-slate-400">Pipeline en tiempo real</span>
+            </div>
+            <span id="pipeline-status-badge" class="badge badge-blue">Ejecutando…</span>
           </div>
-          <button type="submit" class="btn-primary px-5 py-2.5 text-sm">
-            Prospectar →
-          </button>
-          <span id="prospect-result" class="text-sm text-slate-500 self-center"></span>
-        </form>
-      </div>
+          <div id="pipeline-log-entries" class="console"></div>
+        </div>
 
-      <!-- All businesses table -->
-      <div class="card overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-4">
-          <h2 class="text-sm font-semibold text-slate-700">Todos los negocios <span id="prospect-count" class="text-slate-400 font-normal"></span></h2>
-          <div class="flex items-center gap-3">
-            <input id="prospect-search" oninput="filterProspecting()" type="text" placeholder="Buscar negocio..." class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 w-56 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-            <button onclick="loadSection('prospecting')" class="text-xs text-indigo-500 hover:text-indigo-700 font-medium">Actualizar</button>
+        <div class="mb-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          <div class="kpi">
+            <div class="flex items-start justify-between gap-3"><p class="kpi-label">Prospectados</p><span class="icon-tile h-9 w-9 bg-brand-50 text-brand-600"><i data-lucide="building-2"></i></span></div>
+            <p class="kpi-value" id="ov-total" data-count>—</p>
+            <p class="kpi-foot">Negocios en tu base de datos</p>
           </div>
-        </div>
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th class="px-6 py-3 text-left">Negocio</th>
-              <th class="px-6 py-3 text-left">Categoría</th>
-              <th class="px-6 py-3 text-left">Web / Teléfono</th>
-              <th class="px-6 py-3 text-left">Rating</th>
-              <th class="px-6 py-3 text-left">Estado</th>
-            </tr>
-          </thead>
-          <tbody id="all-businesses-table" class="divide-y divide-slate-50"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- SCRAPING TAB -->
-    <div id="tab-scraping" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">Scraping con IA</h1>
-        <p class="text-slate-500 mt-1 text-sm">Negocios prospectados pendientes de analizar con Gemini. El scraping extrae servicios, descripción, contacto y tono del negocio.</p>
-      </div>
-
-      <!-- Batch action -->
-      <div class="card p-4 mb-6 flex items-center justify-between">
-        <div>
-          <p class="text-sm font-medium text-slate-700">Scrapear todos los pendientes</p>
-          <p class="text-xs text-slate-400 mt-0.5">Procesa uno por uno. Puede tardar unos minutos.</p>
-        </div>
-        <button id="scrape-all-btn" onclick="scrapeAll()" class="btn-primary px-4 py-2 text-sm">
-          Scrapear todos
-        </button>
-      </div>
-
-      <!-- Pending scraping -->
-      <div class="card overflow-hidden mb-6">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-slate-700">Pendientes de scraping <span id="scrape-pending-count" class="text-slate-400 font-normal text-xs"></span></h2>
-          <button onclick="loadSection('scraping')" class="text-xs text-indigo-500 hover:text-indigo-700 font-medium">Actualizar</button>
-        </div>
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th class="px-6 py-3 text-left">Negocio</th>
-              <th class="px-6 py-3 text-left">Categoría</th>
-              <th class="px-6 py-3 text-left">Web actual</th>
-              <th class="px-6 py-3 text-left">Rating</th>
-              <th class="px-6 py-3 text-right">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="scraping-table" class="divide-y divide-slate-50"></tbody>
-        </table>
-      </div>
-
-      <!-- Already scraped -->
-      <div class="card overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-4">
-          <h2 class="text-sm font-semibold text-slate-700">Ya scrapeados <span id="scraped-done-count" class="text-slate-400 font-normal text-xs"></span></h2>
-          <input id="scraped-search" oninput="filterScraped()" type="text" placeholder="Buscar..." class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 w-48 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-        </div>
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th class="px-6 py-3 text-left">Negocio</th>
-              <th class="px-6 py-3 text-left">Categoría</th>
-              <th class="px-6 py-3 text-left">Email</th>
-              <th class="px-6 py-3 text-left">Teléfono</th>
-              <th class="px-6 py-3 text-left">Estado</th>
-              <th class="px-6 py-3 text-right">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="scraped-done-table" class="divide-y divide-slate-50"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- GENERATION TAB -->
-    <div id="tab-generation" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">Crear Webs con IA</h1>
-        <p class="text-slate-500 mt-1 text-sm">Negocios ya analizados listos para generar su web personalizada con Claude. El resultado es un HTML completo y publicado en preview.</p>
-      </div>
-
-      <!-- Batch action -->
-      <div class="card p-4 mb-6 flex items-center justify-between">
-        <div>
-          <p class="text-sm font-medium text-slate-700">Generar todas las webs pendientes</p>
-          <p class="text-xs text-slate-400 mt-0.5">Cada generación tarda ~30 segundos con Claude.</p>
-        </div>
-        <button id="generate-all-btn" onclick="generateAll()" class="btn-primary px-4 py-2 text-sm">
-          Generar todas
-        </button>
-      </div>
-
-      <div class="card overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-slate-700">Pendientes de generar</h2>
-          <button onclick="loadSection('generation')" class="text-xs text-indigo-500 hover:text-indigo-700 font-medium">Actualizar</button>
-        </div>
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th class="px-6 py-3 text-left">Negocio</th>
-              <th class="px-6 py-3 text-left">Categoría</th>
-              <th class="px-6 py-3 text-left">Dirección</th>
-              <th class="px-6 py-3 text-right">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="generation-table" class="divide-y divide-slate-50"></tbody>
-        </table>
-      </div>
-
-      <!-- Sites already generated -->
-      <div class="card overflow-hidden mt-6">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <div>
-            <h2 class="text-sm font-semibold text-slate-700">Webs ya generadas</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Regenera con Halo Theme + Vercel deploy automático</p>
+          <div class="kpi">
+            <div class="flex items-start justify-between gap-3"><p class="kpi-label">Pendientes</p><span class="icon-tile h-9 w-9 bg-amber-50 text-amber-600"><i data-lucide="hourglass"></i></span></div>
+            <p class="kpi-value" id="ov-pending" data-count>—</p>
+            <p class="kpi-foot">Sin analizar todavía</p>
           </div>
-          <button id="regenerate-all-btn" onclick="regenerateAll()" class="btn-primary px-4 py-2 text-sm flex items-center gap-2">
-            ✦ Regenerar todas con Halo Theme
-          </button>
-        </div>
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th class="px-6 py-3 text-left">Negocio</th>
-              <th class="px-6 py-3 text-left">Slug</th>
-              <th class="px-6 py-3 text-left">Estado</th>
-              <th class="px-6 py-3 text-left">Expira</th>
-              <th class="px-6 py-3 text-left">Preview</th>
-              <th class="px-6 py-3 text-left">Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="sites-table" class="divide-y divide-slate-50"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- OUTREACH TAB -->
-    <div id="tab-outreach" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">Enviar Outreach</h1>
-        <p class="text-slate-500 mt-1 text-sm">Webs generadas listas para enviar al negocio. Se envía un email profesional con enlace a la preview.</p>
-      </div>
-
-      <div class="card overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-slate-700">Listas para enviar</h2>
-          <button onclick="loadSection('outreach')" class="text-xs text-indigo-500 hover:text-indigo-700 font-medium">Actualizar</button>
-        </div>
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th class="px-6 py-3 text-left">Negocio</th>
-              <th class="px-6 py-3 text-left">Email</th>
-              <th class="px-6 py-3 text-left">Preview</th>
-              <th class="px-6 py-3 text-right">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="outreach-table" class="divide-y divide-slate-50"></tbody>
-        </table>
-      </div>
-
-      <!-- Bulk send card -->
-      <div class="card p-6 mt-6">
-        <div class="flex items-start justify-between gap-4 mb-1">
-          <div>
-            <h2 class="text-sm font-semibold text-slate-700">Envío masivo</h2>
-            <p class="text-xs text-slate-400 mt-1">
-              <span id="bulk-ready-count" class="font-semibold text-slate-600">—</span> negocios con email listo.
-              Los de EE.UU. recibirán el email en inglés con precio <span class="font-semibold text-emerald-600">$497</span>.
-            </p>
+          <div class="kpi">
+            <div class="flex items-start justify-between gap-3"><p class="kpi-label">Webs generadas</p><span class="icon-tile h-9 w-9 bg-violet-50 text-violet-600"><i data-lucide="sparkles"></i></span></div>
+            <p class="kpi-value" id="ov-generated" data-count>—</p>
+            <p class="kpi-foot">Listas para enseñar</p>
           </div>
-          <button id="send-all-btn" onclick="sendAll()"
-            class="btn-primary px-5 py-2.5 text-sm flex items-center gap-2 shrink-0 whitespace-nowrap">
-            ✉ Enviar a todos
-          </button>
-        </div>
-
-        <!-- Progress log -->
-        <div id="bulk-log" class="hidden mt-5 bg-slate-50 rounded-xl p-4 text-xs font-mono">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Progreso</span>
-            <span id="bulk-status-badge" class="badge badge-blue">Enviando...</span>
-          </div>
-          <div id="bulk-log-entries" class="space-y-1 max-h-52 overflow-y-auto text-slate-600"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FOLLOWUP TAB -->
-    <div id="tab-followup" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">Seguimiento</h1>
-        <p class="text-slate-500 mt-1 text-sm">Registro de todos los contactos enviados y estado de follow-ups automáticos.</p>
-      </div>
-
-      <div class="card overflow-hidden">
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th class="px-6 py-3 text-left">Negocio</th>
-              <th class="px-6 py-3 text-left">Email contactado</th>
-              <th class="px-6 py-3 text-left">Follow-up</th>
-              <th class="px-6 py-3 text-left">Próximo envío</th>
-              <th class="px-6 py-3 text-left">Enviado</th>
-            </tr>
-          </thead>
-          <tbody id="followup-table" class="divide-y divide-slate-50"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- PAYMENTS TAB -->
-    <div id="tab-payments" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">Pagos</h1>
-        <p class="text-slate-500 mt-1 text-sm">Negocios que han completado el pago y están pendientes de activar en su dominio definitivo.</p>
-      </div>
-
-      <div class="card overflow-hidden">
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th class="px-6 py-3 text-left">Negocio</th>
-              <th class="px-6 py-3 text-left">Importe</th>
-              <th class="px-6 py-3 text-left">Estado</th>
-              <th class="px-6 py-3 text-left">Preview</th>
-              <th class="px-6 py-3 text-left">Fecha</th>
-            </tr>
-          </thead>
-          <tbody id="payments-table" class="divide-y divide-slate-50"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- LLCs NUEVAS: FUENTES TAB -->
-    <div id="tab-leads-sources" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">Fuentes de LLCs nuevas</h1>
-        <p class="text-slate-500 mt-1 text-sm">Empresas recién registradas que llegan de fuentes públicas o de un CSV. Es un pipeline aparte del de Google Maps: estos leads no pasan por Scraping ni Crear Webs; se envían a Instantly y la web se crea cuando piden llamada.</p>
-      </div>
-
-      <div class="leads-error hidden mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3"></div>
-
-      <!-- Connecticut -->
-      <div class="card p-6 mb-6">
-        <div class="flex items-start justify-between gap-4 mb-4">
-          <div>
-            <h2 class="text-sm font-semibold text-slate-700">Registro de empresas de Connecticut</h2>
-            <p class="text-xs text-slate-400 mt-1">Descarga las LLCs registradas en data.ct.gov, se queda con las de dueños latinos con email propio y comprueba que el dominio del email existe.</p>
-            <p id="ct-last-run" class="text-xs text-slate-500 mt-2"></p>
+          <div class="kpi">
+            <div class="flex items-start justify-between gap-3"><p class="kpi-label">Ventas</p><span class="icon-tile h-9 w-9 bg-emerald-50 text-emerald-600"><i data-lucide="trophy"></i></span></div>
+            <p class="kpi-value" id="ov-paid" data-count>—</p>
+            <p class="kpi-foot">Pagos completados</p>
           </div>
         </div>
-        <div class="flex flex-wrap items-end gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="ct-days">Últimos días (opcional)</label>
-            <input type="number" id="ct-days" min="1" max="3650" class="w-52 border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm" placeholder="Desde la última importación" />
-          </div>
-          <button id="ct-preview-btn" class="btn-secondary px-5 py-2.5 text-sm">Vista previa (no guarda)</button>
-          <button id="ct-import-btn" class="btn-primary px-5 py-2.5 text-sm">Importar</button>
-        </div>
-        <p class="text-xs text-slate-400 mt-2">La primera vez descarga los últimos 90 días. Repetir la importación nunca duplica leads.</p>
-        <div id="ct-result" class="hidden mt-5"></div>
-      </div>
 
-      <!-- CSV -->
-      <div class="card p-6">
-        <h2 class="text-sm font-semibold text-slate-700">Importar un CSV</h2>
-        <p class="text-xs text-slate-400 mt-1 mb-4">Por ejemplo el archivo que crea el script de Python. Elige el archivo, indica qué columna es cada dato (se rellena solo cuando los nombres son habituales) y revisa antes de importar. Solo son obligatorios el nombre de la empresa y el email.</p>
-
-        <input type="file" id="csv-file" accept=".csv,.txt,text/csv" class="block text-sm text-slate-600 file:mr-3 file:px-4 file:py-2 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:font-semibold file:cursor-pointer" />
-        <div id="csv-file-row" class="hidden mt-2.5 flex items-center gap-2 text-sm">
-          <span class="text-slate-500">📄</span>
-          <span id="csv-file-name" class="font-medium text-slate-700 truncate"></span>
-          <button id="csv-file-clear" type="button" title="Quitar archivo" class="ml-1 w-5 h-5 flex items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-500 shrink-0">✕</button>
-        </div>
-
-        <div id="csv-mapper" class="hidden mt-6">
-          <p id="csv-file-info" class="text-xs text-slate-500 mb-4"></p>
-
-          <div class="grid md:grid-cols-2 gap-x-6 gap-y-3" id="csv-mapping-grid"></div>
-
-          <div class="mt-6">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Primeras filas del archivo</div>
-            <div class="overflow-x-auto border border-slate-100 rounded-lg">
-              <table class="w-full text-xs" id="csv-sample"></table>
+        <div class="grid items-start gap-4 lg:grid-cols-3 lg:gap-6">
+          <div class="card lg:col-span-2">
+            <div class="card-header">
+              <div><h2 class="card-title">Embudo de Google Maps</h2><p class="card-sub">Cuántos negocios hay ahora mismo en cada paso.</p></div>
+              <button data-goto="prospecting" class="btn-ghost">Ver negocios<i data-lucide="arrow-right"></i></button>
+            </div>
+            <div class="card-body space-y-5">
+              <div>
+                <div class="mb-2 flex items-center justify-between text-sm"><span class="flex items-center gap-2 font-medium text-slate-700"><span class="h-2 w-2 rounded-full bg-slate-400"></span>Prospectados</span><span class="font-semibold tabular-nums text-slate-900" id="pipe-prospected">—</span></div>
+                <div class="h-2.5 overflow-hidden rounded-full bg-slate-100"><div class="pipe-bar h-full rounded-full bg-slate-400 transition-[width] duration-700" data-for="pipe-prospected" style="width:0"></div></div>
+              </div>
+              <div>
+                <div class="mb-2 flex items-center justify-between text-sm"><span class="flex items-center gap-2 font-medium text-slate-700"><span class="h-2 w-2 rounded-full bg-amber-400"></span>Analizados</span><span class="font-semibold tabular-nums text-slate-900" id="pipe-scraped">—</span></div>
+                <div class="h-2.5 overflow-hidden rounded-full bg-slate-100"><div class="pipe-bar h-full rounded-full bg-amber-400 transition-[width] duration-700" data-for="pipe-scraped" style="width:0"></div></div>
+              </div>
+              <div>
+                <div class="mb-2 flex items-center justify-between text-sm"><span class="flex items-center gap-2 font-medium text-slate-700"><span class="h-2 w-2 rounded-full bg-violet-500"></span>Webs creadas</span><span class="font-semibold tabular-nums text-slate-900" id="pipe-generated">—</span></div>
+                <div class="h-2.5 overflow-hidden rounded-full bg-slate-100"><div class="pipe-bar h-full rounded-full bg-violet-500 transition-[width] duration-700" data-for="pipe-generated" style="width:0"></div></div>
+              </div>
+              <div>
+                <div class="mb-2 flex items-center justify-between text-sm"><span class="flex items-center gap-2 font-medium text-slate-700"><span class="h-2 w-2 rounded-full bg-sky-500"></span>Enviados</span><span class="font-semibold tabular-nums text-slate-900" id="pipe-sent">—</span></div>
+                <div class="h-2.5 overflow-hidden rounded-full bg-slate-100"><div class="pipe-bar h-full rounded-full bg-sky-500 transition-[width] duration-700" data-for="pipe-sent" style="width:0"></div></div>
+              </div>
+              <div>
+                <div class="mb-2 flex items-center justify-between text-sm"><span class="flex items-center gap-2 font-medium text-slate-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Clientes activos</span><span class="font-semibold tabular-nums text-slate-900" id="pipe-active">—</span></div>
+                <div class="h-2.5 overflow-hidden rounded-full bg-slate-100"><div class="pipe-bar h-full rounded-full bg-emerald-500 transition-[width] duration-700" data-for="pipe-active" style="width:0"></div></div>
+              </div>
             </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-3 mt-6">
-            <button id="csv-check-btn" class="btn-secondary px-5 py-2.5 text-sm">Comprobar (no guarda)</button>
-            <button id="csv-import-btn" class="btn-primary px-5 py-2.5 text-sm">Importar</button>
-            <span id="csv-missing" class="text-xs text-amber-600"></span>
+          <div class="card overflow-hidden">
+            <div class="card-header">
+              <div><h2 class="card-title">Campaña LLCs nuevas</h2><p class="card-sub">Connecticut · Instantly</p></div>
+              <span id="ov-autopilot" class="badge badge-prospected">Autopilot</span>
+            </div>
+            <div class="card-body">
+              <div id="ov-campaign-body" class="grid grid-cols-2 gap-2.5">
+                <div class="skeleton h-16 rounded-xl"></div><div class="skeleton h-16 rounded-xl"></div><div class="skeleton h-16 rounded-xl"></div><div class="skeleton h-16 rounded-xl"></div>
+              </div>
+              <div class="mt-5 flex gap-2">
+                <button data-goto="leads-list" class="btn-secondary flex-1">Ver leads</button>
+                <button data-goto="leads-send" class="btn-primary flex-1"><i data-lucide="rocket"></i>Envío</button>
+              </div>
+            </div>
           </div>
         </div>
-        <div id="csv-result" class="hidden mt-5"></div>
-      </div>
-    </div>
+      </section>
 
-    <!-- LLCs NUEVAS: LEADS TAB -->
-    <div id="tab-leads-list" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">Leads de LLCs nuevas</h1>
-        <p class="text-slate-500 mt-1 text-sm">Cada lead avanza solo: Instantly lo envía, pasa a "Abrió el enlace" cuando abre su página y a "Pidió llamada" cuando deja su teléfono (te llega un aviso a Telegram). Tú marcas lo que pasa después.</p>
-      </div>
-
-      <div class="leads-error hidden mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3"></div>
-
-      <div id="leads-funnel" class="flex flex-wrap gap-3 mb-6"></div>
-
-
-      <div class="card overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center gap-3">
-          <select id="lf-status" class="border border-slate-200 rounded-lg px-3 py-2 text-sm"></select>
-          <select id="lf-sector" class="border border-slate-200 rounded-lg px-3 py-2 text-sm"></select>
-          <select id="lf-priority" class="border border-slate-200 rounded-lg px-3 py-2 text-sm">
-            <option value="">Toda prioridad</option>
-            <option value="A">Prioridad A</option>
-            <option value="B">Prioridad B</option>
-          </select>
-          <select id="lf-source" class="border border-slate-200 rounded-lg px-3 py-2 text-sm">
-            <option value="">Todo origen</option>
-            <option value="ct_registry">Registro CT</option>
-            <option value="csv_import">CSV</option>
-          </select>
-          <input type="search" id="lf-q" class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1 min-w-[180px]" placeholder="Buscar empresa, email o ciudad" />
+      <!-- ─── PROSPECCIÓN ─────────────────────────────────────────────────── -->
+      <section id="tab-prospecting" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">Google Maps</p><h1 class="page-title mt-1.5">Prospección</h1><p class="page-sub">Busca negocios locales en Google Maps y añádelos a tu pipeline en segundos.</p></div>
         </div>
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th class="px-6 py-3 text-left">Empresa</th>
-              <th class="px-6 py-3 text-left">Email</th>
-              <th class="px-6 py-3 text-left">Sector</th>
-              <th class="px-6 py-3 text-left">Registro</th>
-              <th class="px-6 py-3 text-left">Estado</th>
-              <th class="px-6 py-3 text-right">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="leads-table" class="divide-y divide-slate-50"></tbody>
-        </table>
-        <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span id="leads-range"></span>
+
+        <div class="card mb-6">
+          <div class="card-body">
+            <form id="prospect-form" class="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+              <div>
+                <label class="label" for="prospect-zone">Zona o ciudad</label>
+                <div class="relative"><i data-lucide="map-pin" class="input-icon"></i><input type="text" id="prospect-zone" class="input pl-10" placeholder="Madrid, Valencia, Miami…" required /></div>
+              </div>
+              <div>
+                <label class="label" for="prospect-category">Tipo de negocio</label>
+                <div class="relative"><i data-lucide="briefcase" class="input-icon"></i><input type="text" id="prospect-category" class="input pl-10" placeholder="Dentistas, restaurantes, talleres…" required /></div>
+              </div>
+              <button type="submit" class="btn-primary"><i data-lucide="radar"></i>Prospectar</button>
+            </form>
+            <p id="prospect-result" class="hint empty:hidden"></p>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="card-header">
+            <h2 class="card-title">Todos los negocios <span id="prospect-count" class="ml-1 font-medium text-slate-400"></span></h2>
+            <div class="flex w-full items-center gap-2 sm:w-auto">
+              <div class="relative flex-1 sm:w-64"><i data-lucide="search" class="input-icon"></i><input id="prospect-search" oninput="filterProspecting()" type="search" class="input !py-2 pl-10" placeholder="Buscar negocio o categoría…" /></div>
+              <button onclick="loadSection('prospecting')" class="icon-btn" title="Actualizar" aria-label="Actualizar"><i data-lucide="refresh-cw"></i></button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Negocio</th><th class="hidden md:table-cell">Categoría</th><th class="hidden lg:table-cell">Web</th><th class="hidden sm:table-cell">Valoración</th><th>Estado</th></tr></thead>
+              <tbody id="all-businesses-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SCRAPING ────────────────────────────────────────────────────── -->
+      <section id="tab-scraping" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">Google Maps</p><h1 class="page-title mt-1.5">Análisis con IA</h1><p class="page-sub">La IA lee la web y la ficha de cada negocio y saca sus servicios, descripción, contacto y tono.</p></div>
+        </div>
+
+        <div class="card mb-6 flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-5">
+          <span class="icon-tile bg-amber-50 text-amber-600"><i data-lucide="scan-search"></i></span>
+          <div class="flex-1"><p class="text-sm font-semibold text-slate-900">Analizar todos los pendientes</p><p class="mt-0.5 text-[13px] text-slate-500">Los procesa uno a uno. Puede tardar unos minutos.</p></div>
+          <button id="scrape-all-btn" onclick="scrapeAll()" class="btn-primary"><i data-lucide="zap"></i>Analizar todos</button>
+        </div>
+
+        <div class="card mb-6 overflow-hidden">
+          <div class="card-header">
+            <h2 class="card-title">Pendientes <span id="scrape-pending-count" class="ml-1 font-medium text-slate-400"></span></h2>
+            <button onclick="loadSection('scraping')" class="icon-btn" title="Actualizar" aria-label="Actualizar"><i data-lucide="refresh-cw"></i></button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Negocio</th><th class="hidden md:table-cell">Categoría</th><th class="hidden lg:table-cell">Web actual</th><th class="hidden sm:table-cell">Valoración</th><th class="text-right">Acción</th></tr></thead>
+              <tbody id="scraping-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="card-header">
+            <h2 class="card-title">Ya analizados <span id="scraped-done-count" class="ml-1 font-medium text-slate-400"></span></h2>
+            <div class="relative w-full sm:w-60"><i data-lucide="search" class="input-icon"></i><input id="scraped-search" oninput="filterScraped()" type="search" class="input !py-2 pl-10" placeholder="Buscar…" /></div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Negocio</th><th class="hidden lg:table-cell">Categoría</th><th class="hidden md:table-cell">Email</th><th class="hidden lg:table-cell">Teléfono</th><th class="hidden sm:table-cell">Estado</th><th class="text-right">Acción</th></tr></thead>
+              <tbody id="scraped-done-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── CREAR WEBS ──────────────────────────────────────────────────── -->
+      <section id="tab-generation" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">Google Maps</p><h1 class="page-title mt-1.5">Crear webs con IA</h1><p class="page-sub">Con lo que ya sabemos de cada negocio, Claude genera su web completa y la publica en una URL de prueba.</p></div>
+        </div>
+
+        <div class="card mb-6 flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-5">
+          <span class="icon-tile bg-violet-50 text-violet-600"><i data-lucide="wand-sparkles"></i></span>
+          <div class="flex-1"><p class="text-sm font-semibold text-slate-900">Generar todas las webs pendientes</p><p class="mt-0.5 text-[13px] text-slate-500">Cada una tarda unos 30 segundos.</p></div>
+          <button id="generate-all-btn" onclick="generateAll()" class="btn-primary"><i data-lucide="sparkles"></i>Generar todas</button>
+        </div>
+
+        <div class="card mb-6 overflow-hidden">
+          <div class="card-header">
+            <h2 class="card-title">Pendientes de generar</h2>
+            <button onclick="loadSection('generation')" class="icon-btn" title="Actualizar" aria-label="Actualizar"><i data-lucide="refresh-cw"></i></button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Negocio</th><th class="hidden sm:table-cell">Categoría</th><th class="hidden md:table-cell">Dirección</th><th class="text-right">Acción</th></tr></thead>
+              <tbody id="generation-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="card-header">
+            <div><h2 class="card-title">Webs generadas</h2><p class="card-sub">Regenéralas con el tema Halo y se vuelven a publicar solas.</p></div>
+            <button id="regenerate-all-btn" onclick="regenerateAll()" class="btn-secondary"><i data-lucide="refresh-cw"></i>Regenerar todas</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Negocio</th><th class="hidden lg:table-cell">Slug</th><th class="hidden sm:table-cell">Estado</th><th class="hidden md:table-cell">Caduca</th><th class="hidden sm:table-cell">Web</th><th class="text-right">Acciones</th></tr></thead>
+              <tbody id="sites-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── ENVIAR (Google Maps) ────────────────────────────────────────── -->
+      <section id="tab-outreach" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">Google Maps</p><h1 class="page-title mt-1.5">Enviar propuestas</h1><p class="page-sub">Cada negocio recibe un email profesional con el enlace a su nueva web.</p></div>
+        </div>
+
+        <div class="card mb-6">
+          <div class="card-body">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <span class="icon-tile bg-brand-50 text-brand-600"><i data-lucide="mails"></i></span>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-slate-900">Envío masivo</p>
+                <p class="mt-0.5 text-[13px] text-slate-500"><span id="bulk-ready-count" class="font-semibold text-slate-800">—</span> negocios con email listo. Los de EE. UU. lo reciben en inglés.</p>
+              </div>
+              <button id="send-all-btn" onclick="sendAll()" class="btn-primary"><i data-lucide="send"></i>Enviar a todos</button>
+            </div>
+          </div>
+          <div id="bulk-log" class="hidden overflow-hidden rounded-b-2xl">
+            <div class="flex items-center justify-between gap-3 border-y border-white/5 bg-[#0B1022] px-4 py-2.5">
+              <span class="text-xs font-medium text-slate-400">Progreso</span>
+              <span id="bulk-status-badge" class="badge badge-blue">Enviando…</span>
+            </div>
+            <div id="bulk-log-entries" class="console !rounded-none"></div>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="card-header">
+            <h2 class="card-title">Listas para enviar</h2>
+            <button onclick="loadSection('outreach')" class="icon-btn" title="Actualizar" aria-label="Actualizar"><i data-lucide="refresh-cw"></i></button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Negocio</th><th class="hidden md:table-cell">Email</th><th class="hidden sm:table-cell">Web</th><th class="text-right">Acción</th></tr></thead>
+              <tbody id="outreach-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SEGUIMIENTO ─────────────────────────────────────────────────── -->
+      <section id="tab-followup" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">Gestión</p><h1 class="page-title mt-1.5">Seguimiento</h1><p class="page-sub">Todos los emails enviados a negocios de Google Maps y sus recordatorios automáticos.</p></div>
+        </div>
+        <div class="card overflow-hidden">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Negocio</th><th class="hidden md:table-cell">Email</th><th>Envío</th><th class="hidden lg:table-cell">Próximo</th><th class="hidden sm:table-cell">Enviado</th></tr></thead>
+              <tbody id="followup-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── PAGOS ───────────────────────────────────────────────────────── -->
+      <section id="tab-payments" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">Gestión</p><h1 class="page-title mt-1.5">Pagos</h1><p class="page-sub">Negocios que ya han pagado y están pendientes de activar en su dominio definitivo.</p></div>
+        </div>
+        <div class="card overflow-hidden">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Negocio</th><th>Importe</th><th class="hidden sm:table-cell">Estado</th><th class="hidden md:table-cell">Web</th><th class="hidden sm:table-cell">Fecha</th></tr></thead>
+              <tbody id="payments-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── LLCs NUEVAS · FUENTES ───────────────────────────────────────── -->
+      <section id="tab-leads-sources" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">LLCs nuevas</p><h1 class="page-title mt-1.5">Fuentes de leads</h1><p class="page-sub">Empresas recién registradas desde el registro público o desde tus propios archivos. Van directas a Instantly; su web se crea cuando piden la llamada.</p></div>
+        </div>
+
+        <div class="leads-error alert-error mb-6 hidden"></div>
+
+        <div class="grid items-start gap-6 xl:grid-cols-5">
+          <div class="card xl:col-span-2">
+            <div class="card-body">
+              <div class="flex items-start gap-4">
+                <span class="icon-tile bg-sky-50 text-sky-600"><i data-lucide="landmark"></i></span>
+                <div class="min-w-0"><h2 class="card-title">Registro de Connecticut</h2><p class="card-sub">Descarga las LLCs recién registradas en data.ct.gov, se queda con las de dueños latinos con email propio y comprueba que el dominio del email existe.</p></div>
+              </div>
+              <div class="mt-5 flex items-start gap-2.5 rounded-xl bg-slate-50 px-3.5 py-3 text-[13px] text-slate-600">
+                <i data-lucide="clock" class="mt-0.5 h-4 w-4 shrink-0 text-slate-400"></i><span id="ct-last-run">Cargando…</span>
+              </div>
+              <div class="mt-5">
+                <label class="label" for="ct-days">Últimos días <span class="font-normal text-slate-400">(opcional)</span></label>
+                <input type="number" id="ct-days" min="1" max="3650" class="input" placeholder="Desde la última importación" />
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-2">
+                <button id="ct-preview-btn" class="btn-secondary"><i data-lucide="eye"></i>Vista previa</button>
+                <button id="ct-import-btn" class="btn-primary"><i data-lucide="download"></i>Importar</button>
+              </div>
+              <p class="hint">La primera vez descarga los últimos 90 días. Repetirlo nunca duplica leads.</p>
+              <div id="ct-result" class="mt-5 hidden"></div>
+            </div>
+          </div>
+
+          <div class="card xl:col-span-3">
+            <div class="card-body">
+              <div class="mb-5 flex items-start gap-4">
+                <span class="icon-tile bg-emerald-50 text-emerald-600"><i data-lucide="file-spreadsheet"></i></span>
+                <div class="min-w-0"><h2 class="card-title">Importar un CSV</h2><p class="card-sub">Por ejemplo el que genera tu script de Python. Solo son obligatorios el nombre de la empresa y el email; el resto se asigna solo cuando las columnas tienen nombres habituales.</p></div>
+              </div>
+
+              <label id="csv-drop" for="csv-file" class="dropzone">
+                <input type="file" id="csv-file" accept=".csv,.txt,text/csv" class="sr-only" />
+                <span class="icon-tile bg-white text-brand-600 shadow-sm ring-1 ring-slate-200"><i data-lucide="cloud-upload"></i></span>
+                <span class="text-sm font-semibold text-slate-800">Arrastra tu archivo aquí <span class="text-brand-600">o haz clic para elegirlo</span></span>
+                <span class="text-xs text-slate-500">CSV de hasta 8 MB · separado por comas, punto y coma o tabuladores</span>
+              </label>
+
+              <div id="csv-file-row" class="mt-3 flex hidden items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5">
+                <i data-lucide="file-check-2" class="h-5 w-5 shrink-0 text-emerald-600"></i>
+                <span id="csv-file-name" class="min-w-0 flex-1 truncate text-sm font-medium text-slate-800"></span>
+                <button id="csv-file-clear" type="button" title="Quitar archivo" aria-label="Quitar archivo" class="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600"><i data-lucide="x" class="h-4 w-4"></i></button>
+              </div>
+
+              <div id="csv-mapper" class="mt-6 hidden">
+                <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                  <h3 class="text-sm font-semibold text-slate-900">¿Qué columna es cada dato?</h3>
+                  <span id="csv-file-info" class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"></span>
+                </div>
+                <div id="csv-mapping-grid" class="grid gap-x-4 gap-y-3 sm:grid-cols-2"></div>
+
+                <p class="mb-2 mt-6 text-[11px] font-semibold uppercase tracking-[.08em] text-slate-500">Primeras filas del archivo</p>
+                <div class="overflow-x-auto rounded-xl border border-slate-200"><table id="csv-sample" class="w-full text-xs"></table></div>
+
+                <div class="mt-6 flex flex-wrap items-center gap-3">
+                  <button id="csv-check-btn" class="btn-secondary"><i data-lucide="eye"></i>Comprobar</button>
+                  <button id="csv-import-btn" class="btn-primary"><i data-lucide="upload"></i>Importar</button>
+                  <span id="csv-missing" class="text-[13px] font-medium text-amber-700"></span>
+                </div>
+              </div>
+              <div id="csv-result" class="mt-5 hidden"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── LLCs NUEVAS · LEADS ─────────────────────────────────────────── -->
+      <section id="tab-leads-list" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">LLCs nuevas</p><h1 class="page-title mt-1.5">Leads</h1><p class="page-sub">Cada lead avanza solo: Instantly lo envía, pasa a «Abrió el enlace» cuando abre su página y a «Pidió llamada» cuando deja su teléfono. Tú marcas lo que pasa después.</p></div>
           <div class="flex gap-2">
-            <button id="leads-prev" class="btn-secondary px-3 py-1.5 text-xs">← Anterior</button>
-            <button id="leads-next" class="btn-secondary px-3 py-1.5 text-xs">Siguiente →</button>
+            <button data-goto="leads-sources" class="btn-secondary"><i data-lucide="download"></i>Importar</button>
+            <button data-goto="leads-send" class="btn-primary"><i data-lucide="rocket"></i>Enviar</button>
           </div>
         </div>
+
+        <div class="leads-error alert-error mb-6 hidden"></div>
+
+        <div id="leads-funnel" class="-mx-4 mb-5 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"></div>
+
+        <div class="card overflow-hidden">
+          <div class="border-b border-slate-100 px-4 py-4 sm:px-6">
+            <div class="grid grid-cols-2 gap-2 lg:flex lg:flex-wrap lg:items-center">
+              <div class="relative col-span-2 lg:min-w-[240px] lg:flex-1"><i data-lucide="search" class="input-icon"></i><input type="search" id="lf-q" class="input !py-2 pl-10" placeholder="Buscar empresa, email o ciudad" /></div>
+              <select id="lf-status" class="input !py-2 lg:w-auto" aria-label="Estado"></select>
+              <select id="lf-sector" class="input !py-2 lg:w-auto" aria-label="Sector"></select>
+              <select id="lf-priority" class="input !py-2 lg:w-auto" aria-label="Prioridad">
+                <option value="">Toda prioridad</option>
+                <option value="A">Prioridad A</option>
+                <option value="B">Prioridad B</option>
+              </select>
+              <select id="lf-source" class="input !py-2 lg:w-auto" aria-label="Origen">
+                <option value="">Todo origen</option>
+                <option value="ct_registry">Registro CT</option>
+                <option value="csv_import">CSV</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Empresa</th><th class="hidden lg:table-cell">Email</th><th class="hidden md:table-cell">Sector</th><th class="hidden 2xl:table-cell">Registro</th><th class="hidden sm:table-cell">Estado</th><th class="hidden text-right sm:table-cell">Acción</th></tr></thead>
+              <tbody id="leads-table"></tbody>
+            </table>
+          </div>
+          <div class="flex items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-[13px] text-slate-500 sm:px-6">
+            <span id="leads-range" class="tabular-nums"></span>
+            <div class="flex gap-2">
+              <button id="leads-prev" class="btn-secondary !px-3 !py-1.5 text-[13px]"><i data-lucide="chevron-left"></i><span class="hidden sm:inline">Anterior</span></button>
+              <button id="leads-next" class="btn-secondary !px-3 !py-1.5 text-[13px]"><span class="hidden sm:inline">Siguiente</span><i data-lucide="chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── LLCs NUEVAS · ENVÍO ─────────────────────────────────────────── -->
+      <section id="tab-leads-send" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">LLCs nuevas</p><h1 class="page-title mt-1.5">Envío con Instantly</h1><p class="page-sub">Instantly manda un solo email por lead desde sus propios buzones. Aquí decides qué se envía y cuándo, o dejas que el autopilot lo haga por ti.</p></div>
+        </div>
+
+        <div class="leads-error alert-error mb-6 hidden"></div>
+
+        <div class="grid items-start gap-6 xl:grid-cols-3">
+          <div class="space-y-6 xl:col-span-2">
+
+            <div class="card relative overflow-hidden">
+              <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-500 via-violet-500 to-fuchsia-500"></div>
+              <div class="card-body">
+                <div class="flex items-start gap-4">
+                  <span class="icon-tile bg-gradient-to-br from-brand-500 to-violet-500 text-white shadow-[0_8px_20px_-8px_rgba(99,102,241,.8)]"><i data-lucide="bot"></i></span>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2"><h2 class="card-title">Autopilot</h2><span id="autopilot-pill" class="badge badge-prospected">…</span></div>
+                    <p class="card-sub">Busca LLCs nuevas y las manda a Instantly por su cuenta. Corre en el servidor de la campaña, aunque tengas el ordenador apagado.</p>
+                  </div>
+                  <button id="autopilot-toggle" type="button" role="switch" aria-checked="false" aria-label="Activar o desactivar el autopilot" class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full bg-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/20">
+                    <span class="inline-block h-5 w-5 translate-x-1 transform rounded-full bg-white shadow transition-transform"></span>
+                  </button>
+                </div>
+                <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3">
+                    <i data-lucide="calendar-clock" class="h-5 w-5 shrink-0 text-brand-600"></i>
+                    <div><p class="text-[13px] font-semibold text-slate-800">Busca leads nuevos</p><p class="text-xs text-slate-500">Cada día a las 7:00 (Nueva York)</p></div>
+                  </div>
+                  <div class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3">
+                    <i data-lucide="send" class="h-5 w-5 shrink-0 text-violet-600"></i>
+                    <div><p class="text-[13px] font-semibold text-slate-800">Los envía a Instantly</p><p class="text-xs text-slate-500">Cada 3 horas</p></div>
+                  </div>
+                </div>
+                <div class="mt-5 flex flex-wrap items-end gap-3 border-t border-slate-100 pt-5">
+                  <div><label class="label" for="autopilot-limit">Leads por envío</label><input type="number" id="autopilot-limit" min="1" max="1000" class="input w-32" /></div>
+                  <button id="autopilot-save-btn" class="btn-secondary"><i data-lucide="check"></i>Guardar</button>
+                  <p id="autopilot-status" class="w-full text-[13px] text-slate-500"></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex items-start gap-4">
+                    <span class="icon-tile bg-brand-50 text-brand-600"><i data-lucide="send"></i></span>
+                    <div><h2 class="card-title">Enviar ahora</h2><p class="card-sub">Elige qué leads mandar. Salen primero los registrados más recientemente.</p></div>
+                  </div>
+                  <span id="send-mode" class="badge shrink-0"></span>
+                </div>
+                <p id="send-hint" class="hidden"></p>
+
+                <div class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <div>
+                    <label class="label" for="send-source">Origen</label>
+                    <select id="send-source" class="input">
+                      <option value="">Todo origen</option>
+                      <option value="ct_registry">Registro CT</option>
+                      <option value="csv_import">CSV</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="label" for="send-batch">Importación</label>
+                    <select id="send-batch" class="input"><option value="">Todas</option></select>
+                  </div>
+                  <div>
+                    <label class="label" for="send-sector">Sector</label>
+                    <select id="send-sector" class="input"></select>
+                  </div>
+                  <div>
+                    <label class="label" for="send-priority">Prioridad</label>
+                    <select id="send-priority" class="input">
+                      <option value="">Toda prioridad</option>
+                      <option value="A">Prioridad A</option>
+                      <option value="B">Prioridad B</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="mt-5 flex flex-col gap-4 rounded-2xl border border-slate-200/70 bg-gradient-to-br from-slate-50 to-brand-50/50 p-4 sm:flex-row sm:items-end sm:p-5">
+                  <div class="flex-1">
+                    <p class="text-[13px] font-medium text-slate-500">Leads listos con estos filtros</p>
+                    <p class="mt-1 text-4xl font-bold tracking-tight text-slate-900 tabular-nums"><span id="send-new-count">—</span></p>
+                  </div>
+                  <div class="flex items-end gap-3">
+                    <div><label class="label" for="send-limit">Cuántos</label><input type="number" id="send-limit" min="1" max="1000" value="100" class="input w-28" /></div>
+                    <button id="send-btn" class="btn-primary"><i data-lucide="rocket"></i>Enviar a Instantly</button>
+                  </div>
+                </div>
+                <div id="send-result" class="mt-5 hidden"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body flex flex-col gap-4 sm:flex-row sm:items-center">
+                <span class="icon-tile bg-emerald-50 text-emerald-600"><i data-lucide="mail-check"></i></span>
+                <div class="flex-1"><h2 class="card-title">Envíos, rebotes, bajas y respuestas</h2><p id="poll-hint" class="card-sub">Instantly no avisa solo, así que le preguntamos.</p></div>
+                <button id="poll-btn" class="btn-secondary"><i data-lucide="refresh-cw"></i>Comprobar ahora</button>
+              </div>
+              <div id="poll-result" class="hidden px-5 pb-5 sm:px-6 sm:pb-6"></div>
+            </div>
+          </div>
+
+          <div class="card xl:sticky xl:top-24">
+            <div class="card-header"><div><h2 class="card-title">Texto del email</h2><p class="card-sub">Pégalo en tu campaña de Instantly. Es un solo email, sin seguimientos.</p></div></div>
+            <div class="card-body space-y-4">
+              <div>
+                <div class="mb-1.5 flex items-center justify-between"><label class="label !mb-0" for="tpl-subject">Asunto</label><button data-copy="tpl-subject" class="btn-ghost"><i data-lucide="copy"></i>Copiar</button></div>
+                <input type="text" id="tpl-subject" readonly class="input bg-slate-50" />
+              </div>
+              <div>
+                <div class="mb-1.5 flex items-center justify-between"><label class="label !mb-0" for="tpl-body">Mensaje</label><button data-copy="tpl-body" class="btn-ghost"><i data-lucide="copy"></i>Copiar</button></div>
+                <textarea id="tpl-body" readonly rows="16" class="input bg-slate-50 font-mono text-[12.5px] leading-relaxed"></textarea>
+              </div>
+              <div><p class="label">Variables que rellena Instantly</p><div id="tpl-vars" class="flex flex-wrap gap-1.5"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ─── EMAIL MODAL ───────────────────────────────────────────────────── -->
+  <div id="email-modal" class="modal-backdrop hidden">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="email-modal-title">
+      <div class="flex items-start gap-4">
+        <span class="icon-tile bg-brand-50 text-brand-600"><i data-lucide="mail"></i></span>
+        <div><h2 id="email-modal-title" class="text-base font-semibold text-slate-900">Enviar propuesta</h2><p class="mt-1 text-[13px] text-slate-500">Escribe el email del negocio y le mandamos el enlace a su web.</p></div>
       </div>
-    </div>
-
-    <!-- LLCs NUEVAS: ENVÍO TAB -->
-    <div id="tab-leads-send" class="tab-hidden p-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-800">Envío con Instantly</h1>
-        <p class="text-slate-500 mt-1 text-sm">Instantly envía un solo email por lead, desde sus propios buzones. Aquí mandas los leads nuevos a la campaña y copias el texto del email.</p>
-      </div>
-
-      <div class="leads-error hidden mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3"></div>
-
-      <div class="card p-6 mb-6">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <h2 class="text-sm font-semibold text-slate-700">Autopilot</h2>
-            <p class="text-xs text-slate-400 mt-1 max-w-md">Busca LLCs nuevas en Connecticut todos los días a las 7:00 (hora de Nueva York) y envía leads nuevos a Instantly cada 3 horas, sin que hagas nada. Corre en el servidor de la campaña, no en este ordenador.</p>
-          </div>
-          <button id="autopilot-toggle" type="button" role="switch" aria-checked="false" class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full bg-slate-200 transition-colors">
-            <span class="inline-block h-4 w-4 translate-x-1 transform rounded-full bg-white shadow transition-transform"></span>
-          </button>
-        </div>
-        <div class="flex flex-wrap items-end gap-3 mt-4 pt-4 border-t border-slate-100">
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="autopilot-limit">Leads por envío (cada 3 h)</label>
-            <input type="number" id="autopilot-limit" min="1" max="1000" class="w-32 border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm" />
-          </div>
-          <button id="autopilot-save-btn" class="btn-secondary px-4 py-2 text-sm">Guardar</button>
-        </div>
-        <p id="autopilot-status" class="text-xs text-slate-400 mt-3"></p>
-      </div>
-
-      <div class="card p-6 mb-6">
-        <div class="flex items-start justify-between gap-4 mb-4">
-          <div>
-            <h2 class="text-sm font-semibold text-slate-700">Enviar leads a la campaña</h2>
-            <p class="text-xs text-slate-400 mt-1">
-              <span id="send-new-count" class="font-semibold text-slate-600">—</span> leads nuevos listos. Se envían primero los registrados más recientemente.
-            </p>
-          </div>
-          <span id="send-mode" class="badge shrink-0"></span>
-        </div>
-        <p id="send-hint" class="hidden text-xs rounded-lg px-3 py-2 mb-4"></p>
-
-        <div class="flex flex-wrap items-end gap-3 mb-4 pb-4 border-b border-slate-100">
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-source">Origen</label>
-            <select id="send-source" class="border border-slate-200 rounded-lg px-3 py-2 text-sm">
-              <option value="">Todo origen</option>
-              <option value="ct_registry">Registro CT</option>
-              <option value="csv_import">CSV</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-batch">Importación</label>
-            <select id="send-batch" class="border border-slate-200 rounded-lg px-3 py-2 text-sm max-w-[240px]">
-              <option value="">Todas</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-sector">Sector</label>
-            <select id="send-sector" class="border border-slate-200 rounded-lg px-3 py-2 text-sm"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-priority">Prioridad</label>
-            <select id="send-priority" class="border border-slate-200 rounded-lg px-3 py-2 text-sm">
-              <option value="">Toda prioridad</option>
-              <option value="A">Prioridad A</option>
-              <option value="B">Prioridad B</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-end gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="send-limit">Cuántos enviar ahora</label>
-            <input type="number" id="send-limit" min="1" max="1000" value="100" class="w-32 border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm" />
-          </div>
-          <button id="send-btn" class="btn-primary px-5 py-2.5 text-sm">➤ Enviar a Instantly</button>
-        </div>
-        <div id="send-result" class="hidden mt-5"></div>
-      </div>
-
-      <div class="card p-6 mb-6">
-        <div class="flex items-start justify-between gap-4 mb-1">
-          <div>
-            <h2 class="text-sm font-semibold text-slate-700">Envíos, rebotes, bajas y respuestas</h2>
-            <p id="poll-hint" class="text-xs text-slate-400 mt-1">Instantly no avisa solo (eso necesita su plan de pago); lo comprobamos preguntándole.</p>
-          </div>
-          <button id="poll-btn" class="btn-secondary px-4 py-2 text-sm shrink-0">↻ Comprobar ahora</button>
-        </div>
-        <div id="poll-result" class="hidden mt-5"></div>
-      </div>
-
-      <div class="card p-6">
-        <h2 class="text-sm font-semibold text-slate-700">Texto del email</h2>
-        <p class="text-xs text-slate-400 mt-1 mb-4">Pégalo en el paso de la campaña dentro de Instantly. Las variables entre llaves las rellena Instantly con los datos de cada lead. Es un solo email, sin seguimientos.</p>
-
-        <div class="flex items-center justify-between mb-1.5">
-          <label class="text-xs font-medium text-slate-600" for="tpl-subject">Asunto</label>
-          <button data-copy="tpl-subject" class="text-xs text-indigo-500 hover:text-indigo-700 font-medium">Copiar</button>
-        </div>
-        <input type="text" id="tpl-subject" readonly class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3.5 py-2.5 text-sm mb-4" />
-
-        <div class="flex items-center justify-between mb-1.5">
-          <label class="text-xs font-medium text-slate-600" for="tpl-body">Mensaje</label>
-          <button data-copy="tpl-body" class="text-xs text-indigo-500 hover:text-indigo-700 font-medium">Copiar</button>
-        </div>
-        <textarea id="tpl-body" readonly rows="17" class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3.5 py-2.5 text-sm font-mono"></textarea>
-
-        <p class="text-xs text-slate-400 mt-3">Variables: <span id="tpl-vars"></span></p>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- EMAIL MODAL -->
-  <div id="email-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50">
-    <div class="modal-box bg-white p-7 w-full max-w-sm mx-4">
-      <h2 class="text-base font-bold text-slate-800 mb-1">Enviar propuesta</h2>
-      <p class="text-xs text-slate-400 mb-5">Introduce el email del negocio para enviar el link a la preview.</p>
-      <label class="block text-xs font-medium text-slate-600 mb-1.5">Email de contacto</label>
-      <input type="email" id="modal-email" class="w-full border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm mb-5" placeholder="hola@negocio.com" />
-      <div class="flex gap-3">
-        <button id="modal-cancel" class="flex-1 btn-secondary py-2.5 text-sm">Cancelar</button>
-        <button id="modal-send" class="flex-1 btn-primary py-2.5 text-sm">Enviar email</button>
+      <label class="label mt-6" for="modal-email">Email de contacto</label>
+      <input type="email" id="modal-email" class="input" placeholder="hola@negocio.com" />
+      <div class="mt-6 flex gap-3">
+        <button id="modal-cancel" class="btn-secondary flex-1">Cancelar</button>
+        <button id="modal-send" class="btn-primary flex-1">Enviar email</button>
       </div>
     </div>
   </div>
 
-  <!-- TOAST -->
-  <div id="toast" class="hidden fixed bottom-6 right-6 z-50 max-w-xs">
-    <div class="bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-xl flex items-center gap-3">
-      <span id="toast-icon">✓</span>
-      <span id="toast-msg"></span>
-    </div>
-  </div>
+  <div id="toast-stack" class="pointer-events-none fixed inset-x-4 top-4 z-[60] flex flex-col items-center gap-2 sm:inset-x-auto sm:right-6 sm:items-end" aria-live="polite"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   <script src="app.js"></script>
   <script src="leads.js"></script>
 </body>
