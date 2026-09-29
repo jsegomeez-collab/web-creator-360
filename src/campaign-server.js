@@ -6,6 +6,7 @@ import { createCampaignApp } from './campaignApp.js';
 import { runCtIngest } from './services/ctIngest.js';
 import { loadInstantlyConfig, pushLeads } from './services/instantly.js';
 import { pollInstantlyEvents } from './services/instantlyPoll.js';
+import { getAutopilotSettings } from './services/autopilot.js';
 import { alertCallRequest, alertReply, sendTelegram, loadTelegramConfig } from './services/telegram.js';
 
 const ownerId = (process.env.NEW_LEADS_OWNER_USER_ID || '').trim();
@@ -47,28 +48,33 @@ if (instantlyConfig) {
 }
 
 // ─── Autopilot: find more leads and send them on, without you clicking anything ──────────────────────────────────
+// On/off and the batch size live in the database (campaign_autopilot), set from the dashboard's Envío tab — read fresh
+// on every tick, so toggling it there takes effect within one cycle, no redeploy needed.
 // Ingest resumes on its own from the last successful run (see ctIngest.js), so this is safe to run forever unattended.
 every('0 7 * * *', 'la ingesta diaria de Connecticut', async () => {
+  const { enabled } = await getAutopilotSettings(supabase, ownerId);
+  if (!enabled) return;
   const r = await runCtIngest({ db: supabase, ownerId });
   console.log(`[autopilot] registro CT: ${r.fetched} descargados · ${r.inserted} leads nuevos`);
   if (r.inserted) await sendTelegram(`🤖 Autopilot: ${r.inserted} leads nuevos del registro de Connecticut.`);
 }, { timezone: 'America/New_York' });
-console.log('Autopilot: revisa el registro de Connecticut todos los días a las 7:00 (hora de Nueva York)');
+console.log('Autopilot: revisa el registro de Connecticut todos los días a las 7:00 (hora de Nueva York), si está activado');
 
 // Sends the newest "new" leads on a full Instantly config (needs CAMPAIGN_PUBLIC_URL too: it's baked into each lead's
 // own link). Respects OUTREACH_DRY_RUN like the dashboard's own button. Picks up CSV imports you do by hand too, not
-// just what the ingest above finds — AUTOPILOT_PUSH_LIMIT (default 20) per run, so a brand-new, still-warming mailbox
-// never gets a sudden flood.
+// just what the ingest above finds — a modest batch each time (pushLimit, 20 by default), so a brand-new, still-warming
+// mailbox never gets a sudden flood.
 let pushConfig = null;
 try { pushConfig = loadInstantlyConfig(process.env, { dryRun: false }); } catch (err) { console.warn(`Autopilot de envío a Instantly desactivado: ${err.message}`); }
 
 if (pushConfig) {
-  const limit = Number(process.env.AUTOPILOT_PUSH_LIMIT) || 20;
   every('0 */3 * * *', 'el envío automático a Instantly', async () => {
-    const r = await pushLeads({ db: supabase, ownerId, config: pushConfig, limit });
+    const { enabled, pushLimit } = await getAutopilotSettings(supabase, ownerId);
+    if (!enabled) return;
+    const r = await pushLeads({ db: supabase, ownerId, config: pushConfig, limit: pushLimit });
     if (!r.pushed && !r.rejected) return;
     console.log(`[autopilot] ${r.dryRun ? '(modo prueba) ' : ''}enviados a Instantly: ${r.pushed} · rechazados: ${r.rejected}`);
     if (r.pushed && !r.dryRun) await sendTelegram(`🤖 Autopilot: ${r.pushed} leads enviados a Instantly.`);
   });
-  console.log(`Autopilot: envía hasta ${limit} leads nuevos a Instantly cada 3 horas`);
+  console.log('Autopilot: envía leads nuevos a Instantly cada 3 horas, si está activado (revisa el límite en el dashboard)');
 }

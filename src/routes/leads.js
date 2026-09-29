@@ -9,6 +9,8 @@
 //   GET   /import-batches          past CSV imports still with "new" leads, so you can pick one to send ({ batch, count })
 //   POST  /push                    send the newest "new" leads to the Instantly campaign ({ limit, source?, sector?, priority?, batch? })
 //   POST  /poll-instantly          check Instantly now for sent/bounced/unsubscribed/replied (the cron does this every 5 min)
+//   GET   /autopilot               unattended ingest + send, run by the campaign server's crons: { enabled, pushLimit }
+//   PUT   /autopilot               change it ({ enabled?, pushLimit? })
 //   GET   /email-template          the email text to paste in Instantly
 import { Router } from 'express';
 import { isDryRun } from '../lib/dryRun.js';
@@ -16,6 +18,7 @@ import { runCtIngest, FIRST_RUN_DAYS } from '../services/ctIngest.js';
 import { previewCsv, importCsvLeads } from '../services/csvImport.js';
 import { loadInstantlyConfig, pushLeads } from '../services/instantly.js';
 import { pollInstantlyEvents } from '../services/instantlyPoll.js';
+import { getAutopilotSettings, setAutopilotSettings } from '../services/autopilot.js';
 import { EMAIL_SUBJECT, EMAIL_BODY, templateVariables } from '../prompts/newBusinessEmails.js';
 
 const TABLE = 'new_business_leads';
@@ -132,6 +135,19 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     let config;
     try { config = loadInstantlyConfig(process.env, { dryRun: false }); } catch (err) { return res.status(400).json({ error: err.message }); }
     res.json(await pollInstantlyEvents({ db, ownerId, config, fetchImpl, onReply }));
+  }));
+
+  router.get('/autopilot', guard(async (req, res) => {
+    res.json(await getAutopilotSettings(db, ownerId));
+  }));
+
+  router.put('/autopilot', guard(async (req, res) => {
+    const { enabled, pushLimit } = req.body || {};
+    if (enabled !== undefined && typeof enabled !== 'boolean') return res.status(400).json({ error: 'enabled debe ser true o false' });
+    if (pushLimit !== undefined && (!Number.isInteger(pushLimit) || pushLimit < 1 || pushLimit > 1000)) {
+      return res.status(400).json({ error: 'pushLimit debe ser un entero entre 1 y 1000' });
+    }
+    res.json(await setAutopilotSettings(db, ownerId, { enabled, pushLimit }));
   }));
 
   router.get('/email-template', (req, res) => {

@@ -122,3 +122,14 @@ ALTER TABLE businesses ADD COLUMN IF NOT EXISTS source TEXT;
 ALTER TABLE new_business_leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_suppressions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lead_ingest_runs   ENABLE ROW LEVEL SECURITY;
+
+-- 6. Autopilot: on/off switch + how many to send per cycle, set from the dashboard (Envío tab). One row per user; the
+-- campaign server's crons (ingest daily, send every 3h) read this fresh on every run, so toggling takes effect within
+-- one cycle, no redeploy needed. Defaults to ON so turning this on for the first time doesn't stop what's already running.
+CREATE TABLE IF NOT EXISTS campaign_autopilot (
+  user_id     UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  enabled     BOOLEAN NOT NULL DEFAULT TRUE,
+  push_limit  INT NOT NULL DEFAULT 20,           -- leads sent to Instantly per send cycle
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE campaign_autopilot ENABLE ROW LEVEL SECURITY;

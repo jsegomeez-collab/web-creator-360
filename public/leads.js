@@ -63,6 +63,13 @@ async function withBusy(btn, label, fn) {
   try { return await fn(); } catch (e) { toast(e.message, 'error'); } finally { btn.innerHTML = original; btn.disabled = false; }
 }
 
+// Same as withBusy, but never touches the button's contents — for one (the autopilot toggle) that has its own child
+// element (the switch's thumb): clearing textContent would destroy it.
+async function withDisabled(btn, fn) {
+  btn.disabled = true;
+  try { return await fn(); } catch (e) { toast(e.message, 'error'); } finally { btn.disabled = false; }
+}
+
 const statLine = (label, value, cls = 'text-slate-700') =>
   `<div class="flex justify-between gap-4 py-1 text-sm"><span class="text-slate-500">${esc(label)}</span><span class="font-semibold ${cls}">${nf(value)}</span></div>`;
 
@@ -332,6 +339,50 @@ function setLeadFilter(key, value) {
 
 // ─── Tab: Envío ──────────────────────────────────────────────────────────────
 
+// Autopilot: on/off + how many it sends per cycle. It runs in the campaign server's own crons (daily ingest, send every
+// 3h), not here — this just reads and writes the setting it checks on every tick.
+function setAutopilotToggle(enabled) {
+  const btn = $('autopilot-toggle'), thumb = btn.querySelector('span');
+  btn.setAttribute('aria-checked', String(enabled));
+  btn.classList.toggle('bg-emerald-500', enabled);
+  btn.classList.toggle('bg-slate-200', !enabled);
+  thumb.classList.toggle('translate-x-6', enabled);
+  thumb.classList.toggle('translate-x-1', !enabled);
+}
+
+const autopilotStatusText = (s) => (s.enabled
+  ? `Activado: busca leads cada día a las 7:00 (Nueva York) y envía hasta ${nf(s.pushLimit)} cada 3 horas.`
+  : 'Desactivado: no busca ni envía nada por su cuenta; puedes seguir haciéndolo tú a mano.');
+
+async function loadAutopilot() {
+  const s = await leadsApi('/autopilot').catch(() => null);
+  if (!s) return;
+  setAutopilotToggle(s.enabled);
+  $('autopilot-limit').value = s.pushLimit;
+  $('autopilot-status').textContent = autopilotStatusText(s);
+}
+
+async function toggleAutopilot(btn) {
+  const enabled = btn.getAttribute('aria-checked') !== 'true';
+  await withDisabled(btn, async () => {
+    const s = await leadsApi('/autopilot', { method: 'PUT', body: { enabled } });
+    setAutopilotToggle(s.enabled);
+    $('autopilot-status').textContent = autopilotStatusText(s);
+    toast(s.enabled ? 'Autopilot activado' : 'Autopilot desactivado');
+  });
+}
+
+async function saveAutopilotLimit(btn) {
+  const pushLimit = Number($('autopilot-limit').value);
+  if (!Number.isInteger(pushLimit) || pushLimit < 1 || pushLimit > 1000) return toast('Indica un número entre 1 y 1000', 'error');
+  await withBusy(btn, 'Guardando…', async () => {
+    const s = await leadsApi('/autopilot', { method: 'PUT', body: { pushLimit } });
+    $('autopilot-limit').value = s.pushLimit;
+    $('autopilot-status').textContent = autopilotStatusText(s);
+    toast('Guardado');
+  });
+}
+
 // Which "new" leads the send targets. Empty string = no filter on that field.
 const sendFilters = () => ({ source: $('send-source').value, batch: $('send-batch').value, sector: $('send-sector').value, priority: $('send-priority').value });
 
@@ -370,7 +421,7 @@ async function updateSendCount() {
 
 async function loadLeadsSend() {
   fillSendFilterOptions();
-  const [stats, tpl] = await Promise.all([loadLeadStats(), leadsApi('/email-template'), loadSendBatches()]);
+  const [stats, tpl] = await Promise.all([loadLeadStats(), leadsApi('/email-template'), loadSendBatches(), loadAutopilot()]);
   $('tpl-subject').value = tpl.subject;
   $('tpl-body').value = tpl.body;
   $('tpl-vars').innerHTML = tpl.variables.map(v => `<code class="bg-slate-100 rounded px-1.5 py-0.5">{{${esc(v)}}}</code>`).join(' ');
@@ -475,6 +526,8 @@ $('leads-table').addEventListener('click', async (e) => {
   });
 });
 
+$('autopilot-toggle').addEventListener('click', (e) => toggleAutopilot(e.currentTarget));
+$('autopilot-save-btn').addEventListener('click', (e) => saveAutopilotLimit(e.currentTarget));
 $('send-source').addEventListener('change', onSendSourceChange);
 $('send-batch').addEventListener('change', onSendBatchChange);
 $('send-sector').addEventListener('change', updateSendCount);

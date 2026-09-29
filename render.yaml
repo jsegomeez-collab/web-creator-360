@@ -103,5 +103,3 @@ services:
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
-      - key: AUTOPILOT_PUSH_LIMIT             # optional; how many leads the autopilot sends every 3 hours (default 20)
-        sync: false

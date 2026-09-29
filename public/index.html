@@ -661,6 +661,26 @@
       <div class="leads-error hidden mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3"></div>
 
       <div class="card p-6 mb-6">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-700">Autopilot</h2>
+            <p class="text-xs text-slate-400 mt-1 max-w-md">Busca LLCs nuevas en Connecticut todos los días a las 7:00 (hora de Nueva York) y envía leads nuevos a Instantly cada 3 horas, sin que hagas nada. Corre en el servidor de la campaña, no en este ordenador.</p>
+          </div>
+          <button id="autopilot-toggle" type="button" role="switch" aria-checked="false" class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full bg-slate-200 transition-colors">
+            <span class="inline-block h-4 w-4 translate-x-1 transform rounded-full bg-white shadow transition-transform"></span>
+          </button>
+        </div>
+        <div class="flex flex-wrap items-end gap-3 mt-4 pt-4 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5" for="autopilot-limit">Leads por envío (cada 3 h)</label>
+            <input type="number" id="autopilot-limit" min="1" max="1000" class="w-32 border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm" />
+          </div>
+          <button id="autopilot-save-btn" class="btn-secondary px-4 py-2 text-sm">Guardar</button>
+        </div>
+        <p id="autopilot-status" class="text-xs text-slate-400 mt-3"></p>
+      </div>
+
+      <div class="card p-6 mb-6">
         <div class="flex items-start justify-between gap-4 mb-4">
           <div>
             <h2 class="text-sm font-semibold text-slate-700">Enviar leads a la campaña</h2>
