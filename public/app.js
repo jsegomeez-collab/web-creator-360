@@ -513,6 +513,13 @@ async function renderFollowup() {
     </tr>`).join('');
 }
 
+// 49700 + 'usd' → "497,00 US$" (in the currency Stripe charged, not always euros)
+function money(cents, currency) {
+  if (!cents) return '—';
+  try { return new Intl.NumberFormat('es-ES', { style: 'currency', currency: (currency || 'usd').toUpperCase() }).format(cents / 100); }
+  catch { return `${(cents / 100).toFixed(2)} ${String(currency || '').toUpperCase()}`; }
+}
+
 async function renderPayments() {
   const res = await fetch('/api/dashboard/payments');
   const rows = await res.json();
@@ -524,7 +531,7 @@ async function renderPayments() {
   tbody.innerHTML = rows.map(p => `
     <tr class="table-row">
       <td>${nameCell(p.businesses?.name)}</td>
-      <td class="font-semibold tabular-nums text-emerald-600">${p.amount ? `€${(p.amount / 100).toFixed(2)}` : '—'}</td>
+      <td class="font-semibold tabular-nums text-emerald-600">${escHtml(money(p.amount, p.currency))}</td>
       <td class="hidden sm:table-cell">${badge(p.status)}</td>
       <td class="hidden md:table-cell">${linkOut(p.generated_sites?.preview_url, 'Ver web')}</td>
       <td class="hidden sm:table-cell text-[13px] text-slate-500">${fmtDate(p.created_at)}</td>
@@ -670,7 +677,7 @@ document.getElementById('modal-send').addEventListener('click', async () => {
 
     if (d.success) {
       document.getElementById('email-modal').classList.add('hidden');
-      toast('Email enviado a ' + d.contact);
+      toast('Email enviado a ' + d.email);
       await loadSection('outreach');
     } else {
       toast('Error: ' + d.error, 'error');
@@ -788,18 +795,21 @@ async function regenerateAll() {
     const res = await fetch('/api/regenerate/batch/all', { method: 'POST' });
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
+    let buf = '';   // a line can arrive split between two chunks: keep the unfinished tail for the next one
 
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
-
-      const lines = decoder.decode(value).split('\n').filter(Boolean);
-      for (const line of lines) {
+      if (!done) buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = done ? '' : lines.pop();   // at the end, the last line counts even without a trailing newline
+      for (const line of lines.filter(l => l.trim())) {
         try {
           const d = JSON.parse(line);
           if (d.done) {
             summary.textContent = `Completado: ${d.ok} correctas y ${d.failed} con error, de ${d.total} webs.`;
             toast(`${d.ok} webs regeneradas y publicadas`);
+          } else if (d.message) {   // e.g. "No sites to regenerate"
+            summary.textContent = d.message;
           } else {
             const [cls, icon] = LOG_STYLE[d.status] || LOG_STYLE.skipped;
             log.innerHTML += logLine(cls, icon, `${escHtml(d.slug)}${d.status === 'ok' ? '' : ' — ' + escHtml(d.reason || '')}`);
@@ -807,6 +817,7 @@ async function regenerateAll() {
           }
         } catch {}
       }
+      if (done) break;
     }
   } catch (e) {
     toast('Error: ' + e.message, 'error');

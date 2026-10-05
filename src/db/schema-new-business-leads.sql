@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS new_business_leads (
   minority_owned    BOOLEAN NOT NULL DEFAULT FALSE,
   import_batch      TEXT,                            -- which CSV import this came from (file name + when), so you can send just that list
 
-  -- Funnel: new → queued (sent to Instantly) → emailed → engaged (opened the link) → requested (asked for a call in the form)
+  -- Funnel: new → queued (sent to Instantly) → emailed → engaged (opened their demo site or the link) → requested (asked for a call)
   --         → called → won | lost
   -- Exits:  replied | unsubscribed | bounced | invalid_email | rejected (Instantly didn't accept it)
   status            TEXT NOT NULL DEFAULT 'new',
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS new_business_leads (
   -- Unguessable token of the lead's own link in the email (/c/:token → their page to ask for the call)
   link_token        TEXT NOT NULL UNIQUE,
 
-  -- Filled when the demo is generated (after the lead opens the link)
+  -- Filled when the demo website is made (before the lead is sent to Instantly): site_id → its row in generated_sites
   business_id       UUID REFERENCES businesses(id) ON DELETE SET NULL,
   site_id           UUID REFERENCES generated_sites(id) ON DELETE SET NULL,
 
@@ -76,7 +76,13 @@ ALTER TABLE new_business_leads
   ADD COLUMN IF NOT EXISTS consent_at        TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS consent_text      TEXT,
   ADD COLUMN IF NOT EXISTS consent_ip        TEXT,
-  ADD COLUMN IF NOT EXISTS import_batch      TEXT;
+  ADD COLUMN IF NOT EXISTS import_batch      TEXT,
+  -- The lead's own demo website (written by the template engine, published on Vercel, linked from the email as {{web}})
+  ADD COLUMN IF NOT EXISTS demo_url          TEXT,
+  ADD COLUMN IF NOT EXISTS demo_status       TEXT,        -- generating | ready | failed (NULL = not made yet)
+  ADD COLUMN IF NOT EXISTS demo_template     TEXT,        -- which template it used (construccion, limpieza, general…)
+  ADD COLUMN IF NOT EXISTS demo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS demo_at           TIMESTAMPTZ;
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'new_business_leads' AND column_name = 'form_token') THEN
     ALTER TABLE new_business_leads RENAME COLUMN form_token TO link_token;
@@ -88,6 +94,7 @@ CREATE INDEX IF NOT EXISTS idx_nbl_push       ON new_business_leads (user_id, st
 CREATE INDEX IF NOT EXISTS idx_nbl_batch      ON new_business_leads (user_id, source, import_batch);
 CREATE INDEX IF NOT EXISTS idx_nbl_email      ON new_business_leads (user_id, email);
 CREATE INDEX IF NOT EXISTS idx_nbl_registered ON new_business_leads (user_id, registered_at DESC);
+CREATE INDEX IF NOT EXISTS idx_nbl_demo       ON new_business_leads (user_id, status, demo_status);
 
 -- 2. Emails we must never write to again, whatever the source (unsubscribes, bounces, shared/agency addresses...)
 CREATE TABLE IF NOT EXISTS email_suppressions (

@@ -53,17 +53,19 @@ test('ciudad ausente → "Connecticut"; nombre TODO en mayúsculas → título',
   assert.equal(displayName('  Enzo   Towing  '), 'Enzo Towing');
 });
 
-test('las variables del texto y las que se suben a Instantly coinciden exactamente (ni faltan ni sobran)', () => {
-  const used = templateVariables().sort();
+test('las variables del texto y las que se suben a Instantly coinciden: las dos versiones se rellenan con los mismos valores', () => {
   const provided = Object.keys(leadVariables(lead(), URL_)).sort();
-  assert.deepEqual(used, provided);
-  assert.deepEqual(used, ['calendario', 'ciudad', 'empresa', 'latina', 'sector_de']);
+  assert.deepEqual(provided, ['calendario', 'ciudad', 'empresa', 'latina', 'nombre', 'sector_de', 'web']);
+  assert.deepEqual(templateVariables().sort(), ['calendario', 'ciudad', 'empresa', 'latina', 'sector_de']);
+  assert.deepEqual(templateVariables({ demos: true }).sort(), ['ciudad', 'empresa', 'nombre', 'sector_de', 'web']);
+  for (const demos of [false, true]) for (const v of templateVariables({ demos })) assert.ok(provided.includes(v), v);
 });
 
 test('leadVariables: valores para Instantly', () => {
   assert.deepEqual(leadVariables(lead(), URL_), {
-    empresa: 'Limpieza Rivera LLC', ciudad: 'Hartford', latina: ' y por aportar a nuestra comunidad latina', sector_de: ' de limpieza', calendario: URL_,
+    empresa: 'Limpieza Rivera LLC', ciudad: 'Hartford', latina: ' y por aportar a nuestra comunidad latina', sector_de: ' de limpieza', calendario: URL_, web: '', nombre: 'equipo de Limpieza Rivera LLC',
   });
+  assert.equal(leadVariables(lead({ demo_url: 'https://limpieza-rivera-ab12.vercel.app' }), URL_).web, 'https://limpieza-rivera-ab12.vercel.app/?lang=es');
   const v = leadVariables(lead({ latino_strong: false, sector: 'otro', city: null }), URL_);
   assert.deepEqual([v.latina, v.sector_de, v.ciudad], ['', '', 'Connecticut']);
   assert.ok(Object.values(v).every(x => typeof x === 'string'), 'Instantly solo admite texto/números/booleanos');
@@ -74,4 +76,19 @@ test('un solo email: sin seguimientos, sin precio y sin WhatsApp; un único enla
   assert.ok(!/\$|USD|€|497|precio|whatsapp|wa\.me/i.test(text));
   assert.equal((EMAIL_BODY.match(/\{\{calendario\}\}/g) || []).length, 1);
   assert.equal((renderEmail(lead(), URL_).body.match(/https?:\/\//g) || []).length, 1);
+});
+
+test('versión DEMO (copy de Jose): un solo enlace, el de su web (en español); saluda por el nombre; sin precio ni WhatsApp', () => {
+  const e = renderEmail(lead({ demo_url: 'https://limpieza-rivera-ab12.vercel.app' }), URL_, { demos: true });
+  assert.equal(e.subject, 'Enhorabuena por Limpieza Rivera LLC 🎉');
+  assert.match(e.body, /^Buenas equipo de Limpieza Rivera LLC!/, 'sin nombre del dueño, saluda al equipo');
+  assert.match(renderEmail(lead({ demo_url: 'https://x.vercel.app', contact_name: 'María Pérez' }), URL_, { demos: true }).body, /^Buenas María!/);
+  assert.match(e.body, /Vi que acabas de registrar Limpieza Rivera LLC en Hartford./);
+  assert.match(e.body, /pensada para tu negocio de limpieza, en inglés y en español. Puedes verla aquí/);
+  assert.match(e.body, /clientes de Hartford./);
+  assert.deepEqual(e.body.match(/https?:\/\/\S+/g), ['https://limpieza-rivera-ab12.vercel.app/?lang=es']);
+  assert.ok(!/\$|USD|€|497|precio|whatsapp|wa\.me/i.test(e.body));
+  assert.match(e.body, /La mantengo online 7 días/);
+  assert.ok(e.body.endsWith('TRUDSALES LLC (dba Get ur Web) · 7901 4th St N, St. Petersburg, FL 33702, USA'));
+  assert.equal(renderEmail(lead(), URL_).body, EMAIL_BODY.replace(/\{\{(\w+)\}\}/g, (_, k) => leadVariables(lead(), URL_)[k]), 'la versión clásica no cambia');
 });

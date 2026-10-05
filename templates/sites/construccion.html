@@ -1,0 +1,1538 @@
+<!-- DEMO · negocio y datos ficticios · plantilla construccion de Web Creator 360 -->
+<!doctype html>
+<html lang="en" class="lang-en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- slot: business_name / city -->
+<title>Ramírez Remodeling &amp; Construction · New Britain, CT</title>
+<meta name="description" content="Kitchen, bath, basement and addition remodeling in New Britain and Central Connecticut. Licensed CT HIC contractor. Free written estimates. Hablamos español.">
+<meta name="theme-color" content="#EEEAE2">
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* CONCEPTO: "El plano y la obra": precisión de arquitecto, manos de carpintero.
+     La web se lee como un juego de planos sobre papel vegetal cálido: cotas, marcas de
+     sección, cajetín de plano y anotaciones técnicas finas sobre fotografía cálida de obra. */
+
+  /* ============ Tokens (recolor the template here) ============ */
+  :root{
+    --brand:#C4491B;        /* safety orange / terracotta */
+    --brand-ink:#9E3812;    /* brand color for small text on light backgrounds */
+    --brand-soft:#F1DED3;   /* tint of brand for small surfaces */
+    --brand-on-dark:#F08A56;/* brand used on the carbon sections */
+    --accent:var(--brand);  /* single accent = brand */
+    --bg:#EEEAE2;           /* drafting vellum */
+    --paper:#F8F5EF;
+    --ink:#1A1B18;          /* carbon */
+    --ink-2:#383833;
+    --muted:#625E56;
+    --line:#D6CFC2;
+    --line-2:#B9B0A0;
+    --dark:#161714;
+    --dark-2:#1F201C;
+    --dark-line:#393A34;
+    --dark-muted:#B8B3A7;
+    --on-dark:#F1ECE3;
+
+    --f-display:"Archivo", "Arial Narrow", sans-serif;
+    --f-body:"Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    --wrap:1320px;
+    --gutter:40px;
+    --header-h:84px;
+    --ease:cubic-bezier(.2,.7,.2,1);
+    --photo-filter:saturate(.88) sepia(.08) contrast(1.03);
+  }
+
+  /* ============ Base ============ */
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html:focus-within{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-stretch:100%;font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;opacity:.05;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  img{display:block;max-width:100%;height:auto}
+  a{color:inherit}
+  h1,h2,h3,h4{font-family:var(--f-display);margin:0;font-weight:700;text-wrap:balance}
+  p{margin:0;text-wrap:pretty}
+  ul,ol{margin:0;padding:0;list-style:none}
+  button,input,select,textarea{font:inherit;color:inherit}
+  :focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:1px}
+  .lang-en [data-es], .lang-es [data-en]{display:none !important}
+  .wrap{max-width:calc(var(--wrap) + var(--gutter) * 2);margin:0 auto;padding:0 var(--gutter)}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  section[id]{scroll-margin-top:72px}
+  [data-lucide]{width:20px;height:20px;stroke-width:1.5;flex:none}
+  svg.lucide{stroke-width:1.5}
+  .mono{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+  .tnum{font-variant-numeric:tabular-nums}
+  .ph{filter:var(--photo-filter)}
+
+  /* Display type */
+  .disp{font-family:var(--f-display);font-stretch:72%;font-weight:760;text-transform:uppercase;line-height:.9;letter-spacing:-.005em}
+  .h2{font-family:var(--f-display);font-stretch:72%;font-weight:760;text-transform:uppercase;line-height:.9;letter-spacing:-.005em;font-size:clamp(46px,6.2vw,92px)}
+  .lede{font-size:clamp(18px,1.35vw,20px);line-height:1.55;color:var(--ink-2);max-width:52ch}
+
+  /* Section marker — a drawing "detail bubble": number over sheet */
+  .kicker{display:flex;align-items:center;gap:14px;margin-bottom:26px;font-family:var(--f-mono);font-size:12.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+  .dm{position:relative;width:44px;height:44px;border:1.5px solid currentColor;border-radius:50%;display:grid;grid-template-rows:1fr 1fr;flex:none;color:var(--ink)}
+  .dm::after{content:"";position:absolute;left:-1px;right:-1px;top:50%;border-top:1.5px solid currentColor}
+  .dm b,.dm i{display:grid;place-items:center;font-style:normal;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.02em;line-height:1}
+  .dm b{font-weight:500;padding-top:4px;color:var(--brand-ink)}
+  .dm i{padding-bottom:4px;color:var(--muted)}
+  .kicker .rule{flex:0 0 40px;height:1px;background:var(--line-2)}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:0 26px;border:1.5px solid transparent;border-radius:0;font-family:var(--f-display);font-stretch:85%;font-weight:650;font-size:17px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:background-color .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease)}
+  .btn .arr{width:18px;height:18px;transition:transform .35s var(--ease)}
+  .btn:hover .arr{transform:translateX(5px)}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-ink)}
+  .btn-dark{background:var(--ink);color:var(--on-dark)}
+  .btn-dark:hover{background:#000}
+  .btn-line{border-color:var(--ink);color:var(--ink);background:transparent}
+  .btn-line:hover{background:var(--ink);color:var(--on-dark)}
+  .btn [data-lucide]{width:18px;height:18px}
+  .ulink{text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;padding-bottom:2px;transition:background-size .4s var(--ease)}
+  .ulink:hover{background-size:0 1px;background-position:100% 100%}
+
+  /* ============ Header ============ */
+  .site-header{position:fixed;top:0;left:0;right:0;z-index:50;transition:background-color .35s var(--ease),box-shadow .35s var(--ease)}
+  .header-in{display:flex;align-items:center;gap:32px;height:var(--header-h);transition:height .35s var(--ease)}
+  .site-header.is-scrolled{background:var(--paper);box-shadow:0 1px 0 var(--line)}
+  .site-header.is-scrolled .header-in{height:66px}
+  .logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);flex:none}
+  .logo svg{width:42px;height:42px;flex:none}
+  .logo-word{display:flex;flex-direction:column;line-height:1}
+  .logo-word b{font-family:var(--f-display);font-stretch:125%;font-weight:760;font-size:21px;letter-spacing:.06em;text-transform:uppercase}
+  .logo-word small{font-family:var(--f-mono);font-weight:500;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+  .nav{display:flex;gap:30px;margin-left:auto}
+  .nav a{font-size:15px;font-weight:500;text-decoration:none;color:var(--ink-2);padding:6px 0;background:linear-gradient(var(--brand),var(--brand)) 0 100%/0 1.5px no-repeat;transition:background-size .35s var(--ease)}
+  .nav a:hover{background-size:100% 1.5px}
+  .header-tools{display:flex;align-items:center;gap:18px}
+  .header-phone{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15.5px;text-decoration:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .header-phone [data-lucide]{color:var(--brand-ink);width:18px;height:18px}
+  .lang-switch{display:inline-flex;border:1px solid var(--line-2);padding:2px}
+  .lang-switch button{border:0;background:transparent;font-family:var(--f-mono);font-weight:500;font-size:12px;letter-spacing:.08em;padding:6px 9px;cursor:pointer;color:var(--muted)}
+  .lang-switch button[aria-pressed="true"]{background:var(--ink);color:var(--on-dark)}
+  .header-cta{min-height:46px;padding:0 20px;font-size:15px}
+  .menu-btn{display:none;border:1px solid var(--line-2);background:transparent;width:46px;height:46px;align-items:center;justify-content:center;cursor:pointer}
+  .mobile-nav{display:none}
+  header a, header button{white-space:nowrap}
+
+  /* ============ Hero ============ */
+  .hero{position:relative;padding-top:var(--header-h);min-height:max(700px,100svh);display:grid;grid-template-rows:1fr auto;background:var(--bg)}
+  .hero-main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);position:relative}
+  .hero-copy{position:relative;padding:clamp(24px,3.4vh,48px) clamp(32px,4vw,72px) clamp(28px,4vh,52px) max(var(--gutter),calc((100vw - var(--wrap)) / 2));display:flex;flex-direction:column;justify-content:center}
+  .hero-copy::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    background-image:linear-gradient(rgba(26,27,24,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(26,27,24,.06) 1px,transparent 1px),linear-gradient(rgba(26,27,24,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(26,27,24,.028) 1px,transparent 1px);
+    background-size:120px 120px,120px 120px,24px 24px,24px 24px;background-position:-1px -1px;
+    -webkit-mask-image:linear-gradient(115deg,#000 10%,transparent 75%);mask-image:linear-gradient(115deg,#000 10%,transparent 75%)}
+  .hero-copy > *{position:relative;z-index:1}
+  .coords{position:absolute;left:14px;bottom:28px;writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--f-mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);z-index:1}
+  .hero .kicker{margin-bottom:clamp(20px,3vh,32px)}
+  .hero h1{font-family:var(--f-display);font-stretch:70%;font-weight:780;text-transform:uppercase;line-height:.86;letter-spacing:-.012em;font-size:clamp(60px,6.3vw,112px)}
+  .hero h1 .ln{display:block;overflow:hidden;padding:.16em 0 .05em;margin:-.16em 0 -.05em}
+  .hero h1 .ln > span{display:block}
+  .hero h1 .ln-brand{color:var(--brand)}
+  .hero h1 .where{display:flex;align-items:center;gap:16px;margin-top:22px;font-stretch:100%;font-weight:500;text-transform:none;font-size:clamp(20px,1.7vw,26px);letter-spacing:-.005em;line-height:1.2;color:var(--ink-2)}
+  .hero h1 .where::before{content:"";flex:0 0 56px;height:11px;background:linear-gradient(var(--ink),var(--ink)) 0 50%/100% 1px no-repeat,linear-gradient(var(--ink),var(--ink)) 0 0/1px 100% no-repeat,linear-gradient(var(--ink),var(--ink)) 100% 0/1px 100% no-repeat}
+  .lang-es .hero h1{font-size:clamp(58px,6.2vw,108px)}
+  .hero-lede{margin-top:clamp(20px,3vh,30px);font-size:clamp(17px,1.3vw,19px);line-height:1.55;color:var(--ink-2);max-width:50ch}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px 28px;margin-top:clamp(24px,3.6vh,36px);align-items:center}
+  .hero-call{display:inline-flex;align-items:center;gap:12px;text-decoration:none;font-weight:600}
+  .hero-call .ic{width:44px;height:44px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;transition:background-color .25s,color .25s}
+  .hero-call:hover .ic{background:var(--ink);color:var(--on-dark)}
+  .hero-call small{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  .hero-call b{font-size:18px;font-variant-numeric:tabular-nums}
+
+  .hero-photo{position:relative;margin:0;overflow:hidden;background:#6b5238}
+  .hero-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+  .hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,23,20,.18),transparent 30%,transparent 62%,rgba(22,23,20,.55));pointer-events:none}
+  .anno{position:absolute;inset:0;z-index:2;pointer-events:none;color:var(--on-dark)}
+  .crop{position:absolute;width:22px;height:22px;border:0 solid rgba(241,236,227,.85)}
+  .crop.tl{top:18px;left:18px;border-top-width:1px;border-left-width:1px}
+  .crop.tr{top:18px;right:18px;border-top-width:1px;border-right-width:1px}
+  .crop.bl{bottom:18px;left:18px;border-bottom-width:1px;border-left-width:1px}
+  .crop.br{bottom:18px;right:18px;border-bottom-width:1px;border-right-width:1px}
+  .vdim{position:absolute;right:10%;top:16%;bottom:24%;width:14px;border-left:1px solid rgba(241,236,227,.8)}
+  .vdim::before,.vdim::after{content:"";position:absolute;left:-8px;width:15px;border-top:1px solid rgba(241,236,227,.8)}
+  .vdim::before{top:0}.vdim::after{bottom:0}
+  .vdim span{position:absolute;left:10px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;background:rgba(22,23,20,.55);padding:8px 3px}
+  .callout{position:absolute;left:21%;top:38%}
+  .callout .dot{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border:1px solid var(--on-dark);border-radius:50%}
+  .callout .dot::after{content:"";position:absolute;inset:5px;background:var(--brand);border-radius:50%}
+  .callout .lead{position:absolute;left:0;top:0;width:90px;height:1px;background:rgba(241,236,227,.85);transform-origin:0 0;transform:rotate(-38deg)}
+  .callout .lbl{position:absolute;left:66px;top:-78px;white-space:nowrap;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;background:var(--paper);color:var(--ink);padding:7px 10px}
+  .hero-photo figcaption{position:absolute;left:28px;bottom:26px;z-index:3;display:flex;flex-direction:column;gap:4px;color:var(--on-dark);font-family:var(--f-mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase}
+  .hero-photo figcaption b{font-weight:500;color:#fff}
+
+  /* Title block = trust badges */
+  .titleblock{position:relative;z-index:3;background:var(--paper);border-top:1.5px solid var(--ink)}
+  .titleblock ul{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+  .titleblock li{padding:18px 22px 20px;border-left:1px solid var(--line);min-width:0}
+  .titleblock li:first-child{border-left:0;padding-left:0}
+  .titleblock .mono{display:block;font-size:10.5px;letter-spacing:.16em;color:var(--muted);margin-bottom:8px}
+  .titleblock b{display:block;font-family:var(--f-display);font-stretch:78%;font-weight:700;font-size:22px;line-height:1.05;text-transform:uppercase;letter-spacing:.005em}
+  .titleblock span.v{display:block;font-size:14px;color:var(--ink-2);margin-top:4px;line-height:1.4}
+  .titleblock code{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.04em}
+
+  /* Hero entrance choreography (CSS only) */
+  @keyframes rise{from{transform:translateY(105%)}to{transform:none}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes settle{from{transform:scale(1.09)}to{transform:scale(1)}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes drawY{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  .hero h1 .ln > span{animation:rise .95s var(--ease) both}
+  .hero h1 .ln:nth-child(2) > span{animation-delay:.09s}
+  .hero h1 .ln:nth-child(3) > span{animation-delay:.18s}
+  .hero .kicker,.hero h1 .where,.hero-lede,.hero-actions{animation:fadeUp .8s var(--ease) both}
+  .hero .kicker{animation-delay:.05s}
+  .hero h1 .where{animation-delay:.34s}
+  .hero-lede{animation-delay:.42s}
+  .hero-actions{animation-delay:.5s}
+  .hero-photo img{animation:settle 1.8s var(--ease) both}
+  .anno .crop,.hero-photo figcaption{animation:fade 1s .7s var(--ease) both}
+  .vdim{transform-origin:50% 0;animation:drawY 1.1s .8s var(--ease) both}
+  .vdim span{animation:fade .6s 1.6s both}
+  .callout{animation:fade .8s 1.2s var(--ease) both}
+
+  /* ============ Generic section ============ */
+  .section{padding:clamp(88px,11vw,168px) 0}
+  .sec-head{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:48px;align-items:end;margin-bottom:clamp(48px,6vw,88px)}
+  .sec-head .lede{justify-self:end}
+
+  /* Scroll reveal (progressive enhancement) */
+  .js .rv{opacity:0;transform:translateY(18px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
+  .js .rv.in{opacity:1;transform:none}
+  .js .rv.d1{transition-delay:.08s}.js .rv.d2{transition-delay:.16s}.js .rv.d3{transition-delay:.24s}
+
+  /* Image hover: slow zoom */
+  .zoom{overflow:hidden}
+  .zoom img{transition:transform 1.2s var(--ease)}
+  .zoom:hover img{transform:scale(1.03)}
+
+  /* ============ Services: index + sticky preview ============ */
+  .services{background:var(--bg)}
+  .svc-wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(40px,6vw,96px);align-items:start}
+  .svc-preview{display:none}
+  .svc-hint{display:none;align-items:center;gap:10px;margin:-18px 0 18px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .svc-hint [data-lucide]{width:16px;height:16px}
+  .svc-list{border-top:1.5px solid var(--ink);counter-reset:svc}
+  .svc{position:relative;display:grid;grid-template-columns:64px minmax(0,1fr) 190px;gap:8px 28px;padding:30px 0 32px;border-bottom:1px solid var(--line)}
+  .svc-num{font-family:var(--f-mono);font-size:13px;font-weight:500;letter-spacing:.08em;color:var(--muted);padding-top:12px;transition:color .3s}
+  .svc h3{font-stretch:72%;font-weight:760;text-transform:uppercase;font-size:clamp(36px,3.6vw,52px);line-height:.95;letter-spacing:-.005em;transition:color .3s var(--ease)}
+  .svc-main p{color:var(--ink-2);max-width:56ch;margin-top:12px;font-size:17px}
+  .svc-meta{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:14px !important;font-family:var(--f-mono);font-size:12px !important;letter-spacing:.06em;text-transform:uppercase;color:var(--muted) !important}
+  .svc-meta span{display:inline-flex;align-items:center;gap:8px}
+  .svc-meta [data-lucide]{width:15px;height:15px;color:var(--brand-ink)}
+  .svc > img{grid-column:3;grid-row:1 / span 2;width:190px;aspect-ratio:4/5;object-fit:cover}
+  .svc::before{content:"";position:absolute;left:0;top:-1.5px;height:1.5px;width:0;background:var(--brand);transition:width .6s var(--ease)}
+  .svc.is-on::before{width:100%}
+  .svc.is-on h3{color:var(--brand-ink)}
+  .svc.is-on .svc-num{color:var(--brand-ink)}
+
+  @media (min-width:1021px){
+    .js .svc-preview{display:block;position:sticky;top:96px;margin:0}
+    .js .svc > img{display:none}
+    .js .svc{grid-template-columns:64px minmax(0,1fr)}
+    .svc-frame{position:relative;aspect-ratio:4/5;overflow:hidden;background:#cfc6b6}
+    .svc-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.05);transition:opacity .7s var(--ease),transform 1.4s var(--ease)}
+    .svc-frame img.on{opacity:1;transform:none}
+    .svc-preview figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding-top:14px;border-bottom:1px solid var(--line);padding-bottom:14px}
+    .svc-preview figcaption .mono{color:var(--muted)}
+    .svc-cap{font-family:var(--f-display);font-stretch:78%;font-weight:700;text-transform:uppercase;font-size:20px;letter-spacing:.01em}
+    .svc-frame .crop{border-color:rgba(248,245,239,.9);z-index:2}
+  }
+
+  /* ============ Projects ============ */
+  .projects{background:var(--paper)}
+  /* Before / after */
+  .feature{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+  .ba{--pos:50%;position:relative;aspect-ratio:3/2;max-height:78vh;width:100%;overflow:hidden;background:#8a7760;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:ew-resize}
+  .ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+  .ba-before{position:absolute;inset:0;clip-path:inset(0 calc(100% - var(--pos)) 0 0)}
+  .ba-tag{position:absolute;top:20px;z-index:3;font-family:var(--f-mono);font-size:11.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;padding:8px 11px;background:var(--paper);color:var(--ink);pointer-events:none}
+  .ba-tag.t-before{left:20px}
+  .ba-tag.t-after{right:20px;background:var(--ink);color:var(--on-dark)}
+  .ba-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;pointer-events:none;z-index:1}
+  .ba-handle{position:absolute;top:0;bottom:0;left:var(--pos);width:0;z-index:4;pointer-events:none}
+  .ba-handle::before{content:"";position:absolute;top:0;bottom:0;left:-1px;width:2px;background:var(--paper)}
+  .ba-knob{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:var(--paper);color:var(--ink);display:grid;place-items:center;box-shadow:0 10px 30px -10px rgba(0,0,0,.45);transition:transform .3s var(--ease)}
+  .ba-knob svg{width:30px;height:30px}
+  .ba:hover .ba-knob{transform:translate(-50%,-50%) scale(1.06)}
+  .ba-range:focus-visible ~ .ba-handle .ba-knob{outline:2px solid var(--brand);outline-offset:4px}
+  .ba-ticks{position:absolute;left:0;right:0;bottom:0;height:14px;z-index:2;pointer-events:none;background:repeating-linear-gradient(90deg,rgba(248,245,239,.85) 0 1px,transparent 1px 10%) 0 100%/100% 14px no-repeat,repeating-linear-gradient(90deg,rgba(248,245,239,.6) 0 1px,transparent 1px 2%) 0 100%/100% 7px no-repeat}
+  .feature-info{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:48px;padding-top:30px;border-bottom:1px solid var(--line);padding-bottom:34px}
+  .feature-info h3{font-stretch:72%;font-weight:760;text-transform:uppercase;font-size:clamp(34px,3.4vw,48px);line-height:.95;margin-top:10px}
+  .where-lbl{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--brand-ink)}
+  .where-lbl [data-lucide]{width:15px;height:15px}
+  .feature-info .txt p{color:var(--ink-2);max-width:60ch}
+  .spec{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:22px;border-top:1px solid var(--line)}
+  .spec div{padding:14px 18px 0 0}
+  .spec div + div{padding-left:18px;border-left:1px solid var(--line)}
+  .spec dt{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .spec dd{margin:6px 0 0;font-weight:600;font-size:15.5px;line-height:1.35}
+  .spec dd.big{font-family:var(--f-display);font-stretch:72%;font-weight:760;font-size:40px;line-height:.9}
+  .drag-hint{display:inline-flex;align-items:center;gap:10px;margin-top:16px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .drag-hint [data-lucide]{width:16px;height:16px}
+
+  /* Case-study carousel */
+  .cases-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin:clamp(72px,8vw,120px) 0 28px}
+  .cases-head h3{font-stretch:72%;font-weight:760;text-transform:uppercase;font-size:clamp(30px,2.8vw,40px);line-height:.95}
+  .car-ctrl{display:none;align-items:center;gap:14px}
+  .js .car-ctrl{display:flex}
+  .car-count{font-family:var(--f-mono);font-size:13px;letter-spacing:.1em;color:var(--muted);min-width:64px;text-align:center}
+  .car-btn{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--ink);background:transparent;display:grid;place-items:center;cursor:pointer;transition:background-color .25s,color .25s,opacity .25s}
+  .car-btn:hover{background:var(--ink);color:var(--on-dark)}
+  .car-btn[disabled]{opacity:.3;cursor:default;background:transparent;color:var(--ink)}
+  .cases{display:grid;grid-auto-flow:column;grid-auto-columns:min(82%,1040px);gap:28px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:max(var(--gutter),calc((100vw - var(--wrap)) / 2));padding:0 max(var(--gutter),calc((100vw - var(--wrap)) / 2)) 6px;scrollbar-width:none;overscroll-behavior-x:contain}
+  .cases::-webkit-scrollbar{display:none}
+  .cases:focus-visible{outline-offset:-2px}
+  .case{scroll-snap-align:start;margin:0;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);background:var(--bg);min-height:100%}
+  .case .zoom{position:relative;aspect-ratio:7/5;height:100%}
+  .case .zoom img{width:100%;height:100%;object-fit:cover}
+  .case-idx{position:absolute;left:18px;top:16px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;background:var(--paper);padding:6px 9px;color:var(--ink)}
+  .case figcaption{padding:30px 30px 28px;display:flex;flex-direction:column;gap:12px}
+  .case h4{font-stretch:72%;font-weight:760;text-transform:uppercase;font-size:clamp(30px,2.6vw,38px);line-height:.95}
+  .case .scope{color:var(--ink-2);font-size:16px}
+  .case dl{margin:auto 0 0;display:grid;grid-template-columns:auto 1fr;gap:0 16px;border-top:1px solid var(--line);padding-top:14px}
+  .case dt{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:6px 0}
+  .case dd{margin:0;font-size:14.5px;font-weight:600;padding:5px 0;line-height:1.35}
+  .case dd.wk{font-family:var(--f-display);font-stretch:72%;font-weight:760;font-size:30px;line-height:1}
+  .cases-note{margin-top:22px;font-size:15px;color:var(--muted)}
+
+  /* ============ Process timeline ============ */
+  .process{background:var(--bg)}
+  .tl{border-top:1.5px solid var(--ink)}
+  .tl-step{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,5fr) minmax(0,3fr);gap:40px;align-items:start;padding:34px 0 40px;border-bottom:1px solid var(--line)}
+  .tl-n{font-family:var(--f-display);font-stretch:62%;font-weight:800;font-size:clamp(140px,19vw,290px);line-height:.72;letter-spacing:-.03em;color:var(--line);transition:color .8s var(--ease);font-variant-numeric:tabular-nums}
+  .tl-step.is-on .tl-n{color:var(--brand)}
+  .tl-when{display:block;color:var(--brand-ink);margin-bottom:14px}
+  .tl-body h3{font-stretch:72%;font-weight:760;text-transform:uppercase;font-size:clamp(32px,3vw,44px);line-height:.95;margin-bottom:14px}
+  .tl-body p{color:var(--ink-2);max-width:48ch}
+  .tl-check{display:flex;gap:12px;align-items:flex-start;padding-top:10px;border-top:1px solid var(--line-2);font-size:15.5px;line-height:1.45;color:var(--ink);font-weight:500;margin-top:6px}
+  .tl-check [data-lucide]{width:18px;height:18px;color:var(--brand-ink);margin-top:2px}
+
+  /* ============ Craft (carbon) ============ */
+  .craft{background:var(--dark);color:var(--on-dark)}
+  .craft .kicker{color:var(--dark-muted)}
+  .craft .dm{color:var(--on-dark)}
+  .craft .dm b{color:var(--brand-on-dark)}
+  .craft .dm i{color:var(--dark-muted)}
+  .craft .lede{color:var(--dark-muted)}
+  .mosaic{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:28px;align-items:start}
+  .mat{margin:0}
+  .mat .zoom{position:relative}
+  .mat img{width:100%;height:100%;object-fit:cover}
+  .mat-1{grid-column:1 / span 5}
+  .mat-1 .zoom{aspect-ratio:4/5}
+  .mat-1 img{object-position:38% 50%}
+  .mat-2{grid-column:6 / span 4;margin-top:clamp(80px,11vw,170px)}
+  .mat-2 .zoom{aspect-ratio:4/5}
+  .mat-2 img{object-position:50% 88%}
+  .mat-3{grid-column:10 / span 3;margin-top:clamp(24px,4vw,60px)}
+  .mat-3 .zoom{aspect-ratio:3/4}
+  .mat figcaption{padding-top:18px;border-top:1px solid var(--dark-line);margin-top:18px}
+  .mat figcaption .mono{color:var(--brand-on-dark);display:block;margin-bottom:8px}
+  .mat figcaption b{display:block;font-family:var(--f-display);font-stretch:72%;font-weight:760;font-size:28px;line-height:1;text-transform:uppercase;margin-bottom:10px;color:#fff}
+  .mat figcaption p{color:var(--dark-muted);font-size:15.5px;line-height:1.55;max-width:44ch}
+  .mat .tag{position:absolute;left:14px;bottom:14px;z-index:2;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:var(--dark);color:var(--on-dark);padding:6px 9px}
+  .license{margin-top:clamp(88px,10vw,140px);display:grid;grid-template-columns:minmax(0,1.2fr) repeat(3,minmax(0,1fr));border-top:1.5px solid var(--on-dark)}
+  .license > div{padding:30px 28px 0;border-left:1px solid var(--dark-line)}
+  .license > div:first-child{border-left:0;padding-left:0}
+  .license h3{font-stretch:72%;font-weight:760;text-transform:uppercase;font-size:36px;line-height:.95;color:#fff}
+  .license .intro p{color:var(--dark-muted);margin-top:14px;font-size:15.5px}
+  .license .intro a{color:#fff;font-weight:600}
+  .lic [data-lucide]{width:26px;height:26px;color:var(--brand-on-dark)}
+  .lic h4{font-stretch:78%;font-weight:700;text-transform:uppercase;font-size:21px;letter-spacing:.02em;margin:16px 0 10px;color:#fff}
+  .lic p{color:var(--dark-muted);font-size:15px;line-height:1.55}
+  .lic code{display:inline-block;font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.06em;color:#fff;border:1px solid var(--dark-line);padding:4px 10px;margin-bottom:10px}
+
+  /* ============ About ============ */
+  .about{background:var(--paper);overflow:hidden}
+  .about-grid{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:clamp(48px,7vw,112px);align-items:center}
+  .about-photo{margin:0 0 0 calc(-1 * max(var(--gutter), (100vw - var(--wrap)) / 2));position:relative}
+  .about-photo .zoom{aspect-ratio:4/5;max-height:860px}
+  .about-photo img{width:100%;height:100%;object-fit:cover;object-position:40% center}
+  .about-photo figcaption{position:absolute;right:-1px;bottom:0;background:var(--paper);padding:12px 16px 0 16px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .pull{font-family:var(--f-display);font-stretch:78%;font-weight:600;font-size:clamp(30px,2.9vw,42px);line-height:1.08;letter-spacing:-.01em;margin:30px 0 30px;padding-left:26px;border-left:3px solid var(--brand);text-wrap:balance}
+  .about-copy > p:not(.kicker):not(.pull){font-size:18px;color:var(--ink-2);max-width:56ch}
+  .about-copy > p:not(.kicker):not(.pull) + p{margin-top:16px}
+  .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:36px 0 0;border-top:1.5px solid var(--ink)}
+  .facts div{padding:14px 18px 0 0}
+  .facts div + div{padding-left:18px;border-left:1px solid var(--line)}
+  .facts dt{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .facts dd{margin:6px 0 0;font-weight:600;font-size:16px;line-height:1.35}
+  .sign{margin-top:34px;display:flex;align-items:center;gap:16px}
+  .sign-mono{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-family:var(--f-display);font-stretch:125%;font-weight:700;font-size:16px;letter-spacing:.06em}
+  .sign b{display:block;font-family:var(--f-display);font-stretch:78%;font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+  .sign span{font-size:14.5px;color:var(--muted)}
+
+  /* ============ Service area ============ */
+  .area{background:var(--bg);padding-top:0}
+  .marquee{overflow:hidden;border-bottom:1px solid var(--line);padding:26px 0;margin-bottom:clamp(72px,9vw,128px);background:var(--bg)}
+  .marquee-track{display:flex;width:max-content;animation:marq 70s linear infinite}
+  .marquee:hover .marquee-track{animation-play-state:paused}
+  .marquee ul{display:flex;flex:none}
+  .marquee li{display:flex;align-items:center;font-family:var(--f-display);font-stretch:72%;font-weight:760;text-transform:uppercase;font-size:clamp(44px,6vw,88px);line-height:1;letter-spacing:-.005em;color:var(--ink);white-space:nowrap}
+  .marquee li::after{content:"";width:clamp(14px,1.4vw,20px);height:clamp(14px,1.4vw,20px);border:1.5px solid var(--brand);border-radius:50%;margin:0 clamp(26px,3vw,48px)}
+  .marquee li.base{color:var(--brand)}
+  @keyframes marq{to{transform:translateX(-50%)}}
+  .area-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(48px,6vw,96px);align-items:start}
+  .area-copy .lede{margin-top:22px}
+  .towns{display:grid;grid-template-columns:1fr 1fr;column-gap:28px;margin-top:34px;border-top:1.5px solid var(--ink)}
+  .towns li{display:flex;align-items:baseline;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);font-weight:600;font-size:16.5px}
+  .towns li .mono{font-size:10.5px;color:var(--muted);min-width:22px}
+  .towns .home-base{color:var(--brand-ink)}
+  .towns .home-base small{font-weight:500;color:var(--muted);font-size:13px}
+  .area-note{margin-top:22px;font-size:15.5px;color:var(--muted)}
+  .map{position:relative;margin:0}
+  .map-frame{position:relative;aspect-ratio:4/3.4;background:#dcd5c8;border:1.5px solid var(--ink)}
+  .map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;filter:grayscale(1) sepia(.18) contrast(1.04) brightness(1.02)}
+  .map figcaption{display:flex;justify-content:space-between;gap:16px;padding-top:12px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .scale{display:inline-flex;align-items:center;gap:10px}
+  .scale i{display:inline-block;width:80px;height:7px;border:1px solid var(--muted);border-top:0;background:linear-gradient(90deg,var(--muted) 0 50%,transparent 50%) 0 100%/100% 3px no-repeat}
+
+  /* ============ Reviews (optional) ============ */
+  .reviews{background:var(--paper)}
+  .rev-head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;margin-bottom:clamp(40px,5vw,64px);flex-wrap:wrap}
+  .rating{display:flex;align-items:center;gap:16px}
+  .rating b{font-family:var(--f-display);font-stretch:72%;font-weight:760;font-size:72px;line-height:.8}
+  .rating span{font-size:14px;color:var(--muted);line-height:1.4}
+  .stars{display:inline-flex;gap:3px;color:var(--brand)}
+  .stars [data-lucide]{width:16px;height:16px;fill:currentColor;stroke-width:1}
+  .rev-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1.5px solid var(--ink)}
+  .rev{padding:28px 32px 8px 0;display:flex;flex-direction:column;gap:18px}
+  .rev + .rev{padding-left:32px;border-left:1px solid var(--line)}
+  .rev blockquote{margin:0;font-size:19px;line-height:1.5;color:var(--ink);flex:1;text-wrap:pretty}
+  .rev footer{display:flex;justify-content:space-between;align-items:center;font-size:14.5px;padding-top:14px;border-top:1px solid var(--line)}
+  .rev footer b{font-weight:600}
+  .g-mark{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;font-weight:600}
+  .g-mark svg{width:16px;height:16px}
+  .rev-lang{font-size:14px;color:var(--muted);margin-top:26px}
+
+  /* ============ FAQ ============ */
+  .faq{background:var(--bg)}
+  .faq-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(48px,6vw,96px);align-items:start}
+  .faq-aside{position:sticky;top:110px}
+  .faq-aside .lede{margin-top:22px;max-width:34ch}
+  .faq-aside .btn{margin-top:30px}
+  .faq-list{border-top:1.5px solid var(--ink)}
+  .faq details{border-bottom:1px solid var(--line)}
+  .faq summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:18px;padding:26px 0;font-family:var(--f-display);font-stretch:85%;font-weight:600;font-size:clamp(21px,1.9vw,27px);line-height:1.15;letter-spacing:-.005em;transition:color .25s}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary .q{font-family:var(--f-mono);font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--muted)}
+  .faq summary .plus{position:relative;width:36px;height:36px;border:1.5px solid var(--ink);border-radius:50%;transition:transform .35s var(--ease),background-color .25s}
+  .faq summary .plus::before,.faq summary .plus::after{content:"";position:absolute;left:50%;top:50%;width:13px;height:1.5px;background:currentColor;transform:translate(-50%,-50%)}
+  .faq summary .plus::after{transform:translate(-50%,-50%) rotate(90deg)}
+  .faq details[open] summary .plus{transform:rotate(45deg);background:var(--ink);color:var(--on-dark)}
+  .faq summary:hover{color:var(--brand-ink)}
+  .faq-a{padding:0 60px 28px 62px;color:var(--ink-2);max-width:74ch}
+  .faq-a p + p{margin-top:10px}
+
+  /* ============ Contact ============ */
+  .contact{background:var(--paper)}
+  .contact-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(48px,6vw,104px);align-items:start}
+  .contact .lede{margin-top:24px;max-width:42ch}
+  .c-list{margin-top:40px;border-top:1.5px solid var(--ink)}
+  .c-list li{display:grid;grid-template-columns:32px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .c-list [data-lucide]{width:20px;height:20px;color:var(--brand-ink);margin-top:3px}
+  .c-list small{display:block;font-family:var(--f-mono);font-weight:500;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+  .c-list a,.c-list span.v{font-weight:600;font-size:18px;text-decoration:none}
+  .c-list a:hover{color:var(--brand-ink)}
+  .sheet{background:var(--bg);border:1.5px solid var(--ink)}
+  .sheet-top{display:grid;grid-template-columns:minmax(0,1fr) auto auto;border-bottom:1.5px solid var(--ink)}
+  .sheet-top > *{padding:12px 18px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .sheet-top > * + *{border-left:1px solid var(--line-2)}
+  .sheet-top b{display:block;color:var(--ink);font-weight:500;font-size:12px;margin-top:2px}
+  .sheet-body{padding:clamp(24px,3vw,40px)}
+  .sheet-body h3{font-stretch:72%;font-weight:760;text-transform:uppercase;font-size:clamp(32px,3vw,42px);line-height:.95}
+  .form{display:grid;gap:18px;margin-top:26px}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .field label{display:block;font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:8px}
+  .field input,.field select,.field textarea{width:100%;min-height:52px;border:0;border-bottom:1.5px solid var(--ink);border-radius:0;background:var(--paper);padding:12px 14px;font-size:17px;transition:background-color .2s,border-color .2s,box-shadow .2s}
+  .field textarea{min-height:120px;resize:vertical;line-height:1.5}
+  .field select{appearance:none;-webkit-appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%231A1B18' stroke-width='1.8'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+  .field input::placeholder,.field textarea::placeholder{color:#8A857B}
+  .field input:hover,.field select:hover,.field textarea:hover{background-color:#fff}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;background-color:#fff;border-bottom-color:var(--brand);box-shadow:0 2px 0 0 var(--brand)}
+  .form .btn{width:100%;margin-top:6px}
+  .form-note{font-size:14px;color:var(--muted);display:flex;gap:10px;align-items:flex-start;line-height:1.45}
+  .form-note [data-lucide]{width:16px;height:16px;margin-top:2px;color:var(--brand-ink)}
+  .form-ok{display:none;background:var(--brand-soft);padding:12px 14px;font-size:15px}
+  .form.sent .form-ok{display:block}
+
+  /* ============ Footer ============ */
+  .site-footer{background:var(--dark);color:var(--dark-muted);padding:clamp(72px,8vw,112px) 0 0;font-size:15px;overflow:hidden}
+  .foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px}
+  .site-footer .logo{color:#fff}
+  .site-footer .logo-word small{color:var(--dark-muted)}
+  .foot-grid h4{font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--brand-on-dark);margin-bottom:16px}
+  .foot-grid p,.foot-grid li{line-height:1.75}
+  .foot-grid a{text-decoration:none;color:#fff}
+  .foot-grid a:hover{text-decoration:underline}
+  .foot-about{margin-top:20px;max-width:34ch}
+  .foot-mark{font-family:var(--f-display);font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:min(calc((100vw - var(--gutter) * 2) / 3.24),410px);line-height:.74;letter-spacing:-.02em;color:#272823;margin:clamp(56px,7vw,96px) 0 0;white-space:nowrap;user-select:none;text-align:center;transform:translateY(8%)}
+  .foot-bottom{position:relative;padding:20px 0 28px;border-top:1px solid var(--dark-line);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:13.5px;font-family:var(--f-mono);letter-spacing:.04em}
+
+  /* ============ Mobile call bar ============ */
+  .callbar{display:none}
+
+  /* ============ Responsive ============ */
+  @media (max-width:1400px){ .header-phone .num{display:none} }
+  @media (max-width:1240px){
+    .nav,.header-phone,.header-cta{display:none}
+    .menu-btn{display:inline-flex}
+    .header-tools{margin-left:auto}
+    .mobile-nav{position:fixed;top:var(--header-h);left:0;right:0;background:var(--paper);border-bottom:1.5px solid var(--ink);padding:8px var(--gutter) 26px;max-height:calc(100svh - var(--header-h));overflow:auto}
+    .is-scrolled .mobile-nav{top:66px}
+    .mobile-nav.open{display:block}
+    .mobile-nav a{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--line);text-decoration:none;font-family:var(--f-display);font-stretch:72%;font-weight:760;font-size:32px;text-transform:uppercase;line-height:1}
+    .mobile-nav a .mono{font-size:11px;color:var(--muted);font-family:var(--f-mono);font-weight:500}
+    .mobile-nav .btn{margin-top:20px;width:100%;border-bottom:0;font-size:17px;font-stretch:85%;font-weight:650;justify-content:center;gap:12px}
+    .site-header.menu-open{background:var(--paper)}
+    .titleblock li{padding:16px 16px 18px}
+    .titleblock b{font-size:19px}
+  }
+  @media (max-width:1020px){
+    :root{--gutter:28px}
+    .hero{min-height:0}
+    .hero-main{grid-template-columns:1fr}
+    .hero-copy{padding:40px var(--gutter) 44px}
+    .coords{display:none}
+    .hero h1{font-size:clamp(56px,10vw,100px)}
+    .lang-es .hero h1{font-size:clamp(52px,9.4vw,94px)}
+    .hero-photo{height:min(78vw,620px)}
+    .titleblock ul{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .titleblock li,.titleblock li:first-child{padding:16px 16px 18px 0;border-left:0;border-top:1px solid var(--line)}
+    .titleblock li:nth-child(even){padding-left:16px;border-left:1px solid var(--line)}
+    .titleblock li:nth-child(-n+2){border-top:0}
+    .titleblock li:last-child{grid-column:1 / -1;border-left:0;padding-left:0}
+    .sec-head{grid-template-columns:1fr;gap:22px}
+    .sec-head .lede{justify-self:start}
+    .svc-wrap{grid-template-columns:1fr}
+    .svc{grid-template-columns:48px minmax(0,1fr);gap:4px 16px}
+    .svc > img{grid-column:1 / -1;grid-row:auto;width:100%;aspect-ratio:16/10;margin-top:18px}
+    .feature-info{grid-template-columns:1fr;gap:18px}
+    .case{grid-template-columns:1fr}
+    .case .zoom{height:auto}
+    .tl-step{grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:28px}
+    .tl-check{grid-column:2}
+    .mosaic{gap:20px}
+    .mat-1{grid-column:1 / -1}
+    .mat-1 .zoom{aspect-ratio:16/11}
+    .mat-2{grid-column:1 / span 6;margin-top:24px}
+    .mat-3{grid-column:7 / span 6;margin-top:24px}
+    .license{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .license > div:first-child{grid-column:1 / -1;padding:30px 0 10px}
+    .license > div:nth-child(2){border-left:0;padding-left:0}
+    .about-grid{grid-template-columns:1fr}
+    .about-photo{margin:0 calc(-1 * var(--gutter))}
+    .about-photo .zoom{aspect-ratio:4/3}
+    .area-grid,.faq-grid,.contact-grid{grid-template-columns:1fr}
+    .faq-aside{position:static}
+    .rev-grid{grid-template-columns:1fr}
+    .rev,.rev + .rev{padding:26px 0 8px;border-left:0}
+    .rev + .rev{border-top:1px solid var(--line)}
+    .foot-grid{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:680px){
+    :root{--gutter:20px;--header-h:64px}
+    body{font-size:17px;padding-bottom:76px}
+    .site-header .header-in{height:var(--header-h)}
+    .site-header.is-scrolled .header-in{height:58px}
+    .is-scrolled .mobile-nav{top:58px}
+    .logo svg{width:36px;height:36px}
+    .logo-word b{font-size:17px}
+    .logo-word small{font-size:8.5px;letter-spacing:.12em;margin-top:5px}
+    .header-in{gap:12px}
+    .header-tools{gap:10px}
+    .lang-switch button{padding:6px 7px}
+    .menu-btn{width:44px;height:44px}
+    .hero-copy{padding:30px var(--gutter) 36px}
+    .hero .kicker{margin-bottom:20px}
+    .hero h1{font-size:clamp(52px,16.4vw,72px)}
+    .lang-es .hero h1{font-size:clamp(42px,13.2vw,62px)}
+    .hero h1 .where{font-size:19px;margin-top:18px;gap:12px}
+    .hero h1 .where::before{flex-basis:32px}
+    .hero-lede{font-size:17px}
+    .hero-actions{flex-direction:column;align-items:stretch;gap:18px}
+    .hero-actions .btn{width:100%}
+    .hero-photo{height:112vw;max-height:520px}
+    .callout{left:18%;top:40%}
+    .callout .lbl{left:56px;top:-66px;font-size:10.5px}
+    .vdim{right:8%}
+    .titleblock b{font-size:18px}
+    .titleblock span.v{font-size:13.5px}
+    .h2{font-size:clamp(44px,13vw,60px)}
+    .kicker{gap:12px;margin-bottom:20px}
+    .kicker .rule{flex-basis:24px}
+    /* services become a swipeable deck on phones */
+    .svc-list{display:grid;grid-auto-flow:column;grid-auto-columns:84%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 var(--gutter);margin:0 calc(-1 * var(--gutter));padding:0 var(--gutter) 6px;border-top:0;scrollbar-width:none;overscroll-behavior-x:contain}
+    .svc-list::-webkit-scrollbar{display:none}
+    .svc{position:relative;scroll-snap-align:start;display:flex;flex-direction:column;padding:0;border:0;background:var(--paper)}
+    .svc::before{display:none}
+    .svc > img{order:-1;margin:0;aspect-ratio:4/3}
+    .svc-num{position:absolute;left:12px;top:12px;z-index:1;padding:5px 8px;background:var(--paper);color:var(--ink);font-size:11.5px}
+    .svc-main{padding:20px 18px 22px}
+    .svc h3{font-size:34px}
+    .svc-main p{font-size:16px}
+    .svc.is-on h3{color:var(--ink)}
+    .svc-hint{display:flex !important}
+    .ba{aspect-ratio:4/3.3}
+    .ba-knob{width:54px;height:54px}
+    .ba-tag{top:12px;font-size:10.5px;padding:6px 8px}
+    .ba-tag.t-before{left:12px}.ba-tag.t-after{right:12px}
+    .feature .ba{margin:0 calc(-1 * var(--gutter));width:calc(100% + var(--gutter) * 2)}
+    .spec{grid-template-columns:1fr 1fr}
+    .spec div:nth-child(3){grid-column:1 / -1;border-left:0;padding-left:0;border-top:1px solid var(--line);margin-top:14px}
+    .cases-head{align-items:flex-start;flex-direction:column;gap:18px}
+    .cases{grid-auto-columns:86%;gap:14px}
+    .case figcaption{padding:22px 20px 22px}
+    .tl-step{grid-template-columns:1fr;gap:6px;padding:28px 0 32px}
+    .tl-n{font-size:120px}
+    .tl-check{grid-column:1;margin-top:14px}
+    .mat-2,.mat-3{grid-column:1 / -1;margin-top:28px}
+    .mat-2 .zoom,.mat-3 .zoom{aspect-ratio:4/3}
+    .license{grid-template-columns:1fr}
+    .license > div,.license > div:nth-child(2){border-left:0;padding:24px 0 0;border-top:1px solid var(--dark-line)}
+    .license > div:first-child{border-top:0}
+    .pull{padding-left:18px}
+    .facts{grid-template-columns:1fr}
+    .facts div,.facts div + div{padding:12px 0;border-left:0;border-bottom:1px solid var(--line)}
+    .marquee{padding:18px 0}
+    .towns li{font-size:15.5px}
+    .map-frame{aspect-ratio:1/1}
+    .faq summary{grid-template-columns:30px minmax(0,1fr) auto;gap:12px;font-size:20px;padding:22px 0}
+    .faq-a{padding:0 0 24px 42px}
+    .row-2{grid-template-columns:1fr}
+    .sheet-top{grid-template-columns:1fr auto}
+    .sheet-top > :nth-child(3){display:none}
+    .foot-grid{grid-template-columns:1fr}
+    .foot-bottom{flex-direction:column;gap:6px}
+    .callbar{display:grid;grid-template-columns:1fr 1.25fr;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--paper);border-top:1.5px solid var(--ink);padding:8px 10px calc(8px + env(safe-area-inset-bottom));gap:8px}
+    .callbar .btn{min-height:52px;font-size:15.5px;padding:0 12px}
+  }
+  @media (max-width:380px){
+    .logo-word small{display:none}
+    .lang-switch button{padding:6px 6px}
+  }
+
+  /* ============ Reduced motion ============ */
+  @media (prefers-reduced-motion:reduce){
+    html:focus-within{scroll-behavior:auto}
+    *,*::before,*::after{animation:none !important;transition:none !important}
+    .js .rv{opacity:1;transform:none}
+    .marquee-track{flex-wrap:wrap;width:auto}
+    .marquee ul[aria-hidden]{display:none}
+    .marquee ul{flex-wrap:wrap;padding:0 var(--gutter)}
+  }
+</style>
+</head>
+<body>
+
+<!-- slot: header -->
+<header class="site-header" id="site-header">
+  <div class="wrap header-in">
+    <!-- slot: logo (symbol + business_name) -->
+    <a class="logo" href="#top" aria-label="Ramírez Remodeling & Construction — home">
+      <svg viewBox="0 0 44 44" aria-hidden="true">
+        <circle cx="22" cy="22" r="20.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M1.5 22h41" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M11 18.5 22 9.5l11 9" fill="none" stroke="var(--brand)" stroke-width="3" stroke-linecap="square"/>
+        <path d="M15.5 28.5v7M28.5 28.5v7M15.5 28.5h13" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M22 28.5v7" stroke="currentColor" stroke-width="1.6"/>
+      </svg>
+      <span class="logo-word"><b>Ramírez</b><small>Remodeling &amp; Construction</small></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#services"><span data-en>Services</span><span data-es>Servicios</span></a>
+      <a href="#projects"><span data-en>Projects</span><span data-es>Proyectos</span></a>
+      <a href="#process"><span data-en>How we work</span><span data-es>Cómo trabajamos</span></a>
+      <a href="#area"><span data-en>Service area</span><span data-es>Zona de servicio</span></a>
+      <a href="#faq"><span data-en>FAQ</span><span data-es>Preguntas</span></a>
+    </nav>
+    <div class="header-tools">
+      <!-- slot: phone -->
+      <a class="header-phone" href="tel:+18605550142"><i data-lucide="phone"></i><span class="num">(860) 555-0142</span><span class="sr-only">Call</span></a>
+      <div class="lang-switch" role="group" aria-label="Language / Idioma">
+        <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-set-lang="es" aria-pressed="false">ES</button>
+      </div>
+      <a class="btn btn-primary header-cta" href="#contact"><span data-en>Free estimate</span><span data-es>Presupuesto gratis</span></a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav"><i data-lucide="menu"></i><span class="sr-only">Menu</span></button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+    <a href="#services"><span data-en>Services</span><span data-es>Servicios</span><span class="mono">02</span></a>
+    <a href="#projects"><span data-en>Projects</span><span data-es>Proyectos</span><span class="mono">03</span></a>
+    <a href="#process"><span data-en>How we work</span><span data-es>Cómo trabajamos</span><span class="mono">04</span></a>
+    <a href="#area"><span data-en>Service area</span><span data-es>Zona de servicio</span><span class="mono">07</span></a>
+    <a href="#faq"><span data-en>FAQ</span><span data-es>Preguntas</span><span class="mono">09</span></a>
+    <a class="btn btn-dark" href="tel:+18605550142"><i data-lucide="phone"></i> (860) 555-0142</a>
+  </nav>
+</header>
+
+<main id="top">
+
+<!-- slot: hero -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-main">
+    <div class="hero-copy">
+      <span class="coords" aria-hidden="true">41.661° N · 72.780° W — New Britain, CT</span>
+      <!-- slot: license_number / city -->
+      <p class="kicker"><span class="dm" aria-hidden="true"><b>01</b><i>A1</i></span><span data-en>Licensed CT contractor · New Britain</span><span data-es>Contratista con licencia en CT · New Britain</span></p>
+      <!-- slot: headline (what we do + where) -->
+      <h1 id="hero-title">
+        <span data-en><span class="ln"><span>Kitchens, baths,</span></span><span class="ln"><span>basements</span></span><span class="ln ln-brand"><span>&amp; additions</span></span><span class="where">in New Britain &amp; Central CT</span></span>
+        <span data-es><span class="ln"><span>Cocinas, baños,</span></span><span class="ln"><span>sótanos</span></span><span class="ln ln-brand"><span>y ampliaciones</span></span><span class="where">en New Britain y el centro de CT</span></span>
+      </h1>
+      <p class="hero-lede" data-en>A licensed, insured local crew. You get a written estimate with a fixed price and a start date, and the owner on your job from the first visit to the final walkthrough.</p>
+      <p class="hero-lede" data-es>Un equipo local con licencia y seguro. Le damos un presupuesto por escrito con precio cerrado y fecha de inicio, y el dueño está en su obra desde la primera visita hasta la entrega.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#contact"><span data-en>Get a free estimate</span><span data-es>Pida su presupuesto gratis</span><i class="arr" data-lucide="arrow-right"></i></a>
+        <a class="hero-call" href="tel:+18605550142"><span class="ic"><i data-lucide="phone"></i></span><span><small><span data-en>Call or text</span><span data-es>Llame o escriba</span></small><b>(860) 555-0142</b></span></a>
+      </div>
+    </div>
+
+    <!-- slot: hero_photo -->
+    <figure class="hero-photo">
+      <img class="ph" src="https://images.unsplash.com/photo-1715760374522-a609a0c2f65e?w=1400&h=1600&q=80&auto=format&fit=crop" width="1400" height="1600" alt="Wood-framed hallway of a home addition under construction, with new studs, headers and a window at the end" fetchpriority="high">
+      <div class="anno" aria-hidden="true">
+        <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
+        <span class="vdim"><span>8′-1 1/8″</span></span>
+        <span class="callout"><span class="lead"></span><span class="dot"></span><span class="lbl"><span data-en>2×4 studs · 16″ o.c.</span><span data-es>Montantes 2×4 · cada 16″</span></span></span>
+      </div>
+      <figcaption><span>Fig. 1</span><b><span data-en>Framing an addition · Plainville, CT</span><span data-es>Estructura de una ampliación · Plainville, CT</span></b></figcaption>
+    </figure>
+  </div>
+
+  <!-- slot: trust_badges (only verifiable facts) -->
+  <div class="titleblock" aria-label="Why homeowners call us">
+    <div class="wrap">
+      <ul>
+        <li><span class="mono"><span data-en>License</span><span data-es>Licencia</span></span><b><span data-en>CT registered</span><span data-es>Registro en CT</span></b><span class="v"><span data-en>Home Improvement Contractor</span><span data-es>Contratista de remodelación (HIC)</span></span></li>
+        <li><span class="mono"><span data-en>Insurance</span><span data-es>Seguro</span></span><b><span data-en>Fully insured</span><span data-es>Asegurados</span></b><span class="v"><span data-en>Liability &amp; workers' comp</span><span data-es>Responsabilidad civil y compensación laboral</span></span></li>
+        <li><span class="mono"><span data-en>Estimate</span><span data-es>Presupuesto</span></span><b><span data-en>Fixed price</span><span data-es>Precio cerrado</span></b><span class="v"><span data-en>Free and in writing</span><span data-es>Gratis y por escrito</span></span></li>
+        <li><span class="mono"><span data-en>Permits</span><span data-es>Permisos</span></span><b><span data-en>Pulled by us</span><span data-es>Los sacamos nosotros</span></b><span class="v"><span data-en>We meet every inspector</span><span data-es>Recibimos cada inspección</span></span></li>
+        <li><span class="mono"><span data-en>Language</span><span data-es>Idioma</span></span><b>Hablamos español</b><span class="v"><span data-en>English &amp; Spanish, same crew</span><span data-es>Inglés y español, el mismo equipo</span></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- slot: services -->
+<section class="section services" id="services" aria-labelledby="services-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker rv"><span class="dm" aria-hidden="true"><b>02</b><i>A2</i></span><span data-en>Services</span><span data-es>Servicios</span></p>
+        <h2 class="h2 rv d1" id="services-title"><span data-en>What we build</span><span data-es>Lo que construimos</span></h2>
+      </div>
+      <p class="lede rv d2" data-en>Interior remodels, exterior work and additions for houses in Central Connecticut. Electrical and plumbing go to licensed trades we work with every week, and everything is inspected.</p>
+      <p class="lede rv d2" data-es>Remodelaciones interiores, trabajos exteriores y ampliaciones para casas del centro de Connecticut. La electricidad y la plomería las hacen técnicos con licencia con los que trabajamos cada semana, y todo pasa inspección.</p>
+    </div>
+
+    <div class="svc-wrap">
+      <figure class="svc-preview" aria-hidden="true">
+        <div class="svc-frame"><span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span></div>
+        <figcaption><span class="svc-cap"></span><span class="mono tnum"><span class="svc-i">01</span> / 07</span></figcaption>
+      </figure>
+
+      <p class="svc-hint" aria-hidden="true"><i data-lucide="move-horizontal"></i><span data-en>Swipe · 7 services</span><span data-es>Deslice · 7 servicios</span></p>
+      <div class="svc-list">
+        <!-- slot: service_1 -->
+        <article class="svc">
+          <span class="svc-num">01</span>
+          <div class="svc-main">
+            <h3><span data-en>Kitchens</span><span data-es>Cocinas</span></h3>
+            <p data-en>New layouts or a full refresh: cabinets, countertops, tile backsplash, flooring, lighting and appliance hookups. We protect the rest of the house and keep a working sink as long as we can.</p>
+            <p data-es>Distribución nueva o renovación completa: gabinetes, encimeras, backsplash de azulejo, pisos, iluminación e instalación de electrodomésticos. Protegemos el resto de la casa y dejamos un fregadero funcionando el mayor tiempo posible.</p>
+            <p class="svc-meta"><span><i data-lucide="calendar-days"></i><span data-en>Usually 4–8 weeks</span><span data-es>Normalmente 4–8 semanas</span></span><span><i data-lucide="stamp"></i><span data-en>Permit included</span><span data-es>Permiso incluido</span></span></p>
+          </div>
+          <img class="ph" src="https://images.unsplash.com/photo-1682888818602-b4492fadf2f8?w=1000&h=1250&q=80&auto=format&fit=crop" width="1000" height="1250" loading="lazy" alt="Remodeled white kitchen with farmhouse sink, subway tile and stainless range">
+        </article>
+        <!-- slot: service_2 -->
+        <article class="svc">
+          <span class="svc-num">02</span>
+          <div class="svc-main">
+            <h3><span data-en>Bathrooms</span><span data-es>Baños</span></h3>
+            <p data-en>Full gut or update: tub-to-shower conversions, tile showers built on a real waterproofing membrane, vanities, exhaust fans vented outside, grab bars and curbless entries.</p>
+            <p data-es>Desde cero o actualización: cambiar bañera por ducha, duchas de azulejo sobre membrana impermeable de verdad, vanities, extractores con salida al exterior, barras de apoyo y duchas sin escalón.</p>
+            <p class="svc-meta"><span><i data-lucide="calendar-days"></i><span data-en>Usually 2–4 weeks</span><span data-es>Normalmente 2–4 semanas</span></span></p>
+          </div>
+          <img class="ph" src="https://images.unsplash.com/photo-1696987007764-7f8b85dd3033?w=1000&h=1250&q=80&auto=format&fit=crop" width="1000" height="1250" loading="lazy" alt="Bathroom with walk-in tiled shower, glass door and double vanity">
+        </article>
+        <!-- slot: service_3 -->
+        <article class="svc">
+          <span class="svc-num">03</span>
+          <div class="svc-main">
+            <h3><span data-en>Basements</span><span data-es>Sótanos</span></h3>
+            <p data-en>Finished basements that stay dry: moisture check first, then framing, insulation, egress windows where required, drywall, lighting and flooring rated for below grade.</p>
+            <p data-es>Sótanos terminados que se mantienen secos: primero revisamos la humedad; luego estructura, aislamiento, ventanas de escape donde se exigen, drywall, iluminación y pisos aptos para sótano.</p>
+            <p class="svc-meta"><span><i data-lucide="calendar-days"></i><span data-en>Usually 4–8 weeks</span><span data-es>Normalmente 4–8 semanas</span></span></p>
+          </div>
+          <img class="ph" src="https://images.unsplash.com/photo-1646592491963-07ff7e7c31f7?w=1000&h=1250&q=80&auto=format&fit=crop" width="1000" height="1250" loading="lazy" alt="Finished basement with vinyl plank floor, recessed lights and a staircase">
+        </article>
+        <!-- slot: service_4 -->
+        <article class="svc">
+          <span class="svc-num">04</span>
+          <div class="svc-main">
+            <h3><span data-en>Additions</span><span data-es>Ampliaciones</span></h3>
+            <p data-en>Bedrooms, bump-outs, second stories and in-law suites. We coordinate the plans, the engineer and the zoning and building permits with your town.</p>
+            <p data-es>Habitaciones, extensiones, segundos pisos y apartamentos para familiares. Coordinamos los planos, el ingeniero y los permisos de zonificación y construcción con su municipio.</p>
+            <p class="svc-meta"><span><i data-lucide="calendar-days"></i><span data-en>Written schedule for every job</span><span data-es>Calendario por escrito en cada obra</span></span></p>
+          </div>
+          <img class="ph" src="https://images.unsplash.com/photo-1676802037786-3697d60497ae?w=1000&h=1250&q=80&auto=format&fit=crop" width="1000" height="1250" loading="lazy" alt="Roof trusses and wall framing of a home addition under construction">
+        </article>
+        <!-- slot: service_5 -->
+        <article class="svc">
+          <span class="svc-num">05</span>
+          <div class="svc-main">
+            <h3><span data-en>Decks &amp; porches</span><span data-es>Decks y porches</span></h3>
+            <p data-en>Pressure-treated or composite decks, covered porches, railings and stairs built to code, on footings the town inspects before we frame.</p>
+            <p data-es>Decks de madera tratada o compuesta, porches techados, barandas y escaleras según el código, sobre zapatas que el inspector del pueblo revisa antes de armar.</p>
+            <p class="svc-meta"><span><i data-lucide="calendar-days"></i><span data-en>Usually 1–3 weeks</span><span data-es>Normalmente 1–3 semanas</span></span></p>
+          </div>
+          <img class="ph" src="https://images.unsplash.com/photo-1773430272140-e8c995979750?w=1000&h=1250&q=80&auto=format&fit=crop" width="1000" height="1250" loading="lazy" alt="Crew setting posts and joists for a new backyard deck">
+        </article>
+        <!-- slot: service_6 -->
+        <article class="svc">
+          <span class="svc-num">06</span>
+          <div class="svc-main">
+            <h3><span data-en>Siding &amp; roofing</span><span data-es>Siding y techos</span></h3>
+            <p data-en>Vinyl and fiber-cement siding, architectural shingle roofs, trim, gutters and storm damage repairs. We document the damage for your insurance claim.</p>
+            <p data-es>Siding de vinilo y fibrocemento, techos de tejas arquitectónicas, molduras, canaletas y reparaciones por tormenta. Documentamos los daños para su reclamo al seguro.</p>
+            <p class="svc-meta"><span><i data-lucide="calendar-days"></i><span data-en>Most homes 1–2 weeks</span><span data-es>La mayoría de casas: 1–2 semanas</span></span></p>
+          </div>
+          <img class="ph" src="https://images.unsplash.com/photo-1633759593085-1eaeb724fc88?w=1000&h=1250&q=80&auto=format&fit=crop" width="1000" height="1250" loading="lazy" alt="Roofer removing old asphalt shingles from a house roof">
+        </article>
+        <!-- slot: service_7 -->
+        <article class="svc">
+          <span class="svc-num">07</span>
+          <div class="svc-main">
+            <h3><span data-en>Concrete &amp; masonry</span><span data-es>Concreto y mampostería</span></h3>
+            <p data-en>Walkways, patios, front steps, retaining walls, block foundations and chimney repointing. Frost-depth footings, the way Connecticut winters require.</p>
+            <p data-es>Caminos, patios, escalones de entrada, muros de contención, cimientos de bloque y reparación de chimeneas. Zapatas a la profundidad de congelación que piden los inviernos de Connecticut.</p>
+            <p class="svc-meta"><span><i data-lucide="calendar-days"></i><span data-en>A few days to 2 weeks</span><span data-es>De unos días a 2 semanas</span></span></p>
+          </div>
+          <img class="ph" src="https://images.unsplash.com/photo-1701850009190-2859ba2aeea6?w=1000&h=1250&q=80&auto=format&fit=crop" width="1000" height="1250" loading="lazy" alt="Mason laying concrete blocks with a trowel and mortar">
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: projects (example data) -->
+<section class="section projects" id="projects" aria-labelledby="projects-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker rv"><span class="dm" aria-hidden="true"><b>03</b><i>A3</i></span><span data-en>Recent projects</span><span data-es>Proyectos recientes</span></p>
+        <h2 class="h2 rv d1" id="projects-title"><span data-en>Work around Central CT</span><span data-es>Obras en el centro de CT</span></h2>
+      </div>
+      <p class="lede rv d2" data-en>Each job with the town, what we did and how long it took on site. Ask us for addresses near you that you can drive past.</p>
+      <p class="lede rv d2" data-es>Cada obra con el pueblo, lo que hicimos y cuánto duró en sitio. Pídanos direcciones cerca de usted para pasar a verlas.</p>
+    </div>
+
+    <!-- slot: project_featured (before / after) -->
+    <div class="feature rv">
+      <div class="ba" id="ba">
+        <img class="ph" src="https://images.unsplash.com/photo-1649083048269-8bfb755e7b87?w=1800&h=1200&q=80&auto=format&fit=crop" width="1800" height="1200" loading="lazy" alt="The finished family room: white board-and-batten fireplace wall, vaulted ceiling with a wood beam and light oak floor">
+        <div class="ba-before"><img class="ph" src="https://images.unsplash.com/photo-1656733911001-16912b79d2bf?w=1800&h=1200&q=80&auto=format&fit=crop" width="1800" height="1200" loading="lazy" alt="The same kind of room at framing stage: open wall studs, ceiling joists, subfloor with layout marks"></div>
+        <span class="ba-tag t-before"><span data-en>Framing</span><span data-es>Estructura</span></span>
+        <span class="ba-tag t-after"><span data-en>Finished</span><span data-es>Terminado</span></span>
+        <span class="ba-ticks" aria-hidden="true"></span>
+        <label class="sr-only" for="ba-range"><span data-en>Compare framing and finished photos</span><span data-es>Comparar las fotos de estructura y terminado</span></label>
+        <input class="ba-range" id="ba-range" type="range" min="0" max="100" step="1" value="50">
+        <div class="ba-handle" aria-hidden="true"><span class="ba-knob"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10 6 16l6 6M20 10l6 6-6 6"/><path d="M16 7v18" stroke-width="1"/></svg></span></div>
+      </div>
+      <div class="feature-info">
+        <div>
+          <span class="where-lbl"><i data-lucide="map-pin"></i>Plainville, CT</span>
+          <h3><span data-en>Family-room addition</span><span data-es>Ampliación: sala familiar</span></h3>
+          <p class="drag-hint"><i data-lucide="move-horizontal"></i><span data-en>Drag the line, or use the arrow keys</span><span data-es>Arrastre la línea o use las flechas</span></p>
+        </div>
+        <div class="txt">
+          <p data-en>Framing inspection first, then insulation, drywall, a board-and-batten wall around the fireplace, a cedar beam on the vaulted ceiling and a new oak floor.</p>
+          <p data-es>Primero la inspección de estructura; después aislamiento, drywall, una pared de listones alrededor de la chimenea, una viga de cedro en el techo abovedado y piso nuevo de roble.</p>
+          <dl class="spec">
+            <div><dt><span data-en>On site</span><span data-es>En obra</span></dt><dd class="big tnum">12 <span data-en>wk</span><span data-es>sem</span></dd></div>
+            <div><dt><span data-en>Permits</span><span data-es>Permisos</span></dt><dd><span data-en>Zoning, building, electrical</span><span data-es>Zonificación, obra y electricidad</span></dd></div>
+            <div><dt><span data-en>Materials</span><span data-es>Materiales</span></dt><dd><span data-en>2×6 walls, cedar beam, engineered oak</span><span data-es>Muros 2×6, viga de cedro, roble de ingeniería</span></dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="cases-head">
+      <h3 class="rv"><span data-en>More jobs</span><span data-es>Más obras</span></h3>
+      <div class="car-ctrl">
+        <button class="car-btn" type="button" data-dir="-1"><i data-lucide="arrow-left"></i><span class="sr-only">Previous project</span></button>
+        <span class="car-count tnum" aria-live="polite"><span class="car-i">01</span> / 04</span>
+        <button class="car-btn" type="button" data-dir="1"><i data-lucide="arrow-right"></i><span class="sr-only">Next project</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="cases" id="cases" tabindex="0" aria-label="Project case studies">
+    <!-- slot: project_1 -->
+    <figure class="case">
+      <div class="zoom"><img class="ph" src="https://images.unsplash.com/photo-1601760561441-16420502c7e0?w=1400&h=1000&q=80&auto=format&fit=crop" width="1400" height="1000" loading="lazy" alt="Remodeled kitchen with white shaker cabinets, under-cabinet lighting and a window over the sink"><span class="case-idx">03.1</span></div>
+      <figcaption>
+        <span class="where-lbl"><i data-lucide="map-pin"></i>Newington, CT</span>
+        <h4><span data-en>Kitchen remodel</span><span data-es>Remodelación de cocina</span></h4>
+        <p class="scope" data-en>Wall moved for a U-shape, shaker cabinets to the ceiling, quartz counters, tile backsplash, under-cabinet lights and new circuits.</p>
+        <p class="scope" data-es>Movimos una pared para hacerla en U, gabinetes shaker hasta el techo, encimeras de cuarzo, backsplash de azulejo, luces bajo gabinete y circuitos nuevos.</p>
+        <dl>
+          <dt><span data-en>On site</span><span data-es>En obra</span></dt><dd class="wk tnum">6 <span data-en>weeks</span><span data-es>semanas</span></dd>
+          <dt><span data-en>Materials</span><span data-es>Materiales</span></dt><dd><span data-en>Maple shaker, quartz, ceramic subway tile</span><span data-es>Shaker de arce, cuarzo, azulejo subway</span></dd>
+        </dl>
+      </figcaption>
+    </figure>
+    <!-- slot: project_2 -->
+    <figure class="case">
+      <div class="zoom"><img class="ph" src="https://images.unsplash.com/photo-1638799869566-b17fa794c4de?w=1400&h=1000&q=80&auto=format&fit=crop" width="1400" height="1000" loading="lazy" alt="Primary bathroom with freestanding tub, glass shower and walnut double vanity"><span class="case-idx">03.2</span></div>
+      <figcaption>
+        <span class="where-lbl"><i data-lucide="map-pin"></i>West Hartford, CT</span>
+        <h4><span data-en>Primary bathroom</span><span data-es>Baño principal</span></h4>
+        <p class="scope" data-en>Gutted to the studs. Walk-in shower with glass, freestanding tub, double vanity and a heated floor.</p>
+        <p class="scope" data-es>Demolido hasta la estructura. Ducha con vidrio, bañera independiente, doble vanity y piso radiante.</p>
+        <dl>
+          <dt><span data-en>On site</span><span data-es>En obra</span></dt><dd class="wk tnum">4 <span data-en>weeks</span><span data-es>semanas</span></dd>
+          <dt><span data-en>Materials</span><span data-es>Materiales</span></dt><dd><span data-en>Porcelain on membrane, walnut vanity</span><span data-es>Porcelanato sobre membrana, vanity de nogal</span></dd>
+        </dl>
+      </figcaption>
+    </figure>
+    <!-- slot: project_3 -->
+    <figure class="case">
+      <div class="zoom"><img class="ph" src="https://images.unsplash.com/photo-1781087837466-95ee7fa5e0c8?w=1400&h=1000&q=80&auto=format&fit=crop" width="1400" height="1000" loading="lazy" alt="Back of a blue two-story house with a new covered porch, pergola and deck"><span class="case-idx">03.3</span></div>
+      <figcaption>
+        <span class="where-lbl"><i data-lucide="map-pin"></i>Berlin, CT</span>
+        <h4><span data-en>Porch &amp; deck</span><span data-es>Porche y deck</span></h4>
+        <p class="scope" data-en>Covered porch with pergola, a new deck on inspected footings and a gate to the yard.</p>
+        <p class="scope" data-es>Porche techado con pérgola, deck nuevo sobre zapatas inspeccionadas y portón al patio.</p>
+        <dl>
+          <dt><span data-en>On site</span><span data-es>En obra</span></dt><dd class="wk tnum">3 <span data-en>weeks</span><span data-es>semanas</span></dd>
+          <dt><span data-en>Materials</span><span data-es>Materiales</span></dt><dd><span data-en>Pressure-treated frame, composite deck</span><span data-es>Estructura tratada, deck compuesto</span></dd>
+        </dl>
+      </figcaption>
+    </figure>
+    <!-- slot: project_4 -->
+    <figure class="case">
+      <div class="zoom"><img class="ph" src="https://images.unsplash.com/photo-1765959617888-30837a158667?w=1400&h=1000&q=80&auto=format&fit=crop" width="1400" height="1000" loading="lazy" alt="Finished basement family room with built-in bookshelves, fireplace and recessed lighting"><span class="case-idx">03.4</span></div>
+      <figcaption>
+        <span class="where-lbl"><i data-lucide="map-pin"></i>Southington, CT</span>
+        <h4><span data-en>Finished basement</span><span data-es>Sótano terminado</span></h4>
+        <p class="scope" data-en>Family room with built-in shelves, electric fireplace, egress window, recessed lighting and waterproof vinyl plank.</p>
+        <p class="scope" data-es>Sala familiar con libreros empotrados, chimenea eléctrica, ventana de escape, luces empotradas y piso de vinilo impermeable.</p>
+        <dl>
+          <dt><span data-en>On site</span><span data-es>En obra</span></dt><dd class="wk tnum">7 <span data-en>weeks</span><span data-es>semanas</span></dd>
+          <dt><span data-en>Materials</span><span data-es>Materiales</span></dt><dd><span data-en>Rigid foam, LVP floor, built-ins</span><span data-es>Espuma rígida, piso LVP, muebles a medida</span></dd>
+        </dl>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- slot: process -->
+<section class="section process" id="process" aria-labelledby="process-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker rv"><span class="dm" aria-hidden="true"><b>04</b><i>A4</i></span><span data-en>How we work</span><span data-es>Cómo trabajamos</span></p>
+        <h2 class="h2 rv d1" id="process-title"><span data-en>Four steps, all in writing</span><span data-es>Cuatro pasos, todo por escrito</span></h2>
+      </div>
+      <p class="lede rv d2" data-en>No surprises halfway through. Before we start, you know the price, the dates and who will be in your house.</p>
+      <p class="lede rv d2" data-es>Sin sorpresas a mitad de obra. Antes de empezar usted sabe el precio, las fechas y quién va a entrar a su casa.</p>
+    </div>
+    <ol class="tl">
+      <li class="tl-step">
+        <span class="tl-n" aria-hidden="true">01</span>
+        <div class="tl-body rv">
+          <span class="tl-when mono"><span data-en>Within 2–3 days of your call</span><span data-es>2–3 días después de su llamada</span></span>
+          <h3><span data-en>Visit &amp; measure</span><span data-es>Visita y medidas</span></h3>
+          <p data-en>Luis comes to your house, listens to what you want, measures and checks what is behind the walls where he can.</p>
+          <p data-es>Luis va a su casa, escucha lo que quiere, toma medidas y revisa lo que hay detrás de las paredes donde se puede.</p>
+        </div>
+        <p class="tl-check rv d1"><i data-lucide="check"></i><span data-en>Free, no obligation</span><span data-es>Gratis y sin compromiso</span></p>
+      </li>
+      <li class="tl-step">
+        <span class="tl-n" aria-hidden="true">02</span>
+        <div class="tl-body rv">
+          <span class="tl-when mono"><span data-en>In writing, line by line</span><span data-es>Por escrito, partida por partida</span></span>
+          <h3><span data-en>Fixed-price estimate</span><span data-es>Presupuesto cerrado</span></h3>
+          <p data-en>Materials, labor, permits and cleanup, each on its own line. The price we sign is the price you pay.</p>
+          <p data-es>Materiales, mano de obra, permisos y limpieza, cada uno en su línea. El precio que firmamos es el que usted paga.</p>
+        </div>
+        <p class="tl-check rv d1"><i data-lucide="check"></i><span data-en>Changes only with a signed change order</span><span data-es>Cambios solo con una orden firmada</span></p>
+      </li>
+      <li class="tl-step">
+        <span class="tl-n" aria-hidden="true">03</span>
+        <div class="tl-body rv">
+          <span class="tl-when mono"><span data-en>Start date in your contract</span><span data-es>Fecha de inicio en su contrato</span></span>
+          <h3><span data-en>Build on schedule</span><span data-es>Obra con fechas</span></h3>
+          <p data-en>A week-by-week plan. Same crew every day, the site swept at the end of each day, updates by text in your language.</p>
+          <p data-es>Un plan semana a semana. El mismo equipo cada día, la obra barrida al terminar la jornada y avisos por mensaje en su idioma.</p>
+        </div>
+        <p class="tl-check rv d1"><i data-lucide="check"></i><span data-en>Payments tied to finished milestones</span><span data-es>Pagos atados a etapas terminadas</span></p>
+      </li>
+      <li class="tl-step">
+        <span class="tl-n" aria-hidden="true">04</span>
+        <div class="tl-body rv">
+          <span class="tl-when mono"><span data-en>Before the last payment</span><span data-es>Antes del último pago</span></span>
+          <h3><span data-en>Final walkthrough</span><span data-es>Repaso final</span></h3>
+          <p data-en>We walk the job with you, write down every detail left and fix it. Final payment only when you sign off.</p>
+          <p data-es>Recorremos la obra con usted, anotamos cada detalle pendiente y lo arreglamos. El último pago, solo cuando usted da el visto bueno.</p>
+        </div>
+        <p class="tl-check rv d1"><i data-lucide="check"></i><span data-en>Written workmanship warranty</span><span data-es>Garantía de mano de obra por escrito</span></p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- slot: craft (materials) -->
+<section class="section craft" aria-labelledby="craft-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker rv"><span class="dm" aria-hidden="true"><b>05</b><i>D1</i></span><span data-en>The trade</span><span data-es>El oficio</span></p>
+        <h2 class="h2 rv d1" id="craft-title"><span data-en>What's behind the wall matters most</span><span data-es>Lo que va detrás de la pared es lo que más importa</span></h2>
+      </div>
+      <p class="lede rv d2" data-en>Any room looks good on the day it's finished. We build it so it's still square, dry and quiet after many Connecticut winters.</p>
+      <p class="lede rv d2" data-es>Cualquier cuarto se ve bien el día que se termina. Nosotros lo construimos para que siga a escuadra, seco y firme después de muchos inviernos de Connecticut.</p>
+    </div>
+    <div class="mosaic">
+      <figure class="mat mat-1 rv">
+        <div class="zoom"><img class="ph" src="https://images.unsplash.com/photo-1659930087003-2d64e33181f7?w=1500&q=80&auto=format&fit=crop" width="1500" height="1000" loading="lazy" alt="Carpenter's hands marking a cut line on a pine board with a pencil, wood shavings on the bench"><span class="tag">D1.1</span></div>
+        <figcaption>
+          <span class="mono"><span data-en>Wood · framing &amp; trim</span><span data-es>Madera · estructura y molduras</span></span>
+          <b><span data-en>Measured twice, marked by hand</span><span data-es>Se mide dos veces, se marca a mano</span></b>
+          <p data-en>Studs at 16 inches on center, joists set crown-up, and inside trim corners coped so they stay tight when the house moves with the seasons.</p>
+          <p data-es>Montantes cada 16 pulgadas, vigas con la curva hacia arriba y esquinas de moldura acopladas a mano para que no se abran cuando la casa se mueve con las estaciones.</p>
+        </figcaption>
+      </figure>
+      <figure class="mat mat-2 rv d1">
+        <div class="zoom"><img class="ph" src="https://images.unsplash.com/photo-1523413363574-c30aa1c2a516?w=1000&q=80&auto=format&fit=crop" width="1000" height="1500" loading="lazy" alt="Installer pressing a white wall tile into place with spacers"><span class="tag">D1.2</span></div>
+        <figcaption>
+          <span class="mono"><span data-en>Tile · showers</span><span data-es>Azulejo · duchas</span></span>
+          <b><span data-en>Water-tested first</span><span data-es>Probada con agua antes</span></b>
+          <p data-en>Every shower is built on a waterproofing membrane and flood-tested for 24 hours before the first tile goes on.</p>
+          <p data-es>Cada ducha va sobre membrana impermeable y la llenamos de agua 24 horas antes de poner el primer azulejo.</p>
+        </figcaption>
+      </figure>
+      <figure class="mat mat-3 rv d2">
+        <div class="zoom"><img class="ph" src="https://images.unsplash.com/photo-1697497710118-0d5cb5a7094a?w=900&h=1200&q=80&auto=format&fit=crop" width="900" height="1200" loading="lazy" alt="Close-up of a cut limestone wall with mortar joints"><span class="tag">D1.3</span></div>
+        <figcaption>
+          <span class="mono"><span data-en>Stone · masonry</span><span data-es>Piedra · mampostería</span></span>
+          <b><span data-en>Below the frost line</span><span data-es>Bajo la línea de helada</span></b>
+          <p data-en>Footings for steps, walls and decks go 42 inches down, below Connecticut's frost line, so they don't heave.</p>
+          <p data-es>Las zapatas de escalones, muros y decks van a 42 pulgadas, por debajo de la línea de helada de Connecticut, para que no se levanten.</p>
+        </figcaption>
+      </figure>
+    </div>
+
+    <!-- slot: license_insurance_permits -->
+    <div class="license" id="license">
+      <div class="intro rv">
+        <h3><span data-en>Licensed, insured, permitted</span><span data-es>Licencia, seguro y permisos</span></h3>
+        <p data-en>Before you hire any contractor in Connecticut, look up the registration on <a class="ulink" href="https://www.elicense.ct.gov" rel="noopener">elicense.ct.gov</a>. Ours is right here.</p>
+        <p data-es>Antes de contratar a cualquier contratista en Connecticut, verifique su registro en <a class="ulink" href="https://www.elicense.ct.gov" rel="noopener">elicense.ct.gov</a>. El nuestro está aquí.</p>
+      </div>
+      <div class="lic rv d1">
+        <i data-lucide="badge-check"></i>
+        <h4><span data-en>CT HIC registration</span><span data-es>Registro HIC de CT</span></h4>
+        <!-- slot: license_number -->
+        <code>HIC.0000000</code>
+        <p data-en>Registered with the CT Department of Consumer Protection. Written contract with your 3-day right to cancel.</p>
+        <p data-es>Registrado ante el Departamento de Protección al Consumidor de CT. Contrato por escrito con su derecho a cancelar en 3 días.</p>
+      </div>
+      <div class="lic rv d2">
+        <i data-lucide="shield-check"></i>
+        <h4><span data-en>Insured</span><span data-es>Asegurados</span></h4>
+        <p data-en>General liability and workers' compensation. You get the certificate of insurance before our first day on site.</p>
+        <p data-es>Responsabilidad civil general y compensación laboral. Le enviamos el certificado de seguro antes del primer día de obra.</p>
+      </div>
+      <div class="lic rv d3">
+        <i data-lucide="stamp"></i>
+        <h4><span data-en>Permits handled</span><span data-es>Permisos por nuestra cuenta</span></h4>
+        <p data-en>We pull the building permit, book the inspections and meet the inspector. The permit card stays in your window.</p>
+        <p data-es>Sacamos el permiso de construcción, pedimos las inspecciones y recibimos al inspector. La tarjeta del permiso queda en su ventana.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: about_owner -->
+<section class="section about" id="about" aria-labelledby="about-title">
+  <div class="wrap about-grid">
+    <figure class="about-photo rv">
+      <!-- slot: about_photo -->
+      <div class="zoom"><img class="ph" src="https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=1100&h=1375&q=80&auto=format&fit=crop" width="1100" height="1375" loading="lazy" alt="Carpenters cutting trim with a miter saw inside a house being remodeled"></div>
+      <figcaption><span data-en>Cutting trim on a kitchen job</span><span data-es>Cortando molduras en una cocina</span></figcaption>
+    </figure>
+    <div class="about-copy">
+      <p class="kicker rv"><span class="dm" aria-hidden="true"><b>06</b><i>A5</i></span><span data-en>About us</span><span data-es>Quiénes somos</span></p>
+      <h2 class="h2 rv d1" id="about-title"><span data-en>A family company from New Britain</span><span data-es>Una empresa familiar de New Britain</span></h2>
+      <!-- slot: owner_story -->
+      <p class="pull rv d2" data-en>“I do every estimate myself, and I'm on site every week of your job.”</p>
+      <p class="pull rv d2" data-es>“Hago yo mismo cada presupuesto y estoy en su obra todas las semanas.”</p>
+      <p class="rv" data-en>I'm Luis Ramírez. I learned the trade framing houses and hanging drywall across Hartford County, and later ran finish crews on kitchens and baths for other contractors.</p>
+      <p class="rv" data-es>Soy Luis Ramírez. Aprendí el oficio armando estructuras y colgando drywall por todo el condado de Hartford, y después dirigí equipos de acabados en cocinas y baños para otros contratistas.</p>
+      <p class="rv" data-en>In 2025 my wife Ana and I opened our own company. Ana handles scheduling, permits and paperwork, and answers the phone in English or Spanish.</p>
+      <p class="rv" data-es>En 2025 mi esposa Ana y yo abrimos nuestra propia empresa. Ana lleva la agenda, los permisos y el papeleo, y contesta el teléfono en inglés o en español.</p>
+      <dl class="facts rv">
+        <div><dt><span data-en>Founded</span><span data-es>Fundada</span></dt><dd>2025 · New Britain</dd></div>
+        <div><dt><span data-en>Estimates</span><span data-es>Presupuestos</span></dt><dd><span data-en>By the owner, in person</span><span data-es>Por el dueño, en persona</span></dd></div>
+        <div><dt><span data-en>Languages</span><span data-es>Idiomas</span></dt><dd><span data-en>English &amp; Spanish</span><span data-es>Inglés y español</span></dd></div>
+      </dl>
+      <div class="sign rv">
+        <span class="sign-mono" aria-hidden="true">L&amp;A</span>
+        <span><b>Luis &amp; Ana Ramírez</b><span data-en>Owners</span><span data-es>Dueños</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: service_area -->
+<section class="section area" id="area" aria-labelledby="area-title">
+  <!-- slot: towns (marquee repeats the list below) -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <ul><li class="base">New Britain</li><li>Berlin</li><li>Newington</li><li>Plainville</li><li>Southington</li><li>Bristol</li><li>Farmington</li><li>West Hartford</li><li>Hartford</li><li>Wethersfield</li></ul>
+      <ul aria-hidden="true"><li class="base">New Britain</li><li>Berlin</li><li>Newington</li><li>Plainville</li><li>Southington</li><li>Bristol</li><li>Farmington</li><li>West Hartford</li><li>Hartford</li><li>Wethersfield</li></ul>
+    </div>
+  </div>
+  <div class="wrap area-grid">
+    <div class="area-copy">
+      <p class="kicker rv"><span class="dm" aria-hidden="true"><b>07</b><i>A6</i></span><span data-en>Service area</span><span data-es>Zona de servicio</span></p>
+      <h2 class="h2 rv d1" id="area-title"><span data-en>Central Connecticut</span><span data-es>Centro de Connecticut</span></h2>
+      <p class="lede rv d2" data-en>We work within about 25 minutes of our shop in New Britain, so we can be on your job every day.</p>
+      <p class="lede rv d2" data-es>Trabajamos a unos 25 minutos de nuestro taller en New Britain, para poder estar en su obra todos los días.</p>
+      <!-- slot: towns -->
+      <ul class="towns rv">
+        <li class="home-base"><span class="mono">01</span>New Britain <small data-en>(base)</small><small data-es>(base)</small></li>
+        <li><span class="mono">02</span>Berlin</li>
+        <li><span class="mono">03</span>Newington</li>
+        <li><span class="mono">04</span>Plainville</li>
+        <li><span class="mono">05</span>Southington</li>
+        <li><span class="mono">06</span>Bristol</li>
+        <li><span class="mono">07</span>Farmington</li>
+        <li><span class="mono">08</span>West Hartford</li>
+        <li><span class="mono">09</span>Hartford</li>
+        <li><span class="mono">10</span>Wethersfield</li>
+      </ul>
+      <p class="area-note" data-en>Not on the list? Call anyway. For larger projects we travel a bit farther.</p>
+      <p class="area-note" data-es>¿Su pueblo no aparece? Llame igual. Para proyectos grandes vamos un poco más lejos.</p>
+    </div>
+    <figure class="map rv d1">
+      <div class="map-frame">
+        <!-- slot: map_query -->
+        <iframe src="https://maps.google.com/maps?q=New+Britain,+CT&z=11&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Map of New Britain, Connecticut and nearby towns"></iframe>
+      </div>
+      <figcaption><span><span data-en>Shop · 214 Arch St, New Britain</span><span data-es>Taller · 214 Arch St, New Britain</span></span><span class="scale"><i></i>N ↑</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- OPTIONAL: solo si hay reseñas reales de Google; si no, se elimina -->
+<!-- slot: reviews -->
+<section class="section reviews" id="reviews" aria-labelledby="reviews-title">
+  <div class="wrap">
+    <div class="rev-head">
+      <div>
+        <p class="kicker rv"><span class="dm" aria-hidden="true"><b>08</b><i>A7</i></span><span data-en>Reviews</span><span data-es>Reseñas</span></p>
+        <h2 class="h2 rv d1" id="reviews-title"><span data-en>From our Google profile</span><span data-es>De nuestro perfil de Google</span></h2>
+      </div>
+      <!-- slot: google_rating / review_count -->
+      <div class="rating rv d2">
+        <b class="tnum">4.9</b>
+        <span><span class="stars" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span><br>
+        <span data-en>23 reviews on Google</span><span data-es>23 reseñas en Google</span></span>
+      </div>
+    </div>
+    <div class="rev-grid">
+      <article class="rev rv">
+        <span class="stars" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+        <blockquote>Luis redid our upstairs bathroom. The estimate was clear, they started the day they said and the price didn't change. The crew cleaned up every afternoon.</blockquote>
+        <footer><b>Karen D.</b><span class="g-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9c-.3 1.4-1 2.5-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.6H2.1v2.8C3.9 20.5 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.7 14.1c-.2-.7-.4-1.4-.4-2.1s.1-1.4.4-2.1V7.1H2.1C1.4 8.6 1 10.2 1 12s.4 3.4 1.1 4.9l3.6-2.8z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1C17.5 2.1 15 1 12 1 7.7 1 3.9 3.5 2.1 7.1l3.6 2.8C6.6 7.3 9.1 5.4 12 5.4z"/></svg>Google</span></footer>
+      </article>
+      <article class="rev rv d1">
+        <span class="stars" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+        <blockquote>Nos terminaron el sótano en Southington. Ana nos explicó todo en español, los permisos y los pagos por etapa. Quedó muy bien y sin humedad.</blockquote>
+        <footer><b>Marisol R.</b><span class="g-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9c-.3 1.4-1 2.5-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.6H2.1v2.8C3.9 20.5 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.7 14.1c-.2-.7-.4-1.4-.4-2.1s.1-1.4.4-2.1V7.1H2.1C1.4 8.6 1 10.2 1 12s.4 3.4 1.1 4.9l3.6-2.8z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1C17.5 2.1 15 1 12 1 7.7 1 3.9 3.5 2.1 7.1l3.6 2.8C6.6 7.3 9.1 5.4 12 5.4z"/></svg>Google</span></footer>
+      </article>
+      <article class="rev rv d2">
+        <span class="stars" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+        <blockquote>New deck and front steps. They handled the permit with Berlin and the inspector passed it first try. Fair price, good communication by text.</blockquote>
+        <footer><b>Tom W.</b><span class="g-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9c-.3 1.4-1 2.5-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.6H2.1v2.8C3.9 20.5 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.7 14.1c-.2-.7-.4-1.4-.4-2.1s.1-1.4.4-2.1V7.1H2.1C1.4 8.6 1 10.2 1 12s.4 3.4 1.1 4.9l3.6-2.8z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1C17.5 2.1 15 1 12 1 7.7 1 3.9 3.5 2.1 7.1l3.6 2.8C6.6 7.3 9.1 5.4 12 5.4z"/></svg>Google</span></footer>
+      </article>
+    </div>
+    <p class="rev-lang" data-en>Reviews are shown in the language they were written in.</p>
+    <p class="rev-lang" data-es>Las reseñas se muestran en el idioma en que se escribieron.</p>
+  </div>
+</section>
+<!-- /OPTIONAL reviews -->
+
+<!-- slot: faq -->
+<section class="section faq" id="faq" aria-labelledby="faq-title">
+  <div class="wrap faq-grid">
+    <div class="faq-aside">
+      <p class="kicker rv"><span class="dm" aria-hidden="true"><b>09</b><i>A8</i></span><span data-en>FAQ</span><span data-es>Preguntas frecuentes</span></p>
+      <h2 class="h2 rv d1" id="faq-title"><span data-en>Before you call</span><span data-es>Antes de llamar</span></h2>
+      <p class="lede rv d2" data-en>Straight answers to what homeowners ask us most. Anything else, ask Luis at the estimate.</p>
+      <p class="lede rv d2" data-es>Respuestas directas a lo que más nos preguntan. Cualquier otra cosa, pregúntele a Luis en la visita.</p>
+      <a class="btn btn-line rv d3" href="tel:+18605550142"><i data-lucide="phone"></i> (860) 555-0142</a>
+    </div>
+    <div class="faq-list rv">
+      <details>
+        <summary><span class="q">Q.01</span><span><span data-en>Do I need a permit, and who gets it?</span><span data-es>¿Necesito permiso? ¿Quién lo saca?</span></span><span class="plus" aria-hidden="true"></span></summary>
+        <div class="faq-a">
+          <p data-en>Most remodels in Connecticut need a building permit: anything structural, electrical or plumbing, decks, additions and roofs. We pull it under our registration, the cost is in the estimate, and we are there for every inspection.</p>
+          <p data-es>La mayoría de remodelaciones en Connecticut necesitan permiso de construcción: cualquier cambio estructural, eléctrico o de plomería, decks, ampliaciones y techos. Lo sacamos nosotros con nuestro registro, el costo va incluido en el presupuesto y estamos presentes en cada inspección.</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="q">Q.02</span><span><span data-en>How soon can you start, and how long will it take?</span><span data-es>¿Cuándo pueden empezar y cuánto se tarda?</span></span><span class="plus" aria-hidden="true"></span></summary>
+        <div class="faq-a">
+          <p data-en>We usually start 3–6 weeks after you sign, depending on permits and special-order items like cabinets or windows. Your estimate includes a start date and a written schedule. Typical times: bathroom 2–4 weeks, kitchen 4–8 weeks, basement 4–8 weeks.</p>
+          <p data-es>Normalmente empezamos 3–6 semanas después de firmar, según los permisos y los materiales por encargo como gabinetes o ventanas. El presupuesto trae fecha de inicio y calendario por escrito. Tiempos habituales: baño 2–4 semanas, cocina 4–8 semanas, sótano 4–8 semanas.</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="q">Q.03</span><span><span data-en>How do payments work?</span><span data-es>¿Cómo son los pagos?</span></span><span class="plus" aria-hidden="true"></span></summary>
+        <div class="faq-a">
+          <p data-en>A deposit when you sign, then payments tied to finished stages (for example: demo and rough-in passed, drywall done, cabinets installed). The last payment comes after the final walkthrough, when you are happy. We never ask for the full price upfront.</p>
+          <p data-es>Un depósito al firmar y luego pagos atados a etapas terminadas (por ejemplo: demolición e instalaciones aprobadas, drywall terminado, gabinetes instalados). El último pago va después del repaso final, cuando usted está conforme. Nunca pedimos el total por adelantado.</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="q">Q.04</span><span><span data-en>What warranty do I get?</span><span data-es>¿Qué garantía tienen?</span></span><span class="plus" aria-hidden="true"></span></summary>
+        <div class="faq-a">
+          <!-- slot: warranty_terms -->
+          <p data-en>A written 2-year warranty on our workmanship, plus the manufacturer warranties on materials (roof shingles, windows, fixtures). If something we built isn't right, call us and we come back to fix it.</p>
+          <p data-es>Garantía por escrito de 2 años en nuestra mano de obra, más las garantías del fabricante en los materiales (tejas, ventanas, grifería). Si algo que hicimos no está bien, nos llama y volvemos a arreglarlo.</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="q">Q.05</span><span><span data-en>Can we stay in the house during the work?</span><span data-es>¿Podemos seguir viviendo en la casa durante la obra?</span></span><span class="plus" aria-hidden="true"></span></summary>
+        <div class="faq-a">
+          <p data-en>Almost always. We seal off the work area with dust walls, cover floors, and plan the days without water or power ahead of time. For kitchens we can set up a temporary sink and counter.</p>
+          <p data-es>Casi siempre. Aislamos la zona de trabajo con paredes contra el polvo, cubrimos los pisos y avisamos con tiempo los días sin agua o luz. En cocinas podemos montar un fregadero y una mesa provisionales.</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="q">Q.06</span><span><span data-en>Do you take small jobs?</span><span data-es>¿Hacen trabajos pequeños?</span></span><span class="plus" aria-hidden="true"></span></summary>
+        <div class="faq-a">
+          <p data-en>Yes, if they're in our trade: a rotted deck stair, a leaking shower pan, front steps, a section of siding. Call and tell us what it is; if it isn't for us, we'll say so and point you to someone who does it.</p>
+          <p data-es>Sí, si son de nuestro oficio: un escalón de deck podrido, una ducha que gotea, los escalones de entrada, un tramo de siding. Llámenos y cuéntenos; si no es para nosotros, se lo decimos y le recomendamos a quien lo hace.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- slot: contact -->
+<section class="section contact" id="contact" aria-labelledby="contact-title">
+  <div class="wrap contact-grid">
+    <div>
+      <p class="kicker rv"><span class="dm" aria-hidden="true"><b>10</b><i>A9</i></span><span data-en>Contact</span><span data-es>Contacto</span></p>
+      <h2 class="h2 rv d1" id="contact-title"><span data-en>Get your free written estimate</span><span data-es>Pida su presupuesto gratis por escrito</span></h2>
+      <p class="lede rv d2" data-en>Call, text or send the form. Ana or Luis will answer, in English or Spanish, the same business day.</p>
+      <p class="lede rv d2" data-es>Llame, escriba o envíe el formulario. Le responde Ana o Luis, en español o en inglés, el mismo día hábil.</p>
+      <ul class="c-list rv">
+        <!-- slot: phone -->
+        <li><i data-lucide="phone"></i><span><small><span data-en>Call or text</span><span data-es>Llamadas y mensajes</span></small><a class="tnum" href="tel:+18605550142">(860) 555-0142</a></span></li>
+        <!-- slot: email -->
+        <li><i data-lucide="mail"></i><span><small>Email</small><a href="mailto:hola@ramirezremodeling.com">hola@ramirezremodeling.com</a></span></li>
+        <!-- slot: address -->
+        <li><i data-lucide="warehouse"></i><span><small><span data-en>Shop</span><span data-es>Taller</span></small><span class="v">214 Arch St, New Britain, CT 06051</span></span></li>
+        <!-- slot: hours -->
+        <li><i data-lucide="clock"></i><span><small><span data-en>Hours</span><span data-es>Horario</span></small><span class="v"><span data-en>Mon–Fri 7:00–5:30 · Sat 8:00–1:00</span><span data-es>Lun–vie 7:00–5:30 · sáb 8:00–1:00</span></span></span></li>
+      </ul>
+    </div>
+    <!-- slot: estimate_form (short) -->
+    <div class="sheet rv d1" id="estimate">
+      <div class="sheet-top">
+        <span><span data-en>Request</span><span data-es>Solicitud</span><b><span data-en>Free written estimate</span><span data-es>Presupuesto gratis por escrito</span></b></span>
+        <span><span data-en>Reply</span><span data-es>Respuesta</span><b><span data-en>Same business day</span><span data-es>Mismo día hábil</span></b></span>
+        <span><span data-en>Sheet</span><span data-es>Hoja</span><b>E-1</b></span>
+      </div>
+      <div class="sheet-body">
+        <h3><span data-en>Tell us about your project</span><span data-es>Cuéntenos de su proyecto</span></h3>
+        <form class="form" action="#" method="post" novalidate>
+          <div class="row-2">
+            <div class="field">
+              <label for="c-name"><span data-en>Name</span><span data-es>Nombre</span></label>
+              <input id="c-name" name="name" autocomplete="name" data-ph-en="First and last name" data-ph-es="Nombre y apellido" required>
+            </div>
+            <div class="field">
+              <label for="c-phone"><span data-en>Phone</span><span data-es>Teléfono</span></label>
+              <input id="c-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" data-ph-en="(860) 000-0000" data-ph-es="(860) 000-0000" required>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="c-service"><span data-en>Service</span><span data-es>Servicio</span></label>
+              <!-- slot: services (options) -->
+              <select id="c-service" name="service">
+                <option value="" data-t-en="Choose one" data-t-es="Elija uno">Choose one</option>
+                <option value="kitchen" data-t-en="Kitchen remodel" data-t-es="Remodelación de cocina">Kitchen remodel</option>
+                <option value="bathroom" data-t-en="Bathroom remodel" data-t-es="Remodelación de baño">Bathroom remodel</option>
+                <option value="basement" data-t-en="Basement finishing" data-t-es="Terminar el sótano">Basement finishing</option>
+                <option value="addition" data-t-en="Addition" data-t-es="Ampliación">Addition</option>
+                <option value="deck" data-t-en="Deck or porch" data-t-es="Deck o porche">Deck or porch</option>
+                <option value="exterior" data-t-en="Siding or roofing" data-t-es="Siding o techo">Siding or roofing</option>
+                <option value="masonry" data-t-en="Concrete or masonry" data-t-es="Concreto o mampostería">Concrete or masonry</option>
+                <option value="other" data-t-en="Something else" data-t-es="Otro trabajo">Something else</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="c-town"><span data-en>Town</span><span data-es>Pueblo / ciudad</span></label>
+              <input id="c-town" name="town" autocomplete="address-level2" data-ph-en="e.g. Berlin" data-ph-es="Ej.: Berlin">
+            </div>
+          </div>
+          <div class="field">
+            <label for="c-msg"><span data-en>What do you want done?</span><span data-es>¿Qué quiere hacer?</span></label>
+            <textarea id="c-msg" name="message" data-ph-en="Rough size of the room, and when you'd like to start" data-ph-es="Tamaño aproximado del espacio y cuándo le gustaría empezar"></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit"><span data-en>Send request</span><span data-es>Enviar solicitud</span><i class="arr" data-lucide="arrow-right"></i></button>
+          <p class="form-ok" role="status"><span data-en>Thanks. This is a demo form, so nothing was sent.</span><span data-es>Gracias. Este formulario es de demostración y no se envió nada.</span></p>
+          <p class="form-note"><i data-lucide="lock"></i><span data-en>We only use your number to call you back about this project.</span><span data-es>Solo usamos su número para llamarle sobre este proyecto.</span></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- slot: footer -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="logo" href="#top" aria-label="Ramírez Remodeling & Construction — back to top">
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <circle cx="22" cy="22" r="20.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M1.5 22h41" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M11 18.5 22 9.5l11 9" fill="none" stroke="#F08A56" stroke-width="3" stroke-linecap="square"/>
+            <path d="M15.5 28.5v7M28.5 28.5v7M15.5 28.5h13M22 28.5v7" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+          <span class="logo-word"><b>Ramírez</b><small>Remodeling &amp; Construction</small></span>
+        </a>
+        <p class="foot-about" data-en>Remodeling and home construction in New Britain and Central Connecticut. Hablamos español.</p>
+        <p class="foot-about" data-es>Remodelaciones y construcción residencial en New Britain y el centro de Connecticut. We speak English.</p>
+      </div>
+      <div>
+        <h4><span data-en>Contact</span><span data-es>Contacto</span></h4>
+        <p>214 Arch St<br>New Britain, CT 06051</p>
+        <p><a class="tnum" href="tel:+18605550142">(860) 555-0142</a><br><a href="mailto:hola@ramirezremodeling.com">hola@ramirezremodeling.com</a></p>
+      </div>
+      <div>
+        <h4><span data-en>Hours</span><span data-es>Horario</span></h4>
+        <ul>
+          <li><span data-en>Mon–Fri · 7:00 am – 5:30 pm</span><span data-es>Lun–vie · 7:00 a. m. – 5:30 p. m.</span></li>
+          <li><span data-en>Sat · 8:00 am – 1:00 pm</span><span data-es>Sáb · 8:00 a. m. – 1:00 p. m.</span></li>
+          <li><span data-en>Sun · closed</span><span data-es>Dom · cerrado</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4><span data-en>License &amp; insurance</span><span data-es>Licencia y seguro</span></h4>
+        <p>CT HIC.0000000</p>
+        <p><span data-en>General liability &amp; workers' comp insured</span><span data-es>Seguro de responsabilidad civil y compensación laboral</span></p>
+      </div>
+    </div>
+    <p class="foot-mark" aria-hidden="true">Ramírez</p>
+  </div>
+  <div class="wrap">
+    <div class="foot-bottom">
+      <span>© 2026 Ramírez Remodeling &amp; Construction LLC</span>
+      <span>New Britain, CT · 41.661° N 72.780° W</span>
+    </div>
+  </div>
+</footer>
+
+<!-- slot: mobile_call_bar -->
+<div class="callbar" role="navigation" aria-label="Quick contact">
+  <a class="btn btn-dark" href="tel:+18605550142"><i data-lucide="phone"></i><span data-en>Call</span><span data-es>Llamar</span></a>
+  <a class="btn btn-primary" href="#contact"><i data-lucide="file-text"></i><span data-en>Free estimate</span><span data-es>Presupuesto</span></a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script>
+(function(){
+  var root = document.documentElement;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var titles = {
+    en: "Ramírez Remodeling & Construction · New Britain, CT",
+    es: "Ramírez Remodeling & Construction · Remodelaciones en New Britain, CT"
+  };
+  var baText = { en:["Framing","finished"], es:["Estructura","terminado"] };
+  var curLang = "en";
+
+  /* ---- Language ---- */
+  function setLang(lang, save){
+    lang = lang === "es" ? "es" : "en";
+    curLang = lang;
+    root.classList.remove("lang-en","lang-es");
+    root.classList.add("lang-" + lang);
+    root.lang = lang;
+    document.title = titles[lang];
+    document.querySelectorAll("[data-ph-" + lang + "]").forEach(function(el){ el.placeholder = el.getAttribute("data-ph-" + lang); });
+    document.querySelectorAll("option[data-t-" + lang + "]").forEach(function(el){ el.textContent = el.getAttribute("data-t-" + lang); });
+    document.querySelectorAll("[data-set-lang]").forEach(function(b){ b.setAttribute("aria-pressed", String(b.getAttribute("data-set-lang") === lang)); });
+    if (save) { try { localStorage.setItem('wc360-lang-construccion', lang); } catch(e){} }
+    if (window.__baUpdate) window.__baUpdate();
+  }
+  var initial = "en";
+  try { var stored = localStorage.getItem('wc360-lang-construccion'); if (stored) initial = stored; } catch(e){}
+  var q = new URLSearchParams(location.search).get("lang");
+  if (q === "es" || q === "en") initial = q;
+  setLang(initial, false);
+  document.querySelectorAll("[data-set-lang]").forEach(function(b){
+    b.addEventListener("click", function(){ setLang(b.getAttribute("data-set-lang"), true); });
+  });
+
+  /* ---- Header: gains background and compacts on scroll ---- */
+  var header = document.getElementById("site-header");
+  function onScroll(){ header.classList.toggle("is-scrolled", window.scrollY > 24); }
+  onScroll(); window.addEventListener("scroll", onScroll, {passive:true});
+
+  /* ---- Mobile menu ---- */
+  var btn = document.querySelector(".menu-btn"), panel = document.getElementById("mobile-nav");
+  function closeMenu(){ panel.classList.remove("open"); header.classList.remove("menu-open"); btn.setAttribute("aria-expanded","false"); }
+  btn.addEventListener("click", function(){
+    var open = panel.classList.toggle("open");
+    header.classList.toggle("menu-open", open);
+    btn.setAttribute("aria-expanded", String(open));
+  });
+  panel.querySelectorAll("a").forEach(function(a){ a.addEventListener("click", closeMenu); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeMenu(); });
+
+  /* ---- Scroll reveal ---- */
+  var rv = document.querySelectorAll(".rv");
+  if ("IntersectionObserver" in window && !reduce){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if (en.isIntersecting){ en.target.classList.add("in"); io.unobserve(en.target); } });
+    }, {rootMargin:"0px 0px -8% 0px", threshold:.08});
+    rv.forEach(function(el){ io.observe(el); });
+  } else { rv.forEach(function(el){ el.classList.add("in"); }); }
+
+  /* ---- Services: sticky preview follows the active row ---- */
+  var rows = [].slice.call(document.querySelectorAll(".svc"));
+  var frame = document.querySelector(".svc-frame"), cap = document.querySelector(".svc-cap"), idx = document.querySelector(".svc-i");
+  var shots = rows.map(function(r, i){
+    var src = r.querySelector("img"), im = src.cloneNode();
+    im.removeAttribute("fetchpriority"); im.alt = ""; if (i === 0) im.classList.add("on");
+    frame.appendChild(im); return im;
+  });
+  function activate(i){
+    rows.forEach(function(r, j){ r.classList.toggle("is-on", j === i); });
+    shots.forEach(function(s, j){ s.classList.toggle("on", j === i); });
+    cap.innerHTML = rows[i].querySelector("h3").innerHTML;
+    idx.textContent = ("0" + (i + 1)).slice(-2);
+  }
+  activate(0);
+  rows.forEach(function(r, i){
+    r.addEventListener("mouseenter", function(){ activate(i); });
+    r.addEventListener("focusin", function(){ activate(i); });
+  });
+  if ("IntersectionObserver" in window){
+    var sio = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if (en.isIntersecting) activate(rows.indexOf(en.target)); });
+    }, {rootMargin:"-46% 0px -46% 0px"});
+    rows.forEach(function(r){ sio.observe(r); });
+  }
+
+  /* ---- Before / after slider: pointer, touch and keyboard ---- */
+  var ba = document.getElementById("ba"), range = document.getElementById("ba-range");
+  if (ba && range){
+    var dragging = false;
+    function setPos(v){
+      v = Math.max(0, Math.min(100, v));
+      ba.style.setProperty("--pos", v + "%");
+      range.value = Math.round(v);
+      var t = baText[curLang];
+      range.setAttribute("aria-valuetext", t[0] + " " + Math.round(v) + "%, " + t[1] + " " + (100 - Math.round(v)) + "%");
+    }
+    window.__baUpdate = function(){ setPos(+range.value); };
+    function fromEvent(e){ var r = ba.getBoundingClientRect(); return (e.clientX - r.left) / r.width * 100; }
+    ba.addEventListener("pointerdown", function(e){
+      if (e.button !== undefined && e.button !== 0) return;
+      dragging = true; try { ba.setPointerCapture(e.pointerId); } catch(err){}
+      setPos(fromEvent(e));
+      range.focus({preventScroll:true});
+    });
+    ba.addEventListener("pointermove", function(e){ if (dragging) setPos(fromEvent(e)); });
+    ["pointerup","pointercancel","lostpointercapture"].forEach(function(t){ ba.addEventListener(t, function(){ dragging = false; }); });
+    range.addEventListener("input", function(){ setPos(+range.value); });
+    range.addEventListener("keydown", function(e){
+      if (e.key === "Home"){ e.preventDefault(); setPos(0); }
+      if (e.key === "End"){ e.preventDefault(); setPos(100); }
+    });
+    setPos(50);
+    // A single gentle nudge the first time it comes into view, so people see it moves
+    if (!reduce && "IntersectionObserver" in window){
+      var nio = new IntersectionObserver(function(entries){
+        if (!entries[0].isIntersecting) return; nio.disconnect();
+        var t0 = null;
+        function step(ts){
+          if (dragging) return;
+          if (!t0) t0 = ts; var p = Math.min(1, (ts - t0) / 1600);
+          setPos(50 + Math.sin(p * Math.PI * 2) * 12 * (1 - p));
+          if (p < 1) requestAnimationFrame(step); else setPos(50);
+        }
+        setTimeout(function(){ requestAnimationFrame(step); }, 500);
+      }, {threshold:.6});
+      nio.observe(ba);
+    }
+  }
+
+  /* ---- Case-study carousel ---- */
+  var track = document.getElementById("cases");
+  if (track){
+    var cards = track.querySelectorAll(".case"), btns = document.querySelectorAll(".car-btn"), ci = document.querySelector(".car-i");
+    function current(){
+      var best = 0, min = Infinity, left = track.getBoundingClientRect().left + parseFloat(getComputedStyle(track).scrollPaddingLeft || 0);
+      cards.forEach(function(c, i){ var d = Math.abs(c.getBoundingClientRect().left - left); if (d < min){ min = d; best = i; } });
+      return best;
+    }
+    function sync(){
+      var i = current(); ci.textContent = ("0" + (i + 1)).slice(-2);
+      btns[0].disabled = track.scrollLeft < 4;
+      btns[1].disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    }
+    btns.forEach(function(b){
+      b.addEventListener("click", function(){
+        var i = Math.max(0, Math.min(cards.length - 1, current() + (+b.getAttribute("data-dir"))));
+        var left = track.getBoundingClientRect().left + parseFloat(getComputedStyle(track).scrollPaddingLeft || 0);
+        track.scrollBy({left: cards[i].getBoundingClientRect().left - left, behavior: reduce ? "auto" : "smooth"});
+      });
+    });
+    track.addEventListener("scroll", function(){ window.requestAnimationFrame(sync); }, {passive:true});
+    window.addEventListener("resize", sync); sync();
+  }
+
+  /* ---- Process: the step in view lights its numeral ---- */
+  var steps = document.querySelectorAll(".tl-step");
+  if ("IntersectionObserver" in window){
+    var pio = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ en.target.classList.toggle("is-on", en.isIntersecting); });
+    }, {rootMargin:"-38% 0px -38% 0px"});
+    steps.forEach(function(s){ pio.observe(s); });
+  }
+
+  /* ---- Demo forms ---- */
+  document.querySelectorAll("form.form").forEach(function(f){
+    f.addEventListener("submit", function(e){ e.preventDefault(); f.classList.add("sent"); });
+  });
+
+  if (window.lucide) lucide.createIcons();
+})();
+</script>
+</body>
+</html>

@@ -9,15 +9,22 @@ const safeEqual = (a, b) => {
   return x.length === y.length && timingSafeEqual(x, y);
 };
 
-// Paths that can never go through a login prompt: Render's own health check, and Stripe calling its webhooks directly
-// (both already have their own protection: Render doesn't need one, Stripe's webhooks verify a signature).
-const OPEN_PATHS = new Set(['/health', '/webhooks/stripe', '/api/billing/webhook']);
+// Paths that can never go through a login prompt: Render's own health check, Stripe calling its webhooks directly
+// (both already have their own protection: Render doesn't need one, Stripe's webhooks verify a signature), and the
+// customer-facing pages below.
+const OPEN_PATHS = new Set(['/health', '/webhooks/stripe', '/api/billing/webhook', '/payment/success']);
+// What the businesses you contact open themselves: their demo site (the emails link it when Vercel isn't used) and the
+// Stripe checkout it leads to. They carry no dashboard data, and a password prompt there would lose the sale.
+// Exactly one plain segment (a slug or a site id): nothing like "/preview/../api/…" gets through.
+const OPEN_PAGE_RE = /^\/(preview|checkout)\/[A-Za-z0-9_-]+$/;
+
+export const isOpenPath = (path) => OPEN_PATHS.has(path) || OPEN_PAGE_RE.test(path);
 
 export function dashboardAuth(req, res, next) {
   const user = process.env.DASHBOARD_USER;
   const pass = process.env.DASHBOARD_PASSWORD;
   if (!user || !pass) return next();
-  if (OPEN_PATHS.has(req.path)) return next();
+  if (isOpenPath(req.path)) return next();
 
   const [scheme, encoded] = String(req.headers.authorization || '').split(' ');
   if (scheme === 'Basic' && encoded) {

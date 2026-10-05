@@ -1,7 +1,7 @@
 // API of the "LLCs nuevas" pipeline in the dashboard (separate from the Google Maps pipeline).
 // Like the rest of the dashboard API it has no login: it is meant for your local app, not for the internet.
 //   GET   /stats                   funnel counts + last ingest + Instantly status
-//   GET   /                        leads (filters: status, sector, priority, source, q; limit, offset)
+//   GET   /                        leads (filters: status, sector, priority, source, batch, demo, q; limit, offset)
 //   PATCH /:id                     manual status: replied | called | won | lost
 //   POST  /ingest/ct               Connecticut registry ({ days?, dryRun? })
 //   POST  /import/csv/preview      read a CSV: columns, first rows and a suggested mapping
@@ -11,25 +11,33 @@
 //   POST  /poll-instantly          check Instantly now for sent/bounced/unsubscribed/replied (the cron does this every 5 min)
 //   GET   /autopilot               unattended ingest + send, run by the campaign server's crons: { enabled, pushLimit }
 //   PUT   /autopilot               change it ({ enabled?, pushLimit? })
-//   GET   /email-template          the email text to paste in Instantly
+//   GET   /email-template          the email text to paste in Instantly (the demo version when LEAD_DEMOS=true)
+//   POST  /demos                   make the demo websites of the newest "new" leads that don't have one ({ limit ≤ 5 })
+//   POST  /:id/demo                make (or remake) the demo website of one lead
 import { Router } from 'express';
 import { isDryRun } from '../lib/dryRun.js';
+import { selectAll } from '../lib/selectAll.js';
 import { runCtIngest, FIRST_RUN_DAYS } from '../services/ctIngest.js';
 import { previewCsv, importCsvLeads } from '../services/csvImport.js';
 import { loadInstantlyConfig, pushLeads } from '../services/instantly.js';
 import { pollInstantlyEvents } from '../services/instantlyPoll.js';
 import { getAutopilotSettings, setAutopilotSettings } from '../services/autopilot.js';
-import { EMAIL_SUBJECT, EMAIL_BODY, templateVariables } from '../prompts/newBusinessEmails.js';
+import { createLeadDemo, generateDemos } from '../services/leadDemos.js';
+import { emailTemplate, templateVariables } from '../prompts/newBusinessEmails.js';
 
 const TABLE = 'new_business_leads';
 const MANUAL_STATUSES = new Set(['replied', 'called', 'won', 'lost']);
 const LIST_COLUMNS = 'id, name, email, city, zip, sector, priority, status, registered_at, latino_signal, latino_strong, minority_owned, notes, source, pushed_at, emailed_at, engaged_at, replied_at, requested_at, phone, contact_name, preferred_time, site_id, created_at';
+const DEMO_COLUMNS = 'demo_url, demo_status, demo_template, demo_error';
+// Before schema-new-business-leads.sql is run again, the demo columns don't exist yet: the dashboard keeps working without them
+const missingColumn = (err) => /column|schema cache/i.test(String(err?.message || err));
 
 const asList = (v) => String(v ?? '').split(',').map(s => s.trim()).filter(Boolean);
 
 // verifyOptions / fetchImpl: only for tests (a fake DNS resolver and a fake registry download); production uses the real ones
 // onReply(lead): the Telegram alert for a lead's first reply, fired from /poll-instantly (the campaign server's cron also polls on its own)
-export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, onReply = null }) {
+// demoBuild / demoDeploy: only for tests (a fake writer and a fake Vercel); production uses the real ones
+export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, onReply = null, demoBuild, demoDeploy }) {
   const router = Router();
 
   router.use((req, res, next) => {
@@ -46,34 +54,51 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
   };
 
   router.get('/stats', guard(async (req, res) => {
-    const { data, error } = await db.from(TABLE).select('status').eq('user_id', ownerId).limit(50000);
-    if (error) throw new Error(error.message);
+    let data, demoColumns = true;
+    try { data = await selectAll(() => db.from(TABLE).select('status, demo_status').eq('user_id', ownerId).order('id')); } catch (err) {
+      if (!missingColumn(err)) throw err;
+      demoColumns = false;
+      data = await selectAll(() => db.from(TABLE).select('status').eq('user_id', ownerId).order('id'));
+    }
     const byStatus = {};
-    for (const l of data || []) byStatus[l.status] = (byStatus[l.status] || 0) + 1;
+    const demos = { ready: 0, failed: 0, generating: 0 };      // among the leads still waiting to be sent ("new")
+    for (const l of data) {
+      byStatus[l.status] = (byStatus[l.status] || 0) + 1;
+      if (l.status === 'new' && demos[l.demo_status] !== undefined) demos[l.demo_status]++;
+    }
 
     const { data: runs } = await db.from('lead_ingest_runs').select('ran_at, newest_registration, fetched, inserted, ok').eq('user_id', ownerId).order('ran_at', { ascending: false }).limit(1);
     const dryRun = isDryRun();
     let instantlyReady = true;
     try { loadInstantlyConfig(process.env, { dryRun: false }); } catch { instantlyReady = false; }
 
-    res.json({ total: (data || []).length, byStatus, lastRun: runs?.[0] ?? null, instantly: { ready: instantlyReady, dryRun } });
+    const cfg = loadInstantlyConfig(process.env, { dryRun: true });
+    const demoReady = !!process.env.ANTHROPIC_API_KEY && !!process.env.VERCEL_TOKEN;
+    res.json({
+      total: data.length, byStatus, lastRun: runs?.[0] ?? null, instantly: { ready: instantlyReady, dryRun },
+      demos: { enabled: cfg.demos, configured: demoReady, columns: demoColumns, ...demos },
+    });
   }));
 
   router.get('/', guard(async (req, res) => {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 500);
     const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
 
-    let query = db.from(TABLE).select(LIST_COLUMNS).eq('user_id', ownerId);
     const statuses = asList(req.query.status);
-    if (statuses.length) query = query.in('status', statuses);
-    if (req.query.sector) query = query.eq('sector', String(req.query.sector));
-    if (req.query.priority) query = query.eq('priority', String(req.query.priority));
-    if (req.query.source) query = query.eq('source', String(req.query.source));
-    if (req.query.batch) query = query.eq('import_batch', String(req.query.batch));
     // Call requests: the newest first (they are waiting for you); everything else: the most recently registered
     const requests = statuses.length === 1 && statuses[0] === 'requested';
-    const { data, error } = await query.order(requests ? 'requested_at' : 'registered_at', { ascending: false }).limit(20000);
-    if (error) throw new Error(error.message);
+    const list = (columns) => selectAll(() => {
+      let query = db.from(TABLE).select(columns).eq('user_id', ownerId);
+      if (statuses.length) query = query.in('status', statuses);
+      if (req.query.sector) query = query.eq('sector', String(req.query.sector));
+      if (req.query.priority) query = query.eq('priority', String(req.query.priority));
+      if (req.query.source) query = query.eq('source', String(req.query.source));
+      if (req.query.batch) query = query.eq('import_batch', String(req.query.batch));
+      if (req.query.demo) query = query.eq('demo_status', String(req.query.demo));
+      return query.order(requests ? 'requested_at' : 'registered_at', { ascending: false }).order('id');
+    });
+    let data;
+    try { data = await list(`${LIST_COLUMNS}, ${DEMO_COLUMNS}`); } catch (err) { if (!missingColumn(err)) throw err; data = await list(LIST_COLUMNS); }
 
     const q = String(req.query.q ?? '').trim().toLowerCase();
     const filtered = q ? data.filter(l => l.name.toLowerCase().includes(q) || l.email.includes(q) || (l.city || '').toLowerCase().includes(q)) : data;
@@ -124,10 +149,9 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
 
   // Distinct CSV imports that still have leads waiting to send, most leads first — lets you pick "just this file" in Envío
   router.get('/import-batches', guard(async (req, res) => {
-    const { data, error } = await db.from(TABLE).select('import_batch').eq('user_id', ownerId).eq('status', 'new').eq('source', 'csv_import').not('import_batch', 'is', null).limit(20000);
-    if (error) throw new Error(error.message);
+    const data = await selectAll(() => db.from(TABLE).select('import_batch').eq('user_id', ownerId).eq('status', 'new').eq('source', 'csv_import').not('import_batch', 'is', null).order('id'));
     const counts = {};
-    for (const l of data || []) counts[l.import_batch] = (counts[l.import_batch] || 0) + 1;
+    for (const l of data) counts[l.import_batch] = (counts[l.import_batch] || 0) + 1;
     res.json(Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([batch, count]) => ({ batch, count })));
   }));
 
@@ -151,8 +175,32 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
   }));
 
   router.get('/email-template', (req, res) => {
-    res.json({ subject: EMAIL_SUBJECT, body: EMAIL_BODY, variables: templateVariables() });
+    const demos = loadInstantlyConfig(process.env, { dryRun: true }).demos;
+    res.json({ ...emailTemplate({ demos }), variables: templateVariables({ demos }), demos });
   });
+
+  // Demo websites (template engine + Vercel). Each one takes about a minute, so the batch is kept small here; the
+  // campaign server's autopilot makes them on its own when LEAD_DEMOS=true.
+  const demoOptions = () => ({ db, ownerId, publicUrl: loadInstantlyConfig(process.env, { dryRun: true }).publicUrl, build: demoBuild, deploy: demoDeploy });
+  const demoConfigError = () => (!process.env.ANTHROPIC_API_KEY ? 'Falta ANTHROPIC_API_KEY en tu .env (Claude escribe las webs)'
+    : !process.env.VERCEL_TOKEN ? 'Falta VERCEL_TOKEN en tu .env (las webs se publican en Vercel)' : null);
+
+  router.post('/demos', guard(async (req, res) => {
+    const limit = Number.isInteger(req.body?.limit) ? req.body.limit : 3;
+    if (limit < 1 || limit > 5) return res.status(400).json({ error: 'limit debe ser un entero entre 1 y 5' });
+    if (!demoBuild && demoConfigError()) return res.status(400).json({ error: demoConfigError() });
+    res.json(await generateDemos({ ...demoOptions(), limit }));
+  }));
+
+  router.post('/:id/demo', guard(async (req, res) => {
+    if (!demoBuild && demoConfigError()) return res.status(400).json({ error: demoConfigError() });
+    const { data: lead, error } = await db.from(TABLE).select('*').eq('id', req.params.id).eq('user_id', ownerId).maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!lead) return res.status(404).json({ error: 'Lead no encontrado' });
+    const r = await createLeadDemo({ ...demoOptions(), lead, force: true });
+    if (!r.ok) return res.status(r.skipped ? 409 : 502).json({ error: r.error, template: r.template });
+    res.json(r);
+  }));
 
   return router;
 }

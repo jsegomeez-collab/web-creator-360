@@ -4,6 +4,7 @@
 //   POST /leads/add   up to 1000 leads per request, with per-lead custom variables ({{empresa}}, {{ciudad}}…)
 import { isDryRun, dryRunLog } from '../lib/dryRun.js';
 import { requestJson } from '../lib/http.js';
+import { selectAll } from '../lib/selectAll.js';
 import { displayName, leadVariables } from '../prompts/newBusinessEmails.js';
 
 export const API = 'https://api.instantly.ai/api/v2';
@@ -30,6 +31,8 @@ export function loadInstantlyConfig(env = process.env, { dryRun = isDryRun() } =
   return {
     apiKey, campaignId,
     publicUrl: publicUrl || 'http://localhost:3002',
+    // LEAD_DEMOS=true: each lead gets its own demo website first, and only leads whose demo is ready are sent
+    demos: String(env.LEAD_DEMOS || '').trim().toLowerCase() === 'true',
     warnings: problems,
   };
 }
@@ -57,14 +60,18 @@ const call = (config, path, body, { fetchImpl, sleep } = {}) => requestJson({
 export async function pushLeads({ db, ownerId, config, limit = 100, filters = {}, dryRun = isDryRun(), fetchImpl, sleep, now = new Date() }) {
   if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('limit debe ser un entero entre 1 y 5000');
 
-  let query = db.from(LEADS_TABLE).select('*').eq('user_id', ownerId).eq('status', 'new');
-  if (filters.source) query = query.eq('source', filters.source);
-  if (filters.sector) query = query.eq('sector', filters.sector);
-  if (filters.priority) query = query.eq('priority', filters.priority);
-  if (filters.batch) query = query.eq('import_batch', filters.batch);
-  const { data: leads, error } = await query.order('registered_at', { ascending: false }).limit(limit);
-  if (error) throw new Error(`cargar leads: ${error.message}`);
-  if (!leads?.length) return { dryRun, pushed: 0, rejected: 0 };
+  const eligible = () => {
+    let query = db.from(LEADS_TABLE).select('*').eq('user_id', ownerId).eq('status', 'new');
+    if (config.demos) query = query.eq('demo_status', 'ready');   // the email links to the demo: never send one without it
+    if (filters.source) query = query.eq('source', filters.source);
+    if (filters.sector) query = query.eq('sector', filters.sector);
+    if (filters.priority) query = query.eq('priority', filters.priority);
+    if (filters.batch) query = query.eq('import_batch', filters.batch);
+    return query.order('registered_at', { ascending: false }).order('id');
+  };
+  let leads;
+  try { leads = await selectAll(eligible, { max: limit }); } catch (err) { throw new Error(`cargar leads: ${err.message}`); }
+  if (!leads.length) return { dryRun, pushed: 0, rejected: 0 };
 
   const payloads = leads.map(l => buildInstantlyLead(l, config));
 

@@ -3,7 +3,7 @@
 import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import express from 'express';
-import { dashboardAuth } from '../src/middleware/dashboardAuth.js';
+import { dashboardAuth, isOpenPath } from '../src/middleware/dashboardAuth.js';
 
 let server, base;
 const b64 = (s) => Buffer.from(s, 'utf8').toString('base64');
@@ -91,4 +91,21 @@ test('solo configurar el usuario, o solo la clave, deja el sitio abierto (hace f
   delete process.env.DASHBOARD_USER;
   process.env.DASHBOARD_PASSWORD = 's3cret';
   assert.equal((await get('/api/leads/stats')).status, 200);
+});
+
+test('deja pasar lo que abre el negocio al que escribes: su web de prueba, el pago y la página de pago hecho', async () => {
+  process.env.DASHBOARD_USER = 'jose';
+  process.env.DASHBOARD_PASSWORD = 's3cret';
+  for (const path of ['/preview/bricoandpool', '/checkout/7b1c2d3e-0000-4000-8000-000000000001', '/payment/success']) {
+    assert.notEqual((await get(path)).status, 401, path);
+  }
+});
+
+test('esas excepciones no abren nada más: ni el listado, ni rutas con "..", ni subrutas', async () => {
+  process.env.DASHBOARD_USER = 'jose';
+  process.env.DASHBOARD_PASSWORD = 's3cret';
+  for (const path of ['/preview/', '/preview', '/checkout/abc/extra', '/preview/..%2Fapi%2Fleads%2Fstats', '/preview/a.b']) {
+    assert.equal(isOpenPath(path), false, path);
+  }
+  assert.equal((await get('/api/leads/stats')).status, 401);
 });

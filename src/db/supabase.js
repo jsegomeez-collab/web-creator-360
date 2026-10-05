@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 
 let _client = null;
 
-function getSupabase() {
+export function getSupabase() {
   if (!_client) {
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
       throw new Error('SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in your .env file');

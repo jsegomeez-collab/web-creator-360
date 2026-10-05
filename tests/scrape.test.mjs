@@ -25,7 +25,7 @@ before(async () => {
   base = `http://127.0.0.1:${server.address().port}`;
   process.env.ANTHROPIC_API_KEY = 'fake-key';
   process.env.ANTHROPIC_BASE_URL = base;
-  ({ scrapeBusinessProfile } = await import('../src/services/gemini.js'));
+  ({ scrapeBusinessProfile } = await import('../src/services/businessProfile.js'));
 });
 after(() => { server.closeAllConnections?.(); server.close(); });
 

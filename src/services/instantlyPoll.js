@@ -3,6 +3,7 @@
 // few minutes from the campaign server's cron, or on demand from the dashboard's "Comprobar ahora" button.
 import { API } from './instantly.js';
 import { requestJson } from '../lib/http.js';
+import { selectAll } from '../lib/selectAll.js';
 import { suppress } from './suppressions.js';
 
 const TABLE = 'new_business_leads';
@@ -49,9 +50,11 @@ const call = (config, path, body, opts) => requestJson({
 // db: Supabase client · ownerId: NEW_LEADS_OWNER_USER_ID · config: loadInstantlyConfig()
 // onReply(lead): called (not awaited) the first time a lead replies — never breaks the poll if it fails
 export async function pollInstantlyEvents({ db, ownerId, config, fetchImpl, sleep, now = new Date(), onReply = null }) {
-  const { data: rows, error } = await db.from(TABLE).select('*').eq('user_id', ownerId).in('status', POLLABLE_STATUSES).limit(5000);
-  if (error) throw new Error(`cargar leads: ${error.message}`);
-  const leads = (rows || []).filter(l => l.instantly_lead_id);
+  let rows;
+  try {
+    rows = await selectAll(() => db.from(TABLE).select('*').eq('user_id', ownerId).in('status', POLLABLE_STATUSES).order('id'));
+  } catch (err) { throw new Error(`cargar leads: ${err.message}`); }
+  const leads = rows.filter(l => l.instantly_lead_id);
 
   const at = now.toISOString();
   let updated = 0, suppressed = 0, replied = 0;

@@ -1,14 +1,15 @@
-// /c/:token — the {{calendario}} link inside each email. It is the lead's own page: it asks for their phone so you can call
-// them (GET shows the form, POST saves it and fires onRequested → the Telegram alert).
-//   opening it        → "engaged" (interest, but not yet a call request)
-//   sending the form  → "requested" (+ phone, name, when they prefer, and the consent to be called)
+// /c/:token — the lead's own page: it asks for their phone so you can call them (GET shows the form, POST saves it and
+// fires onRequested → the Telegram alert). It is the {{calendario}} link of the classic email, and the "La quiero" button of
+// the lead's demo website (demo email). /v/:token is the beacon inside that demo website.
+//   opening the page or the demo → "engaged" (interest, but not yet a call request)
+//   sending the form             → "requested" (+ phone, name, when they prefer, and the consent to be called)
 // Link scanners and previews (HEAD requests, security bots) see the page without registering anything.
 import { Router, urlencoded } from 'express';
 import { createLimiter } from '../lib/rateLimit.js';
 import { esc, page, sendPage, notFoundPage } from '../lib/pages.js';
 import { LINK_TOKEN_RE } from '../services/newLeads.js';
 import { CONSENT_TEXT, PREFERRED_TIMES, parseRequest, saveRequest } from '../services/callRequests.js';
-import { displayName } from '../prompts/newBusinessEmails.js';
+import { displayName, demoLink } from '../prompts/newBusinessEmails.js';
 
 const TABLE = 'new_business_leads';
 const ENGAGEABLE = new Set(['new', 'queued', 'emailed']);
@@ -17,9 +18,15 @@ const BOT_UA = /bot|crawl|spider|preview|scan|monitor|check|fetch|curl|wget|pyth
 // Empty user agents and well-known scanners/previewers are not the person clicking
 export const isProbablyBot = (userAgent) => !userAgent || BOT_UA.test(userAgent);
 
+// Their demo website (when it exists) opens in a new tab, in Spanish
+const demoButton = (lead) => (lead.demo_url
+  ? `<a class="btn" style="margin:0 0 22px;background:transparent;border:1px solid rgba(255,255,255,.25)" href="${esc(demoLink(lead.demo_url))}" target="_blank" rel="noopener">Ver mi web</a>`
+  : '');
+
 const formPage = (lead, { values = {}, errors = {} } = {}) => page(`Tu web para ${displayName(lead.name)}`, `
   <h1>Hola, ${esc(displayName(lead.name))} 👋</h1>
   <p>Déjame tu teléfono y <strong>te llamo para enseñarte en directo la web de tu negocio</strong> (15 minutos, sin compromiso).</p>
+  ${demoButton(lead)}
   <form method="post">
     <div class="hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
     <label for="phone">Tu teléfono</label>
@@ -73,6 +80,25 @@ export function leadLinkRouter(db, { ownerId, onRequested = null, limiter = crea
       if (error) console.error('[lead-link] could not mark engaged:', error.message);
     }
     sendPage(res, 200, formPage(lead, { values: { phone: lead.phone, name: lead.contact_name, preferred_time: lead.preferred_time } }));
+  });
+
+  // The beacon inside the lead's demo website (services/leadDemos.js): the owner opened it → "engaged".
+  // Always 204 with no body (nobody reads it); scanners and previews don't count.
+  router.post('/v/:token', async (req, res) => {
+    res.status(204).set('Cache-Control', 'no-store');
+    if (limiter.hit(req.ip) || !LINK_TOKEN_RE.test(req.params.token) || isProbablyBot(req.get('user-agent'))) return res.end();
+    try {
+      const lead = await findLead(req.params.token);
+      if (lead && ENGAGEABLE.has(lead.status)) {
+        const now = new Date().toISOString();
+        const { error } = await db.from(TABLE).update({ status: 'engaged', engaged_at: now, updated_at: now })
+          .eq('id', lead.id).in('status', [...ENGAGEABLE]);
+        if (error) console.error('[lead-link] could not mark engaged (demo visit):', error.message);
+      }
+    } catch (err) {
+      console.error('[lead-link] demo visit:', err.message);
+    }
+    res.end();
   });
 
   router.post('/c/:token', urlencoded({ extended: false, limit: '10kb' }), async (req, res) => {

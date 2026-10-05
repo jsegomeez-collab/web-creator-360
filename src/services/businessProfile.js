@@ -1,3 +1,5 @@
+// Business profile for the site generator: reads the business's current website (images, colour, emails) and asks
+// Claude Haiku for a structured profile (description, services, tone…). Used by the scraping step.
 import Anthropic from '@anthropic-ai/sdk';
 import { buildScrapingPrompt } from '../prompts/scraping.js';
 import { extractFromWebsite } from './imageExtractor.js';

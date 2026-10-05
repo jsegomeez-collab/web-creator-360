@@ -1,0 +1,1478 @@
+<!-- DEMO · negocio y datos ficticios · plantilla jardineria de Web Creator 360 -->
+<!doctype html>
+<html lang="en" class="lang-en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.documentElement.classList.add('js')</script>
+<!-- slot: seo_title -->
+<title>Hernández Landscaping &amp; Hardscape · Waterbury, CT</title>
+<!-- slot: seo_description -->
+<meta name="description" content="Lawn care, spring and fall cleanups, patios, walkways and retaining walls in Waterbury, Naugatuck, Cheshire, Middlebury and nearby towns. Free written estimates. Hablamos español.">
+<meta name="theme-color" content="#1F3A2A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* CONCEPT: "A New England garden journal": Carlos's field notebook, printed.
+   Cream paper, forest-green ink, a terracotta pencil for notes. Every section is a numbered page (folio),
+   every photo a numbered plate with the town it was taken in, every plan a pencil sketch. Big soft serif,
+   small typewriter marginalia, lots of paper around the pictures. */
+
+/* ============ Tokens (recolor the template here) ============ */
+:root{
+  --brand:#1F3A2A;        /* forest green */
+  --brand-deep:#152A1E;
+  --brand-ink:#F3EEE2;    /* text on brand */
+  --accent:#A24E2B;       /* terracotta pencil (AA on --bg) */
+  --accent-soft:#E6A57F;  /* terracotta for use on --brand */
+  --bg:#F3EEE2;           /* paper */
+  --bg-2:#E9E2D0;         /* deeper paper */
+  --paper:#FAF7EF;        /* light sheet */
+  --ink:#1B2219;
+  --muted:#535A4B;
+  --line:#D3C9B3;
+  --line-soft:#E1D9C7;
+  --on-brand-muted:rgba(243,238,226,.74);
+  --on-brand-line:rgba(243,238,226,.18);
+
+  --serif:"Fraunces", Georgia, "Times New Roman", serif;
+  --sans:"Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --wrap:1280px;
+  --wrap-wide:1400px;
+  --gutter:clamp(20px, 4vw, 56px);
+  --hh:84px;              /* header box */
+  --hh-sm:66px;           /* compact bar */
+  --radius:2px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+
+  --fs-display:clamp(2.75rem, 1.1rem + 7.2vw, 8.6rem);
+  --fs-h2:clamp(2.2rem, 1.25rem + 3.3vw, 4.5rem);
+  --fs-h3:clamp(1.45rem, 1.1rem + 1.1vw, 2.15rem);
+  --fs-lede:clamp(1.08rem, 1rem + .35vw, 1.28rem);
+}
+
+/* ============ Base ============ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--hh-sm) + 12px);overflow-x:clip}
+html:focus-within{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:clip;font-feature-settings:"ss01"}
+/* paper grain */
+body::after{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.07;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .12 0 0 0 0 .08 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:360;line-height:1.04;margin:0;letter-spacing:-.02em;font-variation-settings:"SOFT" 30,"WONK" 0,"opsz" 144;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+ul,ol{margin:0;padding:0;list-style:none}
+button,input,select,textarea{font:inherit;color:inherit}
+em{font-style:italic}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:1px}
+.lang-en [data-es],.lang-es [data-en]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip{position:absolute;left:12px;top:-60px;background:var(--brand);color:var(--brand-ink);padding:10px 14px;z-index:200;border-radius:var(--radius)}
+.skip:focus{top:12px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gutter)}
+.wrap-wide{max-width:var(--wrap-wide);margin:0 auto;padding:0 var(--gutter)}
+svg.lucide{width:1.05em;height:1.05em;stroke-width:1.5;flex:none}
+.mono{font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;font-weight:400;font-feature-settings:"tnum"}
+.label{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+
+.h2{font-size:var(--fs-h2);font-variation-settings:"SOFT" 30,"opsz" 144}
+.h2 em,.display em{font-weight:320;color:var(--accent);font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.lede{font-size:var(--fs-lede);line-height:1.55;color:var(--muted);max-width:52ch}
+section{position:relative}
+.section{padding:clamp(80px,9.5vw,144px) 0}
+
+/* Folio: the running head of every "page" */
+.folio{display:grid;grid-template-columns:auto 1fr auto;align-items:baseline;gap:18px;padding-bottom:14px;border-bottom:1px solid currentColor;margin-bottom:clamp(40px,6vw,80px);color:var(--ink)}
+.folio .fn{font-family:var(--serif);font-style:italic;font-size:22px;line-height:1;color:var(--accent);font-variation-settings:"SOFT" 100,"opsz" 36}
+.folio .ft{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+.folio .fr{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em}
+.on-brand .folio{color:var(--brand-ink)}
+.on-brand .folio .fn{color:var(--accent-soft)}
+.on-brand .folio .fr{color:var(--on-brand-muted)}
+
+/* Buttons & links */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:0 26px;border-radius:var(--radius);border:1px solid transparent;font-weight:600;font-size:16px;letter-spacing:.01em;text-decoration:none;cursor:pointer;transition:background-color .3s var(--ease),color .3s var(--ease),border-color .3s var(--ease)}
+.btn svg.lucide-arrow-right,.link-arrow svg.lucide-arrow-right,.link-arrow svg.lucide-arrow-up-right{transition:transform .45s var(--ease)}
+.btn:hover svg.lucide-arrow-right,.link-arrow:hover svg.lucide-arrow-right{transform:translateX(5px)}
+.link-arrow:hover svg.lucide-arrow-up-right{transform:translate(3px,-3px)}
+.btn-primary{background:var(--brand);color:var(--brand-ink)}
+.btn-primary:hover{background:var(--brand-deep)}
+.btn-ghost{border-color:currentColor;color:var(--ink);background:transparent}
+.btn-ghost:hover{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn-cream{background:var(--brand-ink);color:var(--brand-deep)}
+.btn-cream:hover{background:#fff}
+.btn-accent{background:var(--accent);color:#FBF3EA}
+.btn-accent:hover{background:#8C3F20}
+.link-arrow{display:inline-flex;align-items:center;gap:10px;font-weight:600;text-decoration:none;padding-bottom:4px;background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;transition:background-size .5s var(--ease),color .3s}
+.link-arrow:hover{background-size:0 1px;background-position:100% 100%}
+.u-link{text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .5s var(--ease)}
+.u-link:hover{background-size:100% 1px}
+
+/* Photos: one grade for the whole set */
+.graded{filter:saturate(.86) contrast(1.04) sepia(.07) brightness(.99)}
+.zoom{overflow:hidden}
+.zoom img{transition:transform 1.2s var(--ease)}
+.zoom:hover img{transform:scale(1.03)}
+.plate{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted)}
+
+/* Reveal (progressive: only hidden when JS is running) */
+.js .rv{opacity:0;transform:translateY(18px);transition:opacity .75s var(--ease),transform .75s var(--ease);transition-delay:var(--rd,0s)}
+.js .rv.in{opacity:1;transform:none}
+
+/* ============ Header ============ */
+.header{position:sticky;top:0;z-index:60;height:var(--hh);pointer-events:none}
+.bar{position:relative;pointer-events:auto;height:var(--hh);color:var(--ink);background:var(--bg);border-bottom:1px solid var(--line);transition:height .45s var(--ease),background-color .45s var(--ease),color .45s var(--ease),border-color .45s var(--ease);--stone:var(--accent)}
+.js .header:not(.is-solid) .bar{background:transparent;color:var(--brand-ink);border-bottom-color:rgba(243,238,226,.2);--stone:var(--accent-soft)}
+.header.is-scrolled .bar{height:var(--hh-sm);box-shadow:0 10px 30px -24px rgba(21,42,30,.5)}
+.bar-inner{height:100%;display:flex;align-items:center;gap:28px}
+.logo{display:flex;align-items:center;gap:13px;text-decoration:none;color:inherit;flex:none}
+.logo svg{width:42px;height:42px;transition:width .45s var(--ease),height .45s var(--ease)}
+.is-scrolled .logo svg{width:36px;height:36px}
+.logo-name{display:block;font-family:var(--serif);font-size:25px;line-height:1;letter-spacing:-.015em;font-variation-settings:"SOFT" 60,"opsz" 60}
+.logo-sub{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.8;margin-top:6px}
+.nav{display:flex;gap:30px;margin-left:auto}
+.nav a{font-size:15px;font-weight:500;text-decoration:none;padding:6px 0;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .45s var(--ease)}
+.nav a:hover{background-size:100% 1px}
+.header-actions{display:flex;align-items:center;gap:18px}
+.header-phone{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;text-decoration:none;white-space:nowrap;font-feature-settings:"tnum"}
+.lang-switch{display:inline-flex;border:1px solid currentColor;border-radius:999px;padding:2px;opacity:.95}
+.lang-switch button{border:0;background:transparent;font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.06em;padding:5px 9px;border-radius:999px;cursor:pointer;color:inherit}
+.lang-switch button[aria-pressed="true"]{background:currentColor}
+.lang-switch button[aria-pressed="true"] span{color:var(--bg)}
+.js .header:not(.is-solid) .lang-switch button[aria-pressed="true"] span{color:var(--brand-deep)}
+.header .btn{min-height:44px;padding:0 20px;font-size:14.5px}
+.js .header:not(.is-solid) .btn-primary{background:var(--brand-ink);color:var(--brand-deep)}
+.js .header:not(.is-solid) .btn-primary:hover{background:#fff}
+.menu-btn{display:none;width:46px;height:46px;border:1px solid currentColor;background:transparent;border-radius:999px;align-items:center;justify-content:center;cursor:pointer;color:inherit}
+.menu-btn svg.lucide{width:20px;height:20px}
+.mobile-nav{display:none}
+header a,header button{white-space:nowrap}
+
+/* ============ Hero ============ */
+.hero{margin-top:calc(-1 * var(--hh));height:100vh;height:100svh;min-height:680px;max-height:1060px;display:flex;flex-direction:column;justify-content:flex-end;color:var(--brand-ink);background:var(--brand-deep);overflow:hidden;isolation:isolate}
+.hero-media{position:absolute;inset:0;margin:0;z-index:-2}
+.hero-media img{width:100%;height:100%;object-fit:cover;object-position:50% 62%;animation:settle 2.2s var(--ease) both}
+/* legibility: a forest-tinted fall-off from the ground up, plus a soft top band for the header */
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:
+  linear-gradient(to bottom, rgba(21,42,30,.58) 0%, rgba(21,42,30,0) 24%),
+  linear-gradient(to top, rgba(21,42,30,.9) 0%, rgba(21,42,30,.64) 34%, rgba(21,42,30,.3) 58%, rgba(21,42,30,0) 80%),
+  radial-gradient(120% 70% at 0% 100%, rgba(21,42,30,.45), rgba(21,42,30,0) 60%)}
+.hero-inner{width:100%;padding-bottom:clamp(28px,4vw,52px);text-shadow:0 1px 18px rgba(21,42,30,.35)}
+.hero-inner .btn{text-shadow:none}
+.hero-kicker{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-bottom:clamp(18px,2.2vw,30px);color:var(--brand-ink)}
+.hero-kicker .mono{font-weight:500}
+.hero-kicker .label{color:var(--brand-ink)}
+.hero-kicker .rule{width:44px;height:1px;background:currentColor;opacity:.6}
+.display{font-size:var(--fs-display);line-height:.92;letter-spacing:-.035em;font-weight:340;font-variation-settings:"SOFT" 25,"opsz" 144;max-width:12ch;text-wrap:initial}
+.display .ln{display:block}
+.display em{color:var(--accent-soft)}
+.hero-foot{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(0,3fr);gap:24px clamp(24px,4vw,64px);align-items:end;margin-top:clamp(28px,3.4vw,48px);padding-top:clamp(20px,2.4vw,28px);border-top:1px solid rgba(243,238,226,.28)}
+.hero-lede{font-size:clamp(1.02rem,.95rem + .3vw,1.18rem);line-height:1.55;color:rgba(243,238,226,.9);max-width:44ch}
+.hero-ctas{display:flex;flex-wrap:wrap;align-items:center;gap:14px 26px}
+.hero-ctas .link-arrow{color:var(--brand-ink);font-feature-settings:"tnum"}
+.hero-es{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:14px;color:rgba(243,238,226,.86)}
+.hero-es b{color:var(--accent-soft);font-weight:600}
+.hero-note{justify-self:end;max-width:300px;padding-left:20px;border-left:1px solid rgba(243,238,226,.35)}
+.hero-note .k{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-soft)}
+.hero-note .k i{width:7px;height:7px;border-radius:50%;background:var(--accent-soft);display:inline-block;box-shadow:0 0 0 0 rgba(230,165,127,.6);animation:pulse 2.6s ease-out infinite}
+.hero-note p{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.3;margin-top:8px;font-variation-settings:"SOFT" 100,"opsz" 36}
+.note-item{display:none}
+.note-item.is-now{display:block}
+.hero-plate{position:absolute;right:var(--gutter);top:calc(var(--hh) + 24px);color:rgba(243,238,226,.8);text-align:right;line-height:1.5}
+/* entrance choreography (CSS only) */
+.display .ln,.hero-kicker,.hero-foot > *,.hero-plate{animation:rise 1s var(--ease) both}
+.hero-kicker{animation-delay:.15s}
+.display .ln:nth-child(1){animation-delay:.25s}
+.display .ln:nth-child(2){animation-delay:.38s}
+.display .ln:nth-child(3){animation-delay:.51s}
+.hero-foot > *:nth-child(1){animation-delay:.75s}
+.hero-foot > *:nth-child(2){animation-delay:.85s}
+.hero-foot > *:nth-child(3){animation-delay:.95s}
+.hero-plate{animation-delay:1.1s}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes settle{from{transform:scale(1.07)}to{transform:scale(1)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(230,165,127,.55)}70%,100%{box-shadow:0 0 0 9px rgba(230,165,127,0)}}
+
+/* ============ Trust ribbon ============ */
+.trust{background:var(--bg-2);border-bottom:1px solid var(--line)}
+.trust ul{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.trust li{display:flex;gap:14px;align-items:flex-start;padding:30px 24px;border-left:1px solid var(--line)}
+.trust li:first-child{border-left:0;padding-left:0}
+.trust svg.lucide{width:22px;height:22px;color:var(--brand);margin-top:1px}
+.trust strong{display:block;text-wrap:balance;font-size:15.5px;font-weight:600;line-height:1.3}
+.trust small{display:block;font-size:13.5px;color:var(--muted);margin-top:4px;line-height:1.4}
+.trust .es-item strong{color:var(--accent)}
+
+/* ============ Services ============ */
+.sec-head{display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:32px clamp(32px,5vw,80px);align-items:end}
+.sec-head .lede{padding-bottom:.4em}
+.chapter{margin-top:clamp(56px,7vw,104px)}
+.chapter-head{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:baseline;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+.chapter-head .roman{font-family:var(--serif);font-style:italic;font-size:30px;line-height:1;color:var(--accent);font-variation-settings:"SOFT" 100,"opsz" 72}
+.chapter-head h3{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;line-height:1.2}
+.svc{display:grid;grid-template-columns:72px minmax(0,5fr) minmax(0,6fr);gap:10px clamp(24px,4vw,64px);padding:clamp(26px,3vw,38px) 0;border-bottom:1px solid var(--line);transition:background-color .5s var(--ease)}
+.svc-n{padding-top:.7em;color:var(--accent)}
+.svc h4{font-size:clamp(1.6rem,1.1rem + 1.5vw,2.6rem);font-weight:360;letter-spacing:-.02em;font-variation-settings:"SOFT" 40,"opsz" 96;transition:transform .6s var(--ease)}
+.svc:hover h4{transform:translateX(6px)}
+.svc p{color:var(--muted);max-width:58ch;font-size:17px}
+.svc .inc{margin-top:14px;color:var(--ink);font-size:12px;letter-spacing:.06em;text-transform:uppercase;display:flex;flex-wrap:wrap;gap:6px 20px}
+.svc .inc span::before{content:"";display:inline-block;width:5px;height:5px;margin:0 9px 2px 0;background:var(--accent);vertical-align:middle}
+
+/* bridge photo between the two chapters: breaks out to the right edge */
+.bridge{position:relative;margin:clamp(72px,9vw,128px) calc(50% - 50vw) 0 clamp(0px,8vw,140px);display:grid}
+.bridge-ph{aspect-ratio:21/10;background:var(--bg-2)}
+.bridge-ph img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+.bridge-note{position:absolute;left:clamp(-140px,-8vw,0px);bottom:clamp(-56px,-4vw,-24px);width:min(420px,78%);background:var(--paper);padding:clamp(24px,3vw,36px);border:1px solid var(--line);box-shadow:0 30px 60px -40px rgba(21,42,30,.5)}
+.bridge-note p{font-family:var(--serif);font-size:clamp(1.3rem,1.1rem + .6vw,1.65rem);line-height:1.25;margin-bottom:22px;font-variation-settings:"SOFT" 60,"opsz" 48}
+.bridge-note .link-arrow{color:var(--brand)}
+.bridge .plate{position:absolute;right:var(--gutter);bottom:-30px}
+.bridge + .chapter{margin-top:clamp(110px,12vw,168px)}
+
+/* ============ Seasons (horizontal journey) ============ */
+.seasons{background:var(--brand);color:var(--brand-ink);overflow:hidden;padding-bottom:clamp(56px,6vw,88px)}
+.seasons .h2 em{color:var(--accent-soft)}
+.seasons .lede{color:var(--on-brand-muted)}
+.seasons-top{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:40px clamp(32px,5vw,80px);align-items:end}
+.ruler-wrap{margin-top:clamp(40px,5vw,64px);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end}
+.ruler{position:relative;padding-top:4px}
+.ruler-seasons{display:grid;grid-template-columns:repeat(4,1fr)}
+.ruler-seasons button{appearance:none;border:0;background:transparent;text-align:left;cursor:pointer;padding:0 0 12px;font-family:var(--serif);font-style:italic;font-size:clamp(1.05rem,.9rem + .5vw,1.4rem);color:var(--on-brand-muted);transition:color .3s;font-variation-settings:"SOFT" 100,"opsz" 36}
+.ruler-seasons button:hover,.ruler-seasons button[aria-current="true"]{color:var(--brand-ink)}
+.ruler-months{position:relative;display:grid;grid-template-columns:repeat(12,1fr);border-top:1px solid var(--on-brand-line)}
+.rm{position:relative;padding:12px 0 0 6px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--on-brand-muted)}
+.rm::before{content:"";position:absolute;left:0;top:-1px;width:1px;height:9px;background:rgba(243,238,226,.4)}
+.rm:nth-child(3n+1)::before{height:18px;background:rgba(243,238,226,.7)}
+.rm.is-now{color:var(--accent-soft)}
+.rm.is-now::after{content:"Now";position:absolute;left:6px;top:32px;font-size:10px;letter-spacing:.14em;color:var(--accent-soft)}
+.lang-es .rm.is-now::after{content:"Hoy"}
+.rm.is-now span::before{content:"";position:absolute;left:-4px;top:-5px;width:9px;height:9px;border-radius:50%;background:var(--accent-soft)}
+.ruler-window{position:absolute;left:0;top:-2px;height:3px;width:25%;background:var(--accent-soft);transform:translateX(calc(var(--p,0) * 300%));transition:transform .15s linear}
+.sp-controls{display:flex;gap:10px;padding-bottom:6px}
+.round-btn{width:54px;height:54px;border-radius:50%;border:1px solid rgba(243,238,226,.4);background:transparent;color:var(--brand-ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .3s,color .3s,border-color .3s,opacity .3s}
+.round-btn:hover:not(:disabled){background:var(--brand-ink);color:var(--brand)}
+.round-btn:disabled{opacity:.3;cursor:default}
+.round-btn svg.lucide{width:20px;height:20px}
+.sp-track{--pad:max(var(--gutter), calc((100vw - var(--wrap)) / 2 + var(--gutter)));position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:min(1120px, 84vw);gap:clamp(16px,2vw,28px);overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:var(--pad);padding:40px var(--pad) 8px;scrollbar-width:none;margin-top:8px}
+.sp-track::-webkit-scrollbar{display:none}
+.sp-track:focus-visible{outline:2px solid var(--accent-soft);outline-offset:-2px}
+.sp{scroll-snap-align:start;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);background:var(--brand-deep);min-height:min(640px, 74vh)}
+.sp-ph{position:relative;margin:0;overflow:hidden;background:#233F2E}
+.sp-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sp-ph .plate{position:absolute;left:16px;bottom:14px;color:rgba(243,238,226,.9);text-shadow:0 1px 10px rgba(0,0,0,.5)}
+.sp-body{display:flex;flex-direction:column;padding:clamp(28px,3.2vw,48px)}
+.sp-when{color:var(--accent-soft)}
+.sp-name{font-size:clamp(3rem,2rem + 3.6vw,5.6rem);font-style:italic;font-weight:320;line-height:.95;margin-top:14px;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.sp-intro{font-family:var(--serif);font-size:clamp(1.12rem,1rem + .4vw,1.4rem);line-height:1.35;color:rgba(243,238,226,.88);margin-top:22px;max-width:30ch;font-variation-settings:"SOFT" 60,"opsz" 36}
+.sp-now{display:none;align-self:flex-start;margin-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-deep);background:var(--accent-soft);padding:5px 10px}
+.sp.is-now .sp-now{display:inline-block}
+.sp-list{margin-top:auto;padding-top:28px}
+.sp-list li{position:relative;padding:11px 0 11px 26px;border-top:1px solid var(--on-brand-line);font-size:16px;line-height:1.45;color:rgba(243,238,226,.9)}
+.sp-list li::before{content:"";position:absolute;left:2px;top:21px;width:12px;height:1px;background:var(--accent-soft)}
+.seasons-foot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center;margin-top:36px;color:var(--on-brand-muted);font-size:15.5px}
+.seasons-foot .link-arrow{color:var(--brand-ink)}
+
+/* ============ Work / gallery (magazine) ============ */
+.work .sec-head{margin-bottom:clamp(48px,6vw,88px)}
+.gallery{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:clamp(16px,2.2vw,32px);row-gap:clamp(48px,6vw,88px)}
+.gallery figure{margin:0}
+.gallery .ph{background:var(--bg-2)}
+.gallery img{width:100%;height:100%;object-fit:cover}
+.gallery figcaption{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin-top:16px;font-size:15.5px;line-height:1.45}
+.gallery figcaption .plate{grid-row:span 2;padding-top:3px}
+.gallery .town{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.gallery .what{color:var(--muted);max-width:44ch}
+.g1{grid-column:1 / span 7}.g1 .ph{aspect-ratio:5/4}
+.g2{grid-column:9 / span 4;align-self:end}.g2 .ph{aspect-ratio:4/5}
+.g3{grid-column:2 / span 4}.g3 .ph{aspect-ratio:1/1}
+.g4{grid-column:7 / span 6;margin-top:clamp(-120px,-7vw,-40px)!important}.g4 .ph{aspect-ratio:3/2}
+.g5{grid-column:1 / -1}.g5 .ph{aspect-ratio:21/8}
+.g-quote{grid-column:1 / span 5;align-self:center}
+.g-quote p{font-family:var(--serif);font-style:italic;font-size:clamp(1.5rem,1.1rem + 1.2vw,2.3rem);line-height:1.2;color:var(--brand);font-variation-settings:"SOFT" 100,"opsz" 72}
+.g-quote .link-arrow{margin-top:22px;color:var(--brand)}
+
+/* ============ Process + sketch plan ============ */
+.process{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.process-grid{display:grid;grid-template-columns:minmax(0,4.4fr) minmax(0,7.6fr);gap:clamp(40px,6vw,96px);align-items:start}
+.steps{margin-top:clamp(36px,4vw,56px)}
+.step{display:grid;grid-template-columns:64px 1fr;gap:18px;padding:26px 0;border-top:1px solid var(--line)}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step .n{font-family:var(--serif);font-size:46px;line-height:.85;color:var(--accent);font-weight:300;font-style:italic;font-variation-settings:"SOFT" 100,"opsz" 144}
+.step h3{font-size:1.5rem;font-variation-settings:"SOFT" 50,"opsz" 48}
+.step p{color:var(--muted);margin-top:8px;font-size:17px}
+.sheet{position:sticky;top:calc(var(--hh-sm) + 28px);background:var(--paper);border:1px solid var(--line);padding:clamp(14px,1.6vw,24px);box-shadow:0 1px 0 rgba(0,0,0,.03),0 40px 70px -50px rgba(21,42,30,.55)}
+.sheet::before{content:"";position:absolute;left:50%;top:-12px;width:110px;height:24px;transform:translateX(-50%) rotate(1.5deg);background:rgba(233,226,208,.85);border:1px solid rgba(211,201,179,.7)}
+.sheet svg.sketch{width:100%;height:auto;display:block}
+.sketch-scroll{outline-offset:4px}
+.sheet .cap{display:flex;gap:12px;align-items:flex-start;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:15px;color:var(--muted)}
+.sheet .cap svg.lucide{width:19px;height:19px;color:var(--accent);margin-top:3px}
+.sk-line{stroke:var(--brand);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sk-thin{stroke:var(--brand);fill:none;stroke-width:1;opacity:.6}
+.sk-acc{stroke:var(--accent);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sk-text{font-family:var(--serif);font-style:italic;font-size:15px;fill:var(--brand);font-variation-settings:"SOFT" 100}
+.sk-small{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;fill:var(--muted)}
+.sk-acc-text{font-family:var(--serif);font-style:italic;font-size:14px;fill:var(--accent);font-variation-settings:"SOFT" 100}
+.sk-hand{font-family:var(--serif);font-style:italic;font-size:12.5px;fill:var(--accent)}
+.sk-title{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.14em;fill:var(--ink)}
+/* drawn on scroll */
+.js .sketch .draw{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.6s cubic-bezier(.55,.1,.25,1);transition-delay:var(--d,0s)}
+.js .sketch .ink{opacity:0;transition:opacity .9s ease;transition-delay:var(--d,0s)}
+.js .sketch.is-drawn .draw{stroke-dashoffset:0}
+.js .sketch.is-drawn .ink{opacity:1}
+
+/* ============ Plans (editorial, no prices) ============ */
+.plans-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:clamp(48px,6vw,80px);border-top:1px solid var(--ink);align-items:stretch}
+.plan{display:flex;flex-direction:column;padding:clamp(28px,3vw,44px) clamp(22px,2.6vw,40px) clamp(28px,3vw,40px);border-left:1px solid var(--line)}
+.plan:first-child{border-left:0;padding-left:0}
+.plan .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.plan h3{font-size:clamp(2rem,1.4rem + 1.6vw,2.9rem);font-style:italic;font-weight:320;margin-top:14px;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.mbar{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:22px}
+.mbar i{height:7px;background:var(--line-soft)}
+.mbar i.on{background:var(--brand)}
+.mbar i.is-now{outline:1px solid var(--accent);outline-offset:2px}
+.mbar-l{display:flex;justify-content:space-between;margin-top:8px;color:var(--muted)}
+.plan .span{margin-top:6px;font-weight:600;font-size:15px}
+.plan ul{margin:26px 0 30px;border-top:1px solid var(--line)}
+.plan li{position:relative;padding:12px 0 12px 24px;border-bottom:1px solid var(--line-soft);font-size:16px;line-height:1.45}
+.plan li::before{content:"";position:absolute;left:0;top:19px;width:11px;height:6px;border-left:1.5px solid var(--brand);border-bottom:1.5px solid var(--brand);transform:rotate(-45deg)}
+.plan .price{margin-top:auto;padding-bottom:20px}
+.plan .price strong{display:block;font-family:var(--serif);font-weight:400;font-size:21px;line-height:1.2;font-variation-settings:"SOFT" 60,"opsz" 36}
+.plan .price span{font-size:14.5px;color:var(--muted)}
+.plan .btn{width:100%}
+.plan.featured{background:var(--brand);color:var(--brand-ink);border-left:0;margin-top:-1px;padding-left:clamp(22px,2.6vw,40px);padding-right:clamp(22px,2.6vw,40px);box-shadow:0 -6px 0 var(--brand)}
+.plan.featured + .plan{border-left:0}
+.plan.featured .tag{color:var(--accent-soft)}
+.plan.featured .mbar i{background:rgba(243,238,226,.14)}
+.plan.featured .mbar i.on{background:var(--accent-soft)}
+.plan.featured .mbar-l,.plan.featured .price span{color:var(--on-brand-muted)}
+.plan.featured ul{border-top-color:var(--on-brand-line)}
+.plan.featured li{border-bottom-color:var(--on-brand-line)}
+.plan.featured li::before{border-color:var(--accent-soft)}
+.plan.featured .mbar i.is-now{outline-color:var(--brand-ink)}
+.plans-note{margin-top:28px;color:var(--muted);font-size:15.5px;display:flex;gap:10px;align-items:center}
+.plans-note svg.lucide{color:var(--accent)}
+
+/* ============ About ============ */
+.about{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.about-grid{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:clamp(40px,6vw,104px);align-items:start}
+.about-fig{position:relative;margin:0 0 0 calc(-1 * max(var(--gutter), (100vw - var(--wrap)) / 2 + var(--gutter)))}
+.about-fig .ph{aspect-ratio:5/6}
+.about-fig img{width:100%;height:100%;object-fit:cover;object-position:55% 50%}
+.about-fig .plate{margin-top:12px;padding-left:max(var(--gutter), calc((100vw - var(--wrap)) / 2 + var(--gutter)))}
+.stamp{position:absolute;right:-56px;top:48px;width:132px;height:132px;color:var(--brand)}
+.stamp svg{width:100%;height:100%;overflow:visible}
+.stamp .ring{font-family:var(--mono);font-size:8.6px;letter-spacing:.2em;text-transform:uppercase;fill:var(--brand)}
+.stamp .yr{font-family:var(--serif);font-size:30px;fill:var(--brand);font-variation-settings:"SOFT" 100,"opsz" 144}
+.pull{font-family:var(--serif);font-style:italic;font-weight:320;font-size:clamp(1.55rem,1.2rem + 1.2vw,2.4rem);line-height:1.18;color:var(--brand);margin-top:32px;padding-left:22px;border-left:2px solid var(--accent);font-variation-settings:"SOFT" 100,"opsz" 96;text-wrap:balance}
+.about-text p.body{font-size:18px;margin-top:22px;max-width:58ch}
+.about-text p.body.first{margin-top:32px}
+.sign{font-family:var(--serif);font-style:italic;font-size:32px;color:var(--brand);margin-top:30px;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.sign small{display:block;font-family:var(--mono);font-style:normal;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px;margin-top:36px;border-top:1px solid var(--line)}
+.facts div{padding:14px 0;border-bottom:1px solid var(--line)}
+.facts dt{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.facts dd{margin:4px 0 0;font-weight:500;font-size:16.5px}
+
+/* ============ Reviews (optional) ============ */
+.reviews-top{display:flex;justify-content:space-between;align-items:end;gap:32px;flex-wrap:wrap}
+.g-rating{display:flex;align-items:center;gap:16px;font-size:15px;color:var(--muted)}
+.g-rating .score{font-family:var(--serif);font-size:64px;line-height:.9;color:var(--ink);font-weight:320;font-variation-settings:"SOFT" 60,"opsz" 144}
+.stars{display:inline-flex;gap:2px;color:#9A5B12}
+.stars svg.lucide{width:15px;height:15px;fill:currentColor;stroke-width:1}
+.reviews{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:clamp(40px,5vw,64px);border-top:1px solid var(--ink)}
+.review{display:flex;flex-direction:column;padding:32px clamp(20px,2.6vw,40px) 8px;border-left:1px solid var(--line)}
+.review:first-child{border-left:0;padding-left:0}
+.review .q{font-family:var(--serif);font-size:64px;line-height:.6;height:28px;color:var(--accent);font-variation-settings:"SOFT" 100,"opsz" 144}
+.review blockquote{margin:12px 0 26px;font-family:var(--serif);font-size:clamp(1.12rem,1rem + .35vw,1.3rem);line-height:1.45;font-variation-settings:"SOFT" 60,"opsz" 24}
+.review footer{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
+.review footer b{font-weight:600}
+.review footer span{color:var(--muted);font-family:var(--mono);font-size:11.5px;letter-spacing:.08em}
+
+/* ============ Area ============ */
+.area{border-top:1px solid var(--line)}
+.area-grid{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:clamp(40px,6vw,96px);align-items:start}
+.towns{margin-top:clamp(32px,4vw,48px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;border-top:1px solid var(--ink)}
+.towns li{display:flex;align-items:baseline;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+.towns li .mono{color:var(--accent);font-size:11.5px;width:22px}
+.towns li b{font-family:var(--serif);font-weight:380;font-size:clamp(1.25rem,1.1rem + .5vw,1.6rem);line-height:1.1;font-variation-settings:"SOFT" 50,"opsz" 48}
+.towns li.home b{font-style:italic;color:var(--brand)}
+.towns li small{margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.area-note{margin-top:24px;color:var(--muted);font-size:16px;max-width:48ch}
+.map-fig{margin:0}
+.map{position:relative;aspect-ratio:1/1.02;border:1px solid var(--line);background:var(--bg-2);padding:10px}
+.map iframe{width:100%;height:100%;border:0;display:block;filter:saturate(.55) sepia(.18) contrast(1.02)}
+.map-fig figcaption{display:flex;justify-content:space-between;gap:16px;margin-top:12px}
+
+/* ============ FAQ ============ */
+.faq{background:var(--bg-2);border-top:1px solid var(--line)}
+.faq-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(40px,6vw,96px)}
+.faq-side{position:sticky;top:calc(var(--hh-sm) + 40px);align-self:start}
+.faq-side .lede{margin-top:24px}
+.faq-side .link-arrow{margin-top:24px;color:var(--brand);font-feature-settings:"tnum"}
+.faq-list details{border-bottom:1px solid var(--line)}
+.faq-list details:first-child{border-top:1px solid var(--ink)}
+.faq-list summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:24px 0;font-family:var(--serif);font-size:clamp(1.2rem,1.05rem + .5vw,1.5rem);line-height:1.25;font-variation-settings:"SOFT" 50,"opsz" 36;transition:color .3s}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary .qn{font-family:var(--mono);font-size:11.5px;color:var(--accent);letter-spacing:.06em}
+.faq-list summary:hover{color:var(--brand)}
+.faq-list summary .pm{position:relative;flex:none;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;transition:transform .45s var(--ease),background-color .3s,border-color .3s}
+.faq-list summary .pm::before,.faq-list summary .pm::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:1.5px;background:currentColor;transform:translate(-50%,-50%)}
+.faq-list summary .pm::after{transform:translate(-50%,-50%) rotate(90deg)}
+.faq-list details[open] summary .pm{transform:rotate(45deg);background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.faq-list .ans{padding:0 64px 28px 56px;color:var(--muted);max-width:70ch;font-size:17px}
+
+/* ============ Contact ============ */
+.contact{background:var(--brand);color:var(--brand-ink)}
+.contact .h2 em{color:var(--accent-soft)}
+.contact-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(40px,6vw,96px);align-items:start}
+.big-phone{display:inline-block;font-family:var(--serif);font-weight:320;font-size:clamp(2.5rem,1.6rem + 3vw,4.6rem);line-height:1;letter-spacing:-.03em;text-decoration:none;margin-top:36px;font-feature-settings:"tnum","lnum";font-variation-settings:"SOFT" 40,"opsz" 144;background:linear-gradient(var(--accent-soft),var(--accent-soft)) 0 100%/0 2px no-repeat;padding-bottom:6px;transition:background-size .6s var(--ease)}
+.big-phone:hover{background-size:100% 2px}
+.contact .sub{color:var(--on-brand-muted);margin-top:10px;font-size:16px}
+.info-list{margin-top:36px;border-top:1px solid var(--on-brand-line)}
+.info-list li{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--on-brand-line);font-size:16px}
+.info-list svg.lucide{margin-top:4px;color:var(--accent-soft);width:18px;height:18px}
+.info-list a{text-decoration:none}
+.info-list a:hover{text-decoration:underline;text-underline-offset:4px}
+.contact-form{background:var(--paper);color:var(--ink);padding:clamp(28px,4vw,56px);box-shadow:0 50px 80px -50px rgba(0,0,0,.5)}
+.contact-form .form-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--ink)}
+.contact-form h3{font-size:clamp(1.6rem,1.3rem + .8vw,2.1rem);font-variation-settings:"SOFT" 60,"opsz" 72}
+.contact-form .hint{color:var(--muted);margin-top:16px;font-size:16px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:22px 24px;margin-top:26px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1 / -1}
+.field label{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.field label .opt{text-transform:none;letter-spacing:.02em}
+.field input,.field select,.field textarea{width:100%;min-height:52px;padding:12px 2px;border:0;border-bottom:1px solid #A89D84;border-radius:0;background:transparent;font-size:17px;transition:border-color .3s,background-color .3s,padding .3s}
+.field textarea{min-height:120px;resize:vertical;line-height:1.5}
+.field input::placeholder,.field textarea::placeholder{color:#8B8676}
+.field input:hover,.field select:hover,.field textarea:hover{border-bottom-color:var(--ink)}
+.field select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23A24E2B' stroke-width='1.8'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center;padding-right:32px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-bottom:2px solid var(--accent);background-color:rgba(162,78,43,.05);padding-left:10px}
+.field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible{outline:none}
+.field input:user-invalid{border-bottom-color:#B3261E}
+.form-foot{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin-top:32px}
+.form-foot small{color:var(--muted);font-size:14px;max-width:36ch}
+
+/* ============ Footer ============ */
+.footer{background:var(--brand-deep);color:rgba(243,238,226,.8);padding:clamp(64px,8vw,104px) 0 0;font-size:15px;overflow:hidden}
+.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px}
+.footer .logo{color:var(--brand-ink);--stone:var(--accent-soft)}
+.footer h4{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-soft);margin-bottom:16px}
+.footer p + p{margin-top:6px}
+.footer a{text-decoration:none}
+.footer a:hover{color:#fff;text-decoration:underline;text-underline-offset:4px}
+.footer .tagline{margin-top:22px;max-width:34ch}
+.footer .hours{display:grid;grid-template-columns:auto 1fr;gap:4px 18px;font-feature-settings:"tnum"}
+.wordmark{display:block;font-family:var(--serif);font-weight:300;font-size:clamp(4.5rem,21.6vw,23rem);line-height:.8;letter-spacing:-.055em;color:var(--brand-ink);margin:clamp(56px,7vw,96px) 0 0 -.04em;white-space:nowrap;font-variation-settings:"SOFT" 30,"opsz" 144;user-select:none}
+.wordmark em{font-style:italic;color:var(--accent-soft);font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.footer-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:22px 0 28px;border-top:1px solid rgba(243,238,226,.14);font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:rgba(243,238,226,.62)}
+
+/* Mobile call bar */
+.callbar{display:none}
+
+/* ============ Responsive ============ */
+@media (max-width:1280px){
+  .nav{gap:22px}
+  .header-phone span.num{display:none}
+}
+@media (max-width:1200px){
+  .nav,.header .btn,.header-phone{display:none}
+  .menu-btn{display:inline-flex}
+  .header-actions{margin-left:auto;gap:10px}
+  .mobile-nav{position:absolute;left:0;right:0;top:100%;background:var(--bg);color:var(--ink);border-bottom:1px solid var(--line);padding:6px var(--gutter) 24px;box-shadow:0 30px 50px -30px rgba(21,42,30,.45);max-height:calc(100vh - var(--hh));overflow:auto}
+  .mobile-nav.open{display:block}
+  .mobile-nav a.nl{display:flex;justify-content:space-between;align-items:baseline;padding:15px 0;border-bottom:1px solid var(--line);font-family:var(--serif);font-size:24px;text-decoration:none;font-variation-settings:"SOFT" 50,"opsz" 48}
+  .mobile-nav a.nl .mono{color:var(--accent);font-size:11px}
+  .mobile-nav .btn{width:100%;margin-top:20px}
+  .mobile-nav .m-phone{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:14px;font-weight:600;text-decoration:none}
+  .trust ul{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .trust li{border-left:0;padding:22px 20px 22px 0}
+  .trust li:nth-child(n+4){border-top:1px solid var(--line)}
+}
+@media (max-width:1024px){
+  .hero-foot{grid-template-columns:1fr 1fr}
+  .hero-note{grid-column:1 / -1;justify-self:start}
+  .sec-head,.seasons-top,.process-grid,.about-grid,.area-grid,.faq-grid,.contact-grid{grid-template-columns:minmax(0,1fr)}
+  .svc{grid-template-columns:56px minmax(0,1fr)}
+  .svc > div{grid-column:2}
+  .bridge{margin-left:calc(-1 * var(--gutter));margin-right:calc(-1 * var(--gutter))}
+  .bridge-note{position:relative;left:auto;bottom:auto;width:auto;margin:-64px var(--gutter) 0;}
+  .bridge .plate{position:static;margin:12px var(--gutter) 0}
+  .sp{grid-template-columns:1fr;min-height:0}
+  .sp-ph{aspect-ratio:16/10}
+  .sheet,.faq-side{position:static}
+  .sheet{transform:none;max-width:760px}
+  .plans-grid{grid-template-columns:1fr;border-top:0}
+  .plan,.plan:first-child{border-left:0;padding-left:0;padding-right:0;border-top:1px solid var(--ink)}
+  .plan.featured{padding:36px 28px;margin:0 calc(-1 * var(--gutter) + 8px)}
+  .about-fig{margin:0 calc(-1 * var(--gutter));max-width:none}
+  .about-fig .ph{aspect-ratio:4/3}
+  .about-fig .plate{padding-left:var(--gutter)}
+  .stamp{right:var(--gutter);top:auto;bottom:-40px;width:112px;height:112px}
+  .reviews{grid-template-columns:1fr}
+  .review,.review:first-child{border-left:0;padding-left:0;padding-right:0;border-top:1px solid var(--line)}
+  .review:first-child{border-top:0}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:720px){
+  :root{--hh:70px;--hh-sm:62px}
+  body{font-size:17px;padding-bottom:76px}
+  .logo svg,.is-scrolled .logo svg{width:36px;height:36px}
+  .logo-name{font-size:22px}
+  .logo-sub{font-size:8.5px;letter-spacing:.1em}
+  .lang-switch button{padding:5px 8px}
+  .hero{min-height:640px;max-height:none}
+  .hero-media img{object-position:30% 60%}
+  .hero::before{background:linear-gradient(to bottom, rgba(21,42,30,.6) 0%, rgba(21,42,30,0) 22%),linear-gradient(to top, rgba(21,42,30,.95) 0%, rgba(21,42,30,.72) 42%, rgba(21,42,30,.1) 72%, rgba(21,42,30,0) 84%)}
+  .hero-kicker .rule,.hero-plate{display:none}
+  .display{font-size:clamp(2.7rem,12.4vw,3.6rem);line-height:.94;letter-spacing:-.03em}
+  .hero-foot{grid-template-columns:1fr;gap:20px;margin-top:22px;padding-top:18px}
+  .hero-note{display:none}
+  .hero-lede{font-size:16px}
+  .hero-ctas .btn{flex:1 1 100%}
+  .hero-ctas .link-arrow{margin:0 auto}
+  .hero-es{display:none}
+  .trust ul{grid-template-columns:1fr 1fr}
+  .trust li,.trust li:nth-child(n+4){padding:18px 12px 18px 0;border-top:1px solid var(--line)}
+  .trust li:nth-child(-n+2){border-top:0}
+  .trust li.es-item{grid-column:1 / -1}
+  .trust svg.lucide{width:20px;height:20px}
+  .trust strong{font-size:14.5px}
+  .trust small{font-size:13px}
+  .folio{grid-template-columns:auto 1fr;margin-bottom:36px}
+  .folio .fr{display:none}
+  .svc{grid-template-columns:1fr;gap:8px}
+  .svc > div{grid-column:1}
+  .svc-n{padding-top:0}
+  .svc p{font-size:16px}
+  .bridge-ph{aspect-ratio:4/3}
+  .bridge-note{margin-top:-48px}
+  .ruler-wrap{grid-template-columns:1fr}
+  .sp-controls{display:none}
+  .rm{font-size:9.5px;padding-left:3px;letter-spacing:0}
+  .ruler-seasons button{font-size:1rem}
+  .sp-track{grid-auto-columns:86vw;gap:12px;padding-top:44px}
+  .sp-ph{aspect-ratio:4/3}
+  .sp-body{padding:24px 22px 26px}
+  .sp-list li{font-size:15px}
+  .gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin:0 calc(-1 * var(--gutter));padding:0 var(--gutter) 6px;scroll-padding-inline:var(--gutter);scrollbar-width:none}
+  .gallery::-webkit-scrollbar{display:none}
+  .gallery figure{flex:0 0 82vw;scroll-snap-align:start;margin-top:0!important}
+  .gallery .ph{aspect-ratio:4/5!important}
+  .gallery .g-quote{flex-basis:70vw}
+  .gallery figcaption{grid-template-columns:1fr}
+  .gallery figcaption .plate{grid-row:auto}
+  .swipe-hint{display:flex!important}
+  .sketch-scroll{overflow-x:auto;margin:0 -14px;padding:0 14px;scrollbar-width:thin}
+  .sheet svg.sketch{width:600px;max-width:none}
+  .sheet{margin:0 calc(-1 * var(--gutter) + 6px)}
+  .step{grid-template-columns:48px 1fr}
+  .step .n{font-size:38px}
+  .plan.featured{margin:0 calc(-1 * var(--gutter));padding:32px var(--gutter)}
+  .facts{grid-template-columns:1fr}
+  .stamp{width:96px;height:96px;bottom:-34px}
+  .towns{grid-template-columns:1fr}
+  .map{aspect-ratio:4/3.4}
+  .map-fig figcaption{flex-direction:column;gap:4px}
+  .faq-list summary{grid-template-columns:30px 1fr auto;gap:8px}
+  .faq-list .ans{padding:0 0 24px 38px;font-size:16px}
+  .fields{grid-template-columns:1fr}
+  .form-foot .btn{width:100%}
+  .contact-form{margin:0 calc(-1 * var(--gutter));padding:32px var(--gutter)}
+  .footer-grid{grid-template-columns:1fr}
+  .callbar{display:grid;grid-template-columns:1.2fr 1fr;position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--brand-deep);padding:9px 10px calc(9px + env(safe-area-inset-bottom));gap:8px;box-shadow:0 -12px 30px -18px rgba(0,0,0,.5)}
+  .callbar a{display:flex;align-items:center;justify-content:center;gap:9px;min-height:52px;border-radius:var(--radius);font-weight:600;text-decoration:none;font-size:16px}
+  .callbar .c1{background:var(--brand-ink);color:var(--brand-deep)}
+  .callbar .c2{border:1px solid rgba(243,238,226,.4);color:var(--brand-ink)}
+}
+.swipe-hint{display:none;align-items:center;gap:8px;margin-top:18px;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){
+  html:focus-within{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv{opacity:1;transform:none}
+  .js .sketch .draw{stroke-dashoffset:0}
+  .js .sketch .ink{opacity:1}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main"><span data-en>Skip to content</span><span data-es>Ir al contenido</span></a>
+
+<!-- slot: header -->
+<header class="header">
+  <div class="bar">
+    <div class="wrap-wide bar-inner">
+      <!-- slot: business_name / logo -->
+      <a class="logo" href="#top" aria-label="Hernández Landscaping &amp; Hardscape">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <circle cx="22" cy="22" r="21.2" fill="none" stroke="currentColor" stroke-width="1.1"/>
+          <path d="M22 7.8c6.9 3.6 8 11.4 0 17.3-8-5.9-6.9-13.7 0-17.3Z" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+          <path d="M22 11.5v13.4M22 16.4l-3-2.5M22 19.9l3.2-2.7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+          <rect x="10.8" y="27.6" width="10.6" height="3.9" rx="1.3" fill="var(--stone)"/>
+          <rect x="22.6" y="27.6" width="10.6" height="3.9" rx="1.3" fill="var(--stone)"/>
+          <rect x="15.2" y="32.8" width="13.6" height="3.9" rx="1.3" fill="var(--stone)"/>
+        </svg>
+        <span>
+          <span class="logo-name">Hernández</span>
+          <span class="logo-sub">Landscaping &amp; Hardscape</span>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href="#services"><span data-en>Services</span><span data-es>Servicios</span></a>
+        <a href="#seasons"><span data-en>Seasons</span><span data-es>Temporadas</span></a>
+        <a href="#work"><span data-en>Our work</span><span data-es>Trabajos</span></a>
+        <a href="#process"><span data-en>How we work</span><span data-es>Cómo trabajamos</span></a>
+        <a href="#area"><span data-en>Area</span><span data-es>Zona</span></a>
+        <a href="#faq"><span data-en>FAQ</span><span data-es>Preguntas</span></a>
+      </nav>
+      <div class="header-actions">
+        <!-- slot: phone -->
+        <a class="header-phone" href="tel:+12035550147"><i data-lucide="phone"></i><span class="num">(203) 555-0147</span><span class="sr-only">Call</span></a>
+        <div class="lang-switch" role="group" aria-label="Language / Idioma">
+          <button type="button" data-lang="en" aria-pressed="true"><span>EN</span></button>
+          <button type="button" data-lang="es" aria-pressed="false"><span>ES</span></button>
+        </div>
+        <a class="btn btn-primary" href="#contact"><span data-en>Free estimate</span><span data-es>Presupuesto gratis</span></a>
+        <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav">
+          <i data-lucide="menu"></i><span class="sr-only"><span data-en>Menu</span><span data-es>Menú</span></span>
+        </button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+      <a class="nl" href="#services"><span><span data-en>Services</span><span data-es>Servicios</span></span><span class="mono">01</span></a>
+      <a class="nl" href="#seasons"><span><span data-en>Seasons</span><span data-es>Temporadas</span></span><span class="mono">02</span></a>
+      <a class="nl" href="#work"><span><span data-en>Our work</span><span data-es>Trabajos</span></span><span class="mono">03</span></a>
+      <a class="nl" href="#process"><span><span data-en>How we work</span><span data-es>Cómo trabajamos</span></span><span class="mono">04</span></a>
+      <a class="nl" href="#area"><span><span data-en>Service area</span><span data-es>Zona de servicio</span></span><span class="mono">07</span></a>
+      <a class="nl" href="#faq"><span><span data-en>FAQ</span><span data-es>Preguntas frecuentes</span></span><span class="mono">08</span></a>
+      <a class="btn btn-primary" href="#contact"><span data-en>Get a free estimate</span><span data-es>Pide tu presupuesto gratis</span><i data-lucide="arrow-right"></i></a>
+      <a class="m-phone" href="tel:+12035550147"><i data-lucide="phone"></i>(203) 555-0147</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<!-- slot: hero -->
+<section class="hero" id="top">
+  <!-- slot: hero_photo -->
+  <figure class="hero-media">
+    <img class="graded" src="https://images.unsplash.com/photo-1738193830098-2d92352a1856?w=2000&q=80&auto=format&fit=crop" width="2000" height="1333" alt="Front yard of a brick colonial home with a freshly striped lawn, a curved block retaining wall and mulched shrub beds" fetchpriority="high">
+  </figure>
+  <p class="hero-plate plate" aria-hidden="true">Pl. 01<br><span data-en>Front lawn &amp; block wall</span><span data-es>Césped y muro de bloque</span></p>
+  <div class="wrap-wide hero-inner">
+    <p class="hero-kicker"><span class="label" data-en>Landscaping &amp; hardscape</span><span class="label" data-es>Jardinería y trabajos en piedra</span><span class="rule" aria-hidden="true"></span><span class="mono">Waterbury, Connecticut</span></p>
+    <!-- slot: hero_headline (qué hacen + dónde) -->
+    <h1 class="display">
+      <span data-en><span class="ln">Lawns, gardens</span> <span class="ln">&amp; stone walls</span> <span class="ln"><em>in Waterbury, CT</em></span></span>
+      <span data-es><span class="ln">Césped, jardines</span> <span class="ln">y muros de piedra</span> <span class="ln"><em>en Waterbury, CT</em></span></span>
+    </h1>
+    <div class="hero-foot">
+      <div>
+        <p class="hero-lede" data-en>Weekly mowing, spring and fall cleanups, patios and retaining walls across the Naugatuck Valley. A family crew, a written price before we start, and a phone that gets answered.</p>
+        <p class="hero-lede" data-es>Corte semanal, limpiezas de primavera y otoño, patios y muros de contención en todo el Naugatuck Valley. Un equipo familiar, precio por escrito antes de empezar y un teléfono que sí se contesta.</p>
+      </div>
+      <div>
+        <div class="hero-ctas">
+          <a class="btn btn-cream" href="#contact"><span data-en>Get a free estimate</span><span data-es>Pide tu presupuesto gratis</span><i data-lucide="arrow-right"></i></a>
+          <a class="link-arrow" href="tel:+12035550147"><i data-lucide="phone"></i>(203) 555-0147</a>
+        </div>
+        <p class="hero-es"><i data-lucide="languages"></i><span>We speak Spanish · <b>Hablamos español</b></span></p>
+      </div>
+      <!-- slot: seasonal_note (el JS muestra la de la temporada actual) -->
+      <aside class="hero-note">
+        <span class="k"><i></i><span data-en>Now booking</span><span data-es>Ya estamos agendando</span></span>
+        <div class="note-item" data-season="spring"><p data-en>Spring cleanups, fresh edges and mulch, March to May.</p><p data-es>Limpiezas de primavera, bordes y mulch nuevo, de marzo a mayo.</p></div>
+        <div class="note-item" data-season="summer"><p data-en>Patios, walkways and walls for this summer.</p><p data-es>Patios, caminos y muros para este verano.</p></div>
+        <div class="note-item is-now" data-season="fall"><p data-en>Fall cleanups &amp; overseeding, October to early December.</p><p data-es>Limpiezas de otoño y resiembra, de octubre a principios de diciembre.</p></div>
+        <div class="note-item" data-season="winter"><p data-en>Snow plans, and design visits for spring projects.</p><p data-es>Planes de nieve y visitas para planear los proyectos de primavera.</p></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- slot: trust_badges -->
+<section class="trust" aria-label="Why homeowners call us">
+  <div class="wrap">
+    <ul>
+      <li><i data-lucide="shield-check"></i><div><strong data-en>Licensed &amp; insured</strong><strong data-es>Con licencia y seguro</strong><small>CT HIC.0000000<!-- slot: license --></small></div></li>
+      <li><i data-lucide="file-pen-line"></i><div><strong data-en>Free written estimates</strong><strong data-es>Presupuesto gratis y por escrito</strong><small data-en>Clear price before we start</small><small data-es>Precio claro antes de empezar</small></div></li>
+      <li><i data-lucide="clock"></i><div><strong data-en>Same-day reply</strong><strong data-es>Respuesta el mismo día</strong><small data-en>Call or text, Monday to Saturday</small><small data-es>Llamada o mensaje, de lunes a sábado</small></div></li>
+      <li><i data-lucide="user-round"></i><div><strong data-en>The owner on every job</strong><strong data-es>El dueño en cada trabajo</strong><small data-en>Carlos walks every property himself</small><small data-es>Carlos visita cada propiedad en persona</small></div></li>
+      <li class="es-item"><i data-lucide="languages"></i><div><strong>Hablamos español</strong><small data-en>We speak English and Spanish</small><small data-es>Te atendemos en inglés o en español</small></div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- slot: services -->
+<section class="section services" id="services">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">01</span><span class="ft" data-en>Services</span><span class="ft" data-es>Servicios</span><span class="fr" data-en>Care &amp; build, one crew</span><span class="fr" data-es>Cuidado y obra, un solo equipo</span></div>
+    <div class="sec-head">
+      <h2 class="h2 rv"><span data-en>Care for the yard you have. <em>Stone work</em> for the one you want.</span><span data-es>Cuidamos el jardín que tienes. Construimos <em>el que quieres.</em></span></h2>
+      <p class="lede rv" style="--rd:.1s" data-en>Most customers start with weekly mowing or a cleanup, then ask us about a patio or a wall. We do both, with the same crew.</p>
+      <p class="lede rv" style="--rd:.1s" data-es>La mayoría empieza con el corte semanal o una limpieza, y luego nos pregunta por un patio o un muro. Hacemos las dos cosas, con el mismo equipo.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head rv"><span class="roman" aria-hidden="true">I.</span><h3><span data-en>Landscaping · Care</span><span data-es>Jardinería · Mantenimiento</span></h3><span class="mono" aria-hidden="true">01–04</span></div>
+      <ol>
+        <li class="svc rv">
+          <span class="svc-n mono">01</span>
+          <h4><span data-en>Weekly lawn care</span><span data-es>Corte de césped semanal</span></h4>
+          <div>
+            <p data-en>Mowing, string trimming along fences and beds, crisp edges on walks and driveway, and every clipping blown off the hard surfaces. Same day each week, April through November.</p>
+            <p data-es>Corte, orillas con desbrozadora junto a cercas y jardineras, bordes limpios en aceras y entrada, y soplado de todo el pasto que cae en el pavimento. El mismo día cada semana, de abril a noviembre.</p>
+            <p class="inc mono"><span data-en>Mowing</span><span data-es>Corte</span><span data-en>Trimming</span><span data-es>Orillas</span><span data-en>Edging</span><span data-es>Bordes</span><span data-en>Blow-off</span><span data-es>Soplado</span></p>
+          </div>
+        </li>
+        <li class="svc rv">
+          <span class="svc-n mono">02</span>
+          <h4><span data-en>Spring &amp; fall cleanups</span><span data-es>Limpiezas de primavera y otoño</span></h4>
+          <div>
+            <p data-en>Leaves, sticks and storm debris out of the lawn and beds, perennials cut back, bed edges re-cut. We haul every bag and branch away the same day.</p>
+            <p data-es>Sacamos hojas, ramas y restos de tormenta del césped y las jardineras, recortamos las perennes y volvemos a perfilar los bordes. Nos llevamos cada bolsa y cada rama el mismo día.</p>
+            <p class="inc mono"><span data-en>Leaf removal</span><span data-es>Retiro de hojas</span><span data-en>Bed cutback</span><span data-es>Recorte de jardineras</span><span data-en>Haul-away</span><span data-es>Retiro de restos</span></p>
+          </div>
+        </li>
+        <li class="svc rv">
+          <span class="svc-n mono">03</span>
+          <h4><span data-en>Mulch, planting &amp; beds</span><span data-es>Mulch, plantas y jardineras</span></h4>
+          <div>
+            <p data-en>Hand-cut bed edges, 2 to 3 inches of fresh mulch, and shrubs and perennials that actually make it through a Connecticut winter. Pruning twice a year.</p>
+            <p data-es>Bordes recortados a mano, de 2 a 3 pulgadas de mulch nuevo, y arbustos y perennes que de verdad aguantan el invierno de Connecticut. Poda dos veces al año.</p>
+            <p class="inc mono"><span>Mulch</span><span data-en>Shrubs &amp; perennials</span><span data-es>Arbustos y perennes</span><span data-en>Pruning</span><span data-es>Poda</span></p>
+          </div>
+        </li>
+        <li class="svc rv">
+          <span class="svc-n mono">04</span>
+          <h4><span data-en>Snow removal</span><span data-es>Remoción de nieve</span></h4>
+          <div>
+            <p data-en>Driveway plowing, shoveling of walks and steps, and ice melt where people walk. Season customers get priority on storm nights.</p>
+            <p data-es>Limpieza de la entrada con arado, paleo de aceras y escalones, y derretidor de hielo donde se camina. Los clientes de temporada tienen prioridad en noches de tormenta.</p>
+            <p class="inc mono"><span data-en>Plowing</span><span data-es>Arado</span><span data-en>Shoveling</span><span data-es>Paleo</span><span data-en>Ice melt</span><span data-es>Derretidor de hielo</span></p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <figure class="bridge rv">
+      <div class="bridge-ph zoom"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1605117882932-f9e32b03fea9?w=2000&q=80&auto=format&fit=crop" width="2000" height="1333" alt="Crew member trimming the lawn edge along a curved brick walkway in front of a white porch"></div>
+      <div class="bridge-note">
+        <p data-en>Not sure what you need? We'll walk the yard with you and tell you, for free.</p>
+        <p data-es>¿No sabes bien qué necesitas? Recorremos el jardín contigo y te lo decimos, sin costo.</p>
+        <a class="link-arrow" href="#contact"><span data-en>Book a free visit</span><span data-es>Agenda una visita gratis</span><i data-lucide="arrow-right"></i></a>
+      </div>
+      <figcaption class="plate">Pl. 02 · <span data-en>Edging a brick walk, weekly care</span><span data-es>Bordes junto a un camino de ladrillo, cuidado semanal</span></figcaption>
+    </figure>
+
+    <div class="chapter">
+      <div class="chapter-head rv"><span class="roman" aria-hidden="true">II.</span><h3><span data-en>Hardscape · Build</span><span data-es>Hardscape · Construcción</span></h3><span class="mono" aria-hidden="true">05–07</span></div>
+      <ol>
+        <li class="svc rv">
+          <span class="svc-n mono">05</span>
+          <h4><span data-en>Patios &amp; walkways</span><span data-es>Patios y caminos</span></h4>
+          <div>
+            <p data-en>Pavers, bluestone and brick set on 6 to 8 inches of compacted gravel, so frost doesn't heave them. Steps, landings and fire-pit areas too.</p>
+            <p data-es>Adoquín, bluestone y ladrillo sobre una base de 6 a 8 pulgadas de grava compactada, para que la helada no los levante. También escalones, descansos y zonas para fogata.</p>
+            <p class="inc mono"><span data-en>Pavers</span><span data-es>Adoquín</span><span>Bluestone</span><span data-en>Brick</span><span data-es>Ladrillo</span><span data-en>Steps</span><span data-es>Escalones</span></p>
+          </div>
+        </li>
+        <li class="svc rv">
+          <span class="svc-n mono">06</span>
+          <h4><span data-en>Retaining walls</span><span data-es>Muros de contención</span></h4>
+          <div>
+            <p data-en>Block and natural fieldstone walls, with gravel and drain pipe behind them the way it should be done. We also rebuild old stone walls, and there are plenty of those around here.</p>
+            <p data-es>Muros de bloque y de piedra natural, con grava y tubo de drenaje detrás, como se debe hacer. También reconstruimos muros viejos de piedra, que por aquí hay muchos.</p>
+            <p class="inc mono"><span data-en>Block walls</span><span data-es>Muros de bloque</span><span data-en>Fieldstone</span><span data-es>Piedra natural</span><span data-en>Wall rebuilds</span><span data-es>Reconstrucción</span></p>
+          </div>
+        </li>
+        <li class="svc rv">
+          <span class="svc-n mono">07</span>
+          <h4><span data-en>Drainage &amp; grading</span><span data-es>Drenaje y nivelación</span></h4>
+          <div>
+            <p data-en>Soggy lawn, water running toward the foundation, puddles on the patio? French drains, dry wells, downspout lines and regrading so the water goes where it should.</p>
+            <p data-es>¿Césped encharcado, agua que corre hacia los cimientos, charcos en el patio? Drenes franceses, pozos secos, tubería para las bajantes y nivelación del terreno para que el agua vaya a donde debe.</p>
+            <p class="inc mono"><span data-en>French drains</span><span data-es>Drenes franceses</span><span data-en>Dry wells</span><span data-es>Pozos secos</span><span data-en>Regrading</span><span data-es>Nivelación</span></p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- slot: seasons (calendario de temporadas en CT; el JS marca el mes y la temporada actuales) -->
+<section class="section seasons on-brand" id="seasons">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">02</span><span class="ft" data-en>The year in Connecticut</span><span class="ft" data-es>El año en Connecticut</span><span class="fr" data-en>March to February</span><span class="fr" data-es>De marzo a febrero</span></div>
+    <div class="seasons-top">
+      <h2 class="h2 rv"><span data-en>Every season has its work. <em>We plan around it.</em></span><span data-es>Cada temporada tiene su trabajo. <em>Nosotros lo planeamos.</em></span></h2>
+      <p class="lede rv" style="--rd:.1s" data-en>A New England yard doesn't take the winter off, and neither do we. This is what we're doing on properties around Waterbury, month by month.</p>
+      <p class="lede rv" style="--rd:.1s" data-es>En Nueva Inglaterra el jardín no descansa en invierno, y nosotros tampoco. Esto es lo que hacemos en las propiedades de Waterbury y alrededores, mes a mes.</p>
+    </div>
+    <div class="ruler-wrap rv">
+      <div class="ruler">
+        <div class="ruler-seasons">
+          <button type="button" data-go="0" aria-controls="sp-track"><span data-en>Spring</span><span data-es>Primavera</span></button>
+          <button type="button" data-go="1" aria-controls="sp-track"><span data-en>Summer</span><span data-es>Verano</span></button>
+          <button type="button" data-go="2" aria-controls="sp-track"><span data-en>Fall</span><span data-es>Otoño</span></button>
+          <button type="button" data-go="3" aria-controls="sp-track"><span data-en>Winter</span><span data-es>Invierno</span></button>
+        </div>
+        <div class="ruler-months" aria-hidden="true">
+          <span class="rm" data-m="2"><span data-en>Mar</span><span data-es>Mar</span></span>
+          <span class="rm" data-m="3"><span data-en>Apr</span><span data-es>Abr</span></span>
+          <span class="rm" data-m="4"><span data-en>May</span><span data-es>May</span></span>
+          <span class="rm" data-m="5"><span data-en>Jun</span><span data-es>Jun</span></span>
+          <span class="rm" data-m="6"><span data-en>Jul</span><span data-es>Jul</span></span>
+          <span class="rm" data-m="7"><span data-en>Aug</span><span data-es>Ago</span></span>
+          <span class="rm" data-m="8"><span data-en>Sep</span><span data-es>Sep</span></span>
+          <span class="rm" data-m="9"><span data-en>Oct</span><span data-es>Oct</span></span>
+          <span class="rm" data-m="10"><span data-en>Nov</span><span data-es>Nov</span></span>
+          <span class="rm" data-m="11"><span data-en>Dec</span><span data-es>Dic</span></span>
+          <span class="rm" data-m="0"><span data-en>Jan</span><span data-es>Ene</span></span>
+          <span class="rm" data-m="1"><span data-en>Feb</span><span data-es>Feb</span></span>
+          <span class="ruler-window"></span>
+        </div>
+      </div>
+      <div class="sp-controls">
+        <button class="round-btn sp-prev" type="button" aria-controls="sp-track"><i data-lucide="arrow-left"></i><span class="sr-only"><span data-en>Previous season</span><span data-es>Temporada anterior</span></span></button>
+        <button class="round-btn sp-next" type="button" aria-controls="sp-track"><i data-lucide="arrow-right"></i><span class="sr-only"><span data-en>Next season</span><span data-es>Temporada siguiente</span></span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sp-track" id="sp-track" tabindex="0" role="region" aria-label="Seasons / Temporadas">
+    <article class="sp" data-season="spring">
+      <figure class="sp-ph"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1764344834783-b03a61bf5315?w=1400&q=80&auto=format&fit=crop" width="1400" height="1750" alt="Brick garden path lined with flowering perennials beside a shingled New England house"><figcaption class="plate">Pl. 03</figcaption></figure>
+      <div class="sp-body">
+        <p class="sp-when mono"><span data-en>March — May</span><span data-es>Marzo — mayo</span></p>
+        <h3 class="sp-name"><span data-en>Spring</span><span data-es>Primavera</span></h3>
+        <p class="sp-intro" data-en>The ground thaws, the beds wake up, and every yard needs a reset at once. Book early.</p><p class="sp-intro" data-es>La tierra se descongela, las jardineras despiertan y todos los jardines necesitan arreglo a la vez. Agenda con tiempo.</p>
+        <span class="sp-now"><span data-en>This season · booking now</span><span data-es>Esta temporada · agendando</span></span>
+        <ul class="sp-list">
+          <li><span data-en>Spring cleanup: winter debris out, beds cut back</span><span data-es>Limpieza de primavera: restos del invierno y jardineras</span></li>
+          <li><span data-en>First mow, dethatching, lawn repair</span><span data-es>Primer corte, desenmalezado y reparación del césped</span></li>
+          <li><span data-en>Fresh bed edges and mulch</span><span data-es>Bordes nuevos y mulch</span></li>
+          <li><span data-en>Planting shrubs and perennials</span><span data-es>Plantación de arbustos y perennes</span></li>
+          <li><span data-en>Patio and wall season opens</span><span data-es>Empieza la temporada de patios y muros</span></li>
+        </ul>
+      </div>
+    </article>
+    <article class="sp" data-season="summer">
+      <figure class="sp-ph"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1734303023491-db8037a21f09?w=1400&q=80&auto=format&fit=crop" width="1400" height="933" alt="Two crew members mowing and trimming a large striped lawn next to a row of evergreens"><figcaption class="plate">Pl. 04</figcaption></figure>
+      <div class="sp-body">
+        <p class="sp-when mono"><span data-en>June — August</span><span data-es>Junio — agosto</span></p>
+        <h3 class="sp-name"><span data-en>Summer</span><span data-es>Verano</span></h3>
+        <p class="sp-intro" data-en>Long days for building: patios, walks and walls go in while the lawn gets its weekly cut.</p><p class="sp-intro" data-es>Días largos para construir: patios, caminos y muros, mientras el césped recibe su corte semanal.</p>
+        <span class="sp-now"><span data-en>This season · booking now</span><span data-es>Esta temporada · agendando</span></span>
+        <ul class="sp-list">
+          <li><span data-en>Weekly mowing, trimming, edging</span><span data-es>Corte semanal, orillas y bordes</span></li>
+          <li><span data-en>Hedge and shrub pruning</span><span data-es>Poda de setos y arbustos</span></li>
+          <li><span data-en>Weeding beds, checking for dry spots</span><span data-es>Deshierbe y revisión de zonas secas</span></li>
+          <li><span data-en>Patios, walkways and walls built</span><span data-es>Construcción de patios, caminos y muros</span></li>
+          <li><span data-en>Drainage fixes before fall storms</span><span data-es>Arreglos de drenaje antes de las tormentas</span></li>
+        </ul>
+      </div>
+    </article>
+    <article class="sp is-now" data-season="fall">
+      <figure class="sp-ph"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1692955523298-c361598bee0f?w=1400&q=80&auto=format&fit=crop" width="1400" height="933" alt="Lawn under a large maple covered in orange fall leaves"><figcaption class="plate">Pl. 05</figcaption></figure>
+      <div class="sp-body">
+        <p class="sp-when mono"><span data-en>September — November</span><span data-es>Septiembre — noviembre</span></p>
+        <h3 class="sp-name"><span data-en>Fall</span><span data-es>Otoño</span></h3>
+        <p class="sp-intro" data-en>Cool nights and warm soil: the best weeks of the year to fix a Connecticut lawn.</p><p class="sp-intro" data-es>Noches frescas y tierra tibia: las mejores semanas del año para arreglar un césped en Connecticut.</p>
+        <span class="sp-now"><span data-en>This season · booking now</span><span data-es>Esta temporada · agendando</span></span>
+        <ul class="sp-list">
+          <li><span data-en>Core aeration and overseeding (best time in CT)</span><span data-es>Aireación y resiembra (la mejor época en CT)</span></li>
+          <li><span data-en>Fall cleanup: every leaf out, beds put to bed</span><span data-es>Limpieza de otoño: todas las hojas fuera</span></li>
+          <li><span data-en>Last mow, cut a little shorter</span><span data-es>Último corte, un poco más bajo</span></li>
+          <li><span data-en>Bulb planting for spring</span><span data-es>Siembra de bulbos para la primavera</span></li>
+          <li><span data-en>Burlap wraps for tender shrubs</span><span data-es>Protección de arbustos delicados</span></li>
+        </ul>
+      </div>
+    </article>
+    <article class="sp" data-season="winter">
+      <figure class="sp-ph"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1768699107110-262fafb19b3e?w=1400&q=80&auto=format&fit=crop" width="1400" height="1750" alt="Person clearing a snowy driveway with a snowblower in front of a brick colonial house"><figcaption class="plate">Pl. 06</figcaption></figure>
+      <div class="sp-body">
+        <p class="sp-when mono"><span data-en>December — February</span><span data-es>Diciembre — febrero</span></p>
+        <h3 class="sp-name"><span data-en>Winter</span><span data-es>Invierno</span></h3>
+        <p class="sp-intro" data-en>Storm nights on call for our snow customers, and quiet days to plan next year's projects.</p><p class="sp-intro" data-es>Guardia en noches de tormenta para nuestros clientes de nieve, y días tranquilos para planear los proyectos del año.</p>
+        <span class="sp-now"><span data-en>This season · booking now</span><span data-es>Esta temporada · agendando</span></span>
+        <ul class="sp-list">
+          <li><span data-en>Driveway plowing after 2 inches</span><span data-es>Arado de la entrada a partir de 2 pulgadas</span></li>
+          <li><span data-en>Walks and steps shoveled, ice melt</span><span data-es>Paleo de aceras y escalones, derretidor de hielo</span></li>
+          <li><span data-en>Storm cleanup: fallen limbs</span><span data-es>Limpieza tras tormentas: ramas caídas</span></li>
+          <li><span data-en>Design visits for next year's projects</span><span data-es>Visitas para planear los proyectos del año</span></li>
+        </ul>
+      </div>
+    </article>
+  </div>
+
+  <div class="wrap">
+    <div class="seasons-foot">
+      <p data-en>Tap a season, swipe or use the arrows. The marker shows where we are this month.</p>
+      <p data-es>Toca una temporada, desliza o usa las flechas. La marca indica en qué mes estamos.</p>
+      <a class="link-arrow" href="#plans"><span data-en>See the seasonal plans</span><span data-es>Ver los planes de temporada</span><i data-lucide="arrow-right"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- slot: gallery (fotos de trabajos: pueblo + tipo de trabajo) -->
+<section class="section work" id="work">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">03</span><span class="ft" data-en>Recent work</span><span class="ft" data-es>Trabajos recientes</span><span class="fr">Naugatuck Valley, CT</span></div>
+    <div class="sec-head">
+      <h2 class="h2 rv"><span data-en>Walls, patios and plantings <em>around the valley</em></span><span data-es>Muros, patios y jardines <em>por todo el valle</em></span></h2>
+      <p class="lede rv" style="--rd:.1s" data-en>A few jobs from the last seasons. Ask us for the address of one near you. Most owners are happy to let you drive by.</p>
+      <p class="lede rv" style="--rd:.1s" data-es>Algunos trabajos de las últimas temporadas. Pídenos la dirección de alguno cerca de ti: a casi todos los dueños no les molesta que pases a verlo.</p>
+    </div>
+    <div class="gallery">
+      <figure class="g1 rv">
+        <div class="ph zoom"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1780478243212-22537df4d319?w=1600&q=80&auto=format&fit=crop" width="1600" height="1067" alt="Dry-laid fieldstone retaining wall with daffodils coming up along the top"></div>
+        <figcaption><span class="plate">Pl. 07</span><span class="town">Southbury</span><span class="what" data-en>Old fieldstone wall, taken down and rebuilt with the original stone.</span><span class="what" data-es>Muro viejo de piedra, desarmado y reconstruido con la misma piedra.</span></figcaption>
+      </figure>
+      <figure class="g2 rv" style="--rd:.12s">
+        <div class="ph zoom"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1631149784601-8e6c266b046a?w=1000&q=80&auto=format&fit=crop" width="1000" height="667" alt="Gray cape-style house with blue hydrangeas planted along the front and a mature shade tree"></div>
+        <figcaption><span class="plate">Pl. 08</span><span class="town">Watertown</span><span class="what" data-en>Foundation plantings and hydrangeas, weekly care since.</span><span class="what" data-es>Plantas junto a la casa e hortensias; desde entonces, cuidado semanal.</span></figcaption>
+      </figure>
+      <figure class="g3 rv">
+        <div class="ph zoom"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1780838446281-9394772d07a8?w=1000&q=80&auto=format&fit=crop" width="1000" height="667" alt="Round cobblestone patio edged by a low granite seat wall and green shrubs"></div>
+        <figcaption><span class="plate">Pl. 09</span><span class="town">Cheshire</span><span class="what" data-en>Round paver patio with a granite seat wall.</span><span class="what" data-es>Patio redondo de adoquín con muro-banca de granito.</span></figcaption>
+      </figure>
+      <figure class="g4 rv" style="--rd:.12s">
+        <div class="ph zoom"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1700689807667-82630348b301?w=1400&q=80&auto=format&fit=crop" width="1400" height="933" alt="Curving brick walkway with a low stone edge, flowering beds and a tall arborvitae hedge"></div>
+        <figcaption><span class="plate">Pl. 10</span><span class="town">Middlebury</span><span class="what" data-en>Curved brick walkway, new beds and path lighting.</span><span class="what" data-es>Camino curvo de ladrillo, jardineras nuevas y luces de camino.</span></figcaption>
+      </figure>
+      <figure class="g5 rv">
+        <div class="ph zoom"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1779917748967-049bf828fbeb?w=2000&q=80&auto=format&fit=crop" width="2000" height="1333" alt="Retaining wall of large natural boulders holding back a planted bank"></div>
+        <figcaption><span class="plate">Pl. 11</span><span class="town">Naugatuck</span><span class="what" data-en>Boulder wall to hold a steep bank behind the house, with gravel and drain pipe behind it.</span><span class="what" data-es>Muro de rocas grandes para sostener un talud detrás de la casa, con grava y tubo de drenaje detrás.</span></figcaption>
+      </figure>
+    </div>
+    <p class="swipe-hint mono" aria-hidden="true"><i data-lucide="move-horizontal"></i><span data-en>Swipe to see more</span><span data-es>Desliza para ver más</span></p>
+  </div>
+</section>
+
+<!-- slot: process -->
+<section class="section process" id="process">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">04</span><span class="ft" data-en>How we work</span><span class="ft" data-es>Cómo trabajamos</span><span class="fr" data-en>From visit to upkeep</span><span class="fr" data-es>De la visita al mantenimiento</span></div>
+    <div class="process-grid">
+      <div>
+        <h2 class="h2 rv"><span data-en>Four steps, <em>no surprises</em></span><span data-es>Cuatro pasos, <em>sin sorpresas</em></span></h2>
+        <ol class="steps">
+          <li class="step rv"><span class="n">1</span><div><h3><span data-en>Free visit</span><span data-es>Visita gratis</span></h3><p data-en>We walk the property with you, usually within the week. Evenings and Saturday mornings work too.</p><p data-es>Recorremos la propiedad contigo, normalmente en la misma semana. También podemos ir por la tarde o el sábado en la mañana.</p></div></li>
+          <li class="step rv"><span class="n">2</span><div><h3><span data-en>Written proposal with a simple plan</span><span data-es>Propuesta por escrito con un plano sencillo</span></h3><p data-en>A clear price per job or per season. For patios, walls and beds you also get a sketch with sizes and materials, like this one.</p><p data-es>Un precio claro por trabajo o por temporada. Para patios, muros y jardineras también te damos un dibujo con medidas y materiales, como este.</p></div></li>
+          <li class="step rv"><span class="n">3</span><div><h3><span data-en>The work</span><span data-es>El trabajo</span></h3><p data-en>The same crew from start to finish. We protect the lawn and driveway, clean up every day and haul away all debris.</p><p data-es>El mismo equipo de principio a fin. Protegemos el césped y la entrada, limpiamos cada día y nos llevamos todos los restos.</p></div></li>
+          <li class="step rv"><span class="n">4</span><div><h3><span data-en>Upkeep</span><span data-es>Mantenimiento</span></h3><p data-en>Weekly, monthly or seasonal care so it keeps looking the way it did on day one. Change or pause your plan anytime.</p><p data-es>Cuidado semanal, mensual o por temporada para que siga viéndose como el primer día. Puedes cambiar o pausar tu plan cuando quieras.</p></div></li>
+        </ol>
+      </div>
+
+      <!-- Plano de ejemplo dibujado en SVG (se dibuja al entrar en pantalla) -->
+      <div class="sheet">
+        <div class="sketch-scroll" tabindex="0" aria-label="Sketch plan">
+        <svg class="sketch" viewBox="0 0 640 490" width="640" height="490" role="img" aria-labelledby="plan-title">
+          <title id="plan-title">Example sketch plan: house, bluestone patio, stepping-stone walk, fieldstone wall, planting beds and lawn</title>
+          <defs>
+            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#DDD4C0" stroke-width=".5"/></pattern>
+            <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V7" stroke="#1F3A2A" stroke-width=".8" opacity=".32"/></pattern>
+            <pattern id="pavers" width="18" height="12" patternUnits="userSpaceOnUse"><path d="M0 0H18M0 6H18M0 0V6M9 6V12" stroke="#A24E2B" stroke-width=".7" fill="none" opacity=".55"/></pattern>
+            <filter id="pencil" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="2.4"/></filter>
+          </defs>
+          <rect x="0" y="0" width="640" height="490" fill="url(#grid)"/>
+          <g filter="url(#pencil)">
+            <!-- house -->
+            <rect x="48" y="40" width="236" height="140" fill="url(#hatch)" class="ink" style="--d:.6s"/>
+            <rect x="48" y="40" width="236" height="140" class="sk-line draw" pathLength="1" style="--d:0s"/>
+            <rect x="150" y="180" width="40" height="14" class="sk-thin draw" pathLength="1" style="--d:.5s"/>
+            <!-- driveway -->
+            <path d="M338 30V470M408 30V470" class="sk-thin ink" stroke-dasharray="5 5" style="--d:.4s"/>
+            <!-- patio -->
+            <rect x="70" y="220" width="176" height="112" fill="url(#pavers)" class="ink" style="--d:1.2s"/>
+            <rect x="70" y="220" width="176" height="112" class="sk-acc draw" pathLength="1" style="--d:.5s"/>
+            <!-- walk -->
+            <path d="M246 272C278 272 298 262 338 258" class="sk-thin draw" pathLength="1" style="--d:.9s"/>
+            <g class="ink" style="--d:1.3s" fill="none" stroke="#A24E2B" stroke-width="1.3"><ellipse cx="262" cy="271" rx="7" ry="5"/><ellipse cx="286" cy="267" rx="7" ry="5"/><ellipse cx="311" cy="262" rx="7" ry="5"/></g>
+            <!-- fieldstone wall -->
+            <path d="M30 404C112 438 214 438 306 396" class="sk-line draw" opacity=".85" pathLength="1" style="stroke-width:7;--d:1s"/>
+            <path d="M30 404C112 438 214 438 306 396" stroke="#FAF7EF" stroke-width="1.2" fill="none" stroke-dasharray="7 5" class="ink" style="--d:2.1s"/>
+            <!-- bed + shrubs along the house -->
+            <path d="M292 44C312 72 312 150 292 176" class="sk-line draw" stroke-dasharray="none" pathLength="1" style="--d:1.2s"/>
+            <circle cx="302" cy="78" r="8" class="sk-line draw" pathLength="1" style="--d:1.5s"/>
+            <circle cx="306" cy="112" r="8" class="sk-line draw" pathLength="1" style="--d:1.6s"/>
+            <circle cx="302" cy="146" r="8" class="sk-line draw" pathLength="1" style="--d:1.7s"/>
+            <!-- trees -->
+            <circle cx="510" cy="112" r="44" class="sk-line draw" pathLength="1" style="--d:1.4s"/>
+            <circle cx="510" cy="112" r="30" class="sk-thin draw" pathLength="1" style="--d:1.7s" stroke-dasharray="none"/>
+            <path d="M510 98v28M496 112h28" class="sk-thin ink" style="--d:2s"/>
+            <circle cx="566" cy="330" r="28" class="sk-line draw" pathLength="1" style="--d:1.6s"/>
+            <path d="M566 320v20M556 330h20" class="sk-thin ink" style="--d:2.1s"/>
+            <!-- dimension -->
+            <path d="M70 208H246M70 203v10M246 203v10" class="sk-thin draw" pathLength="1" style="--d:1.8s"/>
+            <!-- street -->
+            <path d="M0 482H640" class="sk-thin draw" pathLength="1" style="--d:.2s"/>
+          </g>
+          <!-- labels (fade in after the lines) -->
+          <g class="ink" style="--d:1.9s">
+            <text x="166" y="114" text-anchor="middle" class="sk-small"><tspan data-en>House</tspan><tspan data-es>Casa</tspan></text>
+            <text x="373" y="250" text-anchor="middle" class="sk-small" transform="rotate(-90 373 250)"><tspan data-en>Driveway</tspan><tspan data-es>Entrada</tspan></text>
+            <text x="158" y="200" text-anchor="middle" class="sk-small">16′-0″</text>
+            <text x="158" y="352" text-anchor="middle" class="sk-acc-text"><tspan data-en>Bluestone patio 14′ × 16′</tspan><tspan data-es>Patio de bluestone 14′ × 16′</tspan></text>
+            <text x="158" y="370" text-anchor="middle" class="sk-hand"><tspan data-en>on 6–8″ of compacted gravel</tspan><tspan data-es>sobre 6–8″ de grava compactada</tspan></text>
+            <text x="168" y="462" text-anchor="middle" class="sk-text"><tspan data-en>Fieldstone wall, 2′6″ high</tspan><tspan data-es>Muro de piedra, 2′6″ de alto</tspan></text>
+            <text x="498" y="236" text-anchor="middle" class="sk-text"><tspan data-en>Lawn</tspan><tspan data-es>Césped</tspan></text>
+            <text x="510" y="176" text-anchor="middle" class="sk-small"><tspan data-en>Maple, keep</tspan><tspan data-es>Arce, se queda</tspan></text>
+            <text x="248" y="112" class="sk-hand" text-anchor="end"><tspan data-en>new bed</tspan><tspan data-es>jardinera nueva</tspan></text>
+            <path d="M252 108 C266 104 276 100 290 98" stroke="#A24E2B" stroke-width="1" fill="none"/>
+            <!-- north arrow -->
+            <path d="M604 30l8 22-8-5-8 5z" fill="#1F3A2A"/><text x="604" y="68" text-anchor="middle" class="sk-small">N</text>
+            <!-- title block -->
+            <rect x="430" y="398" width="198" height="72" fill="#FAF7EF" stroke="#1F3A2A" stroke-width="1"/>
+            <path d="M430 420H628M430 448H628M548 448V470" stroke="#1F3A2A" stroke-width=".6" fill="none"/>
+            <text x="440" y="413" class="sk-title">HERNÁNDEZ · WATERBURY CT</text>
+            <text x="440" y="439" class="sk-text" style="font-size:13.5px"><tspan data-en>Proposal sketch · back yard</tspan><tspan data-es>Boceto · patio trasero</tspan></text>
+            <text x="440" y="463" class="sk-small"><tspan data-en>Scale 1/8″ = 1′</tspan><tspan data-es>Escala 1/8″ = 1′</tspan></text>
+            <text x="558" y="463" class="sk-small"><tspan data-en>Sheet 1/1</tspan><tspan data-es>Hoja 1/1</tspan></text>
+          </g>
+        </svg>
+        </div>
+        <p class="swipe-hint mono" aria-hidden="true"><i data-lucide="move-horizontal"></i><span data-en>Swipe to see the whole sketch</span><span data-es>Desliza para ver todo el plano</span></p>
+        <p class="cap"><i data-lucide="pencil-ruler"></i><span data-en>What a proposal looks like: a simple plan with sizes and materials, and the price in writing before any work starts.</span><span data-es>Así es una propuesta: un plano sencillo con medidas y materiales, y el precio por escrito antes de empezar.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: maintenance_plans (sin precios: se cotiza tras la visita) -->
+<section class="section" id="plans">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">05</span><span class="ft" data-en>Seasonal plans</span><span class="ft" data-es>Planes de temporada</span><span class="fr" data-en>Priced after the visit</span><span class="fr" data-es>Precio tras la visita</span></div>
+    <div class="sec-head">
+      <h2 class="h2 rv"><span data-en>Pick a plan, or just <em>call when you need us</em></span><span data-es>Elige un plan o simplemente <em>llámanos cuando nos necesites</em></span></h2>
+      <p class="lede rv" style="--rd:.1s" data-en>Every property is different, so we price after the free visit. You get it in writing, and it doesn't change halfway through the season.</p>
+      <p class="lede rv" style="--rd:.1s" data-es>Cada propiedad es distinta, por eso damos el precio después de la visita gratis. Te lo damos por escrito y no cambia a mitad de temporada.</p>
+    </div>
+    <div class="plans-grid">
+      <article class="plan rv">
+        <span class="tag"><span data-en>Lawn</span><span data-es>Césped</span></span>
+        <h3><span data-en>Lawn Season</span><span data-es>Temporada de césped</span></h3>
+        <div class="mbar" aria-hidden="true"><i data-m="2"></i><i class="on" data-m="3"></i><i class="on" data-m="4"></i><i class="on" data-m="5"></i><i class="on" data-m="6"></i><i class="on" data-m="7"></i><i class="on" data-m="8"></i><i class="on" data-m="9"></i><i class="on" data-m="10"></i><i data-m="11"></i><i data-m="0"></i><i data-m="1"></i></div>
+        <div class="mbar-l mono" aria-hidden="true"><span data-en>Mar</span><span data-es>Mar</span><span data-en>Feb</span><span data-es>Feb</span></div>
+        <p class="span"><span data-en>April – November</span><span data-es>Abril – noviembre</span></p>
+        <ul>
+          <li><span data-en>Weekly or every-other-week mowing</span><span data-es>Corte semanal o cada dos semanas</span></li>
+          <li><span data-en>Trimming, edging and blow-off every visit</span><span data-es>Orillas, bordes y soplado en cada visita</span></li>
+          <li><span data-en>Spring and fall fertilizing</span><span data-es>Fertilizante en primavera y otoño</span></li>
+          <li><span data-en>A text the day before we come</span><span data-es>Mensaje el día antes de ir</span></li>
+        </ul>
+        <p class="price"><strong data-en>Priced per property</strong><strong data-es>Precio según tu propiedad</strong><span data-en>after the free visit</span><span data-es>después de la visita gratis</span></p>
+        <a class="btn btn-ghost" href="#contact"><span data-en>Ask about this plan</span><span data-es>Pregunta por este plan</span><i data-lucide="arrow-right"></i></a>
+      </article>
+      <article class="plan featured rv" style="--rd:.1s">
+        <span class="tag"><span data-en>Our fullest plan</span><span data-es>El plan más completo</span></span>
+        <h3><span data-en>Full Property Care</span><span data-es>Cuidado completo</span></h3>
+        <div class="mbar" aria-hidden="true"><i class="on" data-m="2"></i><i class="on" data-m="3"></i><i class="on" data-m="4"></i><i class="on" data-m="5"></i><i class="on" data-m="6"></i><i class="on" data-m="7"></i><i class="on" data-m="8"></i><i class="on" data-m="9"></i><i class="on" data-m="10"></i><i class="on" data-m="11"></i><i data-m="0"></i><i data-m="1"></i></div>
+        <div class="mbar-l mono" aria-hidden="true"><span data-en>Mar</span><span data-es>Mar</span><span data-en>Feb</span><span data-es>Feb</span></div>
+        <p class="span"><span data-en>March – December</span><span data-es>Marzo – diciembre</span></p>
+        <ul>
+          <li><span data-en>Everything in Lawn Season</span><span data-es>Todo lo de Temporada de césped</span></li>
+          <li><span data-en>Spring and fall cleanups</span><span data-es>Limpiezas de primavera y otoño</span></li>
+          <li><span data-en>Fresh mulch once a year</span><span data-es>Mulch nuevo una vez al año</span></li>
+          <li><span data-en>Shrub pruning twice a year</span><span data-es>Poda de arbustos dos veces al año</span></li>
+          <li><span data-en>Monthly bed weeding</span><span data-es>Deshierbe mensual de jardineras</span></li>
+        </ul>
+        <p class="price"><strong data-en>Priced per property</strong><strong data-es>Precio según tu propiedad</strong><span data-en>billed monthly</span><span data-es>se paga mes a mes</span></p>
+        <a class="btn btn-cream" href="#contact"><span data-en>Ask about this plan</span><span data-es>Pregunta por este plan</span><i data-lucide="arrow-right"></i></a>
+      </article>
+      <article class="plan rv" style="--rd:.2s">
+        <span class="tag"><span data-en>Snow</span><span data-es>Nieve</span></span>
+        <h3><span data-en>Winter Snow</span><span data-es>Nieve de invierno</span></h3>
+        <div class="mbar" aria-hidden="true"><i class="on" data-m="2"></i><i data-m="3"></i><i data-m="4"></i><i data-m="5"></i><i data-m="6"></i><i data-m="7"></i><i data-m="8"></i><i data-m="9"></i><i data-m="10"></i><i class="on" data-m="11"></i><i class="on" data-m="0"></i><i class="on" data-m="1"></i></div>
+        <div class="mbar-l mono" aria-hidden="true"><span data-en>Mar</span><span data-es>Mar</span><span data-en>Feb</span><span data-es>Feb</span></div>
+        <p class="span"><span data-en>December – March</span><span data-es>Diciembre – marzo</span></p>
+        <ul>
+          <li><span data-en>Driveway plowed after 2 inches</span><span data-es>Arado de la entrada desde 2 pulgadas</span></li>
+          <li><span data-en>Walks and steps shoveled</span><span data-es>Paleo de aceras y escalones</span></li>
+          <li><span data-en>Ice melt on walks and steps</span><span data-es>Derretidor de hielo en aceras y escalones</span></li>
+          <li><span data-en>Priority on storm nights</span><span data-es>Prioridad en noches de tormenta</span></li>
+        </ul>
+        <p class="price"><strong data-en>Per season or per storm</strong><strong data-es>Por temporada o por tormenta</strong><span data-en>your choice</span><span data-es>como prefieras</span></p>
+        <a class="btn btn-ghost" href="#contact"><span data-en>Ask about this plan</span><span data-es>Pregunta por este plan</span><i data-lucide="arrow-right"></i></a>
+      </article>
+    </div>
+    <p class="plans-note rv"><i data-lucide="calendar-check"></i><span data-en>No long contracts: change or pause a plan with two weeks' notice.</span><span data-es>Sin contratos largos: cambia o pausa tu plan avisando con dos semanas.</span></p>
+  </div>
+</section>
+
+<!-- slot: about (dueño / familia) -->
+<section class="section about" id="about">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">06</span><span class="ft" data-en>About us</span><span class="ft" data-es>Quiénes somos</span><span class="fr">Thomaston Ave, Waterbury</span></div>
+    <div class="about-grid">
+      <figure class="about-fig rv">
+        <div class="ph zoom"><img class="graded" loading="lazy" src="https://images.unsplash.com/photo-1734079692087-91bac04efcd1?w=1400&q=80&auto=format&fit=crop" width="1400" height="933" alt="Close-up of a landscaper in green work clothes setting concrete pavers by hand"></div>
+        <!-- slot: founded_year -->
+        <div class="stamp" aria-label="Founded 2024, Waterbury">
+          <svg viewBox="0 0 132 132" aria-hidden="true">
+            <defs><path id="ring" d="M66 66m-50 0a50 50 0 1 1 100 0a50 50 0 1 1-100 0"/></defs>
+            <circle cx="66" cy="66" r="64" fill="var(--bg)" stroke="currentColor" stroke-width="1"/>
+            <circle cx="66" cy="66" r="40" fill="none" stroke="currentColor" stroke-width=".6"/>
+            <text class="ring"><textPath href="#ring">Hernández · Waterbury · Connecticut ·</textPath></text>
+            <text x="66" y="62" text-anchor="middle" class="ring" style="font-size:8px"><tspan data-en>EST.</tspan><tspan data-es>DESDE</tspan></text>
+            <text x="66" y="86" text-anchor="middle" class="yr">2024</text>
+          </svg>
+        </div>
+        <figcaption class="plate">Pl. 12 · <span data-en>Setting pavers by hand</span><span data-es>Colocando adoquín a mano</span></figcaption>
+      </figure>
+      <div class="about-text">
+        <h2 class="h2 rv"><span data-en>A family company <em>from Waterbury</em></span><span data-es>Una empresa familiar <em>de Waterbury</em></span></h2>
+        <!-- slot: owner_story -->
+        <p class="body first rv" data-en>I'm Carlos Hernández. I learned this trade on landscaping crews around the Naugatuck Valley: cutting lawns, setting pavers, building walls one stone at a time. In 2024 my wife Ana and I started our own company here in Waterbury.</p>
+        <p class="body first rv" data-es>Soy Carlos Hernández. Aprendí el oficio trabajando en cuadrillas de jardinería por todo el Naugatuck Valley: cortando césped, poniendo adoquín, levantando muros piedra por piedra. En 2024 mi esposa Ana y yo abrimos nuestra propia empresa aquí en Waterbury.</p>
+        <p class="body rv" data-en>I still come to every estimate myself, and I'm on site for every stone job. Ana runs the schedule and answers the phone, in English or Spanish.</p>
+        <p class="body rv" data-es>Sigo yendo yo mismo a cada presupuesto y estoy en la obra en cada trabajo de piedra. Ana lleva la agenda y contesta el teléfono, en inglés o en español.</p>
+        <blockquote class="pull rv"><span data-en>If something isn't right, call us and we'll come back and fix it.</span><span data-es>Si algo no quedó bien, nos llamas y volvemos a arreglarlo.</span></blockquote>
+        <p class="sign rv">Carlos &amp; Ana Hernández<small data-en>Owners</small><small data-es>Dueños</small></p>
+        <dl class="facts rv">
+          <div><dt data-en>Based in</dt><dt data-es>Estamos en</dt><dd>Waterbury, CT</dd></div>
+          <div><dt data-en>Languages</dt><dt data-es>Idiomas</dt><dd>English · Español</dd></div>
+          <div><dt data-en>Insurance</dt><dt data-es>Seguro</dt><dd data-en>General liability &amp; workers' comp</dd><dd data-es>Responsabilidad civil y compensación laboral</dd></div>
+          <div><dt data-en>Registration</dt><dt data-es>Registro</dt><dd>CT HIC.0000000</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OPTIONAL: solo si hay reseñas reales de Google; si no, se elimina -->
+<!-- slot: reviews -->
+<section class="section" id="reviews">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">—</span><span class="ft" data-en>Reviews on Google</span><span class="ft" data-es>Reseñas en Google</span><span class="fr">Google</span></div>
+    <div class="reviews-top">
+      <h2 class="h2 rv"><span data-en>From neighbors <em>we've worked for</em></span><span data-es>De vecinos <em>para los que hemos trabajado</em></span></h2>
+      <!-- slot: google_rating -->
+      <div class="g-rating rv"><span class="score">4.9</span><div><span class="stars" role="img" aria-label="4.9 out of 5"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span><br><span data-en>23 reviews on Google</span><span data-es>23 reseñas en Google</span></div></div>
+    </div>
+    <div class="reviews">
+      <article class="review rv">
+        <span class="q" aria-hidden="true">“</span>
+        <span class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+        <blockquote lang="es">Carlos y su equipo nos hicieron el patio y el camino de la entrada. Nos explicó todo en español, nos dio el precio por escrito y terminaron el día que dijo.</blockquote>
+        <footer><b>Maria G.</b><span>GOOGLE</span></footer>
+      </article>
+      <article class="review rv" style="--rd:.1s">
+        <span class="q" aria-hidden="true">“</span>
+        <span class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+        <blockquote lang="en">They rebuilt the old stone wall along our driveway. Sketch and written price first, cleaned up every afternoon. It looks like it's always been there.</blockquote>
+        <footer><b>Tom R.</b><span>GOOGLE</span></footer>
+      </article>
+      <article class="review rv" style="--rd:.2s">
+        <span class="q" aria-hidden="true">“</span>
+        <span class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+        <blockquote lang="en">Weekly mowing since last spring. Same day every week, and when it rains Ana texts to say when they'll come instead. Easy to deal with.</blockquote>
+        <footer><b>Denise K.</b><span>GOOGLE</span></footer>
+      </article>
+    </div>
+  </div>
+</section>
+<!-- /OPTIONAL reviews -->
+
+<!-- slot: service_area -->
+<section class="section area" id="area">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">07</span><span class="ft" data-en>Service area</span><span class="ft" data-es>Zona de servicio</span><span class="fr" data-en>About 25 minutes around Waterbury</span><span class="fr" data-es>Unos 25 minutos alrededor de Waterbury</span></div>
+    <div class="area-grid">
+      <div>
+        <h2 class="h2 rv"><span data-en>Waterbury and <em>the towns around it</em></span><span data-es>Waterbury y <em>los pueblos de alrededor</em></span></h2>
+        <!-- slot: towns -->
+        <ol class="towns rv">
+          <li class="home"><span class="mono">01</span><b>Waterbury</b><small data-en>Home base</small><small data-es>Nuestra base</small></li>
+          <li><span class="mono">02</span><b>Naugatuck</b></li>
+          <li><span class="mono">03</span><b>Cheshire</b></li>
+          <li><span class="mono">04</span><b>Wolcott</b></li>
+          <li><span class="mono">05</span><b>Middlebury</b></li>
+          <li><span class="mono">06</span><b>Southbury</b></li>
+          <li><span class="mono">07</span><b>Watertown</b></li>
+          <li><span class="mono">08</span><b>Prospect</b></li>
+          <li><span class="mono">09</span><b>Thomaston</b></li>
+        </ol>
+        <p class="area-note rv" data-en>Close by but not on the list? Call us. If you're within about 25 minutes of Waterbury, we can usually come.</p>
+        <p class="area-note rv" data-es>¿Estás cerca pero no apareces en la lista? Llámanos. Si estás a unos 25 minutos de Waterbury, normalmente podemos ir.</p>
+      </div>
+      <!-- slot: map -->
+      <figure class="map-fig rv">
+        <div class="map">
+          <iframe title="Map of the Waterbury, CT service area" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=Waterbury,+CT&z=10&output=embed"></iframe>
+        </div>
+        <figcaption><span class="plate">41.558° N · 73.051° W</span><span class="plate">Waterbury, New Haven County, CT</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- slot: faq -->
+<section class="section faq" id="faq">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">08</span><span class="ft" data-en>Questions</span><span class="ft" data-es>Preguntas</span><span class="fr" data-en>Asked at almost every visit</span><span class="fr" data-es>Las que salen en casi cada visita</span></div>
+    <div class="faq-grid">
+      <div class="faq-side">
+        <h2 class="h2 rv"><span data-en>What people <em>ask us first</em></span><span data-es>Lo que la gente <em>nos pregunta primero</em></span></h2>
+        <p class="lede rv" data-en>Anything else, call or text. You'll talk to Carlos or Ana.</p>
+        <p class="lede rv" data-es>Si tienes otra duda, llama o escribe. Te contesta Carlos o Ana.</p>
+        <a class="link-arrow rv" href="tel:+12035550147"><i data-lucide="phone"></i>(203) 555-0147</a>
+      </div>
+      <div class="faq-list rv">
+        <details>
+          <summary><span class="qn">01</span><span><span data-en>Do I have to sign a season contract?</span><span data-es>¿Tengo que firmar un contrato de temporada?</span></span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="ans" data-en>No. Weekly lawn care and snow removal work best as a season agreement, because we plan our routes around them, but you can cancel with two weeks' notice. Cleanups, planting and stone work are one-time jobs, each with its own written estimate.</p>
+          <p class="ans" data-es>No. El corte semanal y la nieve funcionan mejor con un acuerdo de temporada, porque organizamos las rutas con eso, pero puedes cancelar avisando con dos semanas. Las limpiezas, las plantaciones y los trabajos en piedra son trabajos únicos, cada uno con su presupuesto por escrito.</p>
+        </details>
+        <details>
+          <summary><span class="qn">02</span><span><span data-en>What happens if it rains on my mowing day?</span><span data-es>¿Qué pasa si llueve el día del corte?</span></span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="ans" data-en>We don't cut wet grass. It tears the blades and leaves ruts. We move you to the next dry day, usually within 48 hours, and send you a text so you know when.</p>
+          <p class="ans" data-es>No cortamos el césped mojado porque se maltrata y deja marcas. Te pasamos al siguiente día seco, normalmente en menos de 48 horas, y te mandamos un mensaje para que sepas cuándo vamos.</p>
+        </details>
+        <details>
+          <summary><span class="qn">03</span><span><span data-en>Do you take away the leaves, branches and debris?</span><span data-es>¿Se llevan las hojas, las ramas y los restos?</span></span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="ans" data-en>Yes, always, and it's included in the price. Leaves and brush go to a composting site. Leftover stone and soil from hardscape jobs are hauled off, or reused on your property if you'd like.</p>
+          <p class="ans" data-es>Sí, siempre, y va incluido en el precio. Las hojas y ramas van a un sitio de compostaje. La piedra y la tierra que sobran de las obras nos las llevamos, o las reaprovechamos en tu propiedad si quieres.</p>
+        </details>
+        <details>
+          <summary><span class="qn">04</span><span><span data-en>Who picks the stone and materials?</span><span data-es>¿Quién elige la piedra y los materiales?</span></span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="ans" data-en>You do, with our help. We bring samples or meet you at the stone yard. We work with concrete pavers, bluestone, brick and natural Connecticut fieldstone, and every material is written into the estimate before we order it.</p>
+          <p class="ans" data-es>Tú, con nuestra ayuda. Llevamos muestras o te acompañamos al patio de piedra. Trabajamos con adoquín de concreto, bluestone, ladrillo y piedra natural de Connecticut, y cada material queda escrito en el presupuesto antes de pedirlo.</p>
+        </details>
+        <details>
+          <summary><span class="qn">05</span><span><span data-en>Do I need a permit for a retaining wall?</span><span data-es>¿Necesito permiso para un muro de contención?</span></span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="ans" data-en>Most garden walls under 4 feet don't, but it depends on your town. Taller walls usually need an engineer's design and a building permit. We check with the town and tell you at the estimate.</p>
+          <p class="ans" data-es>La mayoría de los muros de jardín de menos de 4 pies no lo necesitan, pero depende del pueblo. Los más altos suelen requerir el diseño de un ingeniero y un permiso de construcción. Lo consultamos con el pueblo y te lo decimos en la visita.</p>
+        </details>
+        <details>
+          <summary><span class="qn">06</span><span><span data-en>Do I need to be home?</span><span data-es>¿Tengo que estar en casa?</span></span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="ans" data-en>Not for maintenance. For the estimate we'd rather walk the yard with you, and we can come in the evening or on Saturday morning.</p>
+          <p class="ans" data-es>Para el mantenimiento, no. Para el presupuesto preferimos recorrer el jardín contigo, y podemos ir por la tarde o el sábado en la mañana.</p>
+        </details>
+        <details>
+          <summary><span class="qn">07</span><span><span data-en>How do I pay?</span><span data-es>¿Cómo se paga?</span></span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="ans" data-en>Check, card or bank transfer. Season plans are billed monthly. Stone jobs take a deposit for materials, and the rest when the job is done and you're happy with it.</p>
+          <p class="ans" data-es>Cheque, tarjeta o transferencia. Los planes de temporada se cobran mes a mes. En los trabajos de piedra se deja un depósito para materiales y el resto se paga al terminar, cuando estés conforme.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: contact -->
+<section class="section contact on-brand" id="contact">
+  <div class="wrap">
+    <div class="folio rv"><span class="fn">09</span><span class="ft" data-en>Free estimate</span><span class="ft" data-es>Presupuesto gratis</span><span class="fr" data-en>Reply the same day</span><span class="fr" data-es>Respuesta el mismo día</span></div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h2 class="h2 rv"><span data-en>Tell us about <em>your yard</em></span><span data-es>Cuéntanos de <em>tu jardín</em></span></h2>
+        <a class="big-phone rv" href="tel:+12035550147">(203) 555-0147</a>
+        <p class="sub" data-en>Call or text. We reply the same day, in English or Spanish.</p>
+        <p class="sub" data-es>Llama o manda mensaje. Contestamos el mismo día, en inglés o en español.</p>
+        <ul class="info-list">
+          <li><i data-lucide="mail"></i><a href="mailto:hola@hernandezlandscaping.com">hola@hernandezlandscaping.com</a></li>
+          <li><i data-lucide="map-pin"></i><span>1187 Thomaston Ave, Waterbury, CT 06704</span></li>
+          <li><i data-lucide="clock"></i><span><span data-en>Mon–Fri 7am–6pm · Sat 8am–2pm</span><span data-es>Lun–vie 7am–6pm · Sáb 8am–2pm</span></span></li>
+          <li><i data-lucide="snowflake"></i><span data-en>Storm nights: on call for snow customers</span><span data-es>Noches de tormenta: disponibles para clientes de nieve</span></li>
+        </ul>
+      </div>
+      <form class="contact-form rv" action="#" method="post">
+        <div class="form-top">
+          <h3><span data-en>Request a free visit</span><span data-es>Pide una visita gratis</span></h3>
+          <span class="plate" aria-hidden="true"><span data-en>Form 01</span><span data-es>Ficha 01</span></span>
+        </div>
+        <p class="hint" data-en>Takes a minute. Carlos will call you back to set a time.</p>
+        <p class="hint" data-es>Toma un minuto. Carlos te llama para quedar en una hora.</p>
+        <div class="fields">
+          <div class="field">
+            <label for="f-name"><span data-en>Name</span><span data-es>Nombre</span></label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required data-ph-en="First and last name" data-ph-es="Nombre y apellido" placeholder="First and last name">
+          </div>
+          <div class="field">
+            <label for="f-phone"><span data-en>Phone</span><span data-es>Teléfono</span></label>
+            <input id="f-phone" name="phone" type="tel" autocomplete="tel" required data-ph-en="(203) 555-0100" data-ph-es="(203) 555-0100" placeholder="(203) 555-0100">
+          </div>
+          <div class="field">
+            <label for="f-service"><span data-en>Service</span><span data-es>Servicio</span></label>
+            <select id="f-service" name="service">
+              <option value="lawn" data-en-label="Weekly lawn care" data-es-label="Corte de césped semanal">Weekly lawn care</option>
+              <option value="cleanup" data-en-label="Spring or fall cleanup" data-es-label="Limpieza de primavera u otoño">Spring or fall cleanup</option>
+              <option value="beds" data-en-label="Mulch, planting & beds" data-es-label="Mulch, plantas y jardineras">Mulch, planting &amp; beds</option>
+              <option value="patio" data-en-label="Patio or walkway" data-es-label="Patio o camino">Patio or walkway</option>
+              <option value="wall" data-en-label="Retaining wall" data-es-label="Muro de contención">Retaining wall</option>
+              <option value="drainage" data-en-label="Drainage & grading" data-es-label="Drenaje y nivelación">Drainage &amp; grading</option>
+              <option value="snow" data-en-label="Snow removal" data-es-label="Remoción de nieve">Snow removal</option>
+              <option value="other" data-en-label="Something else" data-es-label="Otra cosa">Something else</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-town"><span data-en>Town</span><span data-es>Pueblo</span> <span class="opt"><span data-en>(optional)</span><span data-es>(opcional)</span></span></label>
+            <input id="f-town" name="town" type="text" autocomplete="address-level2" data-ph-en="e.g. Naugatuck" data-ph-es="p. ej. Naugatuck" placeholder="e.g. Naugatuck">
+          </div>
+          <div class="field full">
+            <label for="f-msg"><span data-en>Message</span><span data-es>Mensaje</span></label>
+            <textarea id="f-msg" name="message" data-ph-en="Size of the yard, what you'd like done, best time to call…" data-ph-es="Tamaño del jardín, qué te gustaría hacer, mejor hora para llamarte…" placeholder="Size of the yard, what you'd like done, best time to call…"></textarea>
+          </div>
+        </div>
+        <div class="form-foot">
+          <button class="btn btn-accent" type="submit"><span data-en>Send request</span><span data-es>Enviar solicitud</span><i data-lucide="arrow-right"></i></button>
+          <small data-en>We only use your number to call you back about this estimate.</small>
+          <small data-es>Solo usamos tu número para llamarte por este presupuesto.</small>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- slot: footer -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="logo" href="#top" aria-label="Hernández Landscaping &amp; Hardscape, back to top">
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <circle cx="22" cy="22" r="21.2" fill="none" stroke="currentColor" stroke-width="1.1"/>
+            <path d="M22 7.8c6.9 3.6 8 11.4 0 17.3-8-5.9-6.9-13.7 0-17.3Z" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+            <path d="M22 11.5v13.4M22 16.4l-3-2.5M22 19.9l3.2-2.7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+            <rect x="10.8" y="27.6" width="10.6" height="3.9" rx="1.3" fill="var(--stone)"/>
+            <rect x="22.6" y="27.6" width="10.6" height="3.9" rx="1.3" fill="var(--stone)"/>
+            <rect x="15.2" y="32.8" width="13.6" height="3.9" rx="1.3" fill="var(--stone)"/>
+          </svg>
+          <span><span class="logo-name">Hernández</span><span class="logo-sub">Landscaping &amp; Hardscape</span></span>
+        </a>
+        <p class="tagline" data-en>Lawn care, cleanups, patios and walls for homes around Waterbury, CT. Hablamos español.</p>
+        <p class="tagline" data-es>Césped, limpiezas, patios y muros para casas en Waterbury, CT y alrededores. We speak English.</p>
+      </div>
+      <div>
+        <h4><span data-en>Hours</span><span data-es>Horario</span></h4>
+        <div class="hours">
+          <span data-en>Mon–Fri</span><span data-es>Lun–vie</span><span>7:00 – 18:00</span>
+          <span data-en>Saturday</span><span data-es>Sábado</span><span>8:00 – 14:00</span>
+          <span data-en>Sunday</span><span data-es>Domingo</span><span data-en>Closed</span><span data-es>Cerrado</span>
+        </div>
+      </div>
+      <div>
+        <h4><span data-en>Contact</span><span data-es>Contacto</span></h4>
+        <p><a href="tel:+12035550147">(203) 555-0147</a></p>
+        <p><a href="mailto:hola@hernandezlandscaping.com">hola@hernandezlandscaping.com</a></p>
+        <p>1187 Thomaston Ave<br>Waterbury, CT 06704</p>
+      </div>
+      <div>
+        <h4><span data-en>Licensed &amp; insured</span><span data-es>Licencia y seguro</span></h4>
+        <p>CT HIC.0000000</p>
+        <p data-en>General liability &amp; workers' comp insurance</p>
+        <p data-es>Seguro de responsabilidad civil y compensación laboral</p>
+      </div>
+    </div>
+    <p class="wordmark" aria-hidden="true">Hernández<em>.</em></p>
+    <div class="footer-bottom">
+      <span>© 2026 Hernández Landscaping &amp; Hardscape LLC</span>
+      <span>Waterbury · Naugatuck · Cheshire · Wolcott · Middlebury · Southbury · Watertown · Prospect · Thomaston</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Barra fija móvil -->
+<div class="callbar" role="navigation" aria-label="Quick contact">
+  <a class="c1" href="tel:+12035550147"><i data-lucide="phone"></i><span data-en>Call</span><span data-es>Llamar</span></a>
+  <a class="c2" href="sms:+12035550147"><i data-lucide="message-square"></i><span data-en>Text us</span><span data-es>Mensaje</span></a>
+</div>
+
+<script>
+(function(){
+  var html=document.documentElement;
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Language */
+  function setLang(l){
+    if(l!=='es')l='en';
+    html.classList.remove('lang-en','lang-es');html.classList.add('lang-'+l);html.lang=l;
+    document.querySelectorAll('[data-ph-'+l+']').forEach(function(el){el.placeholder=el.getAttribute('data-ph-'+l)});
+    document.querySelectorAll('option[data-'+l+'-label]').forEach(function(o){o.textContent=o.getAttribute('data-'+l+'-label')});
+    document.querySelectorAll('.lang-switch button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.lang===l?'true':'false')});
+    try{localStorage.setItem('wc360-lang-jardineria',l)}catch(e){}
+  }
+  var q=null;try{q=new URLSearchParams(location.search).get('lang')}catch(e){}
+  var saved=null;try{saved=localStorage.getItem('wc360-lang-jardineria')}catch(e){}
+  setLang(q||saved||'en');
+  document.querySelectorAll('.lang-switch button').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.lang)})});
+
+  /* Header: gains a background and compacts on scroll */
+  var header=document.querySelector('.header'),mb=document.querySelector('.menu-btn'),mn=document.getElementById('mobile-nav');
+  function paintHeader(){
+    var s=window.scrollY>24;
+    header.classList.toggle('is-scrolled',s);
+    header.classList.toggle('is-solid',s||mn.classList.contains('open'));
+  }
+  var ticking=false;
+  window.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(function(){paintHeader();ticking=false})}},{passive:true});
+  paintHeader();
+
+  /* Mobile menu */
+  function closeMenu(){mn.classList.remove('open');mb.setAttribute('aria-expanded','false');paintHeader()}
+  mb.addEventListener('click',function(){var o=mn.classList.toggle('open');mb.setAttribute('aria-expanded',o?'true':'false');paintHeader()});
+  mn.querySelectorAll('a').forEach(function(a){a.addEventListener('click',closeMenu)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&mn.classList.contains('open')){closeMenu();mb.focus()}});
+
+  /* Current month and season */
+  var m=new Date().getMonth();
+  var seasons=['spring','summer','fall','winter'];
+  var season=[2,3,4].indexOf(m)>-1?'spring':[5,6,7].indexOf(m)>-1?'summer':[8,9,10].indexOf(m)>-1?'fall':'winter';
+  document.querySelectorAll('.rm').forEach(function(el){el.classList.toggle('is-now',+el.dataset.m===m)});
+  document.querySelectorAll('.mbar i').forEach(function(el){el.classList.toggle('is-now',+el.dataset.m===m)});
+  document.querySelectorAll('.sp').forEach(function(el){el.classList.toggle('is-now',el.dataset.season===season)});
+  document.querySelectorAll('.note-item').forEach(function(el){el.classList.toggle('is-now',el.dataset.season===season)});
+
+  /* Seasons: horizontal journey synced with the month ruler */
+  var track=document.getElementById('sp-track'),panels=[].slice.call(track.querySelectorAll('.sp'));
+  var prev=document.querySelector('.sp-prev'),next=document.querySelector('.sp-next');
+  var goBtns=[].slice.call(document.querySelectorAll('.ruler-seasons button'));
+  var win=document.querySelector('.ruler-window');
+  function padL(){return parseFloat(getComputedStyle(track).paddingLeft)||0}
+  function goTo(i,instant){
+    i=Math.max(0,Math.min(panels.length-1,i));
+    track.scrollTo({left:panels[i].offsetLeft-padL(),behavior:(instant||reduce)?'auto':'smooth'});
+  }
+  function current(){
+    var max=track.scrollWidth-track.clientWidth;
+    var p=max>0?track.scrollLeft/max:0;
+    return {p:p,i:Math.round(p*(panels.length-1))};
+  }
+  function syncRuler(){
+    var c=current();
+    win.style.setProperty('--p',c.p.toFixed(4));
+    goBtns.forEach(function(b,k){b.setAttribute('aria-current',k===c.i?'true':'false')});
+    prev.disabled=track.scrollLeft<4;
+    next.disabled=track.scrollLeft>track.scrollWidth-track.clientWidth-4;
+  }
+  track.addEventListener('scroll',function(){requestAnimationFrame(syncRuler)},{passive:true});
+  prev.addEventListener('click',function(){goTo(current().i-1)});
+  next.addEventListener('click',function(){goTo(current().i+1)});
+  goBtns.forEach(function(b){b.addEventListener('click',function(){goTo(+b.dataset.go)})});
+  goTo(seasons.indexOf(season),true);
+  syncRuler();
+  window.addEventListener('resize',syncRuler);
+
+  /* Reveal on scroll + the sketch plan drawing itself */
+  var rv=[].slice.call(document.querySelectorAll('.rv')),plan=document.querySelector('svg.sketch');
+  if(reduce||!('IntersectionObserver' in window)){
+    rv.forEach(function(el){el.classList.add('in')});plan.classList.add('is-drawn');
+  }else{
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -6% 0px',threshold:0.01});
+    rv.forEach(function(el){io.observe(el)});
+    var pio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){plan.classList.add('is-drawn');pio.disconnect()}})},{threshold:0.3});
+    pio.observe(plan);
+  }
+
+  if(window.lucide)lucide.createIcons();
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js" onload="lucide.createIcons()"></script>
+</body>
+</html>

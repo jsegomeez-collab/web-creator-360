@@ -1,0 +1,1462 @@
+<!-- DEMO · negocio y datos ficticios · plantilla comida de Web Creator 360 -->
+<!doctype html>
+<html lang="en" class="lang-en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- slot: seo -->
+<title>Doña Rosa Kitchen · Mexican home cooking & catering in Bridgeport, CT</title>
+<meta name="description" content="Homemade Mexican food in Bridgeport, CT: tacos, enchiladas, weekend pozole, breakfast and aguas frescas. Takeout and catering for parties, offices and quinceañeras. Hablamos español.">
+<meta name="theme-color" content="#231814">
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<style>
+  /* =====================================================================
+     CONCEPT: "La carta de la casa" — a Puebla home kitchen on East Main
+     Street, told like a good printed restaurant menu: warm masa paper,
+     chile-red ink, marigold details, dotted leaders and numbered dishes,
+     and close, appetizing food photography under one warm evening grade.
+     ===================================================================== */
+
+  /* ============ Tokens: recolor the template here ============ */
+  :root{
+    --brand:#9A2E1B;          /* chile guajillo */
+    --brand-ink:#7A2214;      /* darker chile: hover, brand text */
+    --brand-deep:#5E1B10;     /* footer */
+    --brand-soft:#F1DDCF;
+    --accent:#D99A2B;         /* cempasúchil / marigold (decorative) */
+    --accent-light:#EDBC62;   /* marigold for text on dark */
+    --mole:#2A1C16;           /* dark section (catering) */
+    --mole-2:#3A2820;
+    --bg:#F4ECE0;             /* masa */
+    --paper:#FBF7F0;          /* menu paper */
+    --paper-2:#EDE3D4;
+    --ink:#231814;
+    --ink-2:#3B2C24;
+    --muted:#6B5A4D;
+    --line:#E0D2BF;
+    --line-strong:#C5B198;
+    --green:#4B6A3B;          /* vegetarian mark */
+    --on-dark:#F3EADB;
+    --on-dark-muted:#CDBCA9;
+    --on-dark-line:rgba(243,234,219,.18);
+
+    --font-display:"Fraunces", Georgia, "Times New Roman", serif;
+    --font-body:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --ease:cubic-bezier(.2,.7,.2,1);
+    --radius:4px;
+    --header-h:84px;
+    --header-s:64px;
+    --tabs-h:58px;
+    --wrap:1320px;
+    --gutter:40px;
+    --grade:saturate(.9) contrast(1.05) sepia(.12) brightness(.98);
+    --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .16 0 0 0 0 .1 0 0 0 0 .06 0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  html:focus-within{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg) var(--grain);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.62;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  img{max-width:100%;height:auto;display:block}
+  a{color:inherit}
+  h1,h2,h3,h4{font-family:var(--font-display);font-weight:400;line-height:1.04;margin:0;letter-spacing:-.02em;font-variation-settings:"SOFT" 40,"WONK" 0;text-wrap:balance}
+  p{margin:0;text-wrap:pretty}
+  ul,ol{margin:0;padding:0;list-style:none}
+  button{font:inherit;color:inherit}
+  em{font-style:italic}
+  .lang-en [data-es], .lang-es [data-en]{display:none !important}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  :focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:2px}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gutter)}
+  section[id]{scroll-margin-top:var(--header-s)}
+  .cat[id]{scroll-margin-top:calc(var(--header-s) + var(--tabs-h) + 8px)}
+  .skip{position:absolute;left:12px;top:-60px;background:var(--ink);color:var(--paper);padding:10px 14px;border-radius:4px;z-index:200;text-decoration:none}
+  .skip:focus{top:12px}
+  .ph{filter:var(--grade)}
+  .tnum{font-variant-numeric:tabular-nums lining-nums}
+
+  /* ============ Type helpers ============ */
+  .kicker{display:flex;align-items:center;gap:14px;font-size:12.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--brand-ink);margin-bottom:26px}
+  .kicker .no{font-family:var(--font-display);font-style:italic;font-weight:400;letter-spacing:0;text-transform:none;font-size:17px;color:var(--brand)}
+  .kicker .rule{width:36px;height:1px;background:currentColor;opacity:.5}
+  .h2{font-size:clamp(2.6rem,1.4rem + 3.6vw,4.6rem);font-variation-settings:"SOFT" 50,"WONK" 0}
+  .h2 em{color:var(--brand);font-variation-settings:"SOFT" 100,"WONK" 1}
+  .lede{font-size:clamp(1.05rem,.95rem + .35vw,1.2rem);color:var(--muted);max-width:56ch;margin-top:22px}
+
+  /* ============ Buttons & links ============ */
+  .btn{--b:var(--brand);display:inline-flex;align-items:center;justify-content:center;gap:.6em;min-height:52px;padding:0 24px;border-radius:999px;font-weight:600;font-size:16px;letter-spacing:.005em;text-decoration:none;border:1.5px solid transparent;cursor:pointer;transition:background-color .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease);white-space:nowrap}
+  .btn svg{width:18px;height:18px;stroke-width:1.8;flex-shrink:0}
+  .btn .arr{transition:transform .35s var(--ease)}
+  .btn:hover .arr{transform:translateX(4px)}
+  .btn:hover .arr-ur{transform:translate(2px,-2px)}
+  .btn-primary{background:var(--brand);color:#FFF8F0}
+  .btn-primary:hover{background:var(--brand-ink)}
+  .btn-ink{background:var(--ink);color:var(--paper)}
+  .btn-ink:hover{background:var(--brand-ink)}
+  .btn-outline{border-color:var(--ink);color:var(--ink)}
+  .btn-outline:hover{background:var(--ink);color:var(--paper)}
+  .btn-light{background:var(--on-dark);color:var(--mole)}
+  .btn-light:hover{background:#fff}
+  .btn-ghost-light{border-color:rgba(243,234,219,.5);color:var(--on-dark)}
+  .btn-ghost-light:hover{border-color:var(--on-dark);background:rgba(243,234,219,.1)}
+  .ulink{background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;text-decoration:none;padding-bottom:3px;transition:background-size .45s var(--ease)}
+  .ulink:hover{background-size:0 1px;background-position:100% 100%}
+  .link-arrow{display:inline-flex;align-items:center;gap:.45em;font-weight:600;text-decoration:none}
+  .link-arrow svg{width:17px;height:17px;transition:transform .35s var(--ease)}
+  .link-arrow:hover svg{transform:translateX(4px)}
+
+  /* ============ Header ============ */
+  .site-header{position:absolute;inset:0 0 auto 0;z-index:80;color:var(--on-dark);transition:background-color .35s var(--ease),color .35s var(--ease),box-shadow .35s var(--ease)}
+  .js .site-header{position:fixed}
+  .site-header.solid{background:rgba(251,247,240,.97);color:var(--ink);box-shadow:0 1px 0 var(--line)}
+  .header-inner{height:var(--header-h);display:flex;align-items:center;gap:36px;transition:height .35s var(--ease)}
+  .site-header.solid .header-inner{height:var(--header-s)}
+  .logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
+  .logo svg{width:42px;height:42px;flex-shrink:0;transition:width .35s var(--ease),height .35s var(--ease)}
+  .site-header.solid .logo svg{width:36px;height:36px}
+  .logo-word{display:flex;flex-direction:column;line-height:1}
+  .logo-name{font-family:var(--font-display);font-size:25px;letter-spacing:-.015em;font-variation-settings:"SOFT" 100,"WONK" 0}
+  .logo-sub{font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;opacity:.75;margin-top:5px}
+  .nav{display:flex;gap:30px;margin-left:auto}
+  .nav a{text-decoration:none;font-weight:500;font-size:15.5px;padding:6px 0;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .4s var(--ease)}
+  .nav a:hover{background-size:100% 1px}
+  .header-actions{display:flex;align-items:center;gap:18px}
+  .header-phone{display:flex;align-items:center;gap:8px;font-weight:600;text-decoration:none;font-size:15.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .header-phone svg{width:16px;height:16px}
+  .lang-switch{display:inline-flex;border:1px solid currentColor;border-radius:999px;padding:3px;opacity:.95}
+  .lang-switch button{border:0;background:transparent;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.08em;cursor:pointer;min-width:38px;opacity:.75;transition:background-color .2s,color .2s,opacity .2s}
+  .lang-switch button[aria-pressed="true"]{background:currentColor;opacity:1}
+  .lang-switch button[aria-pressed="true"] span{color:var(--ink)}
+  .site-header.solid .lang-switch button[aria-pressed="true"] span{color:var(--paper)}
+  .header-cta{min-height:44px;padding:0 20px;font-size:15px}
+  .site-header:not(.solid) .header-cta{background:var(--on-dark);color:var(--ink)}
+  .site-header:not(.solid) .header-cta:hover{background:#fff}
+  .menu-toggle{position:relative;display:none;border:0;background:transparent;width:46px;height:46px;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;margin-right:-8px}
+  .menu-toggle svg{width:24px;height:24px;stroke-width:1.6}
+  .menu-toggle .i-close{display:none}
+  .menu-toggle[aria-expanded="true"] .i-open{display:none}
+  .menu-toggle[aria-expanded="true"] .i-close{display:block}
+  .mobile-nav{display:none}
+
+  /* ============ Hero ============ */
+  .hero{position:relative;min-height:max(680px,100svh);display:flex;flex-direction:column;justify-content:flex-end;color:var(--on-dark);background:var(--mole)}
+  .hero-media{position:absolute;inset:0;overflow:hidden}
+  .hero-media img{width:100%;height:100%;object-fit:cover;object-position:50% 58%;animation:settle 2.2s var(--ease) both}
+  .hero-media::after{content:"";position:absolute;inset:0;background:
+      linear-gradient(90deg,rgba(26,16,11,.78) 0%,rgba(26,16,11,.5) 38%,rgba(26,16,11,.08) 70%),
+      linear-gradient(0deg,rgba(26,16,11,.88) 0%,rgba(26,16,11,.35) 34%,rgba(26,16,11,0) 58%),
+      linear-gradient(180deg,rgba(26,16,11,.55) 0%,rgba(26,16,11,0) 22%)}
+  .hero-inner{position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:48px;padding-top:calc(var(--header-h) + 40px);padding-bottom:36px}
+  .status{display:inline-flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;letter-spacing:.01em;padding:8px 16px 8px 13px;border-radius:999px;border:1px solid rgba(243,234,219,.35);background:rgba(26,16,11,.35);margin-bottom:30px;font-variant-numeric:tabular-nums}
+  .status .dot{width:8px;height:8px;border-radius:50%;background:#7BC08A;position:relative;flex-shrink:0}
+  .status .dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid #7BC08A;opacity:0;animation:ping 2.6s var(--ease) infinite}
+  .status.closed .dot{background:var(--accent-light)}
+  .status.closed .dot::after{display:none}
+  .hero h1{font-size:clamp(3rem,1rem + 5.4vw,6.6rem);line-height:.97;letter-spacing:-.028em;max-width:10.5ch;font-variation-settings:"SOFT" 30,"WONK" 0;font-weight:380}
+  .lang-es .hero h1{max-width:12ch}
+  .hero h1 em{color:var(--accent-light);font-variation-settings:"SOFT" 100,"WONK" 1;font-weight:350}
+  .hero-lede{font-size:clamp(1.05rem,.95rem + .4vw,1.2rem);max-width:46ch;margin-top:26px;color:rgba(243,234,219,.88)}
+  .hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:34px}
+  .hero-actions .btn{min-height:56px;padding:0 28px}
+  .hero-copy > *{animation:rise .9s var(--ease) both}
+  .hero-copy > :nth-child(2){animation-delay:.12s}
+  .hero-copy > :nth-child(3){animation-delay:.24s}
+  .hero-copy > :nth-child(4){animation-delay:.36s}
+  .ticket{animation:rise .9s .5s var(--ease) both}
+  .hero-foot{position:relative;border-top:1px solid rgba(243,234,219,.2)}
+  .hero-foot .wrap{display:flex;justify-content:space-between;gap:24px;padding-top:18px;padding-bottom:22px;font-size:13px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(243,234,219,.78)}
+  .hero-foot span{display:inline-flex;align-items:center;gap:9px}
+  .hero-foot svg{width:15px;height:15px;stroke-width:1.6}
+  .hero-foot a{text-decoration:none}
+
+  /* weekend ticket */
+  .ticket{position:relative;display:grid;grid-template-columns:92px minmax(0,1fr);gap:18px;align-items:center;width:360px;background:var(--paper);color:var(--ink);padding:14px 22px 14px 14px;border-radius:6px;box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}
+  .ticket::before,.ticket::after{content:"";position:absolute;left:120px;width:14px;height:14px;border-radius:50%;background:#2a1b14}
+  .ticket::before{top:-7px}
+  .ticket::after{bottom:-7px}
+  .ticket img{width:92px;height:92px;object-fit:cover;object-position:30% 50%;border-radius:3px}
+  .ticket-body{border-left:1px dashed var(--line-strong);padding-left:18px}
+  .ticket small{display:block;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brand)}
+  .ticket strong{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-family:var(--font-display);font-weight:400;font-size:25px;line-height:1.1;margin:5px 0 4px;letter-spacing:-.01em}
+  .ticket strong b{font-family:var(--font-body);font-weight:600;font-size:15px;font-variant-numeric:tabular-nums}
+  .ticket .sub{font-size:13.5px;color:var(--muted);line-height:1.4;display:block}
+
+  /* ============ Intro / house notes ============ */
+  .intro{padding:136px 0 120px}
+  .intro-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:96px;align-items:start}
+  .intro-statement{font-family:var(--font-display);font-size:clamp(1.9rem,1.2rem + 1.9vw,3.05rem);line-height:1.16;letter-spacing:-.018em;font-variation-settings:"SOFT" 60,"WONK" 0;text-wrap:pretty}
+  .intro-statement em{color:var(--brand);font-variation-settings:"SOFT" 100,"WONK" 1}
+  .intro-sign{display:flex;align-items:center;gap:14px;margin-top:34px;font-size:15px;color:var(--muted)}
+  .intro-sign svg{width:54px;height:30px;color:var(--brand)}
+  .notes{border-top:1px solid var(--ink)}
+  .notes li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px;padding:20px 0;border-bottom:1px solid var(--line)}
+  .notes .n{font-family:var(--font-display);font-style:italic;font-size:17px;color:var(--brand);padding-top:1px}
+  .notes strong{display:block;font-weight:600;font-size:17px;line-height:1.35}
+  .notes span.t{display:block;color:var(--muted);font-size:15.5px;line-height:1.5;margin-top:3px}
+  .notes li.es-badge strong{font-family:var(--font-display);font-weight:400;font-size:21px;letter-spacing:-.01em;color:var(--brand-ink)}
+
+  /* ============ Menu (signature) ============ */
+  .menu{padding:40px 0 136px}
+  .menu-head{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:96px;align-items:end;margin-bottom:56px}
+  .menu-head .lede{margin-top:0}
+  .legend{display:flex;gap:20px;font-size:14px;color:var(--muted);margin-top:18px}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend svg{width:16px;height:16px}
+  .ico-hot{color:var(--brand)}
+  .ico-veg{color:var(--green)}
+
+  .menu-tabs{position:sticky;top:0;z-index:40;background:rgba(244,236,224,.97);border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
+  .js .menu-tabs{top:var(--header-s)}
+  .menu-tabs ul{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;height:var(--tabs-h);align-items:stretch}
+  .menu-tabs ul::-webkit-scrollbar{display:none}
+  .menu-tabs li{scroll-snap-align:start;display:flex}
+  .menu-tabs a{position:relative;display:inline-flex;align-items:center;gap:9px;white-space:nowrap;text-decoration:none;padding:0 18px;color:var(--muted);transition:color .25s}
+  .menu-tabs li:first-child a{padding-left:0}
+  .menu-tabs a .r{font-family:var(--font-display);font-style:italic;font-size:14px;color:var(--brand);opacity:.8}
+  .menu-tabs a .nm{font-family:var(--font-display);font-size:19px;letter-spacing:-.01em}
+  .menu-tabs a .en{font-size:13px;font-weight:500;letter-spacing:.04em}
+  .menu-tabs a::after{content:"";position:absolute;left:18px;right:18px;bottom:-1px;height:2px;background:var(--brand);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
+  .menu-tabs li:first-child a::after{left:0}
+  .menu-tabs a:hover,.menu-tabs a.active{color:var(--ink)}
+  .menu-tabs a.active::after{transform:scaleX(1)}
+
+  .menu-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:64px;align-items:start;margin-top:48px}
+  .carta{background:var(--paper) var(--grain);border:1px solid var(--line);padding:56px 64px 44px;position:relative;box-shadow:0 1px 0 var(--line),0 40px 60px -50px rgba(35,24,20,.35)}
+  .carta::before{content:"";position:absolute;inset:8px;border:1px solid var(--line);pointer-events:none}
+  .carta-mast{display:flex;align-items:center;gap:18px;justify-content:center;font-size:11.5px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;text-align:center}
+  .carta-mast::before,.carta-mast::after{content:"";flex:1;height:1px;background:var(--line-strong)}
+  .carta-mast svg{width:26px;height:16px;color:var(--brand)}
+  .cat{padding-top:48px}
+  .cat + .cat{margin-top:16px}
+  .cat-head{display:flex;align-items:baseline;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--ink)}
+  .cat-head .r{font-family:var(--font-display);font-style:italic;font-size:20px;color:var(--brand);min-width:28px}
+  .cat-head h3{font-size:clamp(2.2rem,1.6rem + 1.4vw,3rem);font-variation-settings:"SOFT" 60,"WONK" 0}
+  .cat-head .sub{margin-left:auto;font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-align:right}
+  .cat-note{font-family:var(--font-display);font-style:italic;font-size:17px;line-height:1.5;color:var(--ink-2);margin:16px 0 6px 44px;max-width:52ch;font-variation-settings:"SOFT" 100,"WONK" 0}
+  .cat-photo{display:none}
+  .dishes{margin-left:44px}
+  .dish{position:relative;padding:18px 0 16px;border-bottom:1px dotted var(--line-strong)}
+  .dish:last-child{border-bottom:0}
+  .dish::before{content:"";position:absolute;left:-44px;top:18px;bottom:16px;width:2px;background:var(--brand);transform:scaleY(0);transform-origin:top;transition:transform .4s var(--ease)}
+  .dish.is-active::before{transform:scaleY(1)}
+  .dish-row{display:flex;align-items:baseline;gap:10px}
+  .dish-no{position:absolute;left:-44px;top:23px;font-size:12px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.04em;padding-left:10px}
+  .dish-name{font-family:var(--font-display);font-size:23px;line-height:1.2;letter-spacing:-.01em;font-variation-settings:"SOFT" 50,"WONK" 0;text-align:left}
+  button.dish-name{background:none;border:0;padding:0;margin:0;cursor:pointer;display:inline-flex;align-items:baseline;gap:8px;transition:color .25s}
+  button.dish-name:hover,.dish.is-active button.dish-name{color:var(--brand-ink)}
+  .dish-name .cam{display:none;width:15px;height:15px;color:var(--muted);align-self:center;stroke-width:1.6}
+  .dish-tags{display:inline-flex;gap:5px;align-self:center}
+  .dish-tags svg{width:16px;height:16px;stroke-width:1.8}
+  .dots{flex:1;min-width:20px;border-bottom:1.5px dotted var(--line-strong);transform:translateY(-6px)}
+  .price{font-weight:600;font-size:17px;font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
+  .price small{font-weight:500;color:var(--muted);font-size:14px}
+  .dish-desc{color:var(--muted);font-size:15.5px;margin-top:4px;max-width:56ch;line-height:1.5}
+  .dish-note{display:inline-block;margin-top:9px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--brand);border:1px solid currentColor;padding:3px 8px 2px;border-radius:2px}
+  .dish-fig{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s var(--ease)}
+  .dish-fig > div{overflow:hidden}
+  .dish-fig img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:3px;margin-top:14px}
+  .dish.open .dish-fig{grid-template-rows:1fr}
+  .carta-foot{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;justify-content:space-between;margin-top:40px;padding-top:26px;border-top:1px solid var(--ink)}
+  .carta-foot p{font-size:15px;color:var(--muted);max-width:52ch}
+
+  .preview{position:sticky;top:calc(var(--header-s) + var(--tabs-h) + 32px)}
+  .preview-frame{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--paper-2);border-radius:3px}
+  .preview-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.04);transition:opacity .6s var(--ease),transform 1.4s var(--ease)}
+  .preview-frame img.show{opacity:1;transform:scale(1)}
+  .preview-tag{position:absolute;left:14px;top:14px;z-index:2;background:var(--paper);color:var(--ink);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:6px 10px 5px;border-radius:2px}
+  .preview-cap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 18px;align-items:baseline;padding:20px 2px 0;border-bottom:1px solid var(--line);padding-bottom:18px}
+  .pv-name{font-family:var(--font-display);font-size:28px;line-height:1.1;letter-spacing:-.015em;font-weight:400}
+  .pv-price{font-weight:600;font-variant-numeric:tabular-nums}
+  .pv-desc{grid-column:1/-1;color:var(--muted);font-size:15px;line-height:1.5;min-height:3em}
+  .preview-hint{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:var(--muted)}
+  .preview-hint svg{width:15px;height:15px}
+
+  /* ============ Catering (dark) ============ */
+  .catering{background:var(--mole);color:var(--on-dark);padding:136px 0 128px;overflow:hidden;position:relative}
+  .catering::before{content:"";position:absolute;inset:0;background:var(--grain);opacity:.6;pointer-events:none}
+  .catering .kicker{color:var(--accent-light)}
+  .catering .kicker .no{color:var(--accent-light)}
+  .catering .h2 em{color:var(--accent-light)}
+  .catering-top{position:relative;display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:80px;align-items:center}
+  .catering-lede{font-size:clamp(1.05rem,.95rem + .35vw,1.2rem);color:var(--on-dark-muted);margin-top:26px;max-width:46ch}
+  .catering-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px}
+  .catering-photo{position:relative;margin:0 calc(-1 * max(var(--gutter), (100vw - var(--wrap)) / 2 + var(--gutter))) 0 0}
+  .catering-photo img{width:100%;aspect-ratio:5/4;object-fit:cover;border-radius:3px 0 0 3px;filter:saturate(.74) contrast(1.05) sepia(.14) brightness(.95)}
+  .catering-photo figcaption{margin-top:14px;font-size:13.5px;color:var(--on-dark-muted);font-style:italic;font-family:var(--font-display)}
+
+  .invites{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:112px}
+  .invite{position:relative;display:flex;flex-direction:column;background:var(--paper) var(--grain);color:var(--ink);border-radius:6px;transition:transform .5s var(--ease)}
+  .invite:hover{transform:translateY(-4px)}
+  .invite-top{padding:34px 34px 24px;flex:1}
+  .invite-meta{display:flex;justify-content:space-between;gap:12px;font-size:11.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .invite-meta .no{color:var(--brand)}
+  .invite h3{font-size:44px;margin-top:26px;font-variation-settings:"SOFT" 70,"WONK" 0}
+  .invite .for{font-family:var(--font-display);font-style:italic;font-size:17px;color:var(--brand-ink);margin-top:6px;font-variation-settings:"SOFT" 100,"WONK" 0}
+  .invite ul{margin-top:22px;display:grid;gap:10px}
+  .invite li{position:relative;padding-left:20px;font-size:15.5px;line-height:1.45;color:var(--ink-2)}
+  .invite li::before{content:"";position:absolute;left:0;top:.62em;width:9px;height:1px;background:var(--brand)}
+  .invite-stub{position:relative;padding:22px 34px 28px;border-top:1.5px dashed var(--line-strong)}
+  .invite-stub::before,.invite-stub::after{content:"";position:absolute;top:-10px;width:20px;height:20px;border-radius:50%;background:var(--mole)}
+  .invite-stub::before{left:-10px}
+  .invite-stub::after{right:-10px}
+  .invite-price{font-family:var(--font-display);font-size:34px;line-height:1;letter-spacing:-.02em;font-variant-numeric:lining-nums}
+  .invite-price small{font-family:var(--font-body);font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--muted)}
+  .invite-min{font-size:14px;color:var(--muted);margin-top:6px}
+  .invite-cta{margin-top:18px;color:var(--brand-ink)}
+
+  .steps-wrap{position:relative;display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:80px;margin-top:112px;padding-top:48px;border-top:1px solid var(--on-dark-line)}
+  .steps-wrap h3{font-size:clamp(1.9rem,1.4rem + 1vw,2.5rem)}
+  .steps-wrap .aside-p{color:var(--on-dark-muted);font-size:16px;margin-top:14px;max-width:34ch}
+  .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px;counter-reset:s}
+  .step .n{display:block;font-family:var(--font-display);font-style:italic;font-size:56px;line-height:1;color:var(--accent-light);font-variation-settings:"SOFT" 100,"WONK" 1}
+  .step strong{display:block;font-size:17px;font-weight:600;margin-top:18px;padding-top:16px;border-top:1px solid var(--on-dark-line)}
+  .step span.t{display:block;color:var(--on-dark-muted);font-size:15.5px;line-height:1.55;margin-top:6px}
+
+  /* ============ Story ============ */
+  .story{padding:144px 0 136px}
+  .story-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:112px;align-items:center}
+  .portrait{margin:0;position:relative}
+  .portrait .arch{border-radius:999px 999px 4px 4px;overflow:hidden;aspect-ratio:4/5.2}
+  .portrait img{width:100%;height:100%;object-fit:cover;object-position:32% 50%;transition:transform 1.2s var(--ease)}
+  .portrait:hover img{transform:scale(1.03)}
+  .portrait figcaption{display:flex;justify-content:space-between;gap:16px;margin-top:14px;font-size:13.5px;color:var(--muted)}
+  .portrait figcaption i{font-family:var(--font-display)}
+  .seal{position:absolute;right:-44px;top:36%;width:128px;height:128px;color:var(--brand)}
+  .seal svg{width:100%;height:100%;animation:spin 40s linear infinite}
+  .story-text p.body{margin-top:22px;font-size:18px;max-width:56ch}
+  .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:48px;border-top:1px solid var(--ink)}
+  .facts div{padding:18px 20px 0 0}
+  .facts div + div{padding-left:20px;border-left:1px solid var(--line)}
+  .facts dt{font-family:var(--font-display);font-size:34px;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:lining-nums}
+  .facts dd{margin:8px 0 0;font-size:14.5px;color:var(--muted);line-height:1.45}
+
+  .kitchen{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:72px;margin-top:136px;align-items:end}
+  .kitchen-main{margin:0 0 0 calc(-1 * max(var(--gutter), (100vw - var(--wrap)) / 2 + var(--gutter)))}
+  .kitchen-main .img{overflow:hidden;border-radius:0 3px 3px 0}
+  .kitchen-main img{width:100%;aspect-ratio:3/2;object-fit:cover;object-position:50% 86%;transition:transform 1.2s var(--ease)}
+  .kitchen-main:hover img{transform:scale(1.03)}
+  .kitchen figcaption{display:flex;gap:10px;margin-top:14px;font-size:14.5px;color:var(--muted)}
+  .kitchen figcaption b{color:var(--ink);font-weight:600}
+  .kitchen-main figcaption{padding-left:max(var(--gutter), (100vw - var(--wrap)) / 2 + var(--gutter))}
+  .quote{margin:0}
+  .quote blockquote{margin:0;font-family:var(--font-display);font-style:italic;font-size:clamp(1.8rem,1.2rem + 1.6vw,2.75rem);line-height:1.18;letter-spacing:-.015em;color:var(--ink);font-variation-settings:"SOFT" 100,"WONK" 1;text-wrap:balance;position:relative}
+  .quote blockquote::before{content:"\201C";display:block;font-size:4.5em;line-height:.6;height:.42em;color:var(--accent);font-style:normal}
+  .quote .sign{margin-top:18px;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .kitchen-small{margin:56px 0 0;max-width:360px}
+  .kitchen-small .img{overflow:hidden;border-radius:3px}
+  .kitchen-small img{width:100%;aspect-ratio:5/4;object-fit:cover;transition:transform 1.2s var(--ease)}
+  .kitchen-small:hover img{transform:scale(1.03)}
+
+  /* ============ Reviews (optional) ============ */
+  .reviews{background:var(--paper) var(--grain);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:120px 0}
+  .reviews-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:96px;align-items:start}
+  .g-score{display:flex;align-items:flex-end;gap:16px;margin-top:40px;padding-top:24px;border-top:1px solid var(--ink)}
+  .g-score b{font-family:var(--font-display);font-weight:400;font-size:88px;line-height:.85;letter-spacing:-.04em;font-variant-numeric:lining-nums}
+  .g-score .meta{font-size:14.5px;color:var(--muted);line-height:1.5}
+  .stars{display:inline-flex;gap:2px;color:#C98A1A}
+  .stars svg{width:16px;height:16px;fill:currentColor;stroke-width:0}
+  .g-mark{font-weight:700;color:var(--ink)}
+  .review-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 56px}
+  .review{padding:30px 0;border-top:1px solid var(--line)}
+  .review:first-child{grid-column:1/-1;border-top:1px solid var(--ink);padding-top:28px}
+  .review p{font-family:var(--font-display);font-size:21px;line-height:1.4;margin-top:14px;letter-spacing:-.005em;font-variation-settings:"SOFT" 80,"WONK" 0}
+  .review:first-child p{font-size:clamp(1.6rem,1.2rem + 1vw,2.2rem);line-height:1.25;font-style:italic;font-variation-settings:"SOFT" 100,"WONK" 1;max-width:30ch}
+  .review footer{display:flex;gap:10px;align-items:center;margin-top:18px;font-size:14px;color:var(--muted)}
+  .review footer b{color:var(--ink);font-weight:600}
+
+  /* ============ Visit ============ */
+  .visit{padding:144px 0 128px}
+  .visit-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:96px;align-items:start}
+  .address{font-family:var(--font-display);font-size:clamp(2rem,1.5rem + 1.3vw,2.8rem);line-height:1.08;letter-spacing:-.02em;margin-top:36px}
+  .address-note{color:var(--muted);font-size:16px;margin-top:10px}
+  .status-line{display:inline-flex;align-items:center;gap:10px;margin-top:40px;font-weight:600;font-size:15px;font-variant-numeric:tabular-nums}
+  .status-line .dot{width:8px;height:8px;border-radius:50%;background:#2F7D4A;box-shadow:0 0 0 4px rgba(47,125,74,.15)}
+  .status-line.closed .dot{background:var(--brand);box-shadow:0 0 0 4px rgba(154,46,27,.14)}
+  .hours{width:100%;border-collapse:collapse;margin-top:16px;font-variant-numeric:tabular-nums lining-nums;border-top:1px solid var(--ink)}
+  .hours th,.hours td{text-align:left;padding:13px 0;border-bottom:1px solid var(--line);font-size:16.5px}
+  .hours th{font-weight:500}
+  .hours td{text-align:right}
+  .hours tr.today th,.hours tr.today td{font-weight:700;color:var(--brand-ink)}
+  .hours tr.today th{position:relative}
+  .today-tag{display:inline-block;margin-left:12px;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#FFF8F0;background:var(--brand);padding:3px 7px 2px;border-radius:2px;vertical-align:2px}
+  .hours .closed-day td{color:var(--muted)}
+  .hours-note{font-size:14.5px;color:var(--muted);margin-top:16px}
+  .map-frame{position:relative;background:var(--paper);padding:10px;border:1px solid var(--line)}
+  .map-frame iframe{width:100%;height:440px;border:0;display:block;filter:sepia(.18) saturate(.85)}
+  .map-pin{position:absolute;left:28px;bottom:28px;background:var(--ink);color:var(--paper);padding:12px 16px;border-radius:3px;font-size:14px;line-height:1.35;max-width:260px}
+  .map-pin b{display:block;font-family:var(--font-display);font-weight:400;font-size:19px}
+  .how{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;margin-top:40px}
+  .how-item svg{width:22px;height:22px;color:var(--brand);stroke-width:1.5}
+  .how-item strong{display:block;margin-top:12px;font-weight:600;font-size:16.5px}
+  .how-item > span{display:block;color:var(--muted);font-size:15px;margin-top:3px;line-height:1.5}
+  .visit-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:40px}
+  .towns{margin-top:48px;padding-top:22px;border-top:1px solid var(--line)}
+  .towns h3{font-family:var(--font-body);font-weight:600;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .town-list{display:flex;flex-wrap:wrap;gap:4px 0;margin-top:12px;font-family:var(--font-display);font-size:21px;line-height:1.5}
+  .town-list li:not(:last-child)::after{content:"·";margin:0 .5em;color:var(--accent)}
+  .towns p{color:var(--muted);font-size:15px;margin-top:10px}
+
+  /* ============ FAQ ============ */
+  .faq{padding:24px 0 136px}
+  .faq-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:96px}
+  .faq-head{position:sticky;top:calc(var(--header-s) + 40px);align-self:start}
+  .faq details{border-bottom:1px solid var(--line)}
+  .faq details:first-child{border-top:1px solid var(--ink)}
+  .faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:24px;padding:26px 0;font-family:var(--font-display);font-size:23px;line-height:1.3;letter-spacing:-.01em;transition:color .25s}
+  .faq summary:hover{color:var(--brand-ink)}
+  .faq summary::-webkit-details-marker{display:none}
+  .pm{position:relative;width:18px;height:18px;flex-shrink:0}
+  .pm::before,.pm::after{content:"";position:absolute;left:0;right:0;top:50%;height:1.5px;margin-top:-.75px;background:var(--brand);transition:transform .4s var(--ease)}
+  .pm::after{transform:rotate(90deg)}
+  .faq details[open] .pm::after{transform:rotate(0)}
+  .faq .answer{padding:0 56px 28px 0;color:var(--muted);font-size:17px;max-width:62ch}
+
+  /* ============ Contact ============ */
+  .contact{background:var(--paper-2) var(--grain);padding:136px 0}
+  .contact-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:96px;align-items:start}
+  .contact-lines{margin-top:48px;border-top:1px solid var(--ink)}
+  .contact-line{display:grid;grid-template-columns:28px minmax(0,1fr) 20px;gap:16px;align-items:center;padding:20px 0;border-bottom:1px solid var(--line-strong);text-decoration:none}
+  .contact-line > svg{width:20px;height:20px;color:var(--brand);stroke-width:1.6}
+  .contact-line strong{display:block;font-family:var(--font-display);font-weight:400;font-size:24px;line-height:1.2;letter-spacing:-.01em}
+  .contact-line div > span{display:block;font-size:14.5px;color:var(--muted)}
+  .contact-line .go{width:18px;height:18px;color:var(--ink);transition:transform .35s var(--ease)}
+  .contact-line:hover .go{transform:translateX(4px)}
+  .contact-line:hover strong{color:var(--brand-ink)}
+  .form{background:var(--paper);border:1px solid var(--line);padding:48px;border-radius:3px;box-shadow:0 40px 60px -50px rgba(35,24,20,.4)}
+  .form h3{font-size:34px}
+  .form > p{color:var(--muted);margin-top:8px;font-size:15.5px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 20px;margin-top:32px}
+  .field{display:flex;flex-direction:column;gap:8px}
+  .field.full{grid-column:1/-1}
+  .field label{font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+  .field label small{font-weight:500;letter-spacing:.04em;text-transform:none;color:var(--muted);font-size:13px}
+  .field input,.field select,.field textarea{font:inherit;font-size:17px;color:var(--ink);background:transparent;border:0;border-bottom:1.5px solid var(--line-strong);border-radius:0;padding:10px 0 11px;min-height:48px;width:100%;transition:border-color .25s var(--ease)}
+  .field select{-webkit-appearance:none;appearance:none;cursor:pointer;padding-right:28px;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239A2E1B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>") right 2px center/14px no-repeat}
+  .field textarea{min-height:110px;resize:vertical;border:1.5px solid var(--line-strong);padding:12px 14px;border-radius:3px;margin-top:4px}
+  .field input::placeholder,.field textarea::placeholder{color:#9C8B7C}
+  .field input:hover,.field select:hover,.field textarea:hover{border-color:var(--muted)}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 1.5px 0 var(--brand)}
+  .field textarea:focus{box-shadow:0 0 0 1px var(--brand)}
+  .form .btn{margin-top:30px;width:100%}
+  .form-fine{font-size:13.5px;color:var(--muted);margin-top:14px;text-align:center}
+
+  /* ============ Footer ============ */
+  .site-footer{background:var(--brand-deep);color:#EFDFCF;padding:104px 0 0;overflow:hidden;position:relative}
+  .site-footer::before{content:"";position:absolute;inset:0;background:var(--grain);opacity:.8;pointer-events:none}
+  .foot-grid{position:relative;display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:56px}
+  .site-footer .logo{color:#FBF1E4}
+  .foot-blurb{margin-top:20px;color:#DCC5B2;font-size:15.5px;max-width:32ch}
+  .foot-badge{display:inline-flex;align-items:center;gap:8px;margin-top:22px;border:1px solid rgba(239,223,207,.35);border-radius:999px;padding:7px 15px;font-size:13.5px;font-weight:600}
+  .foot-badge svg{width:15px;height:15px;color:var(--accent-light)}
+  .site-footer h3{font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#D9BFAA;margin-bottom:18px}
+  .site-footer li{font-size:15.5px;line-height:1.55;margin-bottom:9px}
+  .site-footer li span.d{display:inline-block;min-width:96px;color:#D9BFAA}
+  .site-footer a{text-decoration:none}
+  .site-footer a:hover{text-decoration:underline;text-underline-offset:3px}
+  .foot-word{position:relative;font-family:var(--font-display);font-size:clamp(5rem,19.5vw,19.5rem);line-height:.8;letter-spacing:-.055em;color:#F6E8D8;margin:96px 0 0 -.04em;white-space:nowrap;font-variation-settings:"SOFT" 100,"WONK" 1;font-weight:350;user-select:none}
+  .foot-word em{color:var(--accent-light)}
+  .foot-bottom{position:relative;padding:22px 0 26px;border-top:1px solid rgba(239,223,207,.22);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:#D3B9A5;margin-top:20px}
+
+  /* ============ Mobile bar ============ */
+  .mobile-bar{display:none}
+
+  /* ============ Motion ============ */
+  @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  @keyframes settle{from{transform:scale(1.08)}to{transform:scale(1)}}
+  @keyframes ping{0%{transform:scale(.6);opacity:.9}70%,100%{transform:scale(2.1);opacity:0}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .js .rv{opacity:0;transform:translateY(20px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+  .js .rv.in{opacity:1;transform:none}
+  .js .rv.d1{transition-delay:.1s}
+  .js .rv.d2{transition-delay:.2s}
+
+  /* ============ Responsive ============ */
+  @media (max-width:1240px){
+    .nav{gap:22px}
+    .header-phone .num{display:none}
+    .menu-layout{grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:44px}
+    .carta{padding:48px 44px 40px}
+  }
+  @media (max-width:1080px){
+    :root{--gutter:32px}
+    .nav,.header-phone,.header-cta{display:none}
+    .menu-toggle{display:inline-flex}
+    .header-actions{margin-left:auto;gap:10px}
+    .mobile-nav{display:block;position:fixed;inset:var(--header-s) 0 0 0;background:var(--paper);color:var(--ink);padding:16px var(--gutter) 32px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .3s var(--ease),transform .3s var(--ease),visibility .3s;overflow-y:auto;z-index:79}
+    .mobile-nav.open{opacity:1;visibility:visible;transform:none}
+    .mobile-nav a.mn{display:flex;align-items:baseline;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);font-family:var(--font-display);font-size:32px;letter-spacing:-.015em;text-decoration:none}
+    .mobile-nav a.mn i{font-size:15px;color:var(--brand);min-width:26px}
+    .mobile-nav .btn{margin-top:28px;width:100%;display:flex}
+    .mobile-nav .mn-meta{margin-top:24px;font-size:14.5px;color:var(--muted)}
+    .site-header.menu-open{background:var(--paper);color:var(--ink);box-shadow:0 1px 0 var(--line)}
+    .site-header.menu-open .header-inner{height:var(--header-s)}
+    .site-header.menu-open .lang-switch button[aria-pressed="true"] span{color:var(--paper)}
+    .hero-inner{grid-template-columns:1fr}
+    .ticket{justify-self:start}
+    .intro-grid,.menu-head,.catering-top,.story-grid,.visit-grid,.contact-grid,.faq-grid,.reviews-grid,.steps-wrap{grid-template-columns:1fr;gap:56px}
+    .menu-layout{grid-template-columns:1fr}
+    .preview{display:none}
+    .cat-photo{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:3px;margin:22px 0 4px}
+    .dish-name .cam{display:inline-block}
+    .catering-photo{margin:0 calc(-1 * var(--gutter))}
+    .catering-photo img{border-radius:0}
+    .catering-photo figcaption{padding:0 var(--gutter)}
+    .invites{grid-template-columns:1fr;max-width:560px}
+    .story-grid{gap:64px}
+    .portrait{max-width:520px}
+    .seal{right:-12px}
+    .kitchen{grid-template-columns:1fr;gap:56px}
+    .kitchen-main{margin:0 calc(-1 * var(--gutter))}
+    .kitchen-main .img{border-radius:0}
+    .kitchen-main figcaption{padding:0 var(--gutter)}
+    .faq-head{position:static}
+    .foot-grid{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:720px){
+    :root{--gutter:20px;--header-h:64px;--header-s:60px;--tabs-h:54px}
+    body{font-size:17px;padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+    .logo svg,.site-header.solid .logo svg{width:34px;height:34px}
+    .logo-name{font-size:21px}
+    .logo-sub{font-size:9px;letter-spacing:.2em}
+    .lang-switch button{padding:4px 8px;min-width:34px}
+    .hero{min-height:max(620px,calc(100svh - 74px))}
+    .hero-media img{object-position:62% 50%}
+    .hero-media::after{background:
+      linear-gradient(0deg,rgba(26,16,11,.92) 0%,rgba(26,16,11,.62) 45%,rgba(26,16,11,.1) 75%),
+      linear-gradient(180deg,rgba(26,16,11,.6) 0%,rgba(26,16,11,0) 26%)}
+    .hero-inner{padding-top:calc(var(--header-h) + 40px);padding-bottom:0;gap:0}
+    .status{font-size:13.5px;margin-bottom:22px}
+    .hero h1{font-size:clamp(2.7rem,11.6vw,3.6rem);line-height:.98}
+    .hero-lede{font-size:16.5px;margin-top:20px}
+    .hero-actions{margin-top:28px;gap:10px}
+    .hero-actions .btn{flex:1 1 100%;min-height:54px}
+    .ticket{width:auto;margin:32px 0 -48px;grid-template-columns:76px minmax(0,1fr);gap:14px;padding:12px 16px 12px 12px;box-shadow:0 20px 40px -24px rgba(35,24,20,.5)}
+    .ticket::before,.ticket::after{left:97px}
+    .ticket::after{background:var(--bg)}
+    .ticket img{width:76px;height:76px}
+    .ticket strong{font-size:22px}
+    .hero-foot{display:none}
+    .intro{padding:104px 0 80px}
+    .intro-grid{gap:44px}
+    .menu{padding:24px 0 96px}
+    .menu-head{gap:20px;margin-bottom:36px}
+    .menu-tabs a{padding:0 14px}
+    .menu-tabs a .en{display:none}
+    .menu-tabs a::after{left:14px;right:14px}
+    .menu-tabs .wrap{padding-right:0}
+    .menu-layout{margin-top:24px}
+    .carta{padding:32px 18px 28px;margin:0 -8px}
+    .carta::before{inset:5px}
+    .carta-mast{font-size:10px;letter-spacing:.18em;gap:10px}
+    .cat{padding-top:36px}
+    .cat-head{flex-wrap:wrap;gap:4px 12px}
+    .cat-head .r{min-width:0}
+    .cat-head .sub{margin-left:0;width:100%;text-align:left;font-size:11.5px}
+    .cat-note{margin-left:0;font-size:16px}
+    .dishes{margin-left:0}
+    .dish::before{left:-10px}
+    .dish-no{position:static;padding:0;min-width:22px;font-size:11.5px;transform:translateY(-3px)}
+    .dish-row{flex-wrap:wrap;row-gap:2px;gap:8px}
+    .dish-name{font-size:20.5px}
+    .dish-desc{font-size:15px;padding-left:30px}
+    .dish-note{margin-left:30px}
+    .dish-fig{padding-left:30px}
+    .price{font-size:16px}
+    .carta-foot .btn{width:100%}
+    .catering{padding:96px 0 88px}
+    .catering-top{gap:44px}
+    .catering-actions .btn{flex:1 1 100%}
+    .invites{margin-top:72px;gap:22px}
+    .invite-top{padding:28px 24px 20px}
+    .invite h3{font-size:38px;margin-top:20px}
+    .invite-stub{padding:20px 24px 24px}
+    .steps-wrap{margin-top:72px;gap:32px}
+    .steps{grid-template-columns:1fr;gap:28px}
+    .step{display:grid;grid-template-columns:48px minmax(0,1fr);gap:0 12px}
+    .step .n{font-size:44px;grid-row:span 2}
+    .step strong{margin-top:0;padding-top:0;border-top:0}
+    .story{padding:96px 0 88px}
+    .portrait{margin-right:36px}
+    .seal{width:92px;height:92px;right:-26px}
+    .facts{grid-template-columns:1fr}
+    .facts div,.facts div + div{padding:16px 0;border-left:0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;align-items:baseline}
+    .facts dt{font-size:26px}
+    .facts dd{margin:0}
+    .kitchen{margin-top:88px}
+    .kitchen-small{max-width:none;margin-top:36px}
+    .reviews{padding:88px 0}
+    .review-list{grid-template-columns:1fr}
+    .g-score b{font-size:72px}
+    .visit{padding:96px 0 80px}
+    .map-frame{padding:6px;margin:0 -6px}
+    .map-frame iframe{height:320px}
+    .map-pin{left:18px;bottom:18px;right:18px;max-width:none}
+    .how{grid-template-columns:1fr;gap:24px}
+    .visit-actions .btn{flex:1 1 100%}
+    .town-list{font-size:19px}
+    .faq{padding:8px 0 96px}
+    .faq-grid{gap:36px}
+    .faq summary{font-size:19.5px;padding:22px 0}
+    .faq .answer{padding-right:0;font-size:16px}
+    .contact{padding:96px 0}
+    .contact-grid{gap:48px}
+    .contact-line strong{font-size:20px}
+    .form{padding:30px 20px;margin:0 -6px}
+    .form h3{font-size:28px}
+    .form-grid{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr;gap:40px}
+    .site-footer{padding-top:80px}
+    .foot-word{margin-top:64px;font-size:25vw}
+    .mobile-bar{display:grid;grid-template-columns:1.35fr 1fr 1fr;position:fixed;left:0;right:0;bottom:0;z-index:90;background:rgba(251,247,240,.98);border-top:1px solid var(--line-strong);padding:9px 10px calc(9px + env(safe-area-inset-bottom));gap:8px}
+    .mobile-bar a{display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;border:1px solid var(--line-strong);color:var(--ink)}
+    .mobile-bar a.call{background:var(--brand);border-color:var(--brand);color:#FFF8F0}
+    .mobile-bar svg{width:18px;height:18px;stroke-width:1.8}
+  }
+  @media (max-width:370px){
+    .logo-sub{display:none}
+    .hero h1{font-size:2.5rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html:focus-within{scroll-behavior:auto}
+    *,*::before,*::after{animation:none !important;transition:none !important}
+    .js .rv{opacity:1;transform:none}
+    .preview-frame img{transform:none}
+  }
+  /* header labels never break onto two lines (long Spanish labels collapse into the menu instead) */
+  header a, header button { white-space: nowrap; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main"><span data-en>Skip to content</span><span data-es>Ir al contenido</span></a>
+
+<!-- slot: header -->
+<header class="site-header" id="top">
+  <div class="wrap header-inner">
+    <!-- slot: business_name / logo -->
+    <a class="logo" href="#top" aria-label="Doña Rosa Kitchen — home">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="23" fill="#9A2E1B"/>
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#F3EADB" stroke-opacity=".35" stroke-width=".8"/>
+        <path d="M13.5 24.5h21c0 6.4-4.7 10.5-10.5 10.5S13.5 30.9 13.5 24.5z" fill="#F3EADB"/>
+        <rect x="11.5" y="22.3" width="25" height="2.6" rx="1.3" fill="#F3EADB"/>
+        <path d="M14.6 27.2c-2.2-.2-3.3 1.8-1.9 3.4M33.4 27.2c2.2-.2 3.3 1.8 1.9 3.4" fill="none" stroke="#F3EADB" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M19.5 19.2c-1.3-1.5 1.3-2.7 0-4.3M24 19.2c-1.3-1.5 1.3-2.7 0-4.3M28.5 19.2c-1.3-1.5 1.3-2.7 0-4.3" fill="none" stroke="#EDBC62" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-word"><span class="logo-name">Doña Rosa</span><span class="logo-sub">Kitchen · Bridgeport</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#menu"><span data-en>Menu</span><span data-es>Menú</span></a>
+      <a href="#catering">Catering</a>
+      <a href="#story"><span data-en>Our story</span><span data-es>Historia</span></a>
+      <a href="#visit"><span data-en>Hours & location</span><span data-es>Horario</span></a>
+      <a href="#faq"><span data-en>FAQ</span><span data-es>Preguntas</span></a>
+    </nav>
+    <div class="header-actions">
+      <!-- slot: phone -->
+      <a class="header-phone" href="tel:+12035550147"><i data-lucide="phone"></i><span class="num">(203) 555-0147</span><span class="sr-only"><span data-en>Call</span><span data-es>Llamar</span></span></a>
+      <div class="lang-switch" role="group" aria-label="Language / Idioma">
+        <button type="button" data-lang-btn="en" aria-pressed="true"><span>EN</span></button>
+        <button type="button" data-lang-btn="es" aria-pressed="false"><span>ES</span></button>
+      </div>
+      <a class="btn btn-primary header-cta" href="#contact"><span data-en>Catering quote</span><span data-es>Cotizar catering</span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav">
+        <i data-lucide="menu" class="i-open"></i><i data-lucide="x" class="i-close"></i><span class="sr-only"><span data-en>Menu</span><span data-es>Menú</span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+    <a class="mn" href="#menu"><i>01</i><span data-en>Menu</span><span data-es>Menú</span></a>
+    <a class="mn" href="#catering"><i>02</i>Catering</a>
+    <a class="mn" href="#story"><i>03</i><span data-en>Our story</span><span data-es>Nuestra historia</span></a>
+    <a class="mn" href="#visit"><i>04</i><span data-en>Hours & location</span><span data-es>Horario y ubicación</span></a>
+    <a class="mn" href="#faq"><i>05</i><span data-en>Questions</span><span data-es>Preguntas</span></a>
+    <a class="mn" href="#contact"><i>06</i><span data-en>Catering quote</span><span data-es>Cotizar catering</span></a>
+    <a class="btn btn-primary" href="tel:+12035550147"><i data-lucide="phone"></i><span data-en>Call (203) 555-0147</span><span data-es>Llamar al (203) 555-0147</span></a>
+    <p class="mn-meta">742 East Main St, Bridgeport · We speak Spanish · Hablamos español</p>
+  </nav>
+</header>
+
+<main id="main">
+
+<!-- slot: hero -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-media">
+    <!-- slot: hero_photo -->
+    <img class="ph" src="https://images.unsplash.com/photo-1683062332605-4e1209d75346?w=1800&q=80&auto=format&fit=crop"
+         srcset="https://images.unsplash.com/photo-1683062332605-4e1209d75346?w=900&q=80&auto=format&fit=crop 900w, https://images.unsplash.com/photo-1683062332605-4e1209d75346?w=1400&q=80&auto=format&fit=crop 1400w, https://images.unsplash.com/photo-1683062332605-4e1209d75346?w=1800&q=80&auto=format&fit=crop 1800w, https://images.unsplash.com/photo-1683062332605-4e1209d75346?w=2400&q=80&auto=format&fit=crop 2400w"
+         sizes="100vw" width="2400" height="1488"
+         alt="Three tacos on corn tortillas topped with grilled vegetables and crumbled cheese on a stoneware platter, with guacamole and a lime wedge"
+         fetchpriority="high">
+  </div>
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <!-- status line: calculated live from the hours table in #visit -->
+      <p class="status js-status" id="status" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="status-text"><span data-en>Open Tuesday to Sunday</span><span data-es>Abierto de martes a domingo</span></span>
+      </p>
+      <!-- slot: headline (what + where) -->
+      <h1 id="hero-title">
+        <span data-en>Mexican home cooking, <em>made every morning</em> in Bridgeport.</span>
+        <span data-es>Comida mexicana casera, <em>hecha cada mañana</em> en Bridgeport.</span>
+      </h1>
+      <p class="hero-lede">
+        <span data-en>Tacos on hand-pressed tortillas, Rosa’s mole, pozole on weekends and aguas frescas. Eat here, call ahead for pickup, or let us cook for your party.</span>
+        <span data-es>Tacos en tortilla hecha a mano, el mole de Rosa, pozole los fines de semana y aguas frescas. Come aquí, llama y pasa a recoger, o déjanos cocinar para tu fiesta.</span>
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="tel:+12035550147"><i data-lucide="phone"></i><span data-en>Call to order</span><span data-es>Llama y ordena</span></a>
+        <a class="btn btn-ghost-light" href="#menu"><span data-en>See the menu</span><span data-es>Ver el menú</span><i data-lucide="arrow-down" class="arr"></i></a>
+      </div>
+    </div>
+    <!-- slot: weekly_special -->
+    <aside class="ticket" aria-label="Weekend special">
+      <img class="ph" src="https://images.unsplash.com/photo-1579640873954-766bf0235bf3?w=240&q=80&auto=format&fit=crop" width="92" height="92" alt="Bowl of red pozole with hominy and pork, with radishes and lime on the side" loading="lazy">
+      <div class="ticket-body">
+        <small><span data-en>This weekend</span><span data-es>Este fin de semana</span></small>
+        <strong>Pozole rojo <b>$15</b></strong>
+        <span class="sub"><span data-en>Sat & Sun from 8 AM, until the pot runs out.</span><span data-es>Sáb. y dom. desde las 8 AM, hasta que se acabe la olla.</span></span>
+      </div>
+    </aside>
+  </div>
+  <div class="hero-foot">
+    <div class="wrap">
+      <span><i data-lucide="map-pin"></i>742 East Main St · Bridgeport, CT</span>
+      <span><i data-lucide="languages"></i>We speak Spanish · Hablamos español</span>
+      <span><i data-lucide="square-parking"></i><span data-en>Free parking in back</span><span data-es>Parqueo gratis atrás</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- slot: trust_badges (only honest, verifiable facts) -->
+<section class="intro" aria-label="About the kitchen">
+  <div class="wrap intro-grid">
+    <div class="rv">
+      <p class="intro-statement">
+        <span data-en>A short menu, cooked the way Rosa learned in Puebla. Tortillas pressed by hand every morning, a mole that takes <em>two days</em>, and pozole on weekends until the pot runs out.</span>
+        <span data-es>Un menú corto, cocinado como Rosa aprendió en Puebla. Tortillas hechas a mano cada mañana, un mole que lleva <em>dos días</em> y pozole los fines de semana hasta que se acaba la olla.</span>
+      </p>
+      <p class="intro-sign">
+        <svg viewBox="0 0 54 30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M2 20c6-1 9-9 14-9s3 12 8 12 5-15 11-15 4 12 9 12 5-6 8-7"/></svg>
+        <span><span data-en>Rosa & Luis, East Main Street</span><span data-es>Rosa y Luis, East Main Street</span></span>
+      </p>
+    </div>
+    <ul class="notes rv d1">
+      <li class="es-badge"><span class="n">i.</span><div><strong>Hablamos español</strong><span class="t">We speak Spanish · <span data-en>order in either language</span><span data-es>ordena en inglés o en español</span></span></div></li>
+      <li><span class="n">ii.</span><div><strong><span data-en>Made from scratch, every day</span><span data-es>Todo hecho en casa, cada día</span></strong><span class="t"><span data-en>Tortillas, salsas and aguas frescas each morning</span><span data-es>Tortillas, salsas y aguas frescas cada mañana</span></span></div></li>
+      <li><span class="n">iii.</span><div><strong><span data-en>Takeout in about 20 minutes</span><span data-es>Para llevar en unos 20 minutos</span></strong><span class="t"><span data-en>Call ahead and it’s ready when you arrive</span><span data-es>Llama antes y lo tienes listo al llegar</span></span></div></li>
+      <li><span class="n">iv.</span><div><strong><span data-en>Catering for 20 to 200</span><span data-es>Catering de 20 a 200 personas</span></strong><span class="t"><span data-en>Written quote the same day</span><span data-es>Cotización por escrito el mismo día</span></span></div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- slot: menu -->
+<section class="menu" id="menu">
+  <div class="wrap">
+    <div class="menu-head">
+      <div class="rv">
+        <p class="kicker"><span class="no">Nº 01</span><span class="rule"></span><span data-en>The menu</span><span data-es>La carta</span></p>
+        <h2 class="h2"><span data-en>What’s cooking at <em>Doña Rosa</em></span><span data-es>Lo que se cocina en <em>Doña Rosa</em></span></h2>
+      </div>
+      <div class="rv d1">
+        <p class="lede"><span data-en>Everything below is available to go. Point at a dish to see it; on your phone, tap the ones with a camera.</span><span data-es>Todo se puede pedir para llevar. Pasa el cursor por un platillo para verlo; en el celular, toca los que tienen cámara.</span></p>
+        <p class="legend">
+          <span><i data-lucide="flame" class="ico-hot"></i><span data-en>Spicy</span><span data-es>Picante</span></span>
+          <span><i data-lucide="leaf" class="ico-veg"></i><span data-en>Vegetarian</span><span data-es>Vegetariano</span></span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <nav class="menu-tabs" aria-label="Menu categories">
+    <div class="wrap">
+      <ul>
+        <li><a href="#m-tacos"><span class="r">i</span><span class="nm">Tacos</span></a></li>
+        <li><a href="#m-platos"><span class="r">ii</span><span class="nm">Platos</span><span class="en" data-en>Plates</span></a></li>
+        <li><a href="#m-antojitos"><span class="r">iii</span><span class="nm">Antojitos</span><span class="en" data-en>Snacks</span></a></li>
+        <li><a href="#m-desayunos"><span class="r">iv</span><span class="nm">Desayunos</span><span class="en" data-en>Breakfast</span></a></li>
+        <li><a href="#m-bebidas"><span class="r">v</span><span class="nm">Bebidas</span><span class="en" data-en>Drinks</span></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="wrap menu-layout">
+    <div class="carta">
+      <p class="carta-mast"><span>Doña Rosa · <span data-en>Puebla-style kitchen</span><span data-es>Cocina poblana</span> · East Main St</span></p>
+
+      <!-- slot: menu_category tacos (data-photo = Unsplash photo id shown in the preview) -->
+      <div class="cat" id="m-tacos" data-photo="1599974579688-8dbdd335c77f">
+        <div class="cat-head"><span class="r">i.</span><h3>Tacos</h3><span class="sub"><span data-en>Priced each</span><span data-es>Precio por pieza</span></span></div>
+        <p class="cat-note"><span data-en>Corn tortillas pressed by hand every morning (flour on request), with onion and cilantro; salsa verde and roja on the side.</span><span data-es>Tortilla de maíz hecha a mano cada mañana (de harina si la pides), con cebolla y cilantro; salsa verde y roja aparte.</span></p>
+        <img class="cat-photo ph" src="https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=900&q=80&auto=format&fit=crop" width="900" height="506" alt="Row of corn tortilla tacos filled with shredded beef, chopped onion and cilantro" loading="lazy">
+        <ul class="dishes">
+          <li class="dish" data-photo="1687881063470-a78e6ea2590e"><div class="dish-row"><span class="dish-no">01</span><button class="dish-name" type="button">Al pastor<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$3.75</span></div><p class="dish-desc"><span data-en>Pork marinated in achiote and guajillo, cooked with pineapple.</span><span data-es>Cerdo marinado en achiote y guajillo, con piña.</span></p></li>
+          <li class="dish" data-photo="1504544750208-dc0358e63f7f"><div class="dish-row"><span class="dish-no">02</span><button class="dish-name" type="button">Carne asada<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$4.25</span></div><p class="dish-desc"><span data-en>Grilled skirt steak, chopped to order.</span><span data-es>Arrachera a la plancha, picada al momento.</span></p></li>
+          <li class="dish" data-photo="1648437595587-e6a8b0cdf1f9"><div class="dish-row"><span class="dish-no">03</span><button class="dish-name" type="button">Carnitas<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$3.75</span></div><p class="dish-desc"><span data-en>Pork slow-cooked in its own fat, Michoacán style, crisped on the plancha.</span><span data-es>Cerdo cocido despacio estilo Michoacán, doradito en la plancha.</span></p></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">04</span><span class="dish-name">Tinga de pollo</span><span class="dish-tags"><i data-lucide="flame" class="ico-hot" role="img" aria-label="Spicy"></i></span><span class="dots"></span><span class="price">$3.50</span></div><p class="dish-desc"><span data-en>Shredded chicken in chipotle and tomato sauce.</span><span data-es>Pollo deshebrado en salsa de chipotle y jitomate.</span></p></li>
+          <li class="dish" data-photo="1599974579688-8dbdd335c77f"><div class="dish-row"><span class="dish-no">05</span><button class="dish-name" type="button">Barbacoa de res<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$4.50</span></div><p class="dish-desc"><span data-en>Beef braised overnight with chiles and bay leaf. Comes with a cup of consomé.</span><span data-es>Res cocida toda la noche con chiles y laurel. Con su vasito de consomé.</span></p></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">06</span><span class="dish-name">Rajas con queso</span><span class="dish-tags"><i data-lucide="leaf" class="ico-veg" role="img" aria-label="Vegetarian"></i></span><span class="dots"></span><span class="price">$3.50</span></div><p class="dish-desc"><span data-en>Roasted poblano strips with corn, crema and melted cheese.</span><span data-es>Rajas de poblano asado con elote, crema y queso.</span></p></li>
+        </ul>
+      </div>
+
+      <!-- slot: menu_category platos -->
+      <div class="cat" id="m-platos" data-photo="1786052599180-aea3127970b6">
+        <div class="cat-head"><span class="r">ii.</span><h3>Platos</h3><span class="sub"><span data-en>Plates</span><span data-es>Platos fuertes</span></span></div>
+        <p class="cat-note"><span data-en>Served with rice, refried beans and warm tortillas.</span><span data-es>Con arroz, frijoles refritos y tortillas calientitas.</span></p>
+        <img class="cat-photo ph" src="https://images.unsplash.com/photo-1786052599180-aea3127970b6?w=900&q=80&auto=format&fit=crop" width="900" height="506" alt="Plate of chicken in red chile sauce with rice, a slice of radish and tortilla chips" loading="lazy">
+        <ul class="dishes">
+          <li class="dish" data-photo="1679605097294-ad339b020c0f"><div class="dish-row"><span class="dish-no">07</span><button class="dish-name" type="button">Enchiladas verdes o rojas<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$14.50</span></div><p class="dish-desc"><span data-en>Three enchiladas with chicken or cheese, in tomatillo or guajillo sauce, with crema and queso fresco.</span><span data-es>Tres enchiladas de pollo o queso, en salsa de tomatillo o guajillo, con crema y queso fresco.</span></p></li>
+          <li class="dish" data-photo="1786052600217-992704210ff8"><div class="dish-row"><span class="dish-no">08</span><button class="dish-name" type="button">Mole poblano<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$17.00</span></div><p class="dish-desc"><span data-en>Chicken leg in Rosa’s mole: four chiles, chocolate, toasted sesame. It takes two days to make.</span><span data-es>Pierna de pollo en el mole de Rosa: cuatro chiles, chocolate y ajonjolí tostado. Lleva dos días prepararlo.</span></p></li>
+          <li class="dish" data-photo="1579640873954-766bf0235bf3"><div class="dish-row"><span class="dish-no">09</span><button class="dish-name" type="button">Pozole rojo<i data-lucide="camera" class="cam"></i></button><span class="dish-tags"><i data-lucide="flame" class="ico-hot" role="img" aria-label="Spicy"></i></span><span class="dots"></span><span class="price">$15.00 <small>/ $19.00</small></span></div><p class="dish-desc"><span data-en>Pork and hominy in guajillo broth, with cabbage, radish, oregano and tostadas. Regular or large bowl.</span><span data-es>Cerdo y maíz pozolero en caldo de guajillo, con repollo, rábano, orégano y tostadas. Chico o grande.</span></p><span class="dish-note"><span data-en>Sat & Sun</span><span data-es>Sáb. y dom.</span></span></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">10</span><span class="dish-name">Chile relleno</span><span class="dish-tags"><i data-lucide="leaf" class="ico-veg" role="img" aria-label="Vegetarian"></i></span><span class="dots"></span><span class="price">$15.50</span></div><p class="dish-desc"><span data-en>Roasted poblano stuffed with cheese, egg-battered, in ranchero sauce.</span><span data-es>Chile poblano relleno de queso, capeado, en salsa ranchera.</span></p></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">11</span><span class="dish-name">Carne asada a la tampiqueña</span><span class="dots"></span><span class="price">$19.50</span></div><p class="dish-desc"><span data-en>Grilled skirt steak with a cheese enchilada, grilled onion, guacamole and rajas.</span><span data-es>Arrachera con una enchilada de queso, cebolla asada, guacamole y rajas.</span></p></li>
+        </ul>
+      </div>
+
+      <!-- slot: menu_category antojitos -->
+      <div class="cat" id="m-antojitos" data-photo="1680992071073-cb1696ba8d3e">
+        <div class="cat-head"><span class="r">iii.</span><h3>Antojitos</h3><span class="sub"><span data-en>Snacks & sides</span><span data-es>Para picar</span></span></div>
+        <p class="cat-note"><span data-en>Good to share, or order two and make a meal of it.</span><span data-es>Para compartir, o pide dos y ármate una comida.</span></p>
+        <img class="cat-photo ph" src="https://images.unsplash.com/photo-1680992071073-cb1696ba8d3e?w=900&q=80&auto=format&fit=crop" width="900" height="506" alt="Guacamole in a stone molcajete next to a pile of tortilla chips" loading="lazy">
+        <ul class="dishes">
+          <li class="dish" data-photo="1768086253172-f4bfc60cf88d"><div class="dish-row"><span class="dish-no">12</span><button class="dish-name" type="button">Flautas de pollo (3)<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$10.50</span></div><p class="dish-desc"><span data-en>Crispy rolled tortillas with chicken, topped with lettuce, crema and queso fresco.</span><span data-es>Tortillas enrolladas y doradas con pollo, lechuga, crema y queso fresco.</span></p></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">13</span><span class="dish-name">Sopes (2)</span><span class="dots"></span><span class="price">$9.50</span></div><p class="dish-desc"><span data-en>Thick masa rounds with beans, your choice of meat, lettuce and crema.</span><span data-es>Sopes de masa gruesa con frijoles, la carne que elijas, lechuga y crema.</span></p></li>
+          <li class="dish" data-photo="1666012007322-e0daf86506b9"><div class="dish-row"><span class="dish-no">14</span><button class="dish-name" type="button">Tamales (2)<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$8.00</span></div><p class="dish-desc"><span data-en>Pork in red chile or chicken in salsa verde. By the dozen for parties.</span><span data-es>De puerco en chile rojo o de pollo en salsa verde. Por docena para fiestas.</span></p><span class="dish-note"><span data-en>Fri – Sun</span><span data-es>Vie. a dom.</span></span></li>
+          <li class="dish" data-photo="1741117126628-5ff5fdcfb7e4"><div class="dish-row"><span class="dish-no">15</span><button class="dish-name" type="button">Quesadilla de Oaxaca<i data-lucide="camera" class="cam"></i></button><span class="dish-tags"><i data-lucide="leaf" class="ico-veg" role="img" aria-label="Vegetarian"></i></span><span class="dots"></span><span class="price">$9.00</span></div><p class="dish-desc"><span data-en>Handmade tortilla folded over Oaxaca cheese. Add any taco meat for $2.</span><span data-es>Tortilla hecha a mano con queso Oaxaca. Agrégale carne por $2.</span></p></li>
+          <li class="dish" data-photo="1722890953219-f05ba09d5b30"><div class="dish-row"><span class="dish-no">16</span><button class="dish-name" type="button">Elote<i data-lucide="camera" class="cam"></i></button><span class="dish-tags"><i data-lucide="leaf" class="ico-veg" role="img" aria-label="Vegetarian"></i><i data-lucide="flame" class="ico-hot" role="img" aria-label="Spicy"></i></span><span class="dots"></span><span class="price">$5.50</span></div><p class="dish-desc"><span data-en>Corn on the cob with mayo, cotija, lime and chile powder.</span><span data-es>Elote con mayonesa, queso cotija, limón y chile en polvo.</span></p></li>
+          <li class="dish" data-photo="1680992071073-cb1696ba8d3e"><div class="dish-row"><span class="dish-no">17</span><button class="dish-name" type="button">Guacamole y totopos<i data-lucide="camera" class="cam"></i></button><span class="dish-tags"><i data-lucide="leaf" class="ico-veg" role="img" aria-label="Vegetarian"></i></span><span class="dots"></span><span class="price">$9.00</span></div><p class="dish-desc"><span data-en>Made when you order, with chips fried here.</span><span data-es>Preparado al momento, con totopos fritos aquí.</span></p></li>
+        </ul>
+      </div>
+
+      <!-- slot: menu_category desayunos -->
+      <div class="cat" id="m-desayunos" data-photo="1705445092630-0886055661ad">
+        <div class="cat-head"><span class="r">iv.</span><h3>Desayunos</h3><span class="sub"><span data-en>Breakfast</span><span data-es>Desayunos</span></span></div>
+        <p class="cat-note"><span data-en>Until 11:30 AM on weekdays and 1 PM on weekends. Add café de olla for $2.</span><span data-es>Hasta las 11:30 AM entre semana y hasta la 1 PM el fin de semana. Con café de olla por $2 más.</span></p>
+        <img class="cat-photo ph" src="https://images.unsplash.com/photo-1705445092630-0886055661ad?w=900&q=80&auto=format&fit=crop" width="900" height="506" alt="Breakfast plate with two fried eggs, red chilaquiles, steak and fried potatoes" loading="lazy">
+        <ul class="dishes">
+          <li class="dish" data-photo="1640719028782-8230f1bdc42a"><div class="dish-row"><span class="dish-no">18</span><button class="dish-name" type="button">Chilaquiles verdes o rojos<i data-lucide="camera" class="cam"></i></button><span class="dish-tags"><i data-lucide="leaf" class="ico-veg" role="img" aria-label="Vegetarian"></i></span><span class="dots"></span><span class="price">$12.50</span></div><p class="dish-desc"><span data-en>Tortilla chips simmered in salsa, with two eggs, beans, crema and avocado. Add chicken or steak.</span><span data-es>Totopos en salsa con dos huevos, frijoles, crema y aguacate. Con pollo o arrachera si quieres.</span></p></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">19</span><span class="dish-name">Huevos rancheros</span><span class="dish-tags"><i data-lucide="leaf" class="ico-veg" role="img" aria-label="Vegetarian"></i></span><span class="dots"></span><span class="price">$11.50</span></div><p class="dish-desc"><span data-en>Two fried eggs on corn tortillas with ranchero sauce, rice and beans.</span><span data-es>Dos huevos estrellados sobre tortilla con salsa ranchera, arroz y frijoles.</span></p></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">20</span><span class="dish-name">Huevos con chorizo</span><span class="dots"></span><span class="price">$11.50</span></div><p class="dish-desc"><span data-en>Scrambled with Mexican chorizo, served with beans and tortillas.</span><span data-es>Revueltos con chorizo, con frijoles y tortillas.</span></p></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">21</span><span class="dish-name">Molletes</span><span class="dish-tags"><i data-lucide="leaf" class="ico-veg" role="img" aria-label="Vegetarian"></i></span><span class="dots"></span><span class="price">$9.50</span></div><p class="dish-desc"><span data-en>Toasted bolillo with refried beans, melted cheese and pico de gallo.</span><span data-es>Bolillo tostado con frijoles, queso gratinado y pico de gallo.</span></p></li>
+        </ul>
+      </div>
+
+      <!-- slot: menu_category bebidas -->
+      <div class="cat" id="m-bebidas" data-photo="1690983321954-30481504365f">
+        <div class="cat-head"><span class="r">v.</span><h3>Bebidas</h3><span class="sub"><span data-en>Drinks</span><span data-es>Para tomar</span></span></div>
+        <p class="cat-note"><span data-en>Aguas frescas are made in the morning and sold until they run out. By the gallon for parties.</span><span data-es>Las aguas frescas se preparan en la mañana y se venden hasta que se acaben. Por galón para fiestas.</span></p>
+        <img class="cat-photo ph" src="https://images.unsplash.com/photo-1690983321954-30481504365f?w=900&q=80&auto=format&fit=crop" width="900" height="506" alt="Glass pitcher and glasses of fresh fruit drinks in orange, yellow and pink" loading="lazy">
+        <ul class="dishes">
+          <li class="dish"><div class="dish-row"><span class="dish-no">22</span><span class="dish-name">Horchata</span><span class="dots"></span><span class="price">$3.50 <small>/ $5.00</small></span></div><p class="dish-desc"><span data-en>Rice, cinnamon and a little vanilla. Regular or large.</span><span data-es>De arroz con canela y un toque de vainilla. Chica o grande.</span></p></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">23</span><span class="dish-name">Jamaica</span><span class="dots"></span><span class="price">$3.50 <small>/ $5.00</small></span></div><p class="dish-desc"><span data-en>Hibiscus flower, lightly sweet and tart.</span><span data-es>De flor de jamaica, poco dulce.</span></p></li>
+          <li class="dish" data-photo="1690983321954-30481504365f"><div class="dish-row"><span class="dish-no">24</span><button class="dish-name" type="button">Agua de temporada<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$3.50 <small>/ $5.00</small></span></div><p class="dish-desc"><span data-en>Fruit of the season: watermelon, cantaloupe, pineapple or mango. Ask what’s on today.</span><span data-es>De la fruta de temporada: sandía, melón, piña o mango. Pregunta cuál hay hoy.</span></p></li>
+          <li class="dish" data-photo="1666307580689-0044b438dc88"><div class="dish-row"><span class="dish-no">25</span><button class="dish-name" type="button">Café de olla<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$3.00</span></div><p class="dish-desc"><span data-en>Coffee brewed with cinnamon and piloncillo.</span><span data-es>Café de olla con canela y piloncillo.</span></p></li>
+          <li class="dish"><div class="dish-row"><span class="dish-no">26</span><span class="dish-name">Champurrado</span><span class="dots"></span><span class="price">$3.75</span></div><p class="dish-desc"><span data-en>Warm chocolate and masa drink. October through March.</span><span data-es>Atole de chocolate, calientito. De octubre a marzo.</span></p></li>
+          <li class="dish" data-photo="1682987210989-2cf712b07429"><div class="dish-row"><span class="dish-no">27</span><button class="dish-name" type="button">Refrescos mexicanos<i data-lucide="camera" class="cam"></i></button><span class="dots"></span><span class="price">$3.00</span></div><p class="dish-desc"><span data-en>Glass-bottle sodas: tamarind, mandarin, lime, Mexican cola.</span><span data-es>Refrescos de vidrio: tamarindo, mandarina, limón y cola.</span></p></li>
+        </ul>
+      </div>
+
+      <div class="carta-foot">
+        <p><span data-en>Prices may change with the market. Tell us about allergies when you order and we’ll say exactly what’s in each dish.</span><span data-es>Los precios pueden cambiar según el mercado. Avísanos de alergias al ordenar y te decimos exactamente qué lleva cada platillo.</span></p>
+        <a class="btn btn-ink" href="tel:+12035550147"><i data-lucide="phone"></i><span data-en>Call in your order</span><span data-es>Llama para ordenar</span></a>
+      </div>
+    </div>
+
+    <!-- desktop-only preview of the dish under the pointer / keyboard focus (decorative: the text lives in the menu) -->
+    <aside class="preview" aria-hidden="true">
+      <div class="preview-frame">
+        <span class="preview-tag" id="pv-tag">Tacos</span>
+        <img class="pv show ph" src="https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=900&q=80&auto=format&fit=crop" width="900" height="1125" alt="" loading="lazy">
+        <img class="pv ph" alt="" width="900" height="1125">
+      </div>
+      <div class="preview-cap">
+        <strong class="pv-name" id="pv-name">Barbacoa de res</strong>
+        <span class="pv-price" id="pv-price">$4.50</span>
+        <p class="pv-desc" id="pv-desc"><span data-en>Beef braised overnight with chiles and bay leaf. Comes with a cup of consomé.</span><span data-es>Res cocida toda la noche con chiles y laurel. Con su vasito de consomé.</span></p>
+      </div>
+      <p class="preview-hint"><i data-lucide="mouse-pointer-2"></i><span data-en>Point at a dish, or tab through the menu</span><span data-es>Pasa el cursor por un platillo o recórrelo con el teclado</span></p>
+    </aside>
+  </div>
+</section>
+
+<!-- slot: catering -->
+<section class="catering" id="catering">
+  <div class="wrap">
+    <div class="catering-top">
+      <div class="rv">
+        <p class="kicker"><span class="no">Nº 02</span><span class="rule"></span>Catering</p>
+        <h2 class="h2"><span data-en>Parties, offices and <em>quinceañeras</em></span><span data-es>Fiestas, oficinas y <em>quinceañeras</em></span></h2>
+        <p class="catering-lede"><span data-en>Rosa cooked for baptisms and birthdays across Bridgeport long before there was a restaurant. Same food, same pots: taco bars, trays of enchiladas and rice, tamales by the dozen and aguas frescas by the gallon.</span><span data-es>Rosa cocinaba para bautizos y cumpleaños en todo Bridgeport mucho antes de tener restaurante. La misma comida y las mismas ollas: taquizas, charolas de enchiladas y arroz, tamales por docena y aguas frescas por galón.</span></p>
+        <div class="catering-actions">
+          <a class="btn btn-light" href="#contact"><span data-en>Request a quote</span><span data-es>Pedir cotización</span><i data-lucide="arrow-right" class="arr"></i></a>
+          <a class="btn btn-ghost-light" href="tel:+12035550147"><i data-lucide="phone"></i><span class="tnum">(203) 555-0147</span></a>
+        </div>
+      </div>
+      <!-- slot: catering_photo -->
+      <figure class="catering-photo rv d1">
+        <img class="ph" src="https://images.unsplash.com/photo-1700625916627-16ad4fb0553c?w=1400&q=80&auto=format&fit=crop" width="1400" height="1120" alt="Party spread of carne asada tacos with pickled onion, three salsas, guacamole in a molcajete and red rice" loading="lazy">
+        <figcaption><span data-en>A taquiza tray, salsas and guacamole, ready to go out.</span><span data-es>Una charola de taquiza, salsas y guacamole, lista para salir.</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="invites">
+      <article class="invite rv">
+        <div class="invite-top">
+          <p class="invite-meta"><span class="no">Nº 1</span><span data-en>Parties 25+</span><span data-es>Fiestas 25+</span></p>
+          <h3>Taquiza</h3>
+          <p class="for"><span data-en>A taco bar for birthdays, baptisms and quinceañeras</span><span data-es>Para cumpleaños, bautizos y quinceañeras</span></p>
+          <ul>
+            <li><span data-en>Three meats, rice, beans, salsas and toppings</span><span data-es>Tres carnes, arroz, frijoles, salsas y complementos</span></li>
+            <li><span data-en>Tortillas kept warm; plates and napkins included</span><span data-es>Tortillas calientitas; platos y servilletas incluidos</span></li>
+            <li><span data-en>Add a taquero on site for 50+ guests</span><span data-es>Taquero en tu evento desde 50 invitados</span></li>
+          </ul>
+        </div>
+        <div class="invite-stub">
+          <p class="invite-price"><small><span data-en>From</span><span data-es>Desde</span></small> $16 <small><span data-en>per person</span><span data-es>por persona</span></small></p>
+          <p class="invite-min"><span data-en>25 guests minimum</span><span data-es>Mínimo 25 invitados</span></p>
+          <a class="link-arrow invite-cta" href="#contact" data-service="taquiza"><span data-en>Quote a taquiza</span><span data-es>Cotizar taquiza</span><i data-lucide="arrow-right"></i></a>
+        </div>
+      </article>
+      <article class="invite rv d1">
+        <div class="invite-top">
+          <p class="invite-meta"><span class="no">Nº 2</span><span data-en>Pick up or delivery</span><span data-es>Recoger o entrega</span></p>
+          <h3><span data-en>Party trays</span><span data-es>Charolas</span></h3>
+          <p class="for"><span data-en>Enchiladas, mole and tamales by the tray</span><span data-es>Enchiladas, mole y tamales por charola</span></p>
+          <ul>
+            <li><span data-en>Enchiladas, mole, tinga, rice or beans</span><span data-es>Enchiladas, mole, tinga, arroz o frijoles</span></li>
+            <li><span data-en>Tamales by the dozen, pozole by the gallon</span><span data-es>Tamales por docena, pozole por galón</span></li>
+            <li><span data-en>Pick up hot, or we deliver</span><span data-es>Recógelo caliente o te lo llevamos</span></li>
+          </ul>
+        </div>
+        <div class="invite-stub">
+          <p class="invite-price"><small><span data-en>Half tray from</span><span data-es>Media charola desde</span></small> $65</p>
+          <p class="invite-min"><span data-en>Feeds 10 to 12</span><span data-es>Para 10 a 12 personas</span></p>
+          <a class="link-arrow invite-cta" href="#contact" data-service="trays"><span data-en>Quote party trays</span><span data-es>Cotizar charolas</span><i data-lucide="arrow-right"></i></a>
+        </div>
+      </article>
+      <article class="invite rv d2">
+        <div class="invite-top">
+          <p class="invite-meta"><span class="no">Nº 3</span><span data-en>Offices 10+</span><span data-es>Oficinas 10+</span></p>
+          <h3><span data-en>Office lunch</span><span data-es>Oficina</span></h3>
+          <p class="for"><span data-en>Individual boxes, labeled by name</span><span data-es>Cajas individuales con el nombre de cada quien</span></p>
+          <ul>
+            <li><span data-en>One box per person, with rice, beans and a main</span><span data-es>Una caja por persona, con arroz, frijoles y plato fuerte</span></li>
+            <li><span data-en>Vegetarian and mild options</span><span data-es>Opciones vegetarianas y sin picante</span></li>
+            <li><span data-en>Invoice for your company</span><span data-es>Factura para tu empresa</span></li>
+          </ul>
+        </div>
+        <div class="invite-stub">
+          <p class="invite-price"><small><span data-en>From</span><span data-es>Desde</span></small> $13 <small><span data-en>per box</span><span data-es>por caja</span></small></p>
+          <p class="invite-min"><span data-en>10 boxes minimum</span><span data-es>Mínimo 10 cajas</span></p>
+          <a class="link-arrow invite-cta" href="#contact" data-service="office"><span data-en>Quote an office lunch</span><span data-es>Cotizar comida de oficina</span><i data-lucide="arrow-right"></i></a>
+        </div>
+      </article>
+    </div>
+
+    <div class="steps-wrap">
+      <div class="rv">
+        <h3><span data-en>How catering works</span><span data-es>Cómo funciona el catering</span></h3>
+        <p class="aside-p"><span data-en>Luis handles every order himself, in English or Spanish.</span><span data-es>Luis atiende cada pedido en persona, en inglés o en español.</span></p>
+      </div>
+      <ol class="steps">
+        <li class="step rv"><span class="n">1</span><strong><span data-en>Tell us the date and headcount</span><span data-es>Dinos la fecha y cuántos son</span></strong><span class="t"><span data-en>Call or send the form. At least 5 days ahead; 2 weeks for 100+ guests.</span><span data-es>Llama o manda el formulario. Mínimo 5 días antes; 2 semanas si son más de 100.</span></span></li>
+        <li class="step rv d1"><span class="n">2</span><strong><span data-en>Get a written quote</span><span data-es>Recibe tu cotización por escrito</span></strong><span class="t"><span data-en>Same day, with everything included. A 30% deposit holds your date.</span><span data-es>El mismo día, con todo incluido. Un depósito del 30% aparta tu fecha.</span></span></li>
+        <li class="step rv d2"><span class="n">3</span><strong><span data-en>Pick up, or we deliver</span><span data-es>Recoges o te lo llevamos</span></strong><span class="t"><span data-en>Delivery and setup within 20 miles of Bridgeport.</span><span data-es>Entrega y montaje a menos de 20 millas de Bridgeport.</span></span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- slot: story (owner / family) -->
+<section class="story" id="story">
+  <div class="wrap">
+    <div class="story-grid">
+      <figure class="portrait rv">
+        <!-- slot: owner_photo -->
+        <div class="arch"><img class="ph" src="https://images.unsplash.com/photo-1550303566-65b3ed7db550?w=1000&q=80&auto=format&fit=crop" width="1000" height="1300" alt="Rosa smiling as she stirs a pot in the kitchen" loading="lazy"></div>
+        <span class="seal" aria-hidden="true">
+          <svg viewBox="0 0 120 120"><defs><path id="seal-c" d="M60 60m-46 0a46 46 0 1 1 92 0a46 46 0 1 1-92 0"/></defs><circle cx="60" cy="60" r="59" fill="#F4ECE0"/><circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width=".8"/><text font-family="Instrument Sans, sans-serif" font-size="9.6" font-weight="600" fill="currentColor"><textPath href="#seal-c" textLength="286" lengthAdjust="spacing">DE PUEBLA · A BRIDGEPORT · DESDE 2004 ·</textPath></text><path d="M49 63h22c0 6.6-4.9 10.8-11 10.8S49 69.6 49 63z" fill="currentColor"/><rect x="47" y="60.6" width="26" height="2.6" rx="1.3" fill="currentColor"/><path d="M55.5 56.6c-1.3-1.5 1.3-2.7 0-4.3M60 56.6c-1.3-1.5 1.3-2.7 0-4.3M64.5 56.6c-1.3-1.5 1.3-2.7 0-4.3" fill="none" stroke="#D99A2B" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        <figcaption><i>Rosa Hernández</i><span data-en>In the kitchen, East Main St.</span><span data-es>En la cocina, East Main St.</span></figcaption>
+      </figure>
+      <div class="story-text rv d1">
+        <p class="kicker"><span class="no">Nº 03</span><span class="rule"></span><span data-en>Our story</span><span data-es>Nuestra historia</span></p>
+        <h2 class="h2"><span data-en>Rosa’s recipes, from Puebla to <em>East Main Street</em></span><span data-es>Las recetas de Rosa, de Puebla a la <em>East Main</em></span></h2>
+        <p class="body"><span data-en>Rosa Hernández learned to cook in her mother’s kitchen in Puebla. She came to Bridgeport in 2004 and, for years, sold tamales to neighbors on the East Side and cooked for baptisms, birthdays and quinceañeras.</span><span data-es>Rosa Hernández aprendió a cocinar en la cocina de su mamá, en Puebla. Llegó a Bridgeport en 2004 y durante años vendió tamales a los vecinos del East Side y cocinó para bautizos, cumpleaños y quinceañeras.</span></p>
+        <p class="body"><span data-en>In 2026 she opened this small place with her son Luis. Rosa runs the kitchen; Luis runs the front and answers the phone. The tortillas are pressed every morning and the mole still takes two days.</span><span data-es>En 2026 abrió este pequeño local con su hijo Luis. Rosa lleva la cocina; Luis atiende el mostrador y el teléfono. Las tortillas se hacen cada mañana y el mole sigue llevando dos días.</span></p>
+        <dl class="facts">
+          <div><dt>Puebla</dt><dd><span data-en>Where the recipes come from</span><span data-es>De donde vienen las recetas</span></dd></div>
+          <div><dt>2004</dt><dd><span data-en>Rosa arrives in Bridgeport</span><span data-es>Rosa llega a Bridgeport</span></dd></div>
+          <div><dt>2026</dt><dd><span data-en>Opens on East Main St, with Luis</span><span data-es>Abre en la East Main, con Luis</span></dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- slot: gallery -->
+    <div class="kitchen">
+      <figure class="kitchen-main rv">
+        <div class="img"><img class="ph" src="https://images.unsplash.com/photo-1777828473829-f68f4fbc840f?w=1400&q=80&auto=format&fit=crop" width="1400" height="1155" alt="Cook in an orange apron folding a tortilla on a large comal" loading="lazy"></div>
+        <figcaption><b><span data-en>On the comal</span><span data-es>En el comal</span></b><span data-en>Everything starts with masa, a hot comal and patience.</span><span data-es>Todo empieza con masa, un comal caliente y paciencia.</span></figcaption>
+      </figure>
+      <div>
+        <figure class="quote rv d1">
+          <blockquote><span data-en>If I wouldn’t serve it at my own table, it doesn’t leave the kitchen.</span><span data-es>Si no lo serviría en mi propia mesa, no sale de la cocina.</span></blockquote>
+          <figcaption class="sign">— Rosa Hernández</figcaption>
+        </figure>
+        <figure class="kitchen-small rv d2">
+          <div class="img"><img class="ph" src="https://images.unsplash.com/photo-1693193433392-da83457dff20?w=900&q=80&auto=format&fit=crop" width="900" height="720" alt="Stack of fresh corn tortillas wrapped in a cloth napkin" loading="lazy"></div>
+          <figcaption><b><span data-en>Every morning</span><span data-es>Cada mañana</span></b><span data-en>Tortillas, pressed by hand.</span><span data-es>Tortillas hechas a mano.</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OPTIONAL: solo si hay reseñas reales de Google; si no, se elimina -->
+<!-- slot: reviews -->
+<section class="reviews" id="reviews">
+  <div class="wrap reviews-grid">
+    <div class="rv">
+      <p class="kicker"><span data-en>Google reviews</span><span data-es>Reseñas en Google</span></p>
+      <h2 class="h2"><span data-en>From people who’ve eaten here</span><span data-es>De quienes ya comieron aquí</span></h2>
+      <div class="g-score">
+        <b>4.9</b>
+        <div class="meta"><span class="stars" role="img" aria-label="4.9 out of 5"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span><br><span data-en>58 reviews on</span><span data-es>58 reseñas en</span> <span class="g-mark">Google</span></div>
+      </div>
+    </div>
+    <div class="review-list">
+      <article class="review rv">
+        <span class="stars" role="img" aria-label="5 out of 5"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+        <p>“Weekend pozole is worth planning your Saturday around. Get there before noon, it sells out.”</p>
+        <footer><b>Kate M.</b><span>·</span><span class="g-mark">Google</span></footer>
+      </article>
+      <article class="review rv d1">
+        <span class="stars" role="img" aria-label="5 out of 5"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+        <p>“The barbacoa tacos with the little cup of consomé are the real thing. We called ahead and it was ready in 15 minutes.”</p>
+        <footer><b>Daniel R.</b><span>·</span><span class="g-mark">Google</span></footer>
+      </article>
+      <article class="review rv d2">
+        <span class="stars" role="img" aria-label="5 out of 5"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+        <p>“Hicieron la taquiza para los 15 de mi hija, 90 personas. Llegaron a tiempo, todo caliente y sobró comida. Luis nos ayudó con todo.”</p>
+        <footer><b>Maribel G.</b><span>·</span><span class="g-mark">Google</span></footer>
+      </article>
+    </div>
+  </div>
+</section>
+<!-- /OPTIONAL reviews -->
+
+<!-- slot: visit (hours, address, parking, map, service area) -->
+<section class="visit" id="visit">
+  <div class="wrap visit-grid">
+    <div class="rv">
+      <p class="kicker"><span class="no">Nº 04</span><span class="rule"></span><span data-en>Visit us</span><span data-es>Visítanos</span></p>
+      <h2 class="h2"><span data-en>Hours & location</span><span data-es>Horario y ubicación</span></h2>
+      <p class="address">742 East Main St<br>Bridgeport, CT 06608</p>
+      <p class="address-note"><span data-en>Corner of East Main and Stillman, next to the laundromat. Twelve tables and a pickup counter.</span><span data-es>En la esquina de East Main y Stillman, junto a la lavandería. Doce mesas y un mostrador para recoger.</span></p>
+
+      <p class="status-line js-status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span class="status-text"><span data-en>Open Tuesday to Sunday</span><span data-es>Abierto de martes a domingo</span></span></p>
+      <!-- slot: hours (data-day: 0 = Sunday … 6 = Saturday; times 24h; empty = closed). The live "open now" lines read this table. -->
+      <table class="hours" id="hours-table">
+        <caption class="sr-only"><span data-en>Opening hours</span><span data-es>Horario</span></caption>
+        <tbody>
+          <tr data-day="1" data-open="" data-close="" class="closed-day"><th scope="row"><span data-en>Monday</span><span data-es>Lunes</span></th><td><span data-en>Closed</span><span data-es>Cerrado</span></td></tr>
+          <tr data-day="2" data-open="08:00" data-close="21:00"><th scope="row"><span data-en>Tuesday</span><span data-es>Martes</span></th><td>8:00 AM – 9:00 PM</td></tr>
+          <tr data-day="3" data-open="08:00" data-close="21:00"><th scope="row"><span data-en>Wednesday</span><span data-es>Miércoles</span></th><td>8:00 AM – 9:00 PM</td></tr>
+          <tr data-day="4" data-open="08:00" data-close="21:00"><th scope="row"><span data-en>Thursday</span><span data-es>Jueves</span></th><td>8:00 AM – 9:00 PM</td></tr>
+          <tr data-day="5" data-open="08:00" data-close="22:00"><th scope="row"><span data-en>Friday</span><span data-es>Viernes</span></th><td>8:00 AM – 10:00 PM</td></tr>
+          <tr data-day="6" data-open="08:00" data-close="22:00"><th scope="row"><span data-en>Saturday</span><span data-es>Sábado</span></th><td>8:00 AM – 10:00 PM</td></tr>
+          <tr data-day="0" data-open="08:00" data-close="16:00"><th scope="row"><span data-en>Sunday</span><span data-es>Domingo</span></th><td>8:00 AM – 4:00 PM</td></tr>
+        </tbody>
+      </table>
+      <p class="hours-note"><span data-en>The kitchen takes the last order 20 minutes before closing. Holiday hours are posted on Google.</span><span data-es>La cocina toma el último pedido 20 minutos antes de cerrar. El horario de días festivos se publica en Google.</span></p>
+    </div>
+
+    <div class="rv d1">
+      <div class="map-frame">
+        <!-- slot: map -->
+        <iframe src="https://maps.google.com/maps?q=East+Main+St,+Bridgeport,+CT&z=14&output=embed" title="Map: Doña Rosa Kitchen, Bridgeport, CT" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <p class="map-pin"><b>Doña Rosa Kitchen</b><span data-en>Parking entrance on Stillman St.</span><span data-es>Entrada al parqueo por Stillman St.</span></p>
+      </div>
+      <div class="how">
+        <div class="how-item"><i data-lucide="square-parking"></i><strong><span data-en>Free parking</span><span data-es>Parqueo gratis</span></strong><span><span data-en>Lot behind the building, entrance on Stillman St. Street parking on East Main.</span><span data-es>Estacionamiento detrás del local, entrada por Stillman St. También hay en la calle.</span></span></div>
+        <div class="how-item"><i data-lucide="credit-card"></i><strong><span data-en>Cash, cards, Apple Pay & Google Pay</span><span data-es>Efectivo, tarjeta, Apple Pay y Google Pay</span></strong><span><span data-en>No minimum on cards.</span><span data-es>Sin mínimo con tarjeta.</span></span></div>
+      </div>
+      <div class="visit-actions">
+        <a class="btn btn-primary" href="https://www.google.com/maps/dir/?api=1&amp;destination=742+East+Main+St+Bridgeport+CT+06608" target="_blank" rel="noopener"><i data-lucide="navigation"></i><span data-en>Get directions</span><span data-es>Cómo llegar</span><i data-lucide="arrow-up-right" class="arr arr-ur"></i></a>
+        <a class="btn btn-outline" href="tel:+12035550147"><i data-lucide="phone"></i><span class="tnum">(203) 555-0147</span></a>
+      </div>
+      <div class="towns">
+        <h3><span data-en>Catering delivery area</span><span data-es>Zona de entrega de catering</span></h3>
+        <!-- slot: service_area -->
+        <ul class="town-list">
+          <li>Bridgeport</li><li>Stratford</li><li>Fairfield</li><li>Trumbull</li><li>Milford</li><li>Shelton</li><li>Monroe</li><li>Easton</li><li>Westport</li><li>Orange</li>
+        </ul>
+        <p><span data-en>Within 20 miles of the restaurant. Farther out? Ask us.</span><span data-es>A menos de 20 millas del restaurante. ¿Más lejos? Pregúntanos.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: faq -->
+<section class="faq" id="faq">
+  <div class="wrap faq-grid">
+    <div class="faq-head rv">
+      <p class="kicker"><span class="no">Nº 05</span><span class="rule"></span><span data-en>Good to know</span><span data-es>Bueno saber</span></p>
+      <h2 class="h2"><span data-en>Questions we get a lot</span><span data-es>Lo que más nos preguntan</span></h2>
+      <p class="lede"><span data-en>Anything else, call us. Luis picks up in English or Spanish.</span><span data-es>Si tienes otra duda, llámanos. Luis te atiende en inglés o en español.</span></p>
+    </div>
+    <div class="rv d1">
+      <details open>
+        <summary><span><span data-en>How do I order takeout?</span><span data-es>¿Cómo pido para llevar?</span></span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p><span data-en>Call (203) 555-0147 and tell us what you’d like. Most orders are ready in about 20 minutes; on Friday and Saturday nights, give us 30. You can also order at the counter and wait. There’s coffee.</span><span data-es>Llama al (203) 555-0147 y dinos qué quieres. Casi todos los pedidos están listos en unos 20 minutos; viernes y sábado en la noche, danos 30. También puedes pedir en el mostrador y esperar; hay cafecito.</span></p></div>
+      </details>
+      <details>
+        <summary><span><span data-en>How far ahead do I need to book catering?</span><span data-es>¿Con cuánta anticipación reservo el catering?</span></span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p><span data-en>At least 5 days for most parties and office lunches. For 100 guests or more, or anything in May and June (graduations, quinceañeras), two weeks or more. Last-minute? Call. Sometimes we can.</span><span data-es>Mínimo 5 días para la mayoría de fiestas y comidas de oficina. Para 100 invitados o más, o en mayo y junio (graduaciones, quinceañeras), dos semanas o más. ¿Es de última hora? Llama, a veces sí se puede.</span></p></div>
+      </details>
+      <details>
+        <summary><span><span data-en>Do you have vegetarian options?</span><span data-es>¿Tienen opciones vegetarianas?</span></span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p><span data-en>Yes. Look for the leaf on the menu: rajas con queso, chile relleno, cheese enchiladas, quesadillas, chilaquiles and more. Our rice and black beans are made without meat stock. The refried beans are cooked with lard, so ask for black beans instead.</span><span data-es>Sí, busca la hojita en el menú: rajas con queso, chile relleno, enchiladas de queso, quesadillas, chilaquiles y más. El arroz y los frijoles negros no llevan caldo de carne. Los refritos llevan manteca; pide frijoles negros en su lugar.</span></p></div>
+      </details>
+      <details>
+        <summary><span><span data-en>What payment methods do you take?</span><span data-es>¿Qué formas de pago aceptan?</span></span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p><span data-en>Cash, all major cards, Apple Pay and Google Pay. For catering we take a 30% deposit by card or Zelle, and the rest on the day of the event.</span><span data-es>Efectivo, todas las tarjetas, Apple Pay y Google Pay. Para catering pedimos un depósito del 30% con tarjeta o Zelle, y el resto el día del evento.</span></p></div>
+      </details>
+      <details>
+        <summary><span><span data-en>Is there gluten in the tacos?</span><span data-es>¿Los tacos llevan gluten?</span></span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p><span data-en>Our corn tortillas are made from corn masa only. The kitchen also handles flour tortillas and bread, so we can’t promise zero cross-contact. Tell us when you order and we’ll use a clean comal.</span><span data-es>Nuestras tortillas de maíz son solo de masa de maíz. En la cocina también hay tortillas de harina y pan, así que no podemos garantizar cero contacto. Avísanos al ordenar y usamos un comal limpio.</span></p></div>
+      </details>
+      <details>
+        <summary><span><span data-en>Can we come as a big group?</span><span data-es>¿Podemos ir en grupo grande?</span></span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p><span data-en>We’re small, so for 8 or more, call a day ahead and we’ll put tables together.</span><span data-es>Somos un lugar pequeño; si son 8 o más, llama un día antes y juntamos mesas.</span></p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- slot: contact / catering form -->
+<section class="contact" id="contact">
+  <div class="wrap contact-grid">
+    <div class="rv">
+      <p class="kicker"><span class="no">Nº 06</span><span class="rule"></span><span data-en>Catering & big orders</span><span data-es>Catering y pedidos grandes</span></p>
+      <h2 class="h2"><span data-en>Tell us about <em>your party</em></span><span data-es>Cuéntanos de <em>tu fiesta</em></span></h2>
+      <p class="lede"><span data-en>Send the date, how many people and what you have in mind. Luis will call or text you back the same day with a written quote.</span><span data-es>Mándanos la fecha, cuántas personas y qué te gustaría. Luis te llama o te manda un mensaje el mismo día con la cotización por escrito.</span></p>
+      <div class="contact-lines">
+        <a class="contact-line" href="tel:+12035550147"><i data-lucide="phone"></i><div><strong class="tnum">(203) 555-0147</strong><span><span data-en>Call. Fastest for takeout</span><span data-es>Llama. Lo más rápido para llevar</span></span></div><i data-lucide="arrow-right" class="go"></i></a>
+        <a class="contact-line" href="sms:+12035550147"><i data-lucide="message-square"></i><div><strong><span data-en>Text us</span><span data-es>Mándanos un texto</span></strong><span><span data-en>Good for catering questions</span><span data-es>Ideal para dudas de catering</span></span></div><i data-lucide="arrow-right" class="go"></i></a>
+        <a class="contact-line" href="mailto:hola@donarosakitchen.com"><i data-lucide="mail"></i><div><strong>hola@donarosakitchen.com</strong><span><span data-en>For invoices and office orders</span><span data-es>Para facturas y pedidos de oficina</span></span></div><i data-lucide="arrow-right" class="go"></i></a>
+      </div>
+    </div>
+
+    <form class="form rv d1" action="#" method="post">
+      <h3><span data-en>Request a catering quote</span><span data-es>Pide tu cotización de catering</span></h3>
+      <p><span data-en>No commitment. We answer the same day.</span><span data-es>Sin compromiso. Te respondemos el mismo día.</span></p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="f-name"><span data-en>Name</span><span data-es>Nombre</span></label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required data-ph-en="Your name" data-ph-es="Tu nombre">
+        </div>
+        <div class="field">
+          <label for="f-phone"><span data-en>Phone</span><span data-es>Teléfono</span></label>
+          <input id="f-phone" name="phone" type="tel" autocomplete="tel" required data-ph-en="(203) 555-0100" data-ph-es="(203) 555-0100">
+        </div>
+        <div class="field">
+          <label for="f-service"><span data-en>What do you need?</span><span data-es>¿Qué necesitas?</span></label>
+          <select id="f-service" name="service">
+            <option value="taquiza" data-en-text="Taquiza (taco bar)" data-es-text="Taquiza">Taquiza (taco bar)</option>
+            <option value="trays" data-en-text="Party trays" data-es-text="Charolas para fiesta">Party trays</option>
+            <option value="office" data-en-text="Office lunch" data-es-text="Comida de oficina">Office lunch</option>
+            <option value="tamales" data-en-text="Tamales by the dozen" data-es-text="Tamales por docena">Tamales by the dozen</option>
+            <option value="large-order" data-en-text="Large takeout order" data-es-text="Pedido grande para llevar">Large takeout order</option>
+            <option value="other" data-en-text="Something else" data-es-text="Otra cosa">Something else</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-guests"><span data-en>Guests</span><span data-es>Invitados</span> <small><span data-en>(approx.)</span><span data-es>(aprox.)</span></small></label>
+          <input id="f-guests" name="guests" type="number" min="1" inputmode="numeric" data-ph-en="e.g. 40" data-ph-es="ej. 40">
+        </div>
+        <div class="field full">
+          <label for="f-date"><span data-en>Event date</span><span data-es>Fecha del evento</span></label>
+          <input id="f-date" name="date" type="date">
+        </div>
+        <div class="field full">
+          <label for="f-msg"><span data-en>Message</span><span data-es>Mensaje</span></label>
+          <textarea id="f-msg" name="message" data-ph-en="Type of event, town, pickup or delivery, any allergies…" data-ph-es="Tipo de evento, ciudad, recoger o entrega, alergias…"></textarea>
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit"><span data-en>Send request</span><span data-es>Enviar solicitud</span><i data-lucide="arrow-right" class="arr"></i></button>
+      <p class="form-fine"><span data-en>We only use your number to answer this request.</span><span data-es>Solo usamos tu número para responder esta solicitud.</span></p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- slot: footer -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="logo" href="#top" aria-label="Doña Rosa Kitchen — back to top">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="23" fill="#F3EADB"/>
+            <path d="M13.5 24.5h21c0 6.4-4.7 10.5-10.5 10.5S13.5 30.9 13.5 24.5z" fill="#5E1B10"/>
+            <rect x="11.5" y="22.3" width="25" height="2.6" rx="1.3" fill="#5E1B10"/>
+            <path d="M14.6 27.2c-2.2-.2-3.3 1.8-1.9 3.4M33.4 27.2c2.2-.2 3.3 1.8 1.9 3.4" fill="none" stroke="#5E1B10" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M19.5 19.2c-1.3-1.5 1.3-2.7 0-4.3M24 19.2c-1.3-1.5 1.3-2.7 0-4.3M28.5 19.2c-1.3-1.5 1.3-2.7 0-4.3" fill="none" stroke="#C4861F" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <span class="logo-word"><span class="logo-name">Doña Rosa</span><span class="logo-sub">Kitchen · Bridgeport</span></span>
+        </a>
+        <p class="foot-blurb"><span data-en>Mexican home cooking, takeout and catering on East Main Street, Bridgeport.</span><span data-es>Comida mexicana casera, para llevar y catering en la East Main, Bridgeport.</span></p>
+        <p class="foot-badge"><i data-lucide="languages"></i>We speak Spanish · Hablamos español</p>
+      </div>
+      <div>
+        <h3><span data-en>Hours</span><span data-es>Horario</span></h3>
+        <ul class="tnum">
+          <li><span class="d"><span data-en>Mon</span><span data-es>Lun</span></span><span data-en>Closed</span><span data-es>Cerrado</span></li>
+          <li><span class="d"><span data-en>Tue – Thu</span><span data-es>Mar – Jue</span></span>8 AM – 9 PM</li>
+          <li><span class="d"><span data-en>Fri – Sat</span><span data-es>Vie – Sáb</span></span>8 AM – 10 PM</li>
+          <li><span class="d"><span data-en>Sun</span><span data-es>Dom</span></span>8 AM – 4 PM</li>
+        </ul>
+      </div>
+      <div>
+        <h3><span data-en>Find us</span><span data-es>Dónde estamos</span></h3>
+        <ul>
+          <li>742 East Main St<br>Bridgeport, CT 06608</li>
+          <li><a class="tnum" href="tel:+12035550147">(203) 555-0147</a></li>
+          <li><a href="mailto:hola@donarosakitchen.com">hola@donarosakitchen.com</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3><span data-en>The fine print</span><span data-es>Datos legales</span></h3>
+        <ul>
+          <!-- slot: license -->
+          <li><span data-en>Licensed food service establishment · Permit No. FSE.0000000</span><span data-es>Establecimiento de alimentos con licencia · Permiso n.º FSE.0000000</span></li>
+          <li><span data-en>Catering covered by general liability insurance</span><span data-es>Catering con seguro de responsabilidad civil</span></li>
+          <li><a href="#menu"><span data-en>Menu</span><span data-es>Menú</span></a> · <a href="#catering">Catering</a> · <a href="#faq"><span data-en>FAQ</span><span data-es>Preguntas</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot-word" aria-hidden="true">Doña <em>Rosa</em></p>
+    <div class="foot-bottom">
+      <span>© 2026 Doña Rosa Kitchen LLC · Bridgeport, Connecticut</span>
+      <span><span data-en>Demo site — fictional business</span><span data-es>Sitio de demostración — negocio ficticio</span></span>
+    </div>
+  </div>
+</footer>
+
+<!-- slot: mobile_bar -->
+<nav class="mobile-bar" aria-label="Quick actions">
+  <a class="call" href="tel:+12035550147"><i data-lucide="phone"></i><span data-en>Call</span><span data-es>Llamar</span></a>
+  <a href="https://www.google.com/maps/dir/?api=1&amp;destination=742+East+Main+St+Bridgeport+CT+06608" target="_blank" rel="noopener"><i data-lucide="navigation"></i><span data-en>Directions</span><span data-es>Llegar</span></a>
+  <a href="#menu"><i data-lucide="book-open"></i><span data-en>Menu</span><span data-es>Menú</span></a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script>
+(function(){
+  var root = document.documentElement;
+  root.classList.add('js');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var PH = function(id, w){ return 'https://images.unsplash.com/photo-' + id + '?w=' + (w || 900) + '&q=80&auto=format&fit=crop'; };
+
+  /* ---------- Language ---------- */
+  function setLang(lang, save){
+    if(lang !== 'es') lang = 'en';
+    root.classList.remove('lang-en','lang-es');
+    root.classList.add('lang-' + lang);
+    root.lang = lang;
+    document.querySelectorAll('[data-lang-btn]').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-lang-btn') === lang ? 'true' : 'false'); });
+    document.querySelectorAll('[data-ph-' + lang + ']').forEach(function(el){ el.placeholder = el.getAttribute('data-ph-' + lang); });
+    document.querySelectorAll('option[data-' + lang + '-text]').forEach(function(o){ o.textContent = o.getAttribute('data-' + lang + '-text'); });
+    if(save){ try{ localStorage.setItem('wc360-lang-comida', lang); }catch(e){} }
+  }
+  var initial = 'en';
+  try{ var stored = localStorage.getItem('wc360-lang-comida'); if(stored) initial = stored; }catch(e){}
+  var q = new URLSearchParams(location.search).get('lang');
+  if(q === 'es' || q === 'en') initial = q;
+  setLang(initial, false);
+  document.querySelectorAll('[data-lang-btn]').forEach(function(b){
+    b.addEventListener('click', function(){ setLang(b.getAttribute('data-lang-btn'), true); });
+  });
+
+  /* ---------- Icons ---------- */
+  if(window.lucide) lucide.createIcons();
+
+  /* ---------- Header: solid + compact after the hero starts scrolling ---------- */
+  var header = document.querySelector('.site-header');
+  var toggle = document.querySelector('.menu-toggle'), mnav = document.getElementById('mobile-nav');
+  function onScroll(){ header.classList.toggle('solid', window.scrollY > 40 || mnav.classList.contains('open')); }
+  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+  function closeNav(){ mnav.classList.remove('open'); header.classList.remove('menu-open'); toggle.setAttribute('aria-expanded','false'); onScroll(); }
+  toggle.addEventListener('click', function(){
+    var open = mnav.classList.toggle('open');
+    header.classList.toggle('menu-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    onScroll();
+  });
+  mnav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeNav); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && mnav.classList.contains('open')){ closeNav(); toggle.focus(); } });
+
+  /* ---------- Live open / closed status from the hours table ---------- */
+  var DAYS_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var DAYS_ES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  function toMin(s){ if(!s) return null; var p = s.split(':'); return (+p[0]) * 60 + (+p[1]); }
+  function fmt(m){ var h = Math.floor(m / 60), mm = m % 60, ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + (mm ? ':' + String(mm).padStart(2,'0') : '') + ' ' + ap; }
+  var hours = {};
+  document.querySelectorAll('#hours-table tr[data-day]').forEach(function(tr){
+    hours[+tr.dataset.day] = { open: toMin(tr.dataset.open), close: toMin(tr.dataset.close), row: tr };
+  });
+  function updateStatus(){
+    var now;
+    try{ now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })); }catch(e){ now = new Date(); }
+    var day = now.getDay(), mins = now.getHours() * 60 + now.getMinutes(), today = hours[day];
+    document.querySelectorAll('#hours-table tr.today').forEach(function(r){ r.classList.remove('today'); var t = r.querySelector('.today-tag'); if(t) t.remove(); });
+    if(today && today.row){
+      today.row.classList.add('today');
+      today.row.querySelector('th').insertAdjacentHTML('beforeend', '<span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span>');
+    }
+    var en, es, isOpen = false;
+    if(today && today.open !== null && mins < today.open){
+      en = 'Opens today at ' + fmt(today.open); es = 'Abre hoy a las ' + fmt(today.open);
+    } else if(today && today.open !== null && mins < today.close){
+      isOpen = true;
+      en = 'Open now · closes at ' + fmt(today.close); es = 'Abierto ahora · cierra a las ' + fmt(today.close);
+    } else {
+      for(var i = 1; i <= 7; i++){
+        var d = (day + i) % 7, h = hours[d];
+        if(h && h.open !== null){
+          if(i === 1){ en = 'Closed now · opens tomorrow at ' + fmt(h.open); es = 'Cerrado ahora · abre mañana a las ' + fmt(h.open); }
+          else { en = 'Closed now · opens ' + DAYS_EN[d] + ' at ' + fmt(h.open); es = 'Cerrado ahora · abre el ' + DAYS_ES[d] + ' a las ' + fmt(h.open); }
+          break;
+        }
+      }
+    }
+    if(!en) return;
+    document.querySelectorAll('.js-status').forEach(function(s){
+      s.querySelector('.status-text').innerHTML = '<span data-en>' + en + '</span><span data-es>' + es + '</span>';
+      s.classList.toggle('closed', !isOpen);
+    });
+  }
+  updateStatus();
+  setInterval(updateStatus, 60000);
+
+  /* ---------- Menu: tabs follow the category in view ---------- */
+  var tabs = document.querySelectorAll('.menu-tabs a');
+  var tabList = document.querySelector('.menu-tabs ul');
+  var cats = document.querySelectorAll('.cat');
+  function activateTab(id){
+    tabs.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + id;
+      a.classList.toggle('active', on);
+      if(on){
+        a.setAttribute('aria-current', 'true');
+        var li = a.parentNode;
+        if(tabList.scrollWidth > tabList.clientWidth){ tabList.scrollTo({ left: li.offsetLeft - 20, behavior: reduce ? 'auto' : 'smooth' }); }
+      } else a.removeAttribute('aria-current');
+    });
+  }
+
+  /* ---------- Menu: floating preview (desktop) and inline photos (touch / narrow) ---------- */
+  var wide = window.matchMedia('(min-width: 1081px)');
+  var frame = document.querySelector('.preview-frame');
+  var layers = frame ? frame.querySelectorAll('img.pv') : [];
+  var front = 0, currentSrc = layers.length ? layers[0].getAttribute('src') : '';
+  var pvName = document.getElementById('pv-name'), pvPrice = document.getElementById('pv-price'), pvDesc = document.getElementById('pv-desc'), pvTag = document.getElementById('pv-tag');
+  var activeDish = null;
+  function swapImage(src){
+    if(!layers.length || src === currentSrc) return;
+    currentSrc = src;
+    var next = layers[1 - front], cur = layers[front];
+    next.onload = function(){ if(currentSrc !== src) return; next.classList.add('show'); cur.classList.remove('show'); front = 1 - front; };
+    next.src = src;
+  }
+  function catOf(el){ return el.closest('.cat'); }
+  function showDish(li){
+    if(!wide.matches || !li) return;
+    var cat = catOf(li);
+    swapImage(PH(li.dataset.photo || cat.dataset.photo));
+    var nameEl = li.querySelector('.dish-name');
+    pvName.textContent = nameEl.textContent.trim();
+    pvPrice.innerHTML = li.querySelector('.price').innerHTML;
+    pvDesc.innerHTML = li.querySelector('.dish-desc').innerHTML;
+    pvTag.textContent = cat.querySelector('h3').textContent + (li.dataset.photo ? '' : ' · ' + (root.classList.contains('lang-es') ? 'foto de la categoría' : 'category photo'));
+    if(activeDish) activeDish.classList.remove('is-active');
+    activeDish = li; li.classList.add('is-active');
+  }
+  function showCat(cat){
+    if(!wide.matches) return;
+    if(activeDish && catOf(activeDish) === cat) return;
+    var first = cat.querySelector('.dish[data-photo]') || cat.querySelector('.dish');
+    showDish(first);
+  }
+  document.querySelectorAll('.dish').forEach(function(li){
+    li.addEventListener('mouseenter', function(){ showDish(li); });
+    var btn = li.querySelector('button.dish-name');
+    if(!btn) return;
+    btn.addEventListener('focus', function(){ showDish(li); });
+    btn.addEventListener('click', function(){
+      if(wide.matches){ showDish(li); return; }
+      /* narrow screens: open the photo inline, under the dish */
+      var fig = li.querySelector('.dish-fig');
+      if(!fig){
+        fig = document.createElement('div');
+        fig.className = 'dish-fig';
+        fig.id = 'fig-' + li.dataset.photo;
+        fig.innerHTML = '<div><img class="ph" width="900" height="675" alt="" src="' + PH(li.dataset.photo, 800) + '"></div>';
+        li.appendChild(fig);
+        btn.setAttribute('aria-controls', fig.id);
+        void fig.offsetHeight;
+      }
+      var open = !li.classList.contains('open');
+      li.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+  if('IntersectionObserver' in window){
+    var catIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ activateTab(en.target.id); showCat(en.target); } });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    cats.forEach(function(c){ catIO.observe(c); });
+    /* warm up the preview photos once the menu is close */
+    var warmed = false;
+    var warmIO = new IntersectionObserver(function(entries){
+      if(warmed || !entries[0].isIntersecting || !wide.matches) return;
+      warmed = true;
+      document.querySelectorAll('.dish[data-photo], .cat[data-photo]').forEach(function(el){ var i = new Image(); i.src = PH(el.dataset.photo); });
+    }, { rootMargin: '600px 0px' });
+    warmIO.observe(document.getElementById('menu'));
+  }
+
+  /* ---------- Catering cards pre-select the form ---------- */
+  var sel = document.getElementById('f-service');
+  document.querySelectorAll('[data-service]').forEach(function(a){
+    a.addEventListener('click', function(){ sel.value = a.dataset.service; });
+  });
+
+  /* ---------- Reveal on scroll (enhancement only) ---------- */
+  var rv = document.querySelectorAll('.rv');
+  if(!reduce && 'IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    rv.forEach(function(el){ io.observe(el); });
+  } else {
+    rv.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* ---------- Demo form ---------- */
+  document.querySelector('.form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var btn = this.querySelector('button[type=submit]');
+    btn.innerHTML = root.classList.contains('lang-es') ? 'Gracias. Te contactamos hoy mismo' : 'Thanks. We’ll get back to you today';
+    btn.disabled = true;
+  });
+})();
+</script>
+</body>
+</html>

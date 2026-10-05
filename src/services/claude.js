@@ -1,37 +1,17 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { buildGenerationPrompt } from '../prompts/generation.js';
+import { writeWithClaude } from '../lib/claude.js';
 
-let client;
-
-function getClient() {
-  if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  return client;
-}
-
+// Legacy full-HTML generator of the Google Maps pipeline (Claude Sonnet 5.5 writes the whole page)
 export async function generateWebsite(business, webData, checkoutUrl) {
   const prompt = buildGenerationPrompt(business, webData, checkoutUrl);
 
-  // Use streaming so the API doesn't time out on long generations
-  let raw = '';
-  let stopReason = 'end_turn';
-
-  const stream = getClient().messages.stream({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 32000,
+  const { text, stopReason } = await writeWithClaude({
     system: 'You are an elite web developer. Return ONLY the raw HTML document starting with <!DOCTYPE html>. Never use markdown code fences. Never add explanations before or after the HTML.',
-    messages: [{ role: 'user', content: prompt }],
+    prompt,
+    maxTokens: 32000,
   });
 
-  for await (const chunk of stream) {
-    if (chunk.type === 'content_block_delta' && chunk.delta?.type === 'text_delta') {
-      raw += chunk.delta.text;
-    }
-    if (chunk.type === 'message_delta' && chunk.delta?.stop_reason) {
-      stopReason = chunk.delta.stop_reason;
-    }
-  }
-
-  raw = raw.trim();
+  const raw = text.trim();
   console.log(`[claude] stop_reason=${stopReason} chars=${raw.length}`);
 
   // Strip markdown code fences if Claude added them

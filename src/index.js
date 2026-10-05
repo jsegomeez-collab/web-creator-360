@@ -17,6 +17,7 @@ import billingRouter from './routes/billing.js';
 import { createLeadsRouter } from './routes/leads.js';
 import { alertReply } from './services/telegram.js';
 import { dashboardAuth } from './middleware/dashboardAuth.js';
+import { stripeRawBody, STRIPE_WEBHOOK_PATHS } from './lib/rawBody.js';
 import supabase from './db/supabase.js';
 import { startCronJobs } from './cron/jobs.js';
 
@@ -28,17 +29,8 @@ const PORT = process.env.PORT || 3001;
 // can reach it. Set DASHBOARD_USER + DASHBOARD_PASSWORD (in production, always) to lock it behind one shared login.
 app.use(dashboardAuth);
 
-// Raw body capture for Stripe webhooks (must come before json middleware)
-app.use((req, res, next) => {
-  const isStripeWebhook = req.path === '/webhooks/stripe' || req.path === '/api/billing/webhook';
-  if (isStripeWebhook) {
-    let data = Buffer.alloc(0);
-    req.on('data', chunk => { data = Buffer.concat([data, chunk]); });
-    req.on('end', () => { req.rawBody = data; next(); });
-  } else {
-    next();
-  }
-});
+// Raw body for Stripe webhooks (must come before json middleware)
+app.use(STRIPE_WEBHOOK_PATHS, stripeRawBody());
 
 // A CSV travels inside the JSON body: give the import routes room before the default 100 kb parser sees them
 app.use('/api/leads/import', express.json({ limit: '10mb' }));

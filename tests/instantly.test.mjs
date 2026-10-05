@@ -57,8 +57,10 @@ test('buildInstantlyLead: email, empresa y variables con el enlace propio del le
   assert.equal(l.company_name, 'Negocio 1 LLC');
   assert.deepEqual(l.custom_variables, {
     empresa: 'Negocio 1 LLC', ciudad: 'Hartford', latina: ' y por aportar a nuestra comunidad latina', sector_de: ' de limpieza',
-    calendario: 'https://campana.example.com/c/TOKEN0000000000000000001',
+    calendario: 'https://campana.example.com/c/TOKEN0000000000000000001', web: '', nombre: 'equipo de Negocio 1 LLC',
   });
+  // Con su web de demo hecha, {{web}} lleva su dirección (abre en español)
+  assert.equal(buildInstantlyLead({ ...mkLead(1), demo_url: 'https://negocio-1-ab12.vercel.app' }, config()).custom_variables.web, 'https://negocio-1-ab12.vercel.app/?lang=es');
 });
 
 // ─── pushLeads: dry-run ──────────────────────────────────────────────────────

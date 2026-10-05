@@ -1,15 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+import supabase, { getSupabase } from '../db/supabase.js';
 
 export async function requireAuth(req, res, next) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'No autenticado' });
 
-  const { data: { user }, error } = await supabase.auth.getUser(token);
+  const { data: { user }, error } = await getSupabase().auth.getUser(token);
   if (error || !user) return res.status(401).json({ error: 'Token inválido o expirado' });
 
   // Attach user + settings to request
@@ -41,13 +36,16 @@ const LIMITS = {
   agency:  { prospects: 9999, sites: 9999, emails: 9999 },
 };
 
+// The usage counter of each resource in user_settings (see schema-saas.sql)
+export const USAGE_COLUMNS = { prospects: 'prospects_this_month', sites: 'sites_generated_month', emails: 'emails_sent_month' };
+
 export function checkLimit(resource) {
   return async (req, res, next) => {
     const s = req.userSettings;
     if (!s) return next();
     const plan = s.plan || 'free';
     const limit = LIMITS[plan]?.[resource] ?? 0;
-    const used = s[`${resource === 'prospects' ? 'prospects' : resource === 'sites' ? 'sites_generated' : 'emails_sent'}_this_month`] || 0;
+    const used = s[USAGE_COLUMNS[resource]] || 0;
     if (used >= limit) {
       return res.status(429).json({
         error: `Has alcanzado el límite de ${resource} de tu plan ${plan} (${limit}/mes)`,

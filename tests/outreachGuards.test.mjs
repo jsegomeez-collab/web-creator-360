@@ -17,7 +17,7 @@ mock.module(src('services/resend.js'), { exports: {
   sendOutreachEmail: async (business, site) => { emails.push({ to: site.contact_email, name: business.name }); },
   nextFollowUpDate: (n) => (n < 2 ? `FOLLOWUP+${n}` : null),
 }});
-mock.module(src('services/gemini.js'), { exports: { scrapeBusinessProfile: async () => ({}) } });
+mock.module(src('services/businessProfile.js'), { exports: { scrapeBusinessProfile: async () => ({}) } });
 mock.module(src('services/claude.js'), { exports: { generateWebsite: async () => '<html></html>' } });
 mock.module(src('services/vercel.js'), { exports: { deployToVercel: async () => 'https://x.vercel.app' } });
 

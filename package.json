@@ -14,15 +14,16 @@
     "leads:push": "node scripts/leads-push.js",
     "telegram:setup": "node scripts/telegram-setup.js",
     "leads:link": "node scripts/lead-link.js",
-    "instantly:poll": "node scripts/instantly-poll.js"
+    "instantly:poll": "node scripts/instantly-poll.js",
+    "leads:demo": "node scripts/lead-demo.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0",
-    "@google/generative-ai": "^0.21.0",
+    "@anthropic-ai/sdk": "^0.131.0",
     "@supabase/supabase-js": "^2.49.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "node-cron": "^3.0.3",
+    "parse5": "^8.0.1",
     "resend": "^4.5.1",
     "slugify": "^1.6.6",
     "stripe": "^17.7.0",

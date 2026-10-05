@@ -7,15 +7,22 @@ function getClient() {
   return stripeClient;
 }
 
+// What one site costs: the emails and the demo sites announce $497, so that's the default (amount in cents)
+export function sitePrice(env = process.env) {
+  const amount = parseInt(env.STRIPE_PRICE_AMOUNT || '49700', 10);
+  const currency = String(env.STRIPE_CURRENCY || 'usd').trim().toLowerCase();
+  return { amount, currency };
+}
+
 export async function createCheckoutSession(site, business) {
-  const amount = parseInt(process.env.STRIPE_PRICE_AMOUNT || '29900', 10);
+  const { amount, currency } = sitePrice();
 
   const session = await getClient().checkout.sessions.create({
     payment_method_types: ['card'],
     mode: 'payment',
     line_items: [{
       price_data: {
-        currency: 'eur',
+        currency,
         product_data: {
           name: `Web para ${business.name}`,
           description: `Activación de tu web personalizada en tu propio dominio`,

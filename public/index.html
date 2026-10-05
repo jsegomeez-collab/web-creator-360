@@ -670,6 +670,29 @@
               </div>
             </div>
 
+            <div class="card" id="demos-card">
+              <div class="card-body">
+                <div class="flex items-start gap-4">
+                  <span class="icon-tile bg-violet-50 text-violet-600"><i data-lucide="wand-sparkles"></i></span>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2"><h2 class="card-title">Webs de demo</h2><span id="demos-pill" class="badge badge-prospected">…</span></div>
+                    <p class="card-sub">Cada lead recibe en el email su propia web ya publicada, escrita por Claude sobre la plantilla de su sector. Solo se envían los leads con su web lista.</p>
+                  </div>
+                </div>
+                <p id="demos-hint" class="mt-4 hidden rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed"></p>
+                <div class="mt-5 grid grid-cols-3 gap-3">
+                  <div class="rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3"><p class="text-xs font-medium text-slate-500">Listas para enviar</p><p id="demos-ready" class="mt-1 text-xl font-bold tabular-nums text-slate-900">—</p></div>
+                  <div class="rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3"><p class="text-xs font-medium text-slate-500">Creándose</p><p id="demos-generating" class="mt-1 text-xl font-bold tabular-nums text-slate-900">—</p></div>
+                  <div class="rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3"><p class="text-xs font-medium text-slate-500">Fallidas</p><p id="demos-failed" class="mt-1 text-xl font-bold tabular-nums text-slate-900">—</p></div>
+                </div>
+                <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
+                  <button id="demos-btn" class="btn-secondary"><i data-lucide="sparkles"></i>Crear 3 webs ahora</button>
+                  <p class="text-[13px] text-slate-500">Cada web tarda alrededor de un minuto y cuesta unos 0,08–0,14 $. El autopilot las crea solo, justo antes de cada envío.</p>
+                </div>
+                <div id="demos-result" class="mt-5 hidden"></div>
+              </div>
+            </div>
+
             <div class="card">
               <div class="card-body">
                 <div class="flex items-start justify-between gap-4">
@@ -733,7 +756,7 @@
           </div>
 
           <div class="card xl:sticky xl:top-24">
-            <div class="card-header"><div><h2 class="card-title">Texto del email</h2><p class="card-sub">Pégalo en tu campaña de Instantly. Es un solo email, sin seguimientos.</p></div></div>
+            <div class="card-header"><div><h2 class="card-title">Texto del email</h2><p class="card-sub">Pégalo en tu campaña de Instantly. Es un solo email, sin seguimientos. <span id="tpl-version" class="font-semibold text-slate-700"></span></p></div></div>
             <div class="card-body space-y-4">
               <div>
                 <div class="mb-1.5 flex items-center justify-between"><label class="label !mb-0" for="tpl-subject">Asunto</label><button data-copy="tpl-subject" class="btn-ghost"><i data-lucide="copy"></i>Copiar</button></div>

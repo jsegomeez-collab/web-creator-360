@@ -2,22 +2,24 @@ import cron from 'node-cron';
 import supabase from '../db/supabase.js';
 import { sendOutreachEmail, nextFollowUpDate } from '../services/resend.js';
 import { isSuppressedFor } from '../services/outreach.js';
-import { runAutoPipeline } from '../pipeline/auto.js';
+import { runAutoPipeline, PIPELINE_TIMEZONE } from '../pipeline/auto.js';
 
 export function startCronJobs() {
+  const timezone = PIPELINE_TIMEZONE();
+
   // Auto pipeline: every 30 min Mon–Fri 8–19h
   cron.schedule('*/30 8-19 * * 1-5', async () => {
     console.log('[cron] Running auto pipeline...');
     await runAutoPipeline();
-  });
+  }, { timezone });
 
   // Follow-ups + expiry: daily at 10:00 AM
   cron.schedule('0 10 * * *', async () => {
     await runFollowUps();
     await expirePreviews();
-  });
+  }, { timezone });
 
-  console.log('Cron jobs scheduled (pipeline every 30min · follow-ups daily at 10:00)');
+  console.log(`Cron jobs scheduled (pipeline every 30min · follow-ups daily at 10:00, ${timezone})`);
 }
 
 export async function runFollowUps() {

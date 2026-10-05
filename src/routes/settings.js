@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { createClient } from '@supabase/supabase-js';
 import { requireAuth } from '../middleware/auth.js';
+import supabase from '../db/supabase.js';
 
 const router = Router();
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 const ALLOWED_KEYS = [
   'anthropic_api_key', 'resend_api_key', 'resend_from_email',
@@ -33,9 +32,10 @@ router.get('/', requireAuth, async (req, res) => {
 router.put('/', requireAuth, async (req, res) => {
   const updates = {};
   for (const k of ALLOWED_KEYS) {
-    if (req.body[k] !== undefined && !req.body[k].startsWith('••••')) {
-      updates[k] = req.body[k] || null;
-    }
+    const v = req.body?.[k];
+    if (v === undefined || v === null) continue;
+    if (typeof v !== 'string') return res.status(400).json({ error: `${k} debe ser texto` });
+    if (!v.startsWith('••••')) updates[k] = v.trim() || null;   // "••••1234" = the masked value sent back unchanged
   }
   updates.updated_at = new Date().toISOString();
 

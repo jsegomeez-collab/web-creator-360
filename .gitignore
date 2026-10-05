@@ -2,6 +2,7 @@ node_modules/
 .env
 npm-install.log
 *.log
+*.err
 
 .DS_Store
 tmp/

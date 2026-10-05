@@ -1,0 +1,1772 @@
+<!-- DEMO · negocio y datos ficticios · plantilla belleza de Web Creator 360 -->
+<!doctype html>
+<html lang="en" class="lang-en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- slot: nombre, ciudad -->
+<title>Bella Luna Salon &amp; Barber · Hair color, cuts &amp; fades in Stamford, CT</title>
+<meta name="description" content="Owner-run salon and barber shop in downtown Stamford, CT. Balayage, color, women's cuts, skin fades, beard line-ups, nails and brows. We speak Spanish.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* CONCEPT: "The Stamford Issue" — the salon edited like a fashion magazine: a cover, a price list set like a
+     contents page, a feature on the owner, a lookbook spread and the fine print on the back page.
+     Didone display type, bone paper, one rouge accent, folios and italic captions everywhere. */
+  :root {
+    /* Recolor the template by changing --brand, --brand-ink and --accent */
+    --brand: #a13a2e;        /* rouge */
+    --brand-ink: #86301f;    /* darker rouge for small text */
+    --brand-soft: #e2a898;   /* rouge on dark backgrounds */
+    --accent: #ecdcd0;       /* powder blush */
+    --bg: #f4efe8;           /* bone paper */
+    --paper: #fbf8f3;        /* lighter sheet */
+    --ink: #1c1715;          /* warm near-black */
+    --muted: #5d534d;
+    --line: #dbd0c4;
+    --line-strong: #b3a597;
+    --on-dark: #f4efe8;
+    --on-dark-muted: #bcafa4;
+    --dark-line: #3b3330;
+
+    --serif: "Bodoni Moda", Didot, "Bodoni 72", "Times New Roman", serif;
+    --sans: "Jost", "Futura", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+
+    --wrap: 1360px;
+    --gutter: clamp(18px, 4.2vw, 64px);
+    --header: 84px;
+    --photo: saturate(.86) contrast(1.03) sepia(.07);   /* one grade for every photograph */
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  html:focus-within { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 18px; line-height: 1.65; font-weight: 400;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden; font-optical-sizing: auto;
+  }
+  /* paper grain */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: .05; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  img { display: block; max-width: 100%; height: auto; }
+  .ph img, img.ph { filter: var(--photo); }
+  a { color: inherit; }
+  h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
+  p { margin: 0; text-wrap: pretty; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  figure { margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+  .dark :focus-visible { outline-color: var(--brand-soft); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .num, .price, .hours td, .tab { font-variant-numeric: lining-nums tabular-nums; }
+
+  /* Language switching */
+  .lang-en [data-es], .lang-es [data-en] { display: none !important; }
+
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+  section { scroll-margin-top: 72px; }
+
+  /* ---------- Type ---------- */
+  .kicker {
+    display: flex; align-items: center; gap: 14px;
+    font-size: 12px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--brand-ink);
+  }
+  .kicker .rule { width: 36px; height: 1px; background: currentColor; opacity: .55; flex-shrink: 0; }
+  .dark .kicker { color: var(--brand-soft); }
+  .h2 {
+    font-family: var(--serif); font-weight: 400; line-height: .98; letter-spacing: -0.025em;
+    font-size: clamp(2.6rem, 5.4vw, 5.1rem);
+  }
+  .h2 em, .h3 em, .cover-title em { font-style: italic; color: var(--brand); }
+  .dark .h2 em { color: var(--brand-soft); }
+  .h3 { font-family: var(--serif); font-size: clamp(1.9rem, 2.8vw, 2.7rem); line-height: 1.02; letter-spacing: -0.015em; }
+  .lead { font-size: clamp(1.1rem, 1.35vw, 1.28rem); line-height: 1.6; color: var(--muted); max-width: 33em; }
+  .dark .lead { color: var(--on-dark-muted); }
+  .muted { color: var(--muted); }
+  .cap { font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.45; color: var(--muted); }
+  .cap b { font-style: normal; font-family: var(--sans); font-weight: 500; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--brand-ink); margin-right: 10px; }
+  .dark .cap { color: var(--on-dark-muted); }
+  .dark .cap b { color: var(--brand-soft); }
+
+  /* running head: the folio line that opens each section */
+  .runhead {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--ink); margin-bottom: clamp(40px, 5.5vw, 76px);
+    font-size: 11.5px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;
+  }
+  .runhead .n { font-family: var(--serif); font-style: italic; font-size: 17px; letter-spacing: 0; text-transform: none; color: var(--brand); }
+  .runhead .c { text-align: center; }
+  .runhead .r { text-align: right; color: var(--muted); }
+  .dark .runhead { border-bottom-color: var(--on-dark-muted); }
+  .dark .runhead .n { color: var(--brand-soft); }
+  .dark .runhead .r { color: var(--on-dark-muted); }
+
+  /* ---------- Buttons & links ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+    min-height: 54px; padding: 0 28px; border: 1px solid var(--ink); border-radius: 0;
+    font-size: 12.5px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; text-decoration: none;
+    background: var(--ink); color: var(--bg); cursor: pointer;
+    transition: background-color .35s var(--ease), color .35s var(--ease), border-color .35s var(--ease);
+  }
+  .btn:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn.ghost:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn svg { width: 17px; height: 17px; stroke-width: 1.5; transition: transform .45s var(--ease); }
+  .btn:hover svg.lucide-arrow-right, .btn:hover svg.lucide-arrow-up-right { transform: translateX(4px); }
+  .dark .btn { background: var(--on-dark); color: var(--ink); border-color: var(--on-dark); }
+  .dark .btn:hover { background: var(--brand-soft); border-color: var(--brand-soft); color: var(--ink); }
+  .dark .btn.ghost { background: transparent; color: var(--on-dark); }
+  .dark .btn.ghost:hover { background: var(--on-dark); color: var(--ink); }
+  .ulink {
+    display: inline-flex; align-items: center; gap: 10px; text-decoration: none; padding-bottom: 5px;
+    font-size: 12.5px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+    transition: background-size .5s var(--ease);
+  }
+  .ulink:hover { background-size: 0 1px; background-position: 100% 100%; }
+  .ulink svg { width: 16px; height: 16px; stroke-width: 1.5; transition: transform .45s var(--ease); }
+  .ulink:hover svg { transform: translate(3px, -3px); }
+
+  .dark { background: var(--ink); color: var(--on-dark); }
+
+  /* ---------- Header ---------- */
+  .site-header {
+    position: fixed; inset: 0 0 auto 0; z-index: 50; height: var(--header);
+    background: transparent; border-bottom: 1px solid transparent;
+    transition: height .45s var(--ease), background-color .45s var(--ease), border-color .45s var(--ease);
+  }
+  .site-header.scrolled { height: 66px; background: var(--bg); border-bottom-color: var(--line); }
+  .header-in { height: 100%; display: flex; align-items: center; gap: 32px; max-width: none; }
+  .logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); flex-shrink: 0; }
+  .logo svg { width: 40px; height: 40px; flex-shrink: 0; transition: width .45s var(--ease), height .45s var(--ease); }
+  .scrolled .logo svg { width: 34px; height: 34px; }
+  .logo-text { display: grid; line-height: 1; }
+  .logo-name { font-family: var(--serif); font-size: 27px; letter-spacing: -0.02em; }
+  .logo-name i { color: var(--brand); }
+  .logo-sub { font-size: 9px; letter-spacing: .38em; text-transform: uppercase; margin-top: 6px; color: var(--muted); font-weight: 500; }
+  .nav { display: flex; gap: 32px; margin-left: auto; }
+  .nav a {
+    text-decoration: none; font-size: 12px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; padding: 6px 0;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .45s var(--ease);
+  }
+  .nav a:hover { background-size: 100% 1px; }
+  .header-actions { display: flex; align-items: center; gap: 22px; }
+  .phone-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 15px; font-weight: 500; white-space: nowrap; }
+  .phone-link svg { width: 15px; height: 15px; stroke-width: 1.5; color: var(--brand); }
+  .lang-switch { display: inline-flex; align-items: center; gap: 2px; }
+  .lang-switch button {
+    border: 0; background: transparent; cursor: pointer; padding: 6px 7px; min-width: 34px; min-height: 34px;
+    font-size: 11.5px; font-weight: 500; letter-spacing: .16em; color: var(--muted); position: relative;
+  }
+  .lang-switch button[aria-pressed="true"] { color: var(--ink); }
+  .lang-switch button[aria-pressed="true"]::after { content: ""; position: absolute; left: 9px; right: 9px; bottom: 4px; height: 1px; background: var(--brand); }
+  .lang-switch .sep { width: 1px; height: 14px; background: var(--line-strong); }
+  .header-actions .btn { min-height: 44px; padding: 0 22px; }
+  .menu-btn { display: none; border: 0; background: transparent; width: 44px; height: 44px; align-items: center; justify-content: center; cursor: pointer; margin-right: -10px; }
+  .menu-btn svg { width: 24px; height: 24px; stroke-width: 1.4; }
+  .mobile-nav { display: none; }
+
+  /* ---------- Hero / cover ---------- */
+  .hero { position: relative; min-height: max(680px, min(100svh, 1000px)); padding-top: var(--header); display: flex; }
+  .hero-copy {
+    position: relative; z-index: 2; width: 100%; max-width: var(--wrap); margin: 0 auto; padding: clamp(18px, 3vh, 36px) var(--gutter) clamp(28px, 4vh, 48px);
+    display: flex; flex-direction: column;
+  }
+  .hero-copy > * { max-width: 58%; }
+  .cover-folio {
+    display: flex; justify-content: space-between; gap: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--ink);
+    font-size: 11.5px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; max-width: 54% !important;
+  }
+  .cover-folio span:last-child { color: var(--muted); }
+  .cover-title {
+    font-family: var(--serif); font-weight: 400; letter-spacing: -0.035em; line-height: .86;
+    font-size: clamp(3.5rem, min(8.6vw, 12.6vh), 8.6rem); margin-top: clamp(18px, 3.4vh, 44px); max-width: none !important;
+  }
+  .cover-title > span { display: block; }
+  .cover-title .ln { display: block; overflow: hidden; padding-bottom: .2em; margin-bottom: -.2em; }
+  .cover-title .ln > * { display: inline-block; }
+  .cover-title .ln.i2 { padding-left: .9em; }
+  .cover-title .sub {
+    font-size: .3em; letter-spacing: -0.01em; font-style: italic; line-height: 1.1; margin-top: .8em; padding-left: .12em; color: var(--ink);
+  }
+  .cover-title .sub small { font-family: var(--sans); font-style: normal; font-size: .36em; font-weight: 500; letter-spacing: .24em; text-transform: uppercase; color: var(--brand-ink); vertical-align: .55em; margin-right: 14px; }
+  .hero-lead { margin-top: clamp(18px, 3vh, 30px); font-size: clamp(1.05rem, 1.25vw, 1.2rem); color: var(--muted); max-width: 30em !important; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(18px, 3vh, 30px); }
+  .coverlines {
+    margin-top: auto; padding-top: clamp(22px, 3vh, 36px);
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 26px;
+  }
+  .hero-copy > .coverlines { max-width: 54%; }
+  .coverlines a { display: grid; gap: 4px; text-decoration: none; padding-top: 12px; border-top: 1px solid var(--line-strong); transition: border-color .4s var(--ease); }
+  .coverlines a:hover { border-top-color: var(--brand); }
+  .coverlines .p { font-size: 10.5px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--brand-ink); }
+  .coverlines .t { font-family: var(--serif); font-size: 17px; line-height: 1.25; }
+
+  .hero-media { position: absolute; z-index: 1; top: var(--header); right: 0; bottom: 0; width: 45vw; }
+  .hero-media .main { position: absolute; inset: 0; overflow: hidden; background: #d9c3b8; }
+  .hero-media .main img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+  .inset { position: absolute; left: clamp(-150px, -9vw, -80px); top: clamp(96px, 15vh, 150px); width: clamp(150px, 12vw, 184px); background: var(--bg); padding: 8px 8px 12px; z-index: 2; }
+  .inset img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+  .inset figcaption { font-family: var(--serif); font-style: italic; font-size: 13px; line-height: 1.3; padding: 9px 2px 0; color: var(--muted); }
+  .inset figcaption b { display: block; font-family: var(--sans); font-style: normal; font-size: 9.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--brand-ink); font-weight: 500; margin-bottom: 2px; }
+  .spine {
+    position: absolute; right: 18px; top: 50%; writing-mode: vertical-rl; transform: translateY(-50%) rotate(180deg); z-index: 2;
+    font-size: 10.5px; letter-spacing: .38em; text-transform: uppercase; font-weight: 500; color: rgba(255,255,255,.88);
+  }
+
+  /* cover choreography (CSS only) */
+  @keyframes rise { from { transform: translateY(105%); } to { transform: none; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes settle { from { transform: scale(1.08); } to { transform: scale(1); } }
+  @keyframes wipe { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  .cover-title .ln > * { animation: rise 1.1s var(--ease) both; }
+  .cover-title > span > .ln:nth-child(2) > * { animation-delay: .1s; }
+  .cover-title > span > .ln:nth-child(3) > * { animation-delay: .2s; }
+  .cover-title > span > .ln:nth-child(4) > * { animation-delay: .32s; }
+  .cover-folio { animation: fadeUp .8s var(--ease) both; }
+  .hero-lead, .hero-ctas { animation: fadeUp .9s var(--ease) .45s both; }
+  .coverlines { animation: fadeUp .9s var(--ease) .6s both; }
+  .hero-media .main { animation: wipe 1.3s var(--ease) both; }
+  .hero-media .main img { animation: settle 2s var(--ease) both; }
+  .inset { animation: fadeUp 1s var(--ease) .8s both; }
+
+  /* ---------- Standards strip ---------- */
+  .standards { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); background: var(--bg); position: relative; z-index: 3; }
+  .standards ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .standards li { padding: 26px 28px 28px; border-left: 1px solid var(--line); display: grid; gap: 6px; align-content: start; }
+  .standards li:first-child { border-left: 0; padding-left: 0; }
+  .standards .n { font-family: var(--serif); font-style: italic; color: var(--brand); font-size: 17px; line-height: 1; }
+  .standards h3 { font-family: var(--serif); font-size: 21px; line-height: 1.2; }
+  .standards p { font-size: 15px; color: var(--muted); line-height: 1.5; }
+
+  /* ---------- Menu (signature 1) ---------- */
+  .menu { padding: clamp(96px, 11vw, 160px) 0 clamp(80px, 9vw, 130px); }
+  .menu-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px 64px; align-items: end; margin-bottom: clamp(48px, 6vw, 88px); }
+  .menu-head .lead { justify-self: end; }
+  .menu-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 104px); align-items: start; }
+  .menu-fig { position: sticky; top: 96px; }
+  .menu-frame { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--accent); }
+  .menu-frame img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.06);
+    transition: opacity .9s var(--ease), transform 1.4s var(--ease);
+  }
+  .menu-frame img.on { opacity: 1; transform: scale(1); }
+  .menu-frame .fig-n {
+    position: absolute; left: 18px; bottom: 14px; z-index: 2; font-family: var(--serif); font-style: italic; font-size: clamp(3.4rem, 6vw, 5.5rem); line-height: 1; color: #fff;
+    text-shadow: 0 1px 24px rgba(28,23,21,.25);
+  }
+  .menu-fig figcaption { display: flex; gap: 12px; margin-top: 14px; min-height: 2.9em; }
+  .menu-fig figcaption [data-cap] { display: none; }
+  .menu-fig figcaption [data-cap].on { display: block; }
+
+  .cat + .cat { margin-top: clamp(56px, 6vw, 88px); }
+  .cat-img { display: none; }
+  .cat-head { display: flex; align-items: baseline; gap: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--ink); }
+  .cat-head .letter { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--brand); width: 26px; flex-shrink: 0; transition: transform .5s var(--ease); }
+  .cat-head .h3 { transition: color .5s var(--ease); }
+  .cat.on .cat-head .h3 { color: var(--brand); }
+  .cat-head .with { margin-left: auto; font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: var(--muted); white-space: nowrap; }
+  .items li { padding: 18px 0 18px 44px; border-bottom: 1px solid var(--line); position: relative; }
+  .items li::before {
+    content: ""; position: absolute; left: 0; top: 30px; width: 18px; height: 1px; background: var(--brand);
+    transform: scaleX(0); transform-origin: left; transition: transform .5s var(--ease);
+  }
+  .items li:hover::before { transform: scaleX(1); }
+  .item-top { display: flex; align-items: baseline; gap: 12px; }
+  .item-top h4 { font-family: var(--serif); font-size: 22px; line-height: 1.25; letter-spacing: -0.005em; }
+  .item-top h4 small { font-family: var(--sans); font-size: 13px; color: var(--muted); letter-spacing: 0; }
+  .leader { flex: 1; min-width: 24px; border-bottom: 1px dotted var(--line-strong); transform: translateY(-6px); }
+  .price { font-family: var(--serif); font-size: 24px; white-space: nowrap; line-height: 1; transition: color .4s var(--ease); }
+  .items li:hover .price { color: var(--brand); }
+  .price .from { font-family: var(--sans); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-right: 7px; vertical-align: 4px; }
+  .item-bottom { display: flex; justify-content: space-between; align-items: baseline; gap: 28px; margin-top: 5px; }
+  .item-bottom p { font-size: 15.5px; color: var(--muted); line-height: 1.55; max-width: 34em; }
+  .dur { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; font-weight: 500; }
+  .aside-note { margin-top: 22px; padding-left: 44px; display: grid; grid-template-columns: auto 1fr; gap: 14px; font-size: 15.5px; color: var(--ink); }
+  .aside-note svg { width: 18px; height: 18px; stroke-width: 1.4; color: var(--brand); margin-top: 4px; }
+  .unsure { margin-top: clamp(56px, 6vw, 80px); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 40px; align-items: end; padding: 30px 0 0; border-top: 1px solid var(--ink); }
+  .unsure .h3 { font-size: clamp(1.7rem, 2.3vw, 2.2rem); }
+  .unsure p { color: var(--muted); font-size: 16px; max-width: 32em; margin-top: 10px; }
+  .price-note { margin-top: 40px; font-size: 14px; color: var(--muted); max-width: 60em; }
+
+  /* ---------- Barber spread ---------- */
+  .spread { position: relative; min-height: min(92vh, 820px); display: flex; align-items: flex-end; overflow: hidden; background: var(--ink); color: var(--on-dark); }
+  .spread > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 40%; }
+  .spread::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(20,16,14,.86) 0%, rgba(20,16,14,.55) 45%, rgba(20,16,14,.05) 80%); }
+  .spread .wrap { position: relative; z-index: 2; width: 100%; padding-top: 120px; padding-bottom: clamp(56px, 8vw, 110px); }
+  .spread-copy { max-width: 640px; display: grid; gap: 26px; }
+  .spread .h2 { font-size: clamp(2.8rem, 6.4vw, 6rem); }
+  .spread p:not(.kicker) { color: #d9cec5; max-width: 30em; font-size: 17.5px; }
+  .spread .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+  .spread-cap { position: absolute; z-index: 2; right: var(--gutter); bottom: clamp(56px, 8vw, 110px); max-width: 220px; text-align: right; }
+  .spread-cap .cap { color: #cfc3ba; }
+
+  /* ---------- Process ---------- */
+  .process { padding: clamp(96px, 11vw, 160px) 0 clamp(80px, 9vw, 130px); }
+  .process-head { max-width: 860px; margin: 0 auto clamp(48px, 6vw, 80px); text-align: center; display: grid; gap: 22px; justify-items: center; }
+  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); position: relative; }
+  .steps li { padding: 0 28px 0 0; display: grid; gap: 12px; align-content: start; position: relative; }
+  .steps li + li { padding-left: 28px; border-left: 1px solid var(--line); }
+  .step-n { font-family: var(--serif); font-style: italic; font-size: clamp(3rem, 4.5vw, 4.4rem); line-height: .9; color: var(--brand); }
+  .steps h3 { font-family: var(--serif); font-size: 26px; line-height: 1.15; margin-top: 8px; }
+  .steps p { font-size: 16px; color: var(--muted); line-height: 1.6; }
+
+  /* ---------- Feature: the owner ---------- */
+  .feature { padding: 0 0 clamp(96px, 11vw, 160px); }
+  .feature-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .feature-photo { position: relative; margin-left: calc(-1 * max(var(--gutter), (100vw - var(--wrap)) / 2 + var(--gutter))); }
+  .feature-photo .frame { overflow: hidden; }
+  .feature-photo img { width: 100%; aspect-ratio: 5 / 6; object-fit: cover; object-position: 62% 40%; }
+  .feature-photo figcaption { margin-top: 14px; padding-left: max(var(--gutter), (100vw - var(--wrap)) / 2 + var(--gutter)); }
+  .feature-copy { padding-top: clamp(0px, 3vw, 40px); display: grid; gap: 22px; }
+  .standfirst { font-family: var(--serif); font-size: clamp(1.35rem, 1.8vw, 1.6rem); line-height: 1.4; }
+  .body-cols p + p { margin-top: 1em; }
+  .body-cols p { color: var(--muted); max-width: 34em; }
+  .body-cols p.first { color: var(--ink); }
+  .body-cols p.first::first-letter {
+    font-family: var(--serif); float: left; font-size: 4.9em; line-height: .78; padding: .07em .1em 0 0; color: var(--brand);
+  }
+  .pull {
+    margin: 18px 0 0; padding: 30px 0 0 0; border-top: 1px solid var(--ink); position: relative;
+    font-family: var(--serif); font-style: italic; font-size: clamp(1.75rem, 2.8vw, 2.6rem); line-height: 1.18; letter-spacing: -0.01em;
+  }
+  .pull p { text-indent: -.42em; }
+  .pull p::before { content: "\201C"; color: var(--brand); }
+  .pull p::after { content: "\201D"; color: var(--brand); }
+  .pull footer { margin-top: 16px; font-family: var(--sans); font-style: normal; font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+
+  /* ---------- Team ---------- */
+  .team { padding: clamp(96px, 11vw, 150px) 0 clamp(96px, 11vw, 160px); background: var(--paper); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .team-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px 64px; align-items: end; margin-bottom: clamp(48px, 6vw, 80px); }
+  .team-head .lead { justify-self: end; }
+  .team-grid { display: grid; grid-template-columns: 1.18fr 1fr 1fr; gap: clamp(24px, 3vw, 44px); align-items: start; }
+  .member:nth-child(2) { margin-top: clamp(40px, 6vw, 96px); }
+  .member:nth-child(3) { margin-top: clamp(80px, 12vw, 192px); }
+  .member .portrait { position: relative; overflow: hidden; background: var(--accent); }
+  .member .portrait img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; transition: transform 1.2s var(--ease); }
+  .member:hover .portrait img, .member:focus-within .portrait img { transform: scale(1.035); }
+  .member .chair {
+    position: absolute; top: 14px; left: 14px; background: var(--bg); padding: 5px 10px 4px;
+    font-size: 10px; letter-spacing: .22em; text-transform: uppercase; font-weight: 500;
+  }
+  .member-body { padding-top: 20px; display: grid; gap: 10px; }
+  .role { font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--brand-ink); font-weight: 500; }
+  .member h3 { font-family: var(--serif); font-size: clamp(1.8rem, 2.4vw, 2.3rem); line-height: 1.05; letter-spacing: -0.015em; }
+  .member p.spec { font-size: 16px; color: var(--muted); max-width: 26em; }
+  .week { display: flex; gap: 4px; margin-top: 6px; }
+  .week span {
+    width: 30px; height: 30px; display: grid; place-items: center; font-size: 11px; font-weight: 500; color: var(--muted);
+    border-bottom: 1px solid var(--line); position: relative;
+  }
+  .week span.on { color: var(--ink); border-bottom-color: var(--ink); }
+  .week span.on::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--brand);
+    transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease);
+  }
+  .member:hover .week span.on::after, .member:focus-within .week span.on::after { transform: scaleX(1); }
+  .week span:nth-child(3)::after { transition-delay: .05s; } .week span:nth-child(4)::after { transition-delay: .1s; }
+  .week span:nth-child(5)::after { transition-delay: .15s; } .week span:nth-child(6)::after { transition-delay: .2s; }
+  .week span:nth-child(7)::after { transition-delay: .25s; }
+  .days-label { font-size: 14px; color: var(--muted); }
+  .member .ulink { justify-self: start; margin-top: 8px; }
+
+  /* ---------- Lookbook (signature 2) ---------- */
+  .lookbook { padding: clamp(96px, 11vw, 150px) 0 clamp(80px, 9vw, 130px); overflow: hidden; }
+  .lb-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px 40px; align-items: end; margin-bottom: clamp(36px, 4vw, 56px); }
+  .lb-head .lead { margin-top: 20px; }
+  .lb-ctrl { display: flex; gap: 10px; align-items: center; }
+  .lb-ctrl button {
+    width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--ink); background: transparent; cursor: pointer;
+    display: grid; place-items: center; transition: background-color .35s var(--ease), color .35s var(--ease);
+  }
+  .lb-ctrl button:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
+  .lb-ctrl button:disabled { opacity: .3; cursor: default; }
+  .lb-ctrl svg { width: 20px; height: 20px; stroke-width: 1.4; }
+  .lb-track {
+    --edge: max(var(--gutter), calc((100vw - var(--wrap)) / 2 + var(--gutter)));
+    display: flex; gap: clamp(14px, 1.6vw, 24px); overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    padding: 0 var(--edge) 10px; scroll-padding: 0 var(--edge); scrollbar-width: none; cursor: grab;
+  }
+  .lb-track::-webkit-scrollbar { display: none; }
+  .lb-track.dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+  .lb-track.dragging * { pointer-events: none; }
+  .lookbook { --lh: clamp(340px, 36vw, 540px); }
+  .look { flex: 0 0 auto; scroll-snap-align: start; width: calc(var(--lh) * .75); }
+  .look.l { width: calc(var(--lh) * 4 / 3); }
+  .look .frame { height: var(--lh); overflow: hidden; }
+  .look img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); -webkit-user-drag: none; }
+  .look:hover img { transform: scale(1.03); }
+  .look figcaption { padding-top: 12px; }
+  .look-ig {
+    flex: 0 0 auto; scroll-snap-align: start; width: calc(var(--lh) * .75); height: var(--lh);
+    display: flex; text-decoration: none;
+  }
+  .look-ig > span { flex: 1; background: var(--accent); padding: clamp(22px, 2.4vw, 34px); display: flex; flex-direction: column; justify-content: space-between; }
+  .look-ig svg.ig { width: 28px; height: 28px; stroke-width: 1.3; color: var(--brand-ink); }
+  .look-ig .handle { font-family: var(--serif); font-size: clamp(1.5rem, 2.2vw, 2.1rem); line-height: 1.1; word-break: break-word; }
+  .look-ig p { font-size: 15.5px; margin: 8px 0 18px; }
+  .lb-progress { margin-top: 28px; height: 1px; background: var(--line); position: relative; }
+  .lb-progress span { position: absolute; left: 0; top: -1px; height: 3px; width: 100%; background: var(--ink); transform-origin: left; transform: scaleX(.15); transition: transform .2s linear; }
+
+  /* ---------- Booking (signature 3) ---------- */
+  .book { padding: clamp(96px, 11vw, 150px) 0; background: var(--ink); color: var(--on-dark); }
+  .book-grid { display: grid; grid-template-columns: minmax(0, 4.4fr) minmax(0, 7.6fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .book-copy { display: grid; gap: 24px; position: sticky; top: 100px; }
+  .book-copy .lead { color: var(--on-dark-muted); }
+  .ways { display: grid; border-top: 1px solid var(--dark-line); margin-top: 12px; }
+  .way { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 16px; padding: 18px 0; border-bottom: 1px solid var(--dark-line); text-decoration: none; }
+  .way-label { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--on-dark-muted); font-weight: 500; }
+  .way-value { font-family: var(--serif); font-size: 25px; line-height: 1.2; grid-column: 1; }
+  .way svg { grid-row: 1 / 3; grid-column: 2; width: 20px; height: 20px; stroke-width: 1.4; color: var(--on-dark-muted); transition: transform .45s var(--ease), color .45s var(--ease); }
+  .way:hover svg { transform: translate(3px, -3px); color: var(--brand-soft); }
+
+  .dark .booking .btn { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .dark .booking .btn:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .dark .booking .btn.plain { background: transparent; border-color: transparent; color: var(--ink); }
+  .dark .booking .btn.plain:hover { color: var(--brand); }
+  .dark .booking :focus-visible { outline-color: var(--brand); }
+  .booking { background: var(--bg); color: var(--ink); padding: clamp(24px, 3.6vw, 52px); position: relative; }
+  .bk-top { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; }
+  .bk-title { font-family: var(--serif); font-size: clamp(1.9rem, 2.6vw, 2.5rem); line-height: 1.05; letter-spacing: -0.015em; }
+  .bk-count { font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .bk-sub { font-size: 15px; color: var(--muted); margin-top: 10px; max-width: 36em; }
+  .bk-progress { display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 26px; }
+  .js .bk-progress { display: grid; }
+  .bk-progress li { border-top: 2px solid var(--line); padding-top: 10px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500; color: var(--muted); transition: border-color .5s var(--ease), color .5s var(--ease); }
+  .bk-progress li .n { font-family: var(--serif); font-style: italic; font-size: 15px; letter-spacing: 0; margin-right: 6px; text-transform: none; }
+  .bk-progress li.on, .bk-progress li.done { border-top-color: var(--ink); color: var(--ink); }
+  .bk-progress li.on { border-top-color: var(--brand); }
+  .bk-step { margin-top: 30px; }
+  .bk-step + .bk-step { border-top: 1px solid var(--line); padding-top: 30px; }
+  .js .bk-step + .bk-step { border-top: 0; padding-top: 0; }
+  .js .bk-step[hidden] { display: none; }
+  .js .bk-step.enter { animation: fadeUp .6s var(--ease) both; }
+  .st-title { font-family: var(--serif); font-size: 24px; line-height: 1.2; outline: none; }
+  .st-title .n { font-style: italic; color: var(--brand); margin-right: 10px; }
+  fieldset { border: 0; padding: 0; margin: 22px 0 0; min-width: 0; }
+  legend { padding: 0; font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: var(--brand-ink); margin-bottom: 10px; }
+  .svc-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; }
+  .opt-list { display: grid; }
+  .opt { position: relative; }
+  .opt input, .chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .opt label {
+    display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 12px; padding: 11px 0; cursor: pointer;
+    border-bottom: 1px solid var(--line); font-size: 16px; line-height: 1.35; transition: color .3s var(--ease);
+  }
+  .opt label::before {
+    content: ""; width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--paper);
+    transition: border-color .3s var(--ease), box-shadow .3s var(--ease);
+  }
+  .opt label:hover::before { border-color: var(--ink); }
+  .opt input:checked + label::before { border-color: var(--brand); box-shadow: inset 0 0 0 4px var(--paper), inset 0 0 0 8px var(--brand); }
+  .opt input:checked + label { color: var(--brand-ink); }
+  .opt input:focus-visible + label { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .opt .p { font-family: var(--serif); font-size: 17px; color: var(--muted); }
+  .opt.wide { margin-top: 18px; }
+  .opt.wide label { border-top: 1px solid var(--line); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip label {
+    display: grid; justify-items: center; align-content: center; min-width: 64px; min-height: 64px; padding: 8px 14px; cursor: pointer;
+    border: 1px solid var(--line-strong); background: var(--paper); text-align: center; line-height: 1.15;
+    transition: background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease);
+  }
+  .chip label b { font-family: var(--serif); font-weight: 400; font-size: 20px; }
+  .chip label small { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+  .chip label:hover { border-color: var(--ink); }
+  .chip input:checked + label { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .chip input:checked + label small { color: var(--on-dark-muted); }
+  .chip input:focus-visible + label { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .chip input:disabled + label { cursor: not-allowed; opacity: .5; background: transparent; border-style: dashed; }
+  .chips.text .chip label { min-height: 48px; font-size: 15px; }
+  .field { display: grid; gap: 8px; min-width: 0; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 22px; }
+  .field label { font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: var(--brand-ink); }
+  .field input, .field textarea {
+    width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--line-strong); border-radius: 0;
+    padding: 10px 0 12px; font-size: 19px; line-height: 1.4; color: var(--ink); font-family: var(--serif);
+    transition: border-color .3s var(--ease);
+  }
+  .field textarea { min-height: 96px; resize: vertical; font-size: 17px; }
+  .field input::placeholder, .field textarea::placeholder { color: #8b7f77; font-style: italic; }
+  .field input:hover, .field textarea:hover { border-bottom-color: var(--ink); }
+  .field input:focus, .field textarea:focus { outline: none; border-bottom-color: var(--brand); box-shadow: 0 1px 0 var(--brand); }
+  .field input[aria-invalid="true"] { border-bottom-color: var(--brand); }
+  .field.full { margin-top: 22px; }
+  .err { margin-top: 12px; font-size: 14.5px; color: var(--brand-ink); display: flex; gap: 8px; align-items: center; }
+  .err[hidden] { display: none; }
+  .err svg { width: 16px; height: 16px; stroke-width: 1.6; }
+  .bk-nav { display: flex; align-items: center; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+  .bk-nav .spacer { flex: 1; }
+  .bk-nav .note { font-size: 13.5px; color: var(--muted); flex-basis: 100%; }
+  .bk-nav [data-prev], .bk-nav [data-next] { display: none; }
+  .js .bk-nav [data-prev], .js .bk-nav [data-next] { display: inline-flex; }
+  .btn.plain { background: transparent; border-color: transparent; color: var(--ink); padding: 0 6px; }
+  .btn.plain:hover { background: transparent; color: var(--brand); border-color: transparent; }
+  .btn.plain svg.lucide-arrow-left { transition: transform .45s var(--ease); }
+  .btn.plain:hover svg.lucide-arrow-left { transform: translateX(-4px); }
+  .bk-done { margin-top: 30px; outline: none; }
+  .bk-done[hidden] { display: none; }
+  .bk-done .mark { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--brand); display: grid; place-items: center; color: var(--brand); }
+  .bk-done .mark svg { width: 24px; height: 24px; stroke-width: 1.4; }
+  .bk-done h3 { font-family: var(--serif); font-size: clamp(1.8rem, 2.6vw, 2.4rem); line-height: 1.1; margin-top: 22px; }
+  .bk-done p { color: var(--muted); margin-top: 12px; max-width: 32em; }
+  .summary { margin-top: 26px; border-top: 1px solid var(--ink); }
+  .summary div { display: grid; grid-template-columns: 9em 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .summary dt { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding-top: 3px; }
+  .summary dd { margin: 0; font-family: var(--serif); font-size: 18px; }
+  .summary dd .p { display: none; }
+
+  /* ---------- Fine print: policies ---------- */
+  .fine { padding: clamp(96px, 11vw, 150px) 0 clamp(80px, 9vw, 120px); }
+  .fine-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(40px, 7vw, 120px); align-items: start; }
+  .fine-side { display: grid; gap: 22px; position: sticky; top: 100px; }
+  .rules { counter-reset: r; display: grid; grid-template-columns: 1fr 1fr; gap: 0 clamp(32px, 4vw, 64px); }
+  .rules li { counter-increment: r; padding: 26px 0 30px; border-top: 1px solid var(--ink); }
+  .rules li::before { content: "No. " counter(r); display: block; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--brand-ink); font-weight: 500; margin-bottom: 12px; }
+  .rules h3 { font-family: var(--serif); font-size: clamp(1.5rem, 2vw, 1.9rem); line-height: 1.12; letter-spacing: -0.01em; }
+  .rules p { font-size: 16px; color: var(--muted); margin-top: 10px; }
+
+  /* ---------- Reviews (optional) ---------- */
+  .reviews { padding: clamp(80px, 9vw, 130px) 0; background: var(--accent); }
+  .rev-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .rev-main blockquote { margin: 0; font-family: var(--serif); font-size: clamp(1.9rem, 3.2vw, 3rem); line-height: 1.16; letter-spacing: -0.015em; }
+  .rev-side { display: grid; gap: 34px; }
+  .rev-side blockquote { margin: 0; font-family: var(--serif); font-size: 21px; line-height: 1.4; }
+  .rev { display: grid; gap: 16px; }
+  .rev-side .rev { border-top: 1px solid var(--ink); padding-top: 22px; }
+  .rev-by { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .rev-by b { color: var(--ink); font-weight: 500; margin-right: 10px; }
+  .stars { display: inline-flex; gap: 3px; color: var(--brand); }
+  .stars svg { width: 15px; height: 15px; fill: currentColor; stroke-width: 0; }
+  .rating { display: flex; align-items: center; gap: 14px; margin-top: 24px; font-size: 15px; color: var(--ink); }
+  .rating b { font-family: var(--serif); font-size: 30px; font-weight: 400; }
+
+  /* ---------- Visit ---------- */
+  .visit { padding: clamp(96px, 11vw, 150px) 0; border-top: 1px solid var(--line); }
+  .visit-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: stretch; }
+  .visit-info { display: grid; gap: 40px; align-content: start; }
+  .address { font-family: var(--serif); font-size: clamp(2.2rem, 3.6vw, 3.4rem); line-height: 1.02; letter-spacing: -0.02em; font-style: normal; }
+  .address span { display: block; font-size: .5em; font-style: italic; color: var(--muted); margin-top: 8px; letter-spacing: 0; }
+  .visit-info .small { font-size: 15.5px; color: var(--muted); margin-top: 14px; max-width: 30em; }
+  .label { font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: var(--brand-ink); margin-bottom: 12px; }
+  .hours { width: 100%; border-collapse: collapse; }
+  .hours th, .hours td { padding: 12px 0; border-bottom: 1px solid var(--line); text-align: left; font-weight: 400; }
+  .hours tr:first-child th, .hours tr:first-child td { border-top: 1px solid var(--ink); }
+  .hours th { font-family: var(--serif); font-size: 19px; }
+  .hours td { text-align: right; font-size: 16px; }
+  .hours tr.closed th, .hours tr.closed td { color: var(--muted); }
+  .hours tr.closed th { font-style: italic; }
+  .hours .today-tag { display: none; font-family: var(--sans); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: var(--bg); background: var(--brand); padding: 3px 7px 2px; margin-left: 10px; vertical-align: 3px; }
+  .hours tr.today .today-tag { display: inline-block; }
+  .towns { display: flex; flex-wrap: wrap; font-family: var(--serif); font-size: 19px; line-height: 1.6; }
+  .towns li:not(:last-child)::after { content: "·"; color: var(--brand); margin: 0 .5em; }
+  .map { position: relative; min-height: 520px; background: #e4dbd1; }
+  .map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; filter: grayscale(1) contrast(.92) sepia(.14) brightness(1.02); }
+  .map-tag { position: absolute; left: 16px; bottom: 16px; z-index: 2; background: var(--bg); padding: 10px 14px; font-size: 13px; pointer-events: none; }
+  .map-tag b { font-family: var(--serif); font-weight: 400; font-size: 16px; display: block; }
+
+  /* ---------- FAQ ---------- */
+  .faq { padding: 0 0 clamp(96px, 11vw, 150px); }
+  .faq-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(40px, 7vw, 120px); }
+  .faq-side { display: grid; gap: 22px; align-content: start; }
+  details { border-bottom: 1px solid var(--line); }
+  details:first-child { border-top: 1px solid var(--ink); }
+  summary {
+    list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 24px;
+    padding: 26px 0; font-family: var(--serif); font-size: clamp(1.25rem, 1.8vw, 1.6rem); line-height: 1.25; transition: color .3s var(--ease);
+  }
+  summary:hover { color: var(--brand); }
+  summary::-webkit-details-marker { display: none; }
+  summary .pm { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-strong); position: relative; flex-shrink: 0; transition: background-color .35s var(--ease), border-color .35s var(--ease); }
+  summary .pm::before, summary .pm::after { content: ""; position: absolute; left: 50%; top: 50%; width: 13px; height: 1px; background: currentColor; transform: translate(-50%, -50%); transition: transform .4s var(--ease); }
+  summary .pm::after { transform: translate(-50%, -50%) rotate(90deg); }
+  details[open] summary .pm { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  details[open] summary .pm::after { transform: translate(-50%, -50%) rotate(0deg); }
+  details[open] summary:hover { color: var(--ink); }
+  details .answer { padding: 0 64px 28px 0; color: var(--muted); max-width: 40em; }
+
+  /* ---------- Footer ---------- */
+  .site-footer { padding: clamp(72px, 9vw, 120px) 0 36px; overflow: hidden; }
+  .foot-top { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)); gap: 48px; padding-bottom: 56px; }
+  .foot-cta .h2 { font-size: clamp(2.2rem, 3.6vw, 3.4rem); }
+  .foot-cta p:not(.h2) { margin-top: 18px; color: var(--on-dark-muted); max-width: 26em; font-size: 16px; }
+  .foot-cta .btn { margin-top: 26px; }
+  .site-footer h3 { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: var(--on-dark-muted); margin-bottom: 16px; }
+  .site-footer li, .site-footer address { font-size: 16px; font-style: normal; line-height: 1.85; }
+  .site-footer a { text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .45s var(--ease); }
+  .site-footer a:hover { background-size: 100% 1px; }
+  .bigname {
+    font-family: var(--serif); font-size: clamp(4rem, 20vw, 18.2rem); line-height: .8; letter-spacing: -0.045em; white-space: nowrap;
+    border-top: 1px solid var(--dark-line); padding-top: .12em; margin: 0; color: var(--on-dark);
+  }
+  .bigname i { color: var(--brand-soft); }
+  .foot-bottom { display: flex; justify-content: space-between; gap: 12px 32px; flex-wrap: wrap; padding-top: 28px; margin-top: 28px; border-top: 1px solid var(--dark-line); font-size: 13px; color: var(--on-dark-muted); }
+
+  /* ---------- Mobile call bar ---------- */
+  .callbar { display: none; }
+
+  /* ---------- Scroll reveal (only with JS) ---------- */
+  .js .rv { opacity: 0; transform: translateY(20px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+  .js .rv.in { opacity: 1; transform: none; }
+  .js .rv.d1 { transition-delay: .08s; } .js .rv.d2 { transition-delay: .16s; } .js .rv.d3 { transition-delay: .24s; }
+  .js .rv-img .frame, .js .rv-img.frame { clip-path: inset(0 0 100% 0); transition: clip-path 1.2s var(--ease); }
+  .js .rv-img.in .frame, .js .rv-img.in.frame { clip-path: inset(0 0 0 0); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1240px) {
+    .nav { gap: 22px; }
+    .phone-link span.num { display: none; }
+    .hero-copy > * { max-width: 60%; }
+  }
+  @media (max-width: 1080px) {
+    .nav, .header-actions .btn, .phone-link { display: none; }
+    .menu-btn { display: inline-flex; }
+    .header-actions { margin-left: auto; gap: 12px; }
+    .mobile-nav {
+      position: fixed; top: 66px; left: 0; right: 0; z-index: 49; background: var(--bg);
+      border-bottom: 1px solid var(--line); padding: 8px var(--gutter) 24px;
+    }
+    .mobile-nav.open { display: block; }
+    .mobile-nav a:not(.btn) { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); font-family: var(--serif); font-size: 26px; text-decoration: none; }
+    .mobile-nav a small { font-family: var(--sans); font-size: 11px; letter-spacing: .2em; color: var(--brand-ink); }
+    .mobile-nav .btn { width: 100%; margin-top: 20px; }
+    .site-header.menu-open { background: var(--bg); height: 66px; }
+    .standards ul { grid-template-columns: 1fr 1fr; }
+    .standards li:nth-child(3) { border-left: 0; padding-left: 0; }
+    .standards li:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .steps { grid-template-columns: 1fr 1fr; gap: 44px 0; }
+    .steps li:nth-child(3) { padding-left: 0; border-left: 0; }
+    .rules { grid-template-columns: 1fr; }
+    .foot-top { grid-template-columns: 1fr 1fr; }
+    .svc-groups { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 900px) {
+    :root { --header: 66px; }
+    body { font-size: 17px; padding-bottom: 64px; }
+    section { scroll-margin-top: 60px; }
+    .site-header { background: var(--bg); }
+    .logo svg, .scrolled .logo svg { width: 34px; height: 34px; }
+    .logo-name { font-size: 23px; }
+    .logo-sub { font-size: 8px; letter-spacing: .32em; }
+
+    .hero { flex-direction: column; min-height: 0; }
+    .cover-folio { order: 1; } .cover-title { order: 2; } .hero-media { order: 3; } .hero-lead { order: 4; } .hero-ctas { order: 5; } .coverlines { order: 6; }
+    .hero-copy { display: contents; }
+    .hero-copy > *, .hero-copy > .coverlines { max-width: none; }
+    .cover-folio { margin: 14px var(--gutter) 0; max-width: none !important; font-size: 10px; letter-spacing: .18em; }
+    .cover-title { margin: 22px var(--gutter) 0; font-size: clamp(3.3rem, 18.5vw, 6.4rem); line-height: .88; }
+    .cover-title .sub { font-size: .34em; }
+    .cover-title .sub small { margin-right: 10px; }
+    .hero-media { position: relative; top: auto; width: auto; margin: 28px 0 0 var(--gutter); height: min(118vw, 560px); }
+    .inset { left: calc(-1 * var(--gutter) + 10px); top: auto; bottom: -46px; width: 128px; padding: 6px 6px 9px; }
+    .inset figcaption { font-size: 12px; }
+    .spine { right: 10px; font-size: 9px; }
+    .hero-lead { margin: 70px var(--gutter) 0; }
+    .hero-ctas { margin: 24px var(--gutter) 0; }
+    .hero-ctas .btn { flex: 1 1 100%; }
+    .coverlines { margin: 36px var(--gutter) 40px; grid-template-columns: 1fr; gap: 0; padding-top: 0; }
+    .coverlines a { grid-template-columns: 7.8em 1fr; align-items: baseline; padding: 12px 0; }
+    .coverlines .p { letter-spacing: .14em; }
+    .coverlines a:last-child { border-bottom: 1px solid var(--line-strong); }
+    .coverlines .t { font-size: 16px; }
+
+    .runhead { grid-template-columns: auto 1fr; }
+    .runhead .r { display: none; }
+    .runhead .c { text-align: right; }
+    .menu-head, .team-head, .lb-head { grid-template-columns: 1fr; }
+    .menu-head .lead, .team-head .lead { justify-self: start; }
+    .menu-grid, .feature-grid, .book-grid, .visit-grid, .faq-grid, .fine-grid, .rev-grid { grid-template-columns: 1fr; }
+    .menu-fig { display: none; }
+    .cat-img { display: block; margin-bottom: 22px; overflow: hidden; }
+    .cat-img img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+    .items li { padding-left: 0; }
+    .items li::before { display: none; }
+    .aside-note { padding-left: 0; }
+    .unsure { grid-template-columns: 1fr; }
+    .spread { min-height: 640px; }
+    .spread > img { object-position: 38% 50%; }
+    .spread::before { background: linear-gradient(0deg, rgba(20,16,14,.92) 0%, rgba(20,16,14,.7) 50%, rgba(20,16,14,.2) 100%); }
+    .spread-cap { display: none; }
+    .process-head { text-align: left; justify-items: start; }
+    .feature-photo { margin-left: calc(-1 * var(--gutter)); margin-right: 0; }
+    .feature-photo img { aspect-ratio: 4 / 5; }
+    .feature-photo figcaption { padding-left: var(--gutter); }
+    .team-grid { grid-template-columns: 1fr; gap: 56px; }
+    .member:nth-child(2), .member:nth-child(3) { margin-top: 0; }
+    .member:nth-child(2) { padding-left: 12%; }
+    .member:nth-child(3) { padding-right: 12%; }
+    .book-copy, .fine-side { position: static; }
+    .booking { margin: 0 calc(-1 * var(--gutter)); }
+    .map { min-height: 360px; }
+    .foot-top { grid-template-columns: 1fr; gap: 36px; }
+    .callbar {
+      display: grid; grid-template-columns: 1fr 1fr 1.25fr; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+      background: var(--ink); padding-bottom: env(safe-area-inset-bottom);
+    }
+    .callbar a {
+      display: flex; align-items: center; justify-content: center; gap: 9px; height: 60px;
+      color: var(--bg); text-decoration: none; font-size: 11.5px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+    }
+    .callbar a + a { border-left: 1px solid var(--dark-line); }
+    .callbar a.primary { background: var(--brand); color: #fff; border-left: 0; }
+    .callbar svg { width: 17px; height: 17px; stroke-width: 1.5; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 16.5px; }
+    .standards ul { grid-template-columns: 1fr; }
+    .standards li, .standards li:nth-child(3) { border-left: 0; padding: 20px 0; }
+    .standards li + li { border-top: 1px solid var(--line); }
+    .standards li { grid-template-columns: 34px 1fr; column-gap: 8px; }
+    .standards li .n { grid-row: 1 / 3; padding-top: 4px; }
+    .steps { grid-template-columns: 1fr; gap: 36px; }
+    .steps li, .steps li + li { padding: 0; border-left: 0; }
+    .steps li { grid-template-columns: 64px 1fr; column-gap: 12px; }
+    .steps li .step-n { grid-row: 1 / 3; font-size: 2.6rem; }
+    .steps h3 { margin-top: 0; }
+    .item-top h4 { font-size: 19px; }
+    .price { font-size: 21px; }
+    .item-bottom { flex-direction: column; gap: 4px; }
+    .cat-head .with { display: none; }
+    .row { grid-template-columns: 1fr; }
+    .chip label { min-width: 56px; min-height: 58px; padding: 6px 10px; }
+    .chip label b { font-size: 18px; }
+    .summary div { grid-template-columns: 1fr; gap: 2px; }
+    details .answer { padding-right: 0; }
+    .lb-ctrl { display: none; }
+    .lookbook { --lh: 400px; }
+    .look.l { width: calc(var(--lh) * 1.05); }
+    .member:nth-child(2) { padding-left: 8%; }
+    .member:nth-child(3) { padding-right: 8%; }
+    .lang-switch button { min-width: 30px; padding: 6px 5px; }
+    .bigname { font-size: 20vw; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html:focus-within { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .js .rv, .js .rv.in { opacity: 1; transform: none; }
+    .js .rv-img .frame, .js .rv-img.frame { clip-path: none; }
+  }
+  /* header labels never break onto two lines (long Spanish labels collapse into the menu instead) */
+  .site-header a, .site-header button { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- slot: header -->
+<header class="site-header" id="top">
+  <div class="wrap header-in">
+    <!-- slot: nombre / logotipo -->
+    <a class="logo" href="#top" aria-label="Bella Luna Salon &amp; Barber, home">
+      <svg viewBox="0 0 44 44" aria-hidden="true">
+        <circle cx="22" cy="22" r="20.5" fill="none" stroke="currentColor" stroke-width=".8"/>
+        <circle cx="22" cy="22" r="17.6" fill="none" stroke="currentColor" stroke-width=".4" opacity=".55"/>
+        <path d="M26.4 10.6a11.6 11.6 0 1 0 0 22.8 13.2 13.2 0 0 1 0-22.8z" fill="#a13a2e"/>
+        <path d="M22 1.5v4M22 38.5v4" stroke="currentColor" stroke-width=".8"/>
+      </svg>
+      <span class="logo-text">
+        <span class="logo-name">Bella <i>Luna</i></span>
+        <span class="logo-sub">Salon &amp; Barber</span>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#services"><span data-en>The menu</span><span data-es>La carta</span></a>
+      <a href="#team"><span data-en>Team</span><span data-es>Equipo</span></a>
+      <a href="#gallery"><span data-en>Lookbook</span><span data-es>Trabajos</span></a>
+      <a href="#visit"><span data-en>Visit</span><span data-es>Visítanos</span></a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="header-actions">
+      <!-- slot: telefono -->
+      <a class="phone-link" href="tel:+12035550147"><i data-lucide="phone"></i><span class="num">(203) 555-0147</span></a>
+      <div class="lang-switch" role="group" aria-label="Language / Idioma">
+        <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+        <span class="sep" aria-hidden="true"></span>
+        <button type="button" data-set-lang="es" aria-pressed="false">ES</button>
+      </div>
+      <a class="btn" href="#book"><span data-en>Book</span><span data-es>Reservar</span></a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav">
+        <i data-lucide="menu"></i><span class="sr-only">Menu</span>
+      </button>
+    </div>
+  </div>
+</header>
+<nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+  <a href="#services"><span><span data-en>Services &amp; prices</span><span data-es>Servicios y precios</span></span><small>01</small></a>
+  <a href="#team"><span><span data-en>Team</span><span data-es>Equipo</span></span><small>04</small></a>
+  <a href="#gallery"><span><span data-en>Lookbook</span><span data-es>Trabajos</span></span><small>05</small></a>
+  <a href="#visit"><span><span data-en>Hours &amp; location</span><span data-es>Horario y ubicación</span></span><small>08</small></a>
+  <a href="#faq"><span><span data-en>FAQ</span><span data-es>Preguntas frecuentes</span></span><small>09</small></a>
+  <a class="btn" href="#book"><span data-en>Book an appointment</span><span data-es>Reserva tu cita</span></a>
+</nav>
+
+<main>
+
+<!-- slot: hero -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <!-- slot: ciudad, direccion -->
+    <p class="cover-folio"><span><span data-en>Salon &amp; Barber · Stamford, CT</span><span data-es>Salón y barbería · Stamford, CT</span></span><span>418 Bedford St.</span></p>
+    <h1 class="cover-title" id="hero-title">
+      <span data-en><span class="ln"><span>Color,</span></span><span class="ln i2"><span>cuts &amp;</span></span><span class="ln"><em>fades</em></span><span class="ln sub"><span><small>In</small>downtown Stamford</span></span></span>
+      <span data-es><span class="ln"><span>Color,</span></span><span class="ln i2"><span>cortes</span></span><span class="ln"><em>y fades</em></span><span class="ln sub"><span><small>En</small>el centro de Stamford</span></span></span>
+    </h1>
+    <p class="hero-lead" data-en>Balayage, blowouts and women's cuts on one side of the room; skin fades, beard line-ups and kids' cuts on the other. Owner-run, bilingual, and easy to book by phone or text.</p>
+    <p class="hero-lead" data-es>Balayage, blowouts y cortes de dama de un lado del salón; fades, perfilado de barba y cortes para niños del otro. Lo atiende su dueña, en inglés o en español, y reservas con una llamada o un texto.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="#book"><span data-en>Book an appointment</span><span data-es>Reserva tu cita</span><i data-lucide="arrow-right"></i></a>
+      <a class="btn ghost" href="sms:+12035550147"><span data-en>Text us</span><span data-es>Mándanos un texto</span></a>
+    </div>
+    <!-- slot: horario resumido -->
+    <nav class="coverlines" aria-label="In this issue">
+      <a href="#services"><span class="p">p. 01 · <span data-en>The menu</span><span data-es>La carta</span></span><span class="t"><span data-en>Every price, before you sit down</span><span data-es>Todos los precios, antes de sentarte</span></span></a>
+      <a href="#barber"><span class="p"><span data-en>Barber side</span><span data-es>Barbería</span></span><span class="t"><span data-en>Walk-ins Tuesday to Saturday</span><span data-es>Sin cita, de martes a sábado</span></span></a>
+      <a href="#visit"><span class="p">We speak Spanish</span><span class="t">Hablamos español, <span data-en>open Tue–Sun</span><span data-es>abierto mar–dom</span></span></a>
+    </nav>
+  </div>
+
+  <div class="hero-media">
+    <!-- slot: foto hero principal -->
+    <figure class="main ph">
+      <img src="https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=1400&h=1750&q=80&auto=format&fit=crop" alt="Portrait of a young woman with full, natural curly hair against a blush-pink backdrop" width="1400" height="1750" fetchpriority="high">
+    </figure>
+    <!-- slot: foto hero secundaria -->
+    <figure class="inset ph">
+      <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=500&h=625&q=80&auto=format&fit=crop" alt="Barber shaping a client's hairline and beard with a straight razor" width="500" height="625">
+      <figcaption><b><span data-en>Fig. 2</span><span data-es>Fig. 2</span></b><span data-en>A razor line-up on the barber side.</span><span data-es>Perfilado a navaja en la barbería.</span></figcaption>
+    </figure>
+    <!-- slot: año de apertura -->
+    <span class="spine" aria-hidden="true">Est. 2026 · Stamford CT</span>
+  </div>
+</section>
+
+<!-- slot: distintivos de confianza -->
+<section class="standards" aria-label="Why book with us">
+  <div class="wrap">
+    <ul>
+      <li class="rv"><span class="n">i.</span>
+        <h3><span data-en>Licensed in Connecticut</span><span data-es>Con licencia en Connecticut</span></h3>
+        <p><span data-en>Stylists and barbers licensed by the CT Department of Public Health.</span><span data-es>Estilistas y barberos con licencia del Departamento de Salud Pública de CT.</span></p>
+      </li>
+      <li class="rv d1"><span class="n">ii.</span>
+        <h3><span data-en>Free color consultation</span><span data-es>Consulta de color gratis</span></h3>
+        <p><span data-en>15 minutes before any big change. The price is agreed before we start.</span><span data-es>15 minutos antes de cualquier cambio grande. El precio, acordado antes de empezar.</span></p>
+      </li>
+      <li class="rv d2"><span class="n">iii.</span>
+        <h3><span data-en>Text to book</span><span data-es>Reserva por texto</span></h3>
+        <p><span data-en>We answer texts the same day during open hours.</span><span data-es>Contestamos los mensajes el mismo día en horario de atención.</span></p>
+      </li>
+      <li class="rv d3"><span class="n">iv.</span>
+        <h3>We speak Spanish</h3>
+        <p><span data-en>Hablamos español, with everyone on the team.</span><span data-es>Hablamos español con todo el equipo, desde la llamada hasta la silla.</span></p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- slot: servicios -->
+<section class="menu" id="services" aria-labelledby="services-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">01</span><span class="c"><span data-en>The menu</span><span data-es>La carta</span></span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="menu-head">
+      <h2 class="h2 rv" id="services-title"><span data-en>Services <em>&amp;</em> prices</span><span data-es>Servicios <em>y</em> precios</span></h2>
+      <p class="lead rv d1" data-en>Starting prices and the time to plan for. Long or very thick hair can take longer and cost more; we always tell you before we begin.</p>
+      <p class="lead rv d1" data-es>Precios desde y el tiempo que conviene reservar. El pelo muy largo o abundante puede tomar más tiempo y costar más; siempre te lo decimos antes de empezar.</p>
+    </div>
+
+    <div class="menu-grid">
+      <!-- slot: fotos de la carta (una por categoria) -->
+      <figure class="menu-fig" aria-hidden="true">
+        <div class="menu-frame ph">
+          <img class="on" src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=900&h=1125&q=80&auto=format&fit=crop" alt="" loading="lazy" width="900" height="1125">
+          <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=900&h=1125&q=80&auto=format&fit=crop" alt="" loading="lazy" width="900" height="1125">
+          <img src="https://images.unsplash.com/photo-1607779097040-26e80aa78e66?w=900&h=1125&q=80&auto=format&fit=crop" alt="" loading="lazy" width="900" height="1125">
+          <img src="https://images.unsplash.com/photo-1718720410649-7524fcb0f0a5?w=900&h=1125&q=80&auto=format&fit=crop&crop=focalpoint&fp-x=.42&fp-y=.5" alt="" loading="lazy" width="900" height="1125">
+          <span class="fig-n">A.</span>
+        </div>
+        <figcaption class="cap">
+          <span data-cap class="on"><b>Fig. A</b><span data-en>Lived-in color that grows out softly.</span><span data-es>Color natural que crece sin marcar la raíz.</span></span>
+          <span data-cap><b>Fig. B</b><span data-en>Textured crop with a mid fade.</span><span data-es>Crop texturizado con fade medio.</span></span>
+          <span data-cap><b>Fig. C</b><span data-en>Gel manicure in lilac, white and silver.</span><span data-es>Manicure en gel lila, blanco y plata.</span></span>
+          <span data-cap><b>Fig. D</b><span data-en>Lash lift, set by hand.</span><span data-es>Lifting de pestañas, hecho a mano.</span></span>
+        </figcaption>
+      </figure>
+
+      <div class="menu-list">
+        <!-- slot: categoria Hair -->
+        <div class="cat on" data-cat="0">
+          <figure class="cat-img ph"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=900&h=600&q=80&auto=format&fit=crop" alt="Woman seen from behind showing long, sun-lightened wavy hair against a pink wall" loading="lazy" width="900" height="600"></figure>
+          <div class="cat-head">
+            <span class="letter">A.</span>
+            <h3 class="h3"><span data-en>Hair</span><span data-es>Cabello</span></h3>
+            <p class="with"><span data-en>With Luna</span><span data-es>Con Luna</span></p>
+          </div>
+          <ul class="items">
+            <li>
+              <div class="item-top"><h4><span data-en>Women's cut &amp; style</span><span data-es>Corte de dama y peinado</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$65</span></div>
+              <div class="item-bottom"><p><span data-en>Consultation, wash, cut and blow-dry finish. Curly cuts done dry, curl by curl.</span><span data-es>Consulta, lavado, corte y secado con cepillo. Los cortes de rizos se hacen en seco, rizo por rizo.</span></p><span class="dur">60 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4>Blowout</h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$45</span></div>
+              <div class="item-bottom"><p><span data-en>Wash and a smooth or voluminous blow-dry that lasts for days.</span><span data-es>Lavado y secado liso o con volumen que dura varios días.</span></p><span class="dur">45 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Color &amp; root touch-up</span><span data-es>Tinte y retoque de raíz</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$95</span></div>
+              <div class="item-bottom"><p><span data-en>Single-process color or gray coverage, with gloss and blow-dry.</span><span data-es>Color de un solo proceso o cobertura de canas, con brillo y secado.</span></p><span class="dur">90 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Balayage &amp; highlights</span><span data-es>Balayage y luces</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$180</span></div>
+              <div class="item-bottom"><p><span data-en>Hand-painted or foiled lightening, toner and bond builder. Consultation first.</span><span data-es>Aclarado a mano alzada o con papel, matizador y protector de enlaces. Primero, consulta.</span></p><span class="dur">2½–3½ h</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Keratin smoothing</span><span data-es>Alisado con keratina</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$250</span></div>
+              <div class="item-bottom"><p><span data-en>Formaldehyde-free. Less frizz and faster drying for three to five months.</span><span data-es>Sin formol. Menos frizz y secado más rápido durante tres a cinco meses.</span></p><span class="dur">2½–3 h</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- slot: categoria Barber -->
+        <div class="cat" data-cat="1">
+          <figure class="cat-img ph"><img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=900&h=600&q=80&auto=format&fit=crop" alt="Barber finishing a textured crop with a clean fade" loading="lazy" width="900" height="600"></figure>
+          <div class="cat-head">
+            <span class="letter">B.</span>
+            <h3 class="h3"><span data-en>Barber</span><span data-es>Barbería</span></h3>
+            <p class="with"><span data-en>With Andrés</span><span data-es>Con Andrés</span></p>
+          </div>
+          <ul class="items">
+            <li>
+              <div class="item-top"><h4><span data-en>Men's haircut</span><span data-es>Corte de caballero</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$35</span></div>
+              <div class="item-bottom"><p><span data-en>Scissor or clipper cut, wash and style, hot-towel neck shave.</span><span data-es>Corte a tijera o máquina, lavado, peinado y afeitado de nuca con toalla caliente.</span></p><span class="dur">30 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Skin fade</span><span data-es>Skin fade (degradado a piel)</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$40</span></div>
+              <div class="item-bottom"><p><span data-en>Low, mid or high fade blended down to the skin, with line-up.</span><span data-es>Fade bajo, medio o alto hasta la piel, con perfilado incluido.</span></p><span class="dur">45 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Beard trim &amp; line-up</span><span data-es>Barba y perfilado</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$25</span></div>
+              <div class="item-bottom"><p><span data-en>Shape, razor edges and hot towel. Add to any cut for $20.</span><span data-es>Forma, bordes a navaja y toalla caliente. Con cualquier corte, $20 más.</span></p><span class="dur">20 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Kids' cut <small>(12 &amp; under)</small></span><span data-es>Corte de niño <small>(hasta 12 años)</small></span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$25</span></div>
+              <div class="item-bottom"><p><span data-en>Patient, no-rush cuts. First haircut? Tell us and we'll go slow.</span><span data-es>Con paciencia y sin prisa. ¿Primer corte? Avísanos y vamos despacio.</span></p><span class="dur">30 min</span></div>
+            </li>
+          </ul>
+          <p class="aside-note"><i data-lucide="scissors"></i><span><span data-en>Walk-ins welcome Tuesday to Saturday when a chair is free. Saturdays fill up, so text ahead to check the wait.</span><span data-es>Atendemos sin cita de martes a sábado si hay silla libre. Los sábados se llena: escríbenos antes para saber la espera.</span></span></p>
+        </div>
+
+        <!-- slot: categoria Nails -->
+        <div class="cat" data-cat="2">
+          <figure class="cat-img ph"><img src="https://images.unsplash.com/photo-1607779097040-26e80aa78e66?w=900&h=600&q=80&auto=format&fit=crop" alt="Close-up of a gel manicure in soft lilac, white and silver shades" loading="lazy" width="900" height="600"></figure>
+          <div class="cat-head">
+            <span class="letter">C.</span>
+            <h3 class="h3"><span data-en>Nails</span><span data-es>Uñas</span></h3>
+            <p class="with"><span data-en>With Daniela</span><span data-es>Con Daniela</span></p>
+          </div>
+          <ul class="items">
+            <li>
+              <div class="item-top"><h4><span data-en>Classic manicure</span><span data-es>Manicure clásico</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$30</span></div>
+              <div class="item-bottom"><p><span data-en>Shape, cuticle care, hand massage and polish.</span><span data-es>Limado, cutículas, masaje de manos y esmalte.</span></p><span class="dur">30 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Gel manicure</span><span data-es>Manicure en gel</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$45</span></div>
+              <div class="item-bottom"><p><span data-en>Lasts two to three weeks. Simple nail art from $5.</span><span data-es>Dura de dos a tres semanas. Diseños sencillos desde $5.</span></p><span class="dur">45 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4>Pedicure</h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$50</span></div>
+              <div class="item-bottom"><p><span data-en>Soak, callus care, scrub, massage and polish.</span><span data-es>Remojo, callosidades, exfoliación, masaje y esmalte.</span></p><span class="dur">50 min</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- slot: categoria Brows & lashes -->
+        <div class="cat" data-cat="3">
+          <figure class="cat-img ph"><img src="https://images.unsplash.com/photo-1718720410649-7524fcb0f0a5?w=900&h=600&q=80&auto=format&fit=crop" alt="Beauty specialist working on a client's lashes with fine tweezers" loading="lazy" width="900" height="600"></figure>
+          <div class="cat-head">
+            <span class="letter">D.</span>
+            <h3 class="h3"><span data-en>Brows &amp; lashes</span><span data-es>Cejas y pestañas</span></h3>
+            <p class="with"><span data-en>With Daniela</span><span data-es>Con Daniela</span></p>
+          </div>
+          <ul class="items">
+            <li>
+              <div class="item-top"><h4><span data-en>Brow shaping</span><span data-es>Diseño de cejas</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$20</span></div>
+              <div class="item-bottom"><p><span data-en>Wax and tweeze, mapped to your face.</span><span data-es>Cera y pinza, según la forma de tu cara.</span></p><span class="dur">20 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Brow tint</span><span data-es>Tinte de cejas</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$20</span></div>
+              <div class="item-bottom"><p><span data-en>Fuller-looking brows for four to six weeks.</span><span data-es>Cejas con más cuerpo durante cuatro a seis semanas.</span></p><span class="dur">15 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Lash lift &amp; tint</span><span data-es>Lifting y tinte de pestañas</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$85</span></div>
+              <div class="item-bottom"><p><span data-en>Your own lashes, curled and darkened. Lasts about six weeks.</span><span data-es>Tus propias pestañas, rizadas y oscurecidas. Dura unas seis semanas.</span></p><span class="dur">60 min</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="unsure rv">
+          <div>
+            <h3 class="h3"><span data-en>Not sure <em>what to book?</em></span><span data-es>¿No sabes <em>qué reservar?</em></span></h3>
+            <p><span data-en>Text us a photo of your hair today and one of the look you want. We reply with the service, the time and a price range.</span><span data-es>Mándanos una foto de tu pelo hoy y otra del look que quieres. Te respondemos con el servicio, el tiempo y un rango de precio.</span></p>
+          </div>
+          <a class="ulink" href="sms:+12035550147"><span data-en>Text a photo</span><span data-es>Enviar foto</span><i data-lucide="arrow-up-right"></i></a>
+        </div>
+        <p class="price-note"><span data-en>Prices are starting points and may change with hair length, density and the products needed. Color services over two hours require a deposit (see the fine print below).</span><span data-es>Los precios son desde y pueden variar según el largo, la cantidad de pelo y los productos que se necesiten. Los servicios de color de más de dos horas requieren depósito (ver las políticas más abajo).</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: barberia (banda a pantalla completa) -->
+<section class="spread dark" id="barber" aria-labelledby="barber-title">
+  <img class="ph" src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=2000&h=1125&q=80&auto=format&fit=crop" alt="Barber trimming an older client's beard in a warmly lit shop" loading="lazy" width="2000" height="1125">
+  <div class="wrap">
+    <div class="spread-copy">
+      <p class="kicker rv"><span data-en>The barber side</span><span data-es>La barbería</span><span class="rule"></span></p>
+      <h2 class="h2 rv" id="barber-title"><span data-en>Walk in, <em>sit down.</em></span><span data-es>Entra y <em>siéntate.</em></span></h2>
+      <p class="rv d1"><span data-en>Tuesday to Saturday, walk-ins take the next free chair. Skin fades from $40, beard line-ups from $25, and every cut ends with a hot towel and a razor edge.</span><span data-es>De martes a sábado, sin cita, tomas la próxima silla libre. Fades desde $40, perfilado de barba desde $25, y cada corte termina con toalla caliente y navaja.</span></p>
+      <div class="ctas rv d2">
+        <a class="btn" href="sms:+12035550147"><span data-en>Text to check the wait</span><span data-es>Pregunta la espera por texto</span><i data-lucide="arrow-up-right"></i></a>
+      </div>
+    </div>
+  </div>
+  <p class="spread-cap"><span class="cap"><b>Fig. 3</b><span data-en>Beard trim with scissors and comb.</span><span data-es>Arreglo de barba con tijera y peine.</span></span></p>
+</section>
+
+<!-- slot: como trabajamos -->
+<section class="process" aria-labelledby="process-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">02</span><span class="c"><span data-en>How it works</span><span data-es>Cómo funciona</span></span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="process-head">
+      <h2 class="h2 rv" id="process-title"><span data-en>From the first text <em>to the mirror</em></span><span data-es>Del primer mensaje <em>al espejo</em></span></h2>
+    </div>
+    <ol class="steps">
+      <li class="rv">
+        <span class="step-n">i.</span>
+        <h3><span data-en>Book</span><span data-es>Reserva</span></h3>
+        <p><span data-en>Call, text or send the form with the service and a day that works. We confirm the time by text.</span><span data-es>Llama, escribe o manda el formulario con el servicio y el día que te sirve. Te confirmamos la hora por texto.</span></p>
+      </li>
+      <li class="rv d1">
+        <span class="step-n">ii.</span>
+        <h3><span data-en>Consult</span><span data-es>Consulta</span></h3>
+        <p><span data-en>Every visit starts with a short chat. For big color changes we do a strand test and agree on the price first.</span><span data-es>Cada visita empieza con una conversación corta. Para cambios grandes de color hacemos prueba de mechón y acordamos el precio antes.</span></p>
+      </li>
+      <li class="rv d2">
+        <span class="step-n">iii.</span>
+        <h3><span data-en>The chair</span><span data-es>En la silla</span></h3>
+        <p><span data-en>Wash, service and finish, without rushing. Barber cuts end with a hot towel and a razor line-up.</span><span data-es>Lavado, servicio y acabado, sin prisas. Los cortes de barbería terminan con toalla caliente y perfilado a navaja.</span></p>
+      </li>
+      <li class="rv d3">
+        <span class="step-n">iv.</span>
+        <h3><span data-en>Aftercare</span><span data-es>Después</span></h3>
+        <p><span data-en>We tell you what to use at home and when to come back: about 6–8 weeks for color, 2–3 for a fade.</span><span data-es>Te decimos qué usar en casa y cuándo volver: unas 6–8 semanas para el color y 2–3 para un fade.</span></p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- slot: sobre la duena -->
+<section class="feature" aria-labelledby="about-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">03</span><span class="c"><span data-en>The owner</span><span data-es>La dueña</span></span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="feature-grid">
+      <figure class="feature-photo rv-img">
+        <div class="frame ph"><img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=1200&h=1440&q=80&auto=format&fit=crop" alt="Stylist smiling while blow-drying a client's short hair in a bright salon" loading="lazy" width="1200" height="1440"></div>
+        <figcaption class="cap"><b>Fig. 4</b><span data-en>Luna at the chair by the window.</span><span data-es>Luna en la silla junto a la ventana.</span></figcaption>
+      </figure>
+      <div class="feature-copy">
+        <h2 class="h2 rv" id="about-title"><span data-en>A small salon, with the owner <em>behind the chair</em></span><span data-es>Un salón pequeño, con la dueña <em>detrás de la silla</em></span></h2>
+        <!-- slot: historia -->
+        <p class="standfirst rv d1"><span data-en>Luna Restrepo grew up sweeping the floor of her mother's salon in Medellín. She trained as a colorist in New York and worked in Norwalk and Stamford before opening Bella Luna in 2026.</span><span data-es>Luna Restrepo creció barriendo el piso del salón de su mamá en Medellín. Se formó como colorista en Nueva York y trabajó en Norwalk y Stamford antes de abrir Bella Luna en 2026.</span></p>
+        <div class="body-cols rv d2">
+          <p class="first"><span data-en>The idea was simple: one room where women's color and a sharp fade live side by side, where families come in together on a Saturday, and where nobody has to switch languages to explain the haircut they want.</span><span data-es>La idea era sencilla: un solo lugar donde el color para dama y un buen fade conviven, donde las familias vienen juntas el sábado y nadie tiene que cambiar de idioma para explicar el corte que quiere.</span></p>
+          <p><span data-en>Luna still does every color consultation herself, and she'll tell you honestly when a softer option will look better.</span><span data-es>Luna sigue haciendo ella misma cada consulta de color, y te dice con honestidad cuándo una opción más suave te va a quedar mejor.</span></p>
+        </div>
+        <blockquote class="pull rv">
+          <p><span data-en>Tell me how you wear your hair on a normal Tuesday. That's where a good cut starts.</span><span data-es>Cuéntame cómo llevas el pelo un martes cualquiera. Ahí empieza un buen corte.</span></p>
+          <footer>Luna Restrepo · <span data-en>Owner &amp; colorist</span><span data-es>Dueña y colorista</span></footer>
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: equipo -->
+<section class="team" id="team" aria-labelledby="team-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">04</span><span class="c"><span data-en>The team</span><span data-es>El equipo</span></span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="team-head">
+      <h2 class="h2 rv" id="team-title"><span data-en>Three chairs, <em>three specialties</em></span><span data-es>Tres sillas, <em>tres especialidades</em></span></h2>
+      <p class="lead rv d1" data-en>Ask for someone by name when you book, or leave it to us and we'll match you with whoever does that service best.</p>
+      <p class="lead rv d1" data-es>Pide a alguien por su nombre al reservar, o déjalo en nuestras manos y te asignamos a quien mejor hace ese servicio.</p>
+    </div>
+    <div class="team-grid">
+      <!-- slot: profesional 1 -->
+      <article class="member rv">
+        <div class="portrait rv-img"><div class="frame ph"><img src="https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=900&h=1200&q=80&auto=format&fit=crop" alt="Stylist blow-drying a client's shoulder-length hair with a round brush" loading="lazy" width="900" height="1200"></div><span class="chair"><span data-en>Chair 01</span><span data-es>Silla 01</span></span></div>
+        <div class="member-body">
+          <p class="role"><span data-en>Owner · Colorist</span><span data-es>Dueña · Colorista</span></p>
+          <h3>Luna Restrepo</h3>
+          <p class="spec"><span data-en>Balayage, gray blending, color correction and curly cuts.</span><span data-es>Balayage, canas difuminadas, corrección de color y cortes para rizos.</span></p>
+          <div class="week" aria-hidden="true"><span>M</span><span class="on">T</span><span class="on">W</span><span class="on">T</span><span class="on">F</span><span class="on">S</span><span>S</span></div>
+          <p class="days-label"><span data-en>Tuesday to Saturday</span><span data-es>De martes a sábado</span></p>
+          <a class="ulink" href="#book" data-stylist="luna"><span data-en>Book with Luna</span><span data-es>Reservar con Luna</span><i data-lucide="arrow-up-right"></i></a>
+        </div>
+      </article>
+      <!-- slot: profesional 2 -->
+      <article class="member rv d1">
+        <div class="portrait rv-img"><div class="frame ph"><img src="https://images.unsplash.com/photo-1541533848490-bc8115cd6522?w=900&h=1200&q=80&auto=format&fit=crop&crop=focalpoint&fp-x=.62&fp-y=.5" alt="Barber with tattooed forearm blending a fade with clippers" loading="lazy" width="900" height="1200"></div><span class="chair"><span data-en>Chair 02</span><span data-es>Silla 02</span></span></div>
+        <div class="member-body">
+          <p class="role"><span data-en>Barber</span><span data-es>Barbero</span></p>
+          <h3>Andrés Molina</h3>
+          <p class="spec"><span data-en>Skin fades, tapers, beard line-ups and kids' first haircuts.</span><span data-es>Skin fades, tapers, perfilado de barba y primeros cortes de niños.</span></p>
+          <div class="week" aria-hidden="true"><span>M</span><span class="on">T</span><span class="on">W</span><span>T</span><span class="on">F</span><span class="on">S</span><span class="on">S</span></div>
+          <p class="days-label"><span data-en>Tue, Wed, Fri, Sat &amp; Sun</span><span data-es>Mar, mié, vie, sáb y dom</span></p>
+          <a class="ulink" href="#book" data-stylist="andres"><span data-en>Book with Andrés</span><span data-es>Reservar con Andrés</span><i data-lucide="arrow-up-right"></i></a>
+        </div>
+      </article>
+      <!-- slot: profesional 3 -->
+      <article class="member rv d2">
+        <div class="portrait rv-img"><div class="frame ph"><img src="https://images.unsplash.com/photo-1457972729786-0411a3b2b626?w=900&h=1200&q=80&auto=format&fit=crop" alt="Nail technician painting a client's nails in deep red" loading="lazy" width="900" height="1200"></div><span class="chair"><span data-en>Chair 03</span><span data-es>Silla 03</span></span></div>
+        <div class="member-body">
+          <p class="role"><span data-en>Nails · Brows &amp; lashes</span><span data-es>Uñas · Cejas y pestañas</span></p>
+          <h3>Daniela Pérez</h3>
+          <p class="spec"><span data-en>Gel manicures, pedicures, brow shaping and lash lifts.</span><span data-es>Manicure en gel, pedicure, diseño de cejas y lifting de pestañas.</span></p>
+          <div class="week" aria-hidden="true"><span>M</span><span>T</span><span class="on">W</span><span class="on">T</span><span class="on">F</span><span class="on">S</span><span class="on">S</span></div>
+          <p class="days-label"><span data-en>Wednesday to Sunday</span><span data-es>De miércoles a domingo</span></p>
+          <a class="ulink" href="#book" data-stylist="daniela"><span data-en>Book with Daniela</span><span data-es>Reservar con Daniela</span><i data-lucide="arrow-up-right"></i></a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- slot: galeria -->
+<section class="lookbook" id="gallery" aria-labelledby="gallery-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">05</span><span class="c">Lookbook</span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="lb-head">
+      <div>
+        <h2 class="h2 rv" id="gallery-title"><span data-en>From the chair, <em>this month</em></span><span data-es>Desde la silla, <em>este mes</em></span></h2>
+        <p class="lead rv d1"><span data-en>Curls, color, fades and the room itself. Drag, swipe or use the arrows.</span><span data-es>Rizos, color, fades y el propio salón. Arrastra, desliza o usa las flechas.</span></p>
+      </div>
+      <div class="lb-ctrl">
+        <button type="button" data-lb="-1" aria-controls="lb-track"><i data-lucide="arrow-left"></i><span class="sr-only">Previous</span></button>
+        <button type="button" data-lb="1" aria-controls="lb-track"><i data-lucide="arrow-right"></i><span class="sr-only">Next</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="lb-track" id="lb-track" tabindex="0" role="region" aria-label="Lookbook">
+    <figure class="look p ph"><div class="frame"><img src="https://images.unsplash.com/photo-1629397685944-7073f5589754?w=800&h=1067&q=80&auto=format&fit=crop" alt="Stylist setting loose curls with a curling iron" loading="lazy" width="800" height="1067"></div><figcaption class="cap"><b>Look 01</b><span data-en>Loose curls, wide barrel.</span><span data-es>Rizos sueltos, tenaza ancha.</span></figcaption></figure>
+    <figure class="look p ph"><div class="frame"><img src="https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=800&h=1067&q=80&auto=format&fit=crop&crop=focalpoint&fp-x=.5&fp-y=.36&fp-z=1.25" alt="Woman with long wavy hair colored in soft lavender" loading="lazy" width="800" height="1067"></div><figcaption class="cap"><b>Look 02</b><span data-en>Lavender gloss over a pale blonde.</span><span data-es>Brillo lavanda sobre rubio claro.</span></figcaption></figure>
+    <figure class="look l ph"><div class="frame"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1100&h=825&q=80&auto=format&fit=crop" alt="Black-and-white view of a salon floor with styling chairs and tall windows" loading="lazy" width="1100" height="825"></div><figcaption class="cap"><b>Look 03</b><span data-en>The room, before opening.</span><span data-es>El salón, antes de abrir.</span></figcaption></figure>
+    <figure class="look p ph"><div class="frame"><img src="https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?w=800&h=1067&q=80&auto=format&fit=crop" alt="Stylist pinning sections of long hair while setting an updo" loading="lazy" width="800" height="1067"></div><figcaption class="cap"><b>Look 04</b><span data-en>A pinned updo for a wedding.</span><span data-es>Recogido con horquillas para una boda.</span></figcaption></figure>
+    <figure class="look p ph"><div class="frame"><img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&h=1067&q=80&auto=format&fit=crop" alt="Hand with short almond nails painted glossy black and tortoiseshell" loading="lazy" width="800" height="1067"></div><figcaption class="cap"><b>Look 05</b><span data-en>Black and tortoiseshell gel.</span><span data-es>Gel negro y carey.</span></figcaption></figure>
+    <figure class="look l ph"><div class="frame"><img src="https://images.unsplash.com/photo-1634449571010-02389ed0f9b0?w=1100&h=825&q=80&auto=format&fit=crop" alt="Client leaning back at the shampoo bowl while a stylist rinses her hair" loading="lazy" width="1100" height="825"></div><figcaption class="cap"><b>Look 06</b><span data-en>The rinse after a gloss.</span><span data-es>El enjuague después del brillo.</span></figcaption></figure>
+    <figure class="look p ph"><div class="frame"><img src="https://images.unsplash.com/photo-1560869713-7d0a29430803?w=800&h=1067&q=80&auto=format&fit=crop" alt="Stylist curling a client's long brown hair with a curling iron" loading="lazy" width="800" height="1067"></div><figcaption class="cap"><b>Look 07</b><span data-en>Soft waves after a blowout.</span><span data-es>Ondas suaves después del blowout.</span></figcaption></figure>
+    <!-- slot: instagram -->
+    <a class="look-ig" href="https://www.instagram.com/" rel="noopener">
+      <span>
+        <i class="ig" data-lucide="instagram"></i>
+        <span>
+          <span class="handle">@bellaluna.<wbr>stamford</span>
+          <p><span data-en>New work every week.</span><span data-es>Trabajos nuevos cada semana.</span></p>
+          <span class="ulink"><span data-en>Follow</span><span data-es>Seguir</span><i data-lucide="arrow-up-right"></i></span>
+        </span>
+      </span>
+    </a>
+  </div>
+  <div class="wrap"><div class="lb-progress" aria-hidden="true"><span></span></div></div>
+</section>
+
+<!-- slot: reservar / contacto -->
+<section class="book dark" id="book" aria-labelledby="book-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">06</span><span class="c"><span data-en>Appointments</span><span data-es>Citas</span></span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="book-grid">
+      <div class="book-copy">
+        <h2 class="h2 rv" id="book-title"><span data-en>Book an <em>appointment</em></span><span data-es>Reserva tu <em>cita</em></span></h2>
+        <p class="lead rv d1" data-en>Three short steps, no account. Or call or text: whoever is free picks up.</p>
+        <p class="lead rv d1" data-es>Tres pasos cortos, sin crear cuenta. O llama o escribe: contesta quien esté libre.</p>
+        <div class="ways rv d2">
+          <a class="way" href="tel:+12035550147"><span class="way-label"><span data-en>Call</span><span data-es>Llamar</span></span><span class="way-value">(203) 555-0147</span><i data-lucide="arrow-up-right"></i></a>
+          <a class="way" href="sms:+12035550147"><span class="way-label"><span data-en>Text the same number</span><span data-es>Texto al mismo número</span></span><span class="way-value"><span data-en>Send a text</span><span data-es>Enviar mensaje</span></span><i data-lucide="arrow-up-right"></i></a>
+          <a class="way" href="mailto:hola@bellalunasalon.com"><span class="way-label">Email</span><span class="way-value">hola@bellalunasalon.com</span><i data-lucide="arrow-up-right"></i></a>
+        </div>
+      </div>
+
+      <form class="booking" action="#" method="post" id="book-form" novalidate>
+        <div class="bk-top">
+          <h3 class="bk-title"><span data-en>Request a time</span><span data-es>Pide tu hora</span></h3>
+          <p class="bk-count" id="bk-count" aria-live="polite"></p>
+        </div>
+        <p class="bk-sub"><span data-en>This is a request, not a confirmed booking. We reply by text, usually within the hour while we're open.</span><span data-es>Es una solicitud, no una cita confirmada. Te respondemos por texto, casi siempre en menos de una hora si estamos abiertos.</span></p>
+        <ol class="bk-progress" aria-hidden="true">
+          <li data-dot="1"><span class="n">i.</span><span data-en>Service</span><span data-es>Servicio</span></li>
+          <li data-dot="2"><span class="n">ii.</span><span data-en>Day &amp; time</span><span data-es>Día y hora</span></li>
+          <li data-dot="3"><span class="n">iii.</span><span data-en>Contact</span><span data-es>Contacto</span></li>
+        </ol>
+
+        <!-- Step 1 -->
+        <div class="bk-step" data-step="1">
+          <h4 class="st-title" id="st1" tabindex="-1"><span class="n">i.</span><span data-en>What would you like?</span><span data-es>¿Qué te gustaría hacerte?</span></h4>
+          <div class="svc-groups">
+            <fieldset>
+              <legend><span data-en>Hair</span><span data-es>Cabello</span></legend>
+              <div class="opt-list">
+                <div class="opt"><input type="radio" name="service" id="sv1" value="Women's cut & style"><label for="sv1"><span><span data-en>Women's cut &amp; style</span><span data-es>Corte de dama y peinado</span></span><span class="p">$65</span></label></div>
+                <div class="opt"><input type="radio" name="service" id="sv2" value="Blowout"><label for="sv2"><span>Blowout</span><span class="p">$45</span></label></div>
+                <div class="opt"><input type="radio" name="service" id="sv3" value="Color & root touch-up"><label for="sv3"><span><span data-en>Color &amp; root touch-up</span><span data-es>Tinte y retoque de raíz</span></span><span class="p">$95</span></label></div>
+                <div class="opt"><input type="radio" name="service" id="sv4" value="Balayage & highlights"><label for="sv4"><span><span data-en>Balayage &amp; highlights</span><span data-es>Balayage y luces</span></span><span class="p">$180</span></label></div>
+                <div class="opt"><input type="radio" name="service" id="sv5" value="Keratin smoothing"><label for="sv5"><span><span data-en>Keratin smoothing</span><span data-es>Alisado con keratina</span></span><span class="p">$250</span></label></div>
+              </div>
+            </fieldset>
+            <div>
+              <fieldset>
+                <legend><span data-en>Barber</span><span data-es>Barbería</span></legend>
+                <div class="opt-list">
+                  <div class="opt"><input type="radio" name="service" id="sv6" value="Men's haircut"><label for="sv6"><span><span data-en>Men's haircut</span><span data-es>Corte de caballero</span></span><span class="p">$35</span></label></div>
+                  <div class="opt"><input type="radio" name="service" id="sv7" value="Skin fade"><label for="sv7"><span>Skin fade</span><span class="p">$40</span></label></div>
+                  <div class="opt"><input type="radio" name="service" id="sv8" value="Beard trim & line-up"><label for="sv8"><span><span data-en>Beard trim &amp; line-up</span><span data-es>Barba y perfilado</span></span><span class="p">$25</span></label></div>
+                  <div class="opt"><input type="radio" name="service" id="sv9" value="Kids' cut"><label for="sv9"><span><span data-en>Kids' cut</span><span data-es>Corte de niño</span></span><span class="p">$25</span></label></div>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend><span data-en>Nails, brows &amp; lashes</span><span data-es>Uñas, cejas y pestañas</span></legend>
+                <div class="opt-list">
+                  <div class="opt"><input type="radio" name="service" id="sv10" value="Manicure / gel manicure"><label for="sv10"><span><span data-en>Manicure or gel</span><span data-es>Manicure o gel</span></span><span class="p">$30</span></label></div>
+                  <div class="opt"><input type="radio" name="service" id="sv11" value="Pedicure"><label for="sv11"><span>Pedicure</span><span class="p">$50</span></label></div>
+                  <div class="opt"><input type="radio" name="service" id="sv12" value="Brows or lash lift"><label for="sv12"><span><span data-en>Brows or lash lift</span><span data-es>Cejas o lifting de pestañas</span></span><span class="p">$20</span></label></div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <div class="opt wide"><input type="radio" name="service" id="sv13" value="Not sure - free color consultation"><label for="sv13"><span><span data-en>Not sure yet: free 15-minute color consultation</span><span data-es>Aún no lo sé: consulta de color gratis de 15 minutos</span></span><span class="p">$0</span></label></div>
+          <p class="err" id="err1" hidden><i data-lucide="circle-alert"></i><span><span data-en>Choose a service to continue.</span><span data-es>Elige un servicio para continuar.</span></span></p>
+          <div class="bk-nav">
+            <span class="spacer"></span>
+            <button class="btn" type="button" data-next><span data-en>Continue</span><span data-es>Continuar</span><i data-lucide="arrow-right"></i></button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="bk-step" data-step="2">
+          <h4 class="st-title" id="st2" tabindex="-1"><span class="n">ii.</span><span data-en>When suits you?</span><span data-es>¿Cuándo te viene bien?</span></h4>
+          <fieldset>
+            <legend><span data-en>Preferred day</span><span data-es>Día preferido</span></legend>
+            <div class="chips">
+              <div class="chip"><input type="radio" name="day" id="d0" value="Any day" checked><label for="d0"><b><span data-en>Any</span><span data-es>Cualq.</span></b><small><span data-en>day</span><span data-es>día</span></small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d1" value="Monday" disabled><label for="d1"><b><span data-en>Mon</span><span data-es>Lun</span></b><small><span data-en>closed</span><span data-es>cerrado</span></small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d2" value="Tuesday"><label for="d2"><b><span data-en>Tue</span><span data-es>Mar</span></b><small>9–7</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d3" value="Wednesday"><label for="d3"><b><span data-en>Wed</span><span data-es>Mié</span></b><small>9–7</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d4" value="Thursday"><label for="d4"><b><span data-en>Thu</span><span data-es>Jue</span></b><small>9–7</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d5" value="Friday"><label for="d5"><b><span data-en>Fri</span><span data-es>Vie</span></b><small>9–7</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d6" value="Saturday"><label for="d6"><b><span data-en>Sat</span><span data-es>Sáb</span></b><small>8–5</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d7" value="Sunday"><label for="d7"><b><span data-en>Sun</span><span data-es>Dom</span></b><small>10–3</small></label></div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend><span data-en>Time of day</span><span data-es>Horario</span></legend>
+            <div class="chips text">
+              <div class="chip"><input type="radio" name="time" id="t0" value="Any time" checked><label for="t0"><span data-en>Any time</span><span data-es>Cualquier hora</span></label></div>
+              <div class="chip"><input type="radio" name="time" id="t1" value="Morning"><label for="t1"><span data-en>Morning</span><span data-es>Mañana</span></label></div>
+              <div class="chip"><input type="radio" name="time" id="t2" value="Afternoon"><label for="t2"><span data-en>Afternoon</span><span data-es>Tarde</span></label></div>
+              <div class="chip"><input type="radio" name="time" id="t3" value="After 5 pm"><label for="t3"><span data-en>After 5 pm</span><span data-es>Después de las 5</span></label></div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend><span data-en>With</span><span data-es>Con</span></legend>
+            <div class="chips text">
+              <div class="chip"><input type="radio" name="stylist" id="w0" value="any" checked><label for="w0"><span data-en>No preference</span><span data-es>Sin preferencia</span></label></div>
+              <div class="chip"><input type="radio" name="stylist" id="w1" value="luna"><label for="w1">Luna</label></div>
+              <div class="chip"><input type="radio" name="stylist" id="w2" value="andres"><label for="w2">Andrés</label></div>
+              <div class="chip"><input type="radio" name="stylist" id="w3" value="daniela"><label for="w3">Daniela</label></div>
+            </div>
+          </fieldset>
+          <div class="bk-nav">
+            <button class="btn plain" type="button" data-prev><i data-lucide="arrow-left"></i><span data-en>Back</span><span data-es>Atrás</span></button>
+            <span class="spacer"></span>
+            <button class="btn" type="button" data-next><span data-en>Continue</span><span data-es>Continuar</span><i data-lucide="arrow-right"></i></button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="bk-step" data-step="3">
+          <h4 class="st-title" id="st3" tabindex="-1"><span class="n">iii.</span><span data-en>Where do we text you?</span><span data-es>¿Dónde te escribimos?</span></h4>
+          <div class="row">
+            <div class="field">
+              <label for="f-name"><span data-en>Name</span><span data-es>Nombre</span></label>
+              <input id="f-name" name="name" type="text" autocomplete="name" required data-ph-en="First and last name" data-ph-es="Nombre y apellido" placeholder="First and last name">
+            </div>
+            <div class="field">
+              <label for="f-phone"><span data-en>Mobile phone</span><span data-es>Celular</span></label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required data-ph-en="(203) 555-0100" data-ph-es="(203) 555-0100" placeholder="(203) 555-0100">
+            </div>
+          </div>
+          <div class="field full">
+            <label for="f-msg"><span data-en>Anything we should know?</span><span data-es>¿Algo que debamos saber?</span></label>
+            <textarea id="f-msg" name="message" data-ph-en="Hair length, last color, the look you want…" data-ph-es="Largo del pelo, último tinte, el look que quieres…" placeholder="Hair length, last color, the look you want…"></textarea>
+          </div>
+          <p class="err" id="err3" hidden><i data-lucide="circle-alert"></i><span><span data-en>Add your name and a mobile number so we can text you.</span><span data-es>Escribe tu nombre y un celular para poder escribirte.</span></span></p>
+          <div class="bk-nav">
+            <button class="btn plain" type="button" data-prev><i data-lucide="arrow-left"></i><span data-en>Back</span><span data-es>Atrás</span></button>
+            <span class="spacer"></span>
+            <button class="btn" type="submit"><span data-en>Send request</span><span data-es>Enviar solicitud</span><i data-lucide="arrow-right"></i></button>
+            <p class="note"><span data-en>We only use your number to confirm your appointment.</span><span data-es>Solo usamos tu número para confirmar la cita.</span></p>
+          </div>
+        </div>
+
+        <div class="bk-done" id="bk-done" tabindex="-1" hidden>
+          <span class="mark"><i data-lucide="message-square-text"></i></span>
+          <h3><span data-en>Request received.</span><span data-es>Solicitud recibida.</span></h3>
+          <p><span data-en>We'll reply by SMS to </span><span data-es>Te contestamos por SMS al </span><b class="done-phone"></b><span data-en> to confirm a time, usually within the hour while we're open.</span><span data-es> para confirmar la hora, casi siempre en menos de una hora si estamos abiertos.</span></p>
+          <dl class="summary">
+            <div><dt><span data-en>Service</span><span data-es>Servicio</span></dt><dd data-sum="service"></dd></div>
+            <div><dt><span data-en>When</span><span data-es>Cuándo</span></dt><dd data-sum="when"></dd></div>
+            <div><dt><span data-en>With</span><span data-es>Con</span></dt><dd data-sum="stylist"></dd></div>
+          </dl>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- slot: politicas -->
+<section class="fine" id="policies" aria-labelledby="pol-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">07</span><span class="c"><span data-en>The fine print</span><span data-es>La letra pequeña</span></span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="fine-grid">
+      <div class="fine-side">
+        <h2 class="h2 rv" id="pol-title"><span data-en>Good to know <em>before you come</em></span><span data-es>Antes de <em>venir</em></span></h2>
+        <p class="muted rv d1"><span data-en>Four house rules, kept short. They let us give every client the full time they booked.</span><span data-es>Cuatro reglas de la casa, en corto. Así le damos a cada cliente todo el tiempo que reservó.</span></p>
+      </div>
+      <ol class="rules">
+        <li class="rv">
+          <h3><span data-en>24-hour cancellation</span><span data-es>Cancelación con 24 horas</span></h3>
+          <p><span data-en>Need to cancel or move your visit? Let us know 24 hours ahead. Late cancellations and no-shows may be charged 50% of the service.</span><span data-es>¿Necesitas cancelar o cambiar tu cita? Avísanos con 24 horas. Las cancelaciones tardías y las ausencias pueden cobrarse al 50%.</span></p>
+        </li>
+        <li class="rv d1">
+          <h3><span data-en>Arrive 10 minutes early</span><span data-es>Llega 10 minutos antes</span></h3>
+          <p><span data-en>It leaves time for a proper consultation. More than 15 minutes late, we may need to shorten the service or reschedule.</span><span data-es>Así hay tiempo para una buena consulta. Si llegas más de 15 minutos tarde, puede que tengamos que acortar el servicio o cambiar la cita.</span></p>
+        </li>
+        <li class="rv">
+          <h3><span data-en>A deposit for long color</span><span data-es>Depósito para color largo</span></h3>
+          <p><span data-en>Color services over two hours (balayage, highlights, corrections, keratin) need a $40 deposit, which goes toward your bill.</span><span data-es>Los servicios de color de más de dos horas (balayage, luces, correcciones, keratina) llevan un depósito de $40 que se descuenta de tu cuenta.</span></p>
+        </li>
+        <li class="rv d1">
+          <h3><span data-en>Kids with an adult</span><span data-es>Niños con un adulto</span></h3>
+          <p><span data-en>Kids are welcome on the barber side. Children under 12 need an adult with them for the whole visit.</span><span data-es>Los niños son bienvenidos en la barbería. Los menores de 12 años deben venir con un adulto durante toda la visita.</span></p>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- OPTIONAL: solo si hay reseñas reales de Google; si no, se elimina -->
+<section class="reviews" id="reviews" aria-labelledby="rev-title">
+  <div class="wrap">
+    <div class="runhead"><span class="n">&mdash;</span><span class="c"><span data-en>Google reviews</span><span data-es>Reseñas de Google</span></span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="rev-grid">
+      <div class="rev-main">
+        <h2 class="sr-only" id="rev-title"><span data-en>Google reviews</span><span data-es>Reseñas de Google</span></h2>
+        <article class="rev rv">
+          <blockquote>“Luna fixed a box-dye mistake in two visits and told me exactly what it would cost. My balayage finally looks like the photo.”</blockquote>
+          <p class="rev-by"><b>Maria G.</b>Google</p>
+        </article>
+        <!-- slot: nota y numero de resenas de Google -->
+        <p class="rating rv d1"><b>4.9</b><span class="stars" aria-hidden="true"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span><span><span data-en>27 reviews on Google</span><span data-es>27 reseñas en Google</span></span></p>
+      </div>
+      <div class="rev-side">
+        <article class="rev rv">
+          <span class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+          <blockquote>“Cleanest fade I've had in Stamford. Andrés takes his time and the hot towel at the end is a nice touch.”</blockquote>
+          <p class="rev-by"><b>Kevin T.</b>Google</p>
+        </article>
+        <article class="rev rv d1">
+          <span class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+          <blockquote>“Llevé a mis dos hijos y a mi esposo el mismo sábado. Súper pacientes con los niños y todo en español.”</blockquote>
+          <p class="rev-by"><b>Sofía R.</b>Google</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- /OPTIONAL -->
+
+<!-- slot: ubicacion y horario -->
+<section class="visit" id="visit" aria-labelledby="visit-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">08</span><span class="c"><span data-en>Visit</span><span data-es>Visítanos</span></span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="visit-grid">
+      <div class="visit-info">
+        <div class="rv">
+          <h2 class="sr-only" id="visit-title"><span data-en>Address and hours</span><span data-es>Dirección y horario</span></h2>
+          <!-- slot: direccion -->
+          <address class="address">418 Bedford Street<span>Stamford, CT 06901</span></address>
+          <p class="small"><span data-en>Downtown, between the park and the library. Metered street parking out front and public garages a short walk away.</span><span data-es>En el centro, entre el parque y la biblioteca. Estacionamiento con parquímetro en la calle y garajes públicos a pocos pasos.</span></p>
+        </div>
+        <div class="rv d1">
+          <p class="label"><span data-en>Hours</span><span data-es>Horario</span></p>
+          <!-- slot: horario -->
+          <table class="hours">
+            <tbody>
+              <tr class="closed" data-days="1"><th scope="row"><span data-en>Monday</span><span data-es>Lunes</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td><span data-en>Closed</span><span data-es>Cerrado</span></td></tr>
+              <tr data-days="2,3,4,5"><th scope="row"><span data-en>Tuesday – Friday</span><span data-es>Martes a viernes</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td>9:00 am – 7:00 pm</td></tr>
+              <tr data-days="6"><th scope="row"><span data-en>Saturday</span><span data-es>Sábado</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td>8:00 am – 5:00 pm</td></tr>
+              <tr data-days="0"><th scope="row"><span data-en>Sunday</span><span data-es>Domingo</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td>10:00 am – 3:00 pm</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="rv d2">
+          <p class="label"><span data-en>Clients come from</span><span data-es>Nos visitan desde</span></p>
+          <!-- slot: zona -->
+          <ul class="towns">
+            <li>Stamford</li><li>Norwalk</li><li>Greenwich</li><li>Darien</li><li>New Canaan</li><li>Old Greenwich</li><li>Port Chester, NY</li>
+          </ul>
+        </div>
+      </div>
+      <div class="map rv-img"><div class="frame" style="position:absolute;inset:0">
+        <iframe src="https://maps.google.com/maps?q=Bedford+Street,+Stamford,+CT&amp;z=15&amp;output=embed" title="Map: Bedford Street, Stamford, CT" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div><p class="map-tag"><b>Bella Luna</b>418 Bedford St.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: FAQ -->
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">09</span><span class="c">FAQ</span><span class="r">Bella Luna · Stamford</span></div>
+    <div class="faq-grid">
+      <div class="faq-side">
+        <h2 class="h2 rv" id="faq-title"><span data-en>Questions we <em>get a lot</em></span><span data-es>Lo que más <em>nos preguntan</em></span></h2>
+        <p class="muted rv d1"><span data-en>Something else? Text us and a real person answers.</span><span data-es>¿Otra duda? Escríbenos: te contesta una persona, no un robot.</span></p>
+      </div>
+      <div class="rv">
+        <details>
+          <summary><span data-en>Do I need a consultation before coloring?</span><span data-es>¿Necesito una consulta antes del color?</span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="answer"><span data-en>For root touch-ups, no. For balayage, going lighter, or fixing color done somewhere else, yes: a free 15-minute consultation in person, or by text with a few photos. When it's needed, we do a strand test so there are no surprises.</span><span data-es>Para retoque de raíz, no. Para balayage, aclarar o corregir un color hecho en otro lugar, sí: una consulta gratis de 15 minutos en persona, o por texto con unas fotos. Si hace falta, hacemos prueba de mechón para que no haya sorpresas.</span></p>
+        </details>
+        <details>
+          <summary><span data-en>Does the barber side take walk-ins?</span><span data-es>¿En la barbería atienden sin cita?</span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="answer"><span data-en>Yes, Tuesday to Saturday whenever a chair is free. Saturday mornings fill up fast, so text us to check the wait or book a set time.</span><span data-es>Sí, de martes a sábado siempre que haya una silla libre. Los sábados por la mañana se llena rápido; escríbenos para saber la espera o reserva una hora fija.</span></p>
+        </details>
+        <details>
+          <summary><span data-en>What products do you use?</span><span data-es>¿Qué productos usan?</span><span class="pm" aria-hidden="true"></span></summary>
+          <!-- slot: marcas de producto -->
+          <p class="answer"><span data-en>Professional salon color with a bond builder in every lightening service, and formaldehyde-free keratin. Styling and care products are sulfate-free. We'll recommend what suits your hair, and you're never pushed to buy anything.</span><span data-es>Color profesional de salón con protector de enlaces en cada aclarado, y keratina sin formol. Los productos de peinado y cuidado son sin sulfatos. Te recomendamos lo que le va a tu pelo, sin presión para comprar nada.</span></p>
+        </details>
+        <details>
+          <summary><span data-en>Do you work with curly and textured hair?</span><span data-es>¿Trabajan con pelo rizado y afro?</span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="answer"><span data-en>Yes. Curly cuts are done dry, curl by curl, and we show you how to style at home with the products you already have. Please come with your hair clean and worn natural.</span><span data-es>Sí. Los cortes de rizos se hacen en seco, rizo por rizo, y te enseñamos a peinarte en casa con lo que ya tienes. Ven con el pelo limpio y suelto, al natural.</span></p>
+        </details>
+        <details>
+          <summary><span data-en>How can I pay?</span><span data-es>¿Cómo puedo pagar?</span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="answer"><span data-en>Cash, all major credit and debit cards, Apple Pay and Google Pay. Tips can be added to your card. Deposits for long color services are taken by card over the phone.</span><span data-es>Efectivo, todas las tarjetas de crédito y débito, Apple Pay y Google Pay. La propina se puede agregar a la tarjeta. Los depósitos para servicios largos de color se toman con tarjeta por teléfono.</span></p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- slot: footer -->
+<footer class="site-footer dark">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-cta">
+        <p class="h2"><span data-en>See you <em>at the chair.</em></span><span data-es>Nos vemos <em>en la silla.</em></span></p>
+        <p><span data-en>Hair color, women's cuts, barbering, nails and brows in downtown Stamford. We speak Spanish · Hablamos español.</span><span data-es>Color, cortes de dama, barbería, uñas y cejas en el centro de Stamford. We speak Spanish · Hablamos español.</span></p>
+        <a class="btn" href="#book"><span data-en>Book an appointment</span><span data-es>Reserva tu cita</span><i data-lucide="arrow-right"></i></a>
+      </div>
+      <div>
+        <h3><span data-en>Visit</span><span data-es>Dirección</span></h3>
+        <address>418 Bedford Street<br>Stamford, CT 06901</address>
+      </div>
+      <div>
+        <h3><span data-en>Hours</span><span data-es>Horario</span></h3>
+        <ul class="tab">
+          <li><span data-en>Tue–Fri 9–7</span><span data-es>Mar–vie 9–7</span></li>
+          <li><span data-en>Sat 8–5 · Sun 10–3</span><span data-es>Sáb 8–5 · dom 10–3</span></li>
+          <li><span data-en>Mon closed</span><span data-es>Lunes cerrado</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3><span data-en>Contact</span><span data-es>Contacto</span></h3>
+        <ul>
+          <li><a href="tel:+12035550147">(203) 555-0147</a></li>
+          <li><a href="sms:+12035550147"><span data-en>Text us</span><span data-es>Mándanos un texto</span></a></li>
+          <li><a href="mailto:hola@bellalunasalon.com">hola@bellalunasalon.com</a></li>
+          <li><a href="https://www.instagram.com/" rel="noopener">@bellaluna.stamford</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="bigname" aria-hidden="true">Bella <i>Luna</i></p>
+    <div class="foot-bottom">
+      <!-- slot: licencias -->
+      <p>© 2026 Bella Luna Salon &amp; Barber LLC</p>
+      <p><span data-en>Salon lic. #SLN.0000000 · Barber lic. #BAR.0000000 · Fully insured</span><span data-es>Licencia de salón #SLN.0000000 · Licencia de barbería #BAR.0000000 · Con seguro</span></p>
+    </div>
+  </div>
+</footer>
+
+<!-- slot: barra movil -->
+<nav class="callbar" aria-label="Quick contact">
+  <a href="tel:+12035550147"><i data-lucide="phone"></i><span data-en>Call</span><span data-es>Llamar</span></a>
+  <a href="sms:+12035550147"><i data-lucide="message-square-text"></i><span data-en>Text</span><span data-es>Texto</span></a>
+  <a class="primary" href="#book"><i data-lucide="calendar-check"></i><span data-en>Book</span><span data-es>Reservar</span></a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script>
+(function () {
+  var root = document.documentElement;
+  root.classList.add('js');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lang = 'en';
+
+  function setLang(l) {
+    lang = l === 'es' ? 'es' : 'en';
+    root.classList.remove('lang-en', 'lang-es');
+    root.classList.add('lang-' + lang);
+    root.setAttribute('lang', lang);
+    document.querySelectorAll('[data-ph-' + lang + ']').forEach(function (el) {
+      el.setAttribute('placeholder', el.getAttribute('data-ph-' + lang));
+    });
+    document.querySelectorAll('[data-t-' + lang + ']').forEach(function (el) {
+      el.textContent = el.getAttribute('data-t-' + lang);
+    });
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === lang));
+    });
+    if (typeof updateCount === 'function') updateCount();
+    try { localStorage.setItem('wc360-lang-belleza', lang); } catch (e) {}
+  }
+
+  var initial = 'en';
+  try { var saved = localStorage.getItem('wc360-lang-belleza'); if (saved) initial = saved; } catch (e) {}
+  var q = new URLSearchParams(location.search).get('lang');
+  if (q === 'es' || q === 'en') initial = q;
+
+  document.querySelectorAll('[data-set-lang]').forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.getAttribute('data-set-lang')); });
+  });
+
+  if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5 } });
+
+  // Header: gains a background and compacts on scroll
+  var header = document.querySelector('.site-header');
+  function onScroll() { header.classList.toggle('scrolled', window.scrollY > 24); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // Mobile menu
+  var btn = document.querySelector('.menu-btn');
+  var mnav = document.getElementById('mobile-nav');
+  function closeMenu() { mnav.classList.remove('open'); header.classList.remove('menu-open'); btn.setAttribute('aria-expanded', 'false'); }
+  btn.addEventListener('click', function () {
+    var open = mnav.classList.toggle('open');
+    header.classList.toggle('menu-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  mnav.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+
+  // Scroll reveal (progressive enhancement)
+  var revealEls = document.querySelectorAll('.rv, .rv-img');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // Menu: the reference photo follows the category you hover, focus or scroll to
+  var cats = document.querySelectorAll('.cat');
+  var figImgs = document.querySelectorAll('.menu-frame img');
+  var caps = document.querySelectorAll('.menu-fig [data-cap]');
+  var figN = document.querySelector('.menu-frame .fig-n');
+  var letters = ['A.', 'B.', 'C.', 'D.'];
+  function showCat(i) {
+    cats.forEach(function (c, k) { c.classList.toggle('on', k === i); });
+    figImgs.forEach(function (im, k) { im.classList.toggle('on', k === i); });
+    caps.forEach(function (c, k) { c.classList.toggle('on', k === i); });
+    if (figN) figN.textContent = letters[i];
+  }
+  cats.forEach(function (c) {
+    var i = +c.getAttribute('data-cat');
+    c.addEventListener('mouseenter', function () { showCat(i); });
+    c.addEventListener('focusin', function () { showCat(i); });
+  });
+  if ('IntersectionObserver' in window) {
+    var catIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) showCat(+en.target.getAttribute('data-cat')); });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    cats.forEach(function (c) { catIO.observe(c); });
+  }
+
+  // Lookbook: arrows, progress and mouse drag (touch scrolls natively)
+  var track = document.getElementById('lb-track');
+  var bar = document.querySelector('.lb-progress span');
+  var prev = document.querySelector('[data-lb="-1"]'), next = document.querySelector('[data-lb="1"]');
+  function lbUpdate() {
+    var max = track.scrollWidth - track.clientWidth;
+    var p = max > 0 ? track.scrollLeft / max : 1;
+    var vis = track.clientWidth / track.scrollWidth;
+    bar.style.transform = 'translateX(' + (p * (1 - vis) * 100 / vis) + '%) scaleX(1)';
+    bar.style.width = (vis * 100) + '%';
+    prev.disabled = track.scrollLeft < 4;
+    next.disabled = track.scrollLeft > max - 4;
+  }
+  function step(dir) {
+    var item = track.querySelector('.look, .look-ig');
+    var w = item ? item.getBoundingClientRect().width + 20 : 400;
+    track.scrollBy({ left: dir * w, behavior: reduce ? 'auto' : 'smooth' });
+  }
+  prev.addEventListener('click', function () { step(-1); });
+  next.addEventListener('click', function () { step(1); });
+  track.addEventListener('scroll', lbUpdate, { passive: true });
+  window.addEventListener('resize', lbUpdate);
+  track.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+  });
+  var drag = null, moved = false;
+  track.addEventListener('pointerdown', function (e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    drag = { x: e.clientX, left: track.scrollLeft }; moved = false;
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.x;
+    if (!moved && Math.abs(dx) > 5) { moved = true; track.classList.add('dragging'); }
+    if (moved) track.scrollLeft = drag.left - dx;
+  });
+  window.addEventListener('pointerup', function () {
+    if (!drag) return;
+    drag = null;
+    if (moved) {
+      var left = track.scrollLeft;
+      track.classList.remove('dragging');
+      track.scrollLeft = left;
+    }
+  });
+  track.addEventListener('click', function (e) { if (moved) { e.preventDefault(); moved = false; } }, true);
+  track.addEventListener('dragstart', function (e) { e.preventDefault(); });
+  lbUpdate();
+
+  // Today's row in the hours table
+  var today = new Date().getDay();
+  document.querySelectorAll('.hours tr[data-days]').forEach(function (tr) {
+    if (tr.getAttribute('data-days').split(',').indexOf(String(today)) > -1) tr.classList.add('today');
+  });
+
+  // Booking: three steps on one page, no reload
+  var form = document.getElementById('book-form');
+  var steps = form.querySelectorAll('.bk-step');
+  var dots = form.querySelectorAll('.bk-progress li');
+  var countEl = document.getElementById('bk-count');
+  var done = document.getElementById('bk-done');
+  var current = 1;
+  window.updateCount = function () {
+    if (!done.hidden) { countEl.textContent = lang === 'es' ? 'Enviado' : 'Sent'; return; }
+    countEl.textContent = (lang === 'es' ? 'Paso ' : 'Step ') + current + (lang === 'es' ? ' de 3' : ' of 3');
+  };
+  var updateCount = window.updateCount;
+  function show(n, focus) {
+    current = n;
+    steps.forEach(function (s) {
+      var on = +s.getAttribute('data-step') === n;
+      s.hidden = !on;
+      s.classList.toggle('enter', on && focus);
+    });
+    dots.forEach(function (d) {
+      var k = +d.getAttribute('data-dot');
+      d.classList.toggle('on', k === n); d.classList.toggle('done', k < n);
+    });
+    updateCount();
+    if (focus) {
+      var t = form.querySelector('#st' + n);
+      if (t) t.focus({ preventScroll: true });
+      var top = form.getBoundingClientRect().top;
+      if (top < 0) form.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    }
+  }
+  function valid(n) {
+    if (n === 1) {
+      var ok = !!form.querySelector('input[name="service"]:checked');
+      document.getElementById('err1').hidden = ok;
+      if (!ok) form.querySelector('#sv1').focus();
+      return ok;
+    }
+    if (n === 3) {
+      var name = document.getElementById('f-name'), phone = document.getElementById('f-phone');
+      var okName = name.value.trim().length > 1;
+      var okPhone = phone.value.replace(/\D/g, '').length >= 10;
+      name.setAttribute('aria-invalid', String(!okName));
+      phone.setAttribute('aria-invalid', String(!okPhone));
+      document.getElementById('err3').hidden = okName && okPhone;
+      if (!okName) name.focus(); else if (!okPhone) phone.focus();
+      return okName && okPhone;
+    }
+    return true;
+  }
+  form.querySelectorAll('input[name="service"]').forEach(function (r) {
+    r.addEventListener('change', function () { document.getElementById('err1').hidden = true; });
+  });
+  form.querySelectorAll('[data-next]').forEach(function (b) {
+    b.addEventListener('click', function () { if (valid(current)) show(current + 1, true); });
+  });
+  form.querySelectorAll('[data-prev]').forEach(function (b) {
+    b.addEventListener('click', function () { show(current - 1, true); });
+  });
+  function labelHTML(input) {
+    var l = form.querySelector('label[for="' + input.id + '"]');
+    if (!l) return '';
+    var c = l.cloneNode(true);
+    c.querySelectorAll('.p, small').forEach(function (x) { x.remove(); });
+    return c.innerHTML;
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!valid(1)) { show(1, true); return; }
+    if (!valid(3)) { show(3, false); return; }
+    var svc = form.querySelector('input[name="service"]:checked');
+    var day = form.querySelector('input[name="day"]:checked');
+    var time = form.querySelector('input[name="time"]:checked');
+    var sty = form.querySelector('input[name="stylist"]:checked');
+    form.querySelector('[data-sum="service"]').innerHTML = labelHTML(svc);
+    var dayLbl = form.querySelector('label[for="' + day.id + '"]').cloneNode(true);
+    dayLbl.querySelectorAll('small').forEach(function (x) { x.remove(); });
+    var dayFull = { d0: ['Any day', 'Cualquier día'], d2: ['Tuesday', 'Martes'], d3: ['Wednesday', 'Miércoles'], d4: ['Thursday', 'Jueves'], d5: ['Friday', 'Viernes'], d6: ['Saturday', 'Sábado'], d7: ['Sunday', 'Domingo'] }[day.id] || ['', ''];
+    form.querySelector('[data-sum="when"]').innerHTML = '<span data-en>' + dayFull[0] + '</span><span data-es>' + dayFull[1] + '</span> · ' + labelHTML(time);
+    form.querySelector('[data-sum="stylist"]').innerHTML = labelHTML(sty);
+    form.querySelector('.done-phone').textContent = document.getElementById('f-phone').value.trim();
+    steps.forEach(function (s) { s.hidden = true; });
+    dots.forEach(function (d) { d.classList.remove('on'); d.classList.add('done'); });
+    done.hidden = false;
+    updateCount();
+    done.focus({ preventScroll: true });
+    form.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  });
+
+  // "Book with ..." preselects the stylist
+  document.querySelectorAll('[data-stylist]').forEach(function (a) {
+    a.addEventListener('click', function () {
+      var r = form.querySelector('input[name="stylist"][value="' + a.getAttribute('data-stylist') + '"]');
+      if (r) r.checked = true;
+    });
+  });
+
+  setLang(initial);
+  show(1, false);
+})();
+</script>
+</body>
+</html>

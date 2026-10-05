@@ -6,7 +6,9 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const VERCEL_BIN = join(__dirname, '../../node_modules/.bin/vercel.cmd');
+// The CLI's launcher is vercel.cmd on Windows and a plain `vercel` script everywhere else (e.g. Render, Linux)
+export const vercelBin = (platform = process.platform) => join(__dirname, '../../node_modules/.bin', platform === 'win32' ? 'vercel.cmd' : 'vercel');
+const VERCEL_BIN = vercelBin();
 
 export async function deployToVercel(slug, htmlContent) {
   const projectName = slug

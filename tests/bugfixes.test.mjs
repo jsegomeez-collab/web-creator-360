@@ -19,7 +19,7 @@ mock.module(src('services/resend.js'), { exports: {
   },
   nextFollowUpDate: n => (n < 2 ? `FOLLOWUP+${n}` : null),
 }});
-mock.module(src('services/gemini.js'), { exports: { scrapeBusinessProfile: async () => profile } });
+mock.module(src('services/businessProfile.js'), { exports: { scrapeBusinessProfile: async () => profile } });
 mock.module(src('services/claude.js'), { exports: { generateWebsite: async () => '<html></html>' } });
 mock.module(src('services/vercel.js'), { exports: { deployToVercel: async () => 'https://x.vercel.app' } });
 

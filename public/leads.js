@@ -9,7 +9,7 @@ const STATUS = {
   new:           { label: 'Nuevo',           badge: 'badge-prospected' },
   queued:        { label: 'En Instantly',    badge: 'badge-blue' },
   emailed:       { label: 'Enviado',         badge: 'badge-sent' },
-  engaged:       { label: 'Abrió el enlace', badge: 'badge-scraped' },
+  engaged:       { label: 'Vio su web',      badge: 'badge-scraped' },
   requested:     { label: 'Pidió llamada',   badge: 'badge-generated' },
   replied:       { label: 'Respondió',       badge: 'badge-blue' },
   called:        { label: 'Llamado',         badge: 'badge-sent' },
@@ -171,7 +171,7 @@ async function loadLeadsSources() {
 // ─── Tab: Fuentes · CSV with column mapping ──────────────────────────────────
 
 const MAPPING_KEY = 'wc360_csv_mapping';
-const csv = { text: '', preview: null };
+const csv = { text: '', name: '', preview: null };   // name: shown in Envío to send just this import
 
 function savedMapping() {
   try { return JSON.parse(localStorage.getItem(MAPPING_KEY) || '{}'); } catch { return {}; }
@@ -229,6 +229,7 @@ function clearCsvFile() {
   $('csv-mapper').classList.add('hidden');
   $('csv-result').classList.add('hidden');
   csv.text = '';
+  csv.name = '';
   csv.preview = null;
 }
 
@@ -240,6 +241,7 @@ async function onCsvFile(file) {
   $('csv-file-row').classList.remove('hidden');
   if (file.size > CSV_MAX_BYTES) return toast('El archivo pesa más de 8 MB: divídelo en partes', 'error');
   try {
+    csv.name = file.name;
     csv.text = await file.text();
     csv.preview = await leadsApi('/import/csv/preview', { method: 'POST', body: { csv: csv.text } });
     renderMapper(csv.preview);
@@ -264,7 +266,7 @@ function csvResultHtml(r) {
 async function runCsvImport(dryRun, btn) {
   await withBusy(btn, dryRun ? 'Comprobando…' : 'Importando…', async () => {
     const mapping = currentMapping();
-    const r = await leadsApi('/import/csv', { method: 'POST', body: { csv: csv.text, mapping, dryRun } });
+    const r = await leadsApi('/import/csv', { method: 'POST', body: { csv: csv.text, mapping, filename: csv.name, dryRun } });
     saveMapping(mapping);
     $('csv-result').innerHTML = csvResultHtml(r);
     $('csv-result').classList.remove('hidden');
@@ -307,6 +309,17 @@ const requestInfo = (l) => `
   <a href="tel:${esc(l.phone)}" class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-brand-50 px-2 py-1 text-xs font-semibold text-brand-700 ring-1 ring-inset ring-brand-200 hover:bg-brand-100">${ic('phone-call', 'h-3.5 w-3.5')}${esc(l.phone)}</a>
   <div class="mt-1 text-xs text-slate-500">${l.contact_name ? `${esc(l.contact_name)} · ` : ''}${esc(l.preferred_time || '')}${l.requested_at ? ` · pedida ${esc(fmtDate(l.requested_at))}` : ''}</div>`;
 
+// The lead's demo website: a link when it's ready; a button to make it while the lead hasn't been sent yet
+const demoLinkOf = (url) => `${String(url).replace(/\/+$/, '')}/?lang=es`;
+function demoInfo(l) {
+  const link = l.demo_url ? `<a href="${esc(demoLinkOf(l.demo_url))}" target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-violet-700 hover:underline">${ic('globe', 'h-3.5 w-3.5')}Ver web${ic('arrow-up-right', 'h-3 w-3')}</a>` : '';
+  if (l.status !== 'new') return link ? `<div>${link}</div>` : '';
+  if (l.demo_status === 'generating') return `<div class="mt-2 text-xs font-medium text-slate-500">Creando su web…</div>`;
+  const label = l.demo_status === 'failed' ? 'Reintentar web' : l.demo_url ? 'Rehacer web' : 'Crear web';
+  const title = l.demo_status === 'failed' && l.demo_error ? ` title="${esc(l.demo_error)}"` : '';
+  return `<div class="mt-2 flex flex-wrap items-center gap-2">${link}<button data-demo="${esc(l.id)}"${title} class="action-btn btn-generate">${ic('wand-sparkles')}${label}</button></div>`;
+}
+
 const ACTION_STYLE = { replied: ['btn-send', 'message-circle'], called: ['btn-generate', 'phone'], won: ['btn-preview', 'trophy'], lost: ['btn-soft-danger', 'x'] };
 
 function leadRow(l) {
@@ -316,7 +329,7 @@ function leadRow(l) {
     return `<button data-lead-action="${esc(a)}" data-id="${esc(l.id)}" class="action-btn ${cls}">${ic(icon)}${esc(ACTION_LABEL[a])}</button>`;
   }).join('');
   const flags = `${l.priority === 'A' ? '<span class="rounded-md bg-brand-50 px-1.5 py-0.5 text-[10.5px] font-bold text-brand-700" title="Sector conocido">A</span>' : ''}${l.latino_strong ? `<span title="Nombre en español">${ic('star', 'h-3.5 w-3.5 fill-amber-400 text-amber-400')}</span>` : ''}`;
-  const status = `<span class="badge ${st.badge}">${esc(st.label)}</span>${l.status === 'requested' ? requestInfo(l) : ''}`;
+  const status = `<span class="badge ${st.badge}">${esc(st.label)}</span>${l.status === 'requested' ? requestInfo(l) : ''}${demoInfo(l)}`;
   // On a phone the Estado and Acción columns don't fit: they go under the name instead
   return `
     <tr class="table-row">
@@ -461,6 +474,7 @@ async function loadSendBatches() {
 async function updateSendCount() {
   const f = sendFilters();
   const qs = new URLSearchParams({ status: 'new', limit: '1' });
+  if (leadStats?.demos?.enabled) qs.set('demo', 'ready');   // with demos, only leads whose site is ready get sent
   for (const [k, v] of Object.entries(f)) if (v) qs.set(k, v);
   const { total } = await leadsApi(`/?${qs}`).catch(() => ({ total: 0 }));
   $('send-new-count').textContent = nf(total);
@@ -471,6 +485,8 @@ async function updateSendCount() {
 async function loadLeadsSend() {
   fillSendFilterOptions();
   const [stats, tpl] = await Promise.all([loadLeadStats(), leadsApi('/email-template'), loadSendBatches(), loadAutopilot()]);
+  renderDemosCard(stats?.demos);
+  $('tpl-version').textContent = tpl.demos ? 'Versión con demo: enlaza a la web de cada lead ({{web}}).' : 'Versión clásica: enlaza a la página para pedir la llamada.';
   $('tpl-subject').value = tpl.subject;
   $('tpl-body').value = tpl.body;
   $('tpl-vars').innerHTML = tpl.variables.map(v => `<code class="rounded-lg bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700 ring-1 ring-inset ring-brand-100">{{${esc(v)}}}</code>`).join('');
@@ -491,6 +507,30 @@ async function loadLeadsSend() {
   $('poll-hint').textContent = configured
     ? 'El servidor de la campaña lo comprueba solo cada 5 minutos; aquí puedes hacerlo ahora mismo.'
     : 'Necesita Instantly configurado (arriba).';
+}
+
+function renderDemosCard(d) {
+  if (!d) return;
+  const pill = $('demos-pill'), hint = $('demos-hint');
+  pill.className = `badge ${d.enabled ? 'badge-green' : 'badge-prospected'}`;
+  pill.textContent = d.enabled ? 'Activadas' : 'Desactivadas';
+  for (const k of ['ready', 'generating', 'failed']) $(`demos-${k}`).textContent = nf(d[k]);
+  const problem = !d.columns ? 'Falta ejecutar de nuevo src/db/schema-new-business-leads.sql en Supabase (añade las columnas de las demos).'
+    : !d.configured ? 'Faltan ANTHROPIC_API_KEY o VERCEL_TOKEN en tu .env: sin ellas no se pueden crear webs.'
+    : !d.enabled ? 'Con LEAD_DEMOS=false se envía el email clásico. Para enviar demos: pega el texto con demo en Instantly y pon LEAD_DEMOS=true (aquí y en el servidor de la campaña).' : '';
+  hint.className = `mt-4 rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed ${problem ? (d.enabled || !d.columns ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-amber-200 bg-amber-50 text-amber-800') : 'hidden'}`;
+  hint.textContent = problem;
+  $('demos-btn').disabled = !d.columns || !d.configured;
+}
+
+async function createDemos(btn) {
+  await withBusy(btn, 'Creando webs… (≈1 min cada una)', async () => {
+    const r = await leadsApi('/demos', { method: 'POST', body: { limit: 3 } });
+    const lines = r.results.map(x => `<p class="flex items-start gap-2 py-1 text-[13px] ${x.ok ? 'text-slate-700' : 'text-rose-700'}">${ic(x.ok ? 'check' : 'x', 'mt-0.5 h-3.5 w-3.5 shrink-0')}<span>${esc(x.name)}${x.ok ? ` · <a class="font-semibold text-violet-700 hover:underline" href="${esc(demoLinkOf(x.url))}" target="_blank" rel="noopener">ver web</a>` : ` — ${esc(x.error)}`}</span></p>`).join('');
+    $('demos-result').innerHTML = resultBox(r.results.length ? `${nf(r.created)} webs creadas${r.failed ? ` · ${nf(r.failed)} fallidas` : ''}` : 'No hay leads nuevos sin web', false, lines || '<p class="py-1 text-[13px] text-slate-600">Todos los leads nuevos ya tienen su web.</p>');
+    $('demos-result').classList.remove('hidden');
+  });
+  await loadLeadsSend();
 }
 
 async function pollInstantly(btn) {
@@ -594,6 +634,15 @@ $('leads-funnel').addEventListener('click', (e) => {
 });
 
 $('leads-table').addEventListener('click', async (e) => {
+  const demoBtn = e.target.closest('[data-demo]');
+  if (demoBtn) {
+    await withBusy(demoBtn, 'Creando… ≈1 min', async () => {
+      const r = await leadsApi(`/${encodeURIComponent(demoBtn.dataset.demo)}/demo`, { method: 'POST' });
+      toast(`Web creada con la plantilla «${r.template}»`);
+      await loadLeadsList();
+    });
+    return;
+  }
   const btn = e.target.closest('[data-lead-action]');
   if (!btn) return;
   await withBusy(btn, '…', async () => {
@@ -603,6 +652,7 @@ $('leads-table').addEventListener('click', async (e) => {
 });
 
 $('autopilot-toggle').addEventListener('click', (e) => toggleAutopilot(e.currentTarget));
+$('demos-btn').addEventListener('click', (e) => createDemos(e.currentTarget));
 $('autopilot-save-btn').addEventListener('click', (e) => saveAutopilotLimit(e.currentTarget));
 $('send-source').addEventListener('change', onSendSourceChange);
 $('send-batch').addEventListener('change', onSendBatchChange);

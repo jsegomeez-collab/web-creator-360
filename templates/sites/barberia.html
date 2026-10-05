@@ -1,0 +1,1973 @@
+<!-- DEMO · negocio y datos ficticios · plantilla barberia de Web Creator 360 -->
+<!doctype html>
+<html lang="en" class="lang-en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- slot: nombre, ciudad -->
+<title>Filo Barber Co. · Fades, cuts &amp; hot-towel shaves in Bridgeport, CT</title>
+<meta name="description" content="Three-chair barbershop on Park Avenue in Bridgeport, CT. Skin fades, tapers, beard line-ups, hot-towel shaves and kids' cuts. Walk-ins welcome. We speak Spanish.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Instrument+Serif:ital@0;1&family=Archivo:wdth,wght@62..125,400..600&display=swap" rel="stylesheet">
+<style>
+  /* CONCEPT: "Gold leaf on the shop window" — a North End corner barbershop set like hand-lettered window signage:
+     tall industrial capitals (Bridgeport is a factory town), a script-like italic for the flourishes, brass hairlines,
+     a price board on the wall, numbered chairs and a paper ticket to hold your spot. Lacquer black, cream, oxblood, brass. */
+  :root {
+    /* Recolor the template by changing --brand, --brand-ink and --accent */
+    --brand: #8e2b20;        /* oxblood / sangre de toro */
+    --brand-ink: #7a2219;    /* darker oxblood for small text on cream */
+    --brand-soft: #d98a78;   /* oxblood on dark backgrounds */
+    --accent: #c09a5b;       /* brass (decorative on cream, text only on dark) */
+    --bg: #eee7da;           /* cream */
+    --paper: #f6f1e7;        /* lighter sheet */
+    --ink: #15110e;          /* lacquer near-black */
+    --ink-2: #1e1814;        /* raised dark surface */
+    --muted: #5b5249;
+    --line: #d5cbbb;
+    --line-strong: #a99a86;
+    --on-dark: #efe8dc;
+    --on-dark-muted: #b3a797;
+    --dark-line: #3a312a;
+
+    --display: "Big Shoulders Display", "Oswald", "Arial Narrow", Impact, sans-serif;
+    --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+    --sans: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+
+    --wrap: 1360px;
+    --gutter: clamp(18px, 4.2vw, 64px);
+    --header: 84px;
+    --photo: saturate(.8) contrast(1.06) sepia(.1) brightness(.97);   /* one grade for every photograph */
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  html:focus-within { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 18px; line-height: 1.65; font-weight: 400;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  /* paper grain */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: .06; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  img { display: block; max-width: 100%; height: auto; }
+  .ph img, img.ph { filter: var(--photo); }
+  a { color: inherit; }
+  h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
+  p { margin: 0; text-wrap: pretty; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  figure { margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+  .dark :focus-visible { outline-color: var(--accent); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .num, .price, .hours td, .tab, .dur { font-variant-numeric: lining-nums tabular-nums; }
+
+  /* Language switching */
+  .lang-en [data-es], .lang-es [data-en] { display: none !important; }
+
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+  section { scroll-margin-top: 70px; }
+  .dark { background: var(--ink); color: var(--on-dark); }
+
+  /* ---------- Type ---------- */
+  .label {
+    font-size: 11.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; color: var(--brand-ink);
+  }
+  .dark .label { color: var(--accent); }
+  .h2 {
+    font-family: var(--display); font-weight: 800; text-transform: uppercase; line-height: .9; letter-spacing: .002em;
+    font-size: clamp(3rem, 6.2vw, 6.2rem);
+  }
+  .h2 em, .h3 em, .hero-title em, .bigname em {
+    font-family: var(--serif); font-style: italic; font-weight: 400; text-transform: none; letter-spacing: -0.01em; color: var(--brand);
+    font-size: .86em; line-height: 1;
+  }
+  .dark .h2 em, .dark .h3 em { color: var(--accent); }
+  .h3 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: clamp(2rem, 2.9vw, 2.8rem); line-height: .95; letter-spacing: .01em; }
+  .lead { font-size: clamp(1.08rem, 1.3vw, 1.24rem); line-height: 1.6; color: var(--muted); max-width: 33em; }
+  .dark .lead { color: var(--on-dark-muted); }
+  .muted { color: var(--muted); }
+  .cap { font-family: var(--serif); font-style: italic; font-size: 16.5px; line-height: 1.4; color: var(--muted); }
+  .cap b { font-style: normal; font-family: var(--sans); font-weight: 600; font-stretch: 125%; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--brand-ink); margin-right: 10px; vertical-align: 1px; }
+  .dark .cap { color: var(--on-dark-muted); }
+  .dark .cap b { color: var(--accent); }
+
+  /* running head: the brass folio line that opens each section */
+  .runhead {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px;
+    padding-bottom: 14px; margin-bottom: clamp(40px, 5.5vw, 76px); position: relative;
+    font-size: 11px; font-weight: 600; font-stretch: 125%; letter-spacing: .22em; text-transform: uppercase;
+  }
+  .runhead::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); opacity: .9; }
+  .runhead .n { font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: .04em; color: var(--brand); line-height: 1; }
+  .runhead .c { text-align: center; }
+  .runhead .r { text-align: right; color: var(--muted); }
+  .dark .runhead::after { border-color: var(--accent); opacity: .55; }
+  .dark .runhead .n { color: var(--accent); }
+  .dark .runhead .r { color: var(--on-dark-muted); }
+
+  /* ---------- Buttons & links ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+    min-height: 56px; padding: 0 28px; border: 1px solid var(--ink); border-radius: 2px;
+    font-size: 12px; font-weight: 600; font-stretch: 125%; letter-spacing: .16em; text-transform: uppercase; text-decoration: none;
+    background: var(--ink); color: var(--bg); cursor: pointer;
+    transition: background-color .35s var(--ease), color .35s var(--ease), border-color .35s var(--ease);
+  }
+  .btn:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .btn.red { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .btn.red:hover { background: var(--brand-ink); border-color: var(--brand-ink); }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn.ghost:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn svg { width: 17px; height: 17px; stroke-width: 1.6; transition: transform .45s var(--ease); }
+  .btn:hover svg.lucide-arrow-right, .btn:hover svg.lucide-arrow-up-right { transform: translateX(4px); }
+  .dark .btn:not(.red) { background: var(--on-dark); color: var(--ink); border-color: var(--on-dark); }
+  .dark .btn:not(.red):hover { background: var(--accent); border-color: var(--accent); color: var(--ink); }
+  .dark .btn.ghost { background: transparent; color: var(--on-dark); border-color: rgba(239,232,220,.45); }
+  .dark .btn.ghost:hover { background: var(--on-dark); color: var(--ink); border-color: var(--on-dark); }
+  .ulink {
+    display: inline-flex; align-items: center; gap: 10px; text-decoration: none; padding-bottom: 5px;
+    font-size: 12px; font-weight: 600; font-stretch: 125%; letter-spacing: .16em; text-transform: uppercase;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+    transition: background-size .5s var(--ease);
+  }
+  .ulink:hover { background-size: 0 1px; background-position: 100% 100%; }
+  .ulink svg { width: 16px; height: 16px; stroke-width: 1.6; transition: transform .45s var(--ease); }
+  .ulink:hover svg { transform: translate(3px, -3px); }
+
+  /* ---------- Header ---------- */
+  .site-header {
+    position: fixed; inset: 0 0 auto 0; z-index: 50; height: var(--header); color: var(--on-dark);
+    background: transparent; border-bottom: 1px solid transparent;
+    transition: height .45s var(--ease), background-color .45s var(--ease), border-color .45s var(--ease);
+  }
+  .site-header.scrolled { height: 66px; background: var(--ink); border-bottom-color: var(--dark-line); }
+  .site-header :focus-visible { outline-color: var(--accent); }
+  .header-in { height: 100%; display: flex; align-items: center; gap: 32px; max-width: none; }
+  .logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
+  .logo svg { width: 42px; height: 42px; flex-shrink: 0; transition: width .45s var(--ease), height .45s var(--ease); }
+  .scrolled .logo svg { width: 36px; height: 36px; }
+  .logo-text { display: grid; line-height: 1; }
+  .logo-name { font-family: var(--display); font-weight: 900; font-size: 27px; letter-spacing: .08em; text-transform: uppercase; display: flex; align-items: baseline; gap: 7px; }
+  .logo-name i { font-family: var(--serif); font-weight: 400; font-size: 21px; letter-spacing: 0; text-transform: none; color: var(--accent); }
+  .logo-sub { font-size: 8.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .34em; text-transform: uppercase; margin-top: 5px; color: var(--on-dark-muted); }
+  .nav { display: flex; gap: 30px; margin-left: auto; }
+  .nav a {
+    text-decoration: none; font-size: 11.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .16em; text-transform: uppercase; padding: 6px 0;
+    background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 1px no-repeat; transition: background-size .45s var(--ease);
+  }
+  .nav a:hover { background-size: 100% 1px; }
+  .header-actions { display: flex; align-items: center; gap: 22px; }
+  .phone-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 15px; font-weight: 500; white-space: nowrap; }
+  .phone-link svg { width: 15px; height: 15px; stroke-width: 1.6; color: var(--accent); }
+  .lang-switch { display: inline-flex; align-items: center; gap: 2px; }
+  .lang-switch button {
+    border: 0; background: transparent; cursor: pointer; padding: 6px 7px; min-width: 34px; min-height: 34px;
+    font-size: 11px; font-weight: 600; font-stretch: 125%; letter-spacing: .14em; color: var(--on-dark-muted); position: relative;
+  }
+  .lang-switch button[aria-pressed="true"] { color: var(--on-dark); }
+  .lang-switch button[aria-pressed="true"]::after { content: ""; position: absolute; left: 9px; right: 9px; bottom: 4px; height: 1px; background: var(--accent); }
+  .lang-switch .sep { width: 1px; height: 14px; background: var(--dark-line); }
+  .header-actions .btn { min-height: 44px; padding: 0 20px; }
+  .menu-btn { display: none; border: 0; background: transparent; width: 44px; height: 44px; align-items: center; justify-content: center; cursor: pointer; margin-right: -10px; }
+  .menu-btn svg { width: 24px; height: 24px; stroke-width: 1.5; }
+  .mobile-nav { display: none; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; min-height: max(700px, min(100svh, 1000px)); display: flex; flex-direction: column; overflow: hidden; }
+  .hero-media { position: absolute; inset: 0 0 0 30%; z-index: 0; background: #0d0b09; }
+  .hero-media img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 35%; }
+  .hero-media::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, var(--ink) 0%, rgba(21,17,14,.82) 16%, rgba(21,17,14,.25) 48%, rgba(21,17,14,0) 72%),
+                linear-gradient(0deg, rgba(21,17,14,.9) 0%, rgba(21,17,14,0) 30%);
+  }
+  .hero-copy {
+    position: relative; z-index: 2; flex: 1; width: 100%; max-width: var(--wrap); margin: 0 auto;
+    padding: calc(var(--header) + clamp(16px, 3.4vh, 56px)) var(--gutter) clamp(26px, 3.6vh, 44px);
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .hero-kicker { display: flex; align-items: center; gap: 16px; }
+  .hero-kicker .rule { width: 56px; height: 1px; background: var(--accent); }
+  .hero-title {
+    font-family: var(--display); font-weight: 900; text-transform: uppercase; line-height: .8; letter-spacing: .005em;
+    font-size: clamp(5rem, min(11vw, 15.5vh), 11.2rem); margin-top: clamp(16px, 2.6vh, 30px);
+  }
+  .hero-title .ln { display: block; overflow: hidden; padding-bottom: .06em; margin-bottom: -.06em; }
+  .hero-title .ln > span { display: inline-block; }
+  .hero-title .ln.i1 { padding-left: .55em; }
+  .hero-title .where { display: block; margin-top: .26em; font-size: .3em; line-height: 1.05; color: var(--accent); overflow: hidden; }
+  .hero-title .where em { color: var(--accent); font-size: 1em; }
+  .hero-lead { margin-top: clamp(18px, 3vh, 30px); font-size: clamp(1.05rem, 1.25vw, 1.2rem); color: #cfc5b7; max-width: 29em; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(20px, 3.4vh, 34px); }
+  .hero-side {
+    position: absolute; z-index: 2; right: 22px; top: 50%; writing-mode: vertical-rl; transform: translateY(-50%) rotate(180deg);
+    font-size: 10px; font-weight: 600; font-stretch: 125%; letter-spacing: .36em; text-transform: uppercase; color: rgba(239,232,220,.75);
+  }
+
+  /* the shop-window strip at the foot of the hero */
+  .window { position: relative; z-index: 2; border-top: 1px solid rgba(192,154,91,.45); background: rgba(13,11,9,.55); }
+  .window ul { display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; }
+  .window li { padding: 18px 24px 20px; border-left: 1px solid rgba(192,154,91,.3); display: grid; gap: 3px; align-content: center; }
+  .window li:first-child { border-left: 0; padding-left: 0; }
+  .window .k { font-size: 10px; font-weight: 600; font-stretch: 125%; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); }
+  .window .v { font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: .03em; text-transform: uppercase; line-height: 1.1; }
+  .window a.v { text-decoration: none; }
+  .window a.v:hover { color: var(--accent); }
+
+  /* live status (hero + visit) */
+  .live { display: flex; align-items: center; gap: 12px; }
+  .live .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex-shrink: 0; position: relative; }
+  .live.is-open .dot { background: #6fbf73; }
+  .live.is-open .dot::after {
+    content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 1px solid #6fbf73; opacity: 0;
+    animation: ping 2.4s var(--ease) infinite;
+  }
+  .live.is-closed .dot { background: var(--brand-soft); }
+  @keyframes ping { 0% { transform: scale(.5); opacity: .9; } 100% { transform: scale(1.6); opacity: 0; } }
+  .live [data-state] { display: none; }
+  .live [data-state="static"] { display: inline; }
+  .live.is-open [data-state="static"], .live.is-later [data-state="static"], .live.is-closed [data-state="static"] { display: none; }
+  .live.is-open [data-state="open"], .live.is-later [data-state="later"], .live.is-closed [data-state="closed"] { display: inline; }
+  .lang-es .visit .live [data-live-day] { text-transform: lowercase; }
+
+  /* hero choreography (CSS only) */
+  @keyframes rise { from { transform: translateY(104%); } to { transform: none; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes settle { from { transform: scale(1.09); } to { transform: scale(1); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .hero-title .ln > span { animation: rise 1.05s var(--ease) both; }
+  .hero-title > span > .ln:nth-child(2) > span { animation-delay: .09s; }
+  .hero-title > span > .ln:nth-child(3) > span { animation-delay: .18s; }
+  .hero-title > span > .where > span { animation: rise 1s var(--ease) .34s both; display: inline-block; }
+  .hero-kicker { animation: fadeUp .8s var(--ease) both; }
+  .hero-lead, .hero-ctas { animation: fadeUp .9s var(--ease) .45s both; }
+  .window { animation: fadeIn 1s var(--ease) .65s both; }
+  .hero-media { animation: fadeIn 1.4s var(--ease) both; }
+  .hero-media img { animation: settle 2.4s var(--ease) both; }
+
+  /* ---------- Standards strip ---------- */
+  .standards { border-bottom: 1px solid var(--line); background: var(--bg); }
+  .standards ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .standards li { padding: 30px 28px 32px; border-left: 1px solid var(--line); display: grid; grid-template-columns: 34px 1fr; column-gap: 12px; row-gap: 4px; align-content: start; }
+  .standards li:first-child { border-left: 0; padding-left: 0; }
+  .standards svg { grid-row: 1 / 3; width: 24px; height: 24px; stroke-width: 1.3; color: var(--brand); margin-top: 2px; }
+  .standards h3 { font-family: var(--display); font-weight: 800; font-size: 22px; line-height: 1.1; text-transform: uppercase; letter-spacing: .02em; }
+  .standards p { font-size: 15px; color: var(--muted); line-height: 1.5; }
+
+  /* ---------- Price board (signature: photo follows the category) ---------- */
+  .board { padding: clamp(96px, 11vw, 160px) 0 clamp(80px, 9vw, 130px); }
+  .board-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px 64px; align-items: end; margin-bottom: clamp(48px, 6vw, 84px); }
+  .board-head .lead { justify-self: end; }
+  .board-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 104px); align-items: start; }
+  .board-fig { position: sticky; top: 92px; }
+  .board-frame { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--ink); }
+  .board-frame img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.06);
+    transition: opacity .9s var(--ease), transform 1.4s var(--ease);
+  }
+  .board-frame img.on { opacity: 1; transform: scale(1); }
+  .board-frame::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(239,232,220,.35); pointer-events: none; z-index: 2; }
+  .board-frame .fig-n {
+    position: absolute; left: 26px; bottom: 18px; z-index: 3; font-family: var(--display); font-weight: 900; font-size: clamp(4rem, 7vw, 6.4rem); line-height: .85; color: var(--on-dark);
+  }
+  .board-fig figcaption { display: flex; gap: 12px; margin-top: 14px; min-height: 2.9em; }
+  .board-fig figcaption [data-cap] { display: none; }
+  .board-fig figcaption [data-cap].on { display: block; }
+
+  .cat + .cat { margin-top: clamp(56px, 6vw, 88px); }
+  .cat-img { display: none; }
+  .cat-head { display: flex; align-items: baseline; gap: 16px; padding-bottom: 14px; position: relative; }
+  .cat-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+  .cat-head .n { font-family: var(--display); font-weight: 800; font-size: 22px; color: var(--brand); width: 30px; flex-shrink: 0; }
+  .cat-head .h3 { transition: color .5s var(--ease); }
+  .cat.on .cat-head .h3 { color: var(--brand); }
+  .cat-head .with { margin-left: auto; font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--muted); white-space: nowrap; }
+  .items li { padding: 18px 0 18px 46px; border-bottom: 1px solid var(--line); position: relative; }
+  .items li::before {
+    content: ""; position: absolute; left: 0; top: 33px; width: 22px; height: 1px; background: var(--brand);
+    transform: scaleX(0); transform-origin: left; transition: transform .5s var(--ease);
+  }
+  .items li:hover::before { transform: scaleX(1); }
+  .item-top { display: flex; align-items: baseline; gap: 12px; }
+  .item-top h4 { font-family: var(--display); font-weight: 800; font-size: 26px; line-height: 1.1; text-transform: uppercase; letter-spacing: .02em; }
+  .item-top h4 small { font-family: var(--sans); font-weight: 400; font-size: 13px; color: var(--muted); letter-spacing: 0; text-transform: none; }
+  .leader { flex: 1; min-width: 24px; border-bottom: 2px dotted var(--line-strong); transform: translateY(-6px); }
+  .price { font-family: var(--display); font-weight: 800; font-size: 30px; white-space: nowrap; line-height: 1; transition: color .4s var(--ease); }
+  .items li:hover .price { color: var(--brand); }
+  .price .from { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 17px; color: var(--muted); margin-right: 6px; }
+  .item-bottom { display: flex; justify-content: space-between; align-items: baseline; gap: 28px; margin-top: 6px; }
+  .item-bottom p { font-size: 15.5px; color: var(--muted); line-height: 1.55; max-width: 34em; }
+  .dur { font-size: 11px; font-weight: 600; font-stretch: 125%; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); white-space: nowrap; border: 1px solid var(--line-strong); padding: 3px 8px 2px; border-radius: 2px; }
+  .aside-note { margin-top: 22px; padding-left: 46px; display: grid; grid-template-columns: auto 1fr; gap: 14px; font-size: 15.5px; }
+  .aside-note svg { width: 18px; height: 18px; stroke-width: 1.5; color: var(--brand); margin-top: 4px; }
+  .price-note { margin-top: 40px; font-size: 14px; color: var(--muted); max-width: 60em; }
+
+  /* ---------- Fade guide (signature: pure-CSS selector) ---------- */
+  .fades { padding: clamp(96px, 11vw, 150px) 0; }
+  .fg { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 104px); align-items: center; }
+  .fg > input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .fg-fig { position: relative; }
+  .fg-frame { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #0d0b09; --y: 44%; }
+  .fg-frame img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+  .fg-band {
+    position: absolute; left: 0; right: 0; top: var(--y); bottom: 38%; z-index: 1; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(192,154,91,.16) 0 1px, transparent 1px 7px);
+    transition: top .8s var(--ease);
+  }
+  .fg-line {
+    position: absolute; left: 0; right: 0; top: var(--y); z-index: 2; height: 0; border-top: 1px dashed var(--accent);
+    transition: top .8s var(--ease);
+  }
+  .fg-line > span {
+    display: flex; line-height: 1.3;
+    position: absolute; right: 14px; bottom: 8px; background: var(--ink); color: var(--accent); padding: 5px 10px 4px;
+    font-size: 10px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap;
+  }
+  .fg-line::before { content: ""; position: absolute; left: 14px; top: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+  .fg-fig figcaption { margin-top: 14px; }
+  .fg-copy { display: grid; gap: 26px; align-content: start; }
+  .fg-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--dark-line); border-bottom: 1px solid var(--dark-line); margin-top: 8px; }
+  .fg-tabs label {
+    cursor: pointer; padding: 16px 0 14px; text-align: center; position: relative; display: grid; gap: 2px;
+    font-family: var(--display); font-weight: 800; font-size: clamp(1.4rem, 2vw, 1.9rem); text-transform: uppercase; letter-spacing: .03em; color: var(--on-dark-muted);
+    transition: color .35s var(--ease);
+  }
+  .fg-tabs label + label { border-left: 1px solid var(--dark-line); }
+  .fg-tabs label small { font-family: var(--sans); font-weight: 600; font-stretch: 125%; font-size: 9.5px; letter-spacing: .2em; color: inherit; opacity: .8; }
+  .fg-tabs label::after { content: ""; position: absolute; left: 18%; right: 18%; bottom: -1px; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform .45s var(--ease); }
+  .fg-tabs label:hover { color: var(--on-dark); }
+  .fg-panel { display: none; }
+  .fg-panel h3 { font-family: var(--serif); font-style: italic; font-size: clamp(1.6rem, 2.3vw, 2.2rem); line-height: 1.2; }
+  .fg-panel > p { color: var(--on-dark-muted); margin-top: 12px; max-width: 34em; }
+  .fg-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 26px; border-top: 1px solid var(--dark-line); }
+  .fg-facts div { padding: 16px 16px 0 0; }
+  .fg-facts div + div { padding-left: 18px; border-left: 1px solid var(--dark-line); }
+  .fg-facts dt { font-size: 10px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+  .fg-facts dd { margin: 6px 0 0; font-family: var(--display); font-weight: 600; font-size: 22px; line-height: 1.15; text-transform: uppercase; letter-spacing: .02em; }
+  .fg-note { font-size: 15px; color: var(--on-dark-muted); display: grid; grid-template-columns: auto 1fr; gap: 12px; padding-top: 22px; border-top: 1px solid var(--dark-line); }
+  .fg-note svg { width: 18px; height: 18px; stroke-width: 1.5; color: var(--accent); margin-top: 3px; }
+  /* states (no JS needed) */
+  .fg:has(#fg-1:checked) .fg-frame { --y: 55%; }
+  .fg:has(#fg-2:checked) .fg-frame { --y: 43%; }
+  .fg:has(#fg-3:checked) .fg-frame { --y: 36%; }
+  .fg:has(#fg-4:checked) .fg-frame { --y: 25%; }
+  .fg:has(#fg-1:checked) [for="fg-1"], .fg:has(#fg-2:checked) [for="fg-2"], .fg:has(#fg-3:checked) [for="fg-3"], .fg:has(#fg-4:checked) [for="fg-4"] { color: var(--on-dark); }
+  .fg:has(#fg-1:checked) [for="fg-1"]::after, .fg:has(#fg-2:checked) [for="fg-2"]::after, .fg:has(#fg-3:checked) [for="fg-3"]::after, .fg:has(#fg-4:checked) [for="fg-4"]::after { transform: scaleX(1); }
+  .fg:has(#fg-1:checked) [data-fade="1"], .fg:has(#fg-2:checked) [data-fade="2"], .fg:has(#fg-3:checked) [data-fade="3"], .fg:has(#fg-4:checked) [data-fade="4"] { display: block; animation: fadeUp .6s var(--ease) both; }
+  .fg:has(#fg-1:focus-visible) [for="fg-1"], .fg:has(#fg-2:focus-visible) [for="fg-2"], .fg:has(#fg-3:focus-visible) [for="fg-3"], .fg:has(#fg-4:focus-visible) [for="fg-4"] { outline: 2px solid var(--accent); outline-offset: -4px; }
+  .fg-line [data-fade] { display: none; }
+  .fg:has(#fg-1:checked) .fg-line [data-fade="1"], .fg:has(#fg-2:checked) .fg-line [data-fade="2"], .fg:has(#fg-3:checked) .fg-line [data-fade="3"], .fg:has(#fg-4:checked) .fg-line [data-fade="4"] { display: inline; animation: none; }
+  @supports not selector(:has(*)) { .fg-panel[data-fade="2"] { display: block; } .fg-line [data-fade="2"] { display: inline; } }
+
+  /* ---------- Two ways in + process ---------- */
+  .ways-in { padding: clamp(96px, 11vw, 150px) 0 clamp(80px, 9vw, 130px); }
+  .ways-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 0; border: 1px solid var(--ink); }
+  .way-card { padding: clamp(28px, 4vw, 56px); display: grid; gap: 20px; align-content: start; }
+  .way-card + .way-card { border-left: 1px solid var(--ink); background: var(--paper); }
+  .way-card .big { font-family: var(--display); font-weight: 900; font-size: clamp(3.4rem, 6.4vw, 6.4rem); line-height: .85; text-transform: uppercase; }
+  .way-card .big em { font-family: var(--serif); font-style: italic; font-weight: 400; text-transform: none; color: var(--brand); font-size: .6em; display: block; margin-top: .1em; }
+  .way-card > p { color: var(--muted); max-width: 30em; }
+  .times { display: grid; border-top: 1px solid var(--line-strong); margin-top: 4px; }
+  .times div { display: grid; grid-template-columns: 9em 1fr auto; gap: 16px; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .times dt { font-size: 10.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .times dd { margin: 0; font-family: var(--display); font-weight: 600; font-size: 21px; text-transform: uppercase; letter-spacing: .02em; }
+  .meter { display: flex; gap: 3px; }
+  .meter i { width: 16px; height: 6px; background: var(--line); display: block; }
+  .meter i.on { background: var(--brand); }
+  .way-card .btn { justify-self: start; }
+
+  .process-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px 64px; align-items: end; margin: clamp(80px, 9vw, 130px) 0 clamp(40px, 5vw, 64px); }
+  .process-head .lead { justify-self: end; }
+  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); counter-reset: s; }
+  .steps li { padding: 22px 28px 0 0; display: grid; gap: 10px; align-content: start; border-top: 1px solid var(--ink); position: relative; }
+  .steps li + li { padding-left: 28px; }
+  .steps li + li::before { content: ""; position: absolute; left: 0; top: 22px; bottom: 0; width: 1px; background: var(--line); }
+  .step-n { font-family: var(--display); font-weight: 900; font-size: clamp(3.4rem, 5vw, 4.8rem); line-height: .8; color: var(--brand); }
+  .steps h3 { font-family: var(--display); font-weight: 800; font-size: 25px; line-height: 1.1; text-transform: uppercase; letter-spacing: .02em; margin-top: 8px; }
+  .steps p { font-size: 16px; color: var(--muted); line-height: 1.6; }
+
+  /* ---------- Hot towel spread ---------- */
+  .spread { position: relative; min-height: min(96vh, 880px); display: flex; align-items: center; overflow: hidden; background: var(--ink); color: var(--on-dark); }
+  .spread > img { filter: var(--photo) sepia(.22) saturate(.85); position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 45%; }
+  .spread::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(270deg, rgba(21,17,14,.94) 0%, rgba(21,17,14,.8) 38%, rgba(21,17,14,.1) 72%); }
+  .spread .wrap { position: relative; z-index: 2; width: 100%; padding-top: 110px; padding-bottom: 110px; display: flex; justify-content: flex-end; }
+  .spread-copy { width: min(560px, 100%); display: grid; gap: 24px; }
+  .spread .h2 { font-size: clamp(3.2rem, 6.6vw, 6.6rem); }
+  .spread-copy > p { color: #d3c9bb; max-width: 30em; font-size: 17.5px; }
+  .ritual { counter-reset: r; border-top: 1px solid rgba(192,154,91,.5); }
+  .ritual li { counter-increment: r; display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--dark-line); font-size: 16.5px; }
+  .ritual li::before { content: counter(r, decimal-leading-zero); font-family: var(--display); font-weight: 800; font-size: 20px; color: var(--accent); line-height: 1.3; }
+  .spread .ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 22px 28px; }
+  .spread .price-tag { font-family: var(--display); font-weight: 800; font-size: 34px; line-height: 1; }
+  .spread .price-tag small { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 18px; color: var(--on-dark-muted); margin-right: 6px; }
+  .spread-cap { position: absolute; z-index: 2; left: var(--gutter); bottom: 34px; max-width: 280px; }
+
+  /* ---------- Feature: the owner ---------- */
+  .feature { padding: clamp(96px, 11vw, 160px) 0; }
+  .feature-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .feature-photo { position: relative; margin-left: calc(-1 * max(var(--gutter), (100vw - var(--wrap)) / 2 + var(--gutter))); }
+  .feature-photo .frame { overflow: hidden; }
+  .feature-photo img { width: 100%; aspect-ratio: 5 / 6; object-fit: cover; object-position: 50% 60%; }
+  .feature-photo figcaption { margin-top: 14px; padding-left: max(var(--gutter), (100vw - var(--wrap)) / 2 + var(--gutter)); }
+  .stamp {
+    position: absolute; right: clamp(-60px, -4vw, -30px); top: clamp(40px, 8vw, 110px); z-index: 2; width: clamp(120px, 11vw, 150px); aspect-ratio: 1;
+    border-radius: 50%; background: var(--brand); color: #f4e9dc; display: grid; place-items: center; text-align: center;
+    transform: rotate(-8deg);
+  }
+  .stamp span { display: grid; gap: 2px; line-height: 1; }
+  .stamp b { font-family: var(--display); font-weight: 900; font-size: clamp(2rem, 3vw, 2.7rem); letter-spacing: .02em; }
+  .stamp small { font-size: 8.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .24em; text-transform: uppercase; }
+  .stamp::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; border: 1px dashed rgba(244,233,220,.6); }
+  .feature-copy { padding-top: clamp(0px, 2vw, 30px); display: grid; gap: 24px; }
+  .standfirst { font-family: var(--serif); font-size: clamp(1.4rem, 1.9vw, 1.7rem); line-height: 1.38; }
+  .body-cols p + p { margin-top: 1em; }
+  .body-cols p { color: var(--muted); max-width: 34em; }
+  .body-cols p.first { color: var(--ink); }
+  .body-cols p.first::first-letter {
+    font-family: var(--display); font-weight: 900; float: left; font-size: 4.6em; line-height: .8; padding: .06em .1em 0 0; color: var(--brand);
+  }
+  .pull { margin: 10px 0 0; padding: 28px 0 0; border-top: 1px solid var(--ink); font-family: var(--serif); font-style: italic; font-size: clamp(1.8rem, 2.9vw, 2.7rem); line-height: 1.15; }
+  .pull p { text-indent: -.4em; }
+  .pull p::before { content: "\201C"; color: var(--brand); }
+  .pull p::after { content: "\201D"; color: var(--brand); }
+  .pull footer { margin-top: 16px; font-family: var(--sans); font-style: normal; font-size: 11px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+
+  /* ---------- Team ---------- */
+  .team { padding: clamp(96px, 11vw, 150px) 0 clamp(96px, 11vw, 160px); background: var(--paper); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .team-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px 64px; align-items: end; margin-bottom: clamp(48px, 6vw, 80px); }
+  .team-head .lead { justify-self: end; }
+  .team-grid { display: grid; grid-template-columns: 1.18fr 1fr 1fr; gap: clamp(24px, 3vw, 44px); align-items: start; }
+  .member:nth-child(2) { margin-top: clamp(40px, 6vw, 96px); }
+  .member:nth-child(3) { margin-top: clamp(80px, 12vw, 192px); }
+  .member .portrait { position: relative; overflow: hidden; background: var(--ink); }
+  .member .portrait img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; transition: transform 1.2s var(--ease); }
+  .member:hover .portrait img, .member:focus-within .portrait img { transform: scale(1.035); }
+  .member .chair {
+    position: absolute; top: 0; left: 0; z-index: 2; background: var(--ink); color: var(--on-dark); padding: 10px 14px 8px; display: grid; line-height: 1;
+  }
+  .member .chair small { font-size: 8.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .24em; text-transform: uppercase; color: var(--accent); }
+  .member .chair b { font-family: var(--display); font-weight: 900; font-size: 30px; margin-top: 3px; }
+  .member-body { padding-top: 20px; display: grid; gap: 10px; }
+  .role { font-size: 11px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; color: var(--brand-ink); }
+  .member h3 { font-family: var(--display); font-weight: 800; font-size: clamp(2rem, 2.8vw, 2.7rem); line-height: .95; text-transform: uppercase; letter-spacing: .01em; }
+  .member h3 em { font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: none; color: var(--brand); font-size: .8em; }
+  .member p.spec { font-size: 16px; color: var(--muted); max-width: 26em; }
+  .week { display: flex; gap: 4px; margin-top: 6px; }
+  .week span { width: 30px; height: 30px; display: grid; place-items: center; font-size: 11px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--line); position: relative; }
+  .week span.on { color: var(--ink); border-bottom-color: var(--ink); }
+  .week span.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--brand); transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease); }
+  .member:hover .week span.on::after, .member:focus-within .week span.on::after { transform: scaleX(1); }
+  .days-label { font-size: 14px; color: var(--muted); }
+  .member .ulink { justify-self: start; margin-top: 8px; }
+
+  /* ---------- Lookbook (carousel) ---------- */
+  .lookbook { padding: clamp(96px, 11vw, 150px) 0 clamp(80px, 9vw, 130px); overflow: hidden; --lh: clamp(340px, 36vw, 540px); }
+  .lb-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px 40px; align-items: end; margin-bottom: clamp(36px, 4vw, 56px); }
+  .lb-head .lead { margin-top: 20px; }
+  .lb-ctrl { display: flex; gap: 10px; align-items: center; }
+  .lb-ctrl button { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--ink); background: transparent; cursor: pointer; display: grid; place-items: center; transition: background-color .35s var(--ease), color .35s var(--ease); }
+  .lb-ctrl button:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
+  .lb-ctrl button:disabled { opacity: .3; cursor: default; }
+  .lb-ctrl svg { width: 20px; height: 20px; stroke-width: 1.5; }
+  .lb-track {
+    --edge: max(var(--gutter), calc((100vw - var(--wrap)) / 2 + var(--gutter)));
+    display: flex; gap: clamp(14px, 1.6vw, 24px); overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    padding: 0 var(--edge) 10px; scroll-padding: 0 var(--edge); scrollbar-width: none; cursor: grab;
+  }
+  .lb-track::-webkit-scrollbar { display: none; }
+  .lb-track.dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+  .lb-track.dragging * { pointer-events: none; }
+  .look { flex: 0 0 auto; scroll-snap-align: start; width: calc(var(--lh) * .75); }
+  .look.l { width: calc(var(--lh) * 4 / 3); }
+  .look .frame { height: var(--lh); overflow: hidden; position: relative; background: var(--ink); }
+  .look img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); -webkit-user-drag: none; }
+  .look:hover img { transform: scale(1.03); }
+  .look .tag { position: absolute; left: 0; bottom: 0; z-index: 2; background: var(--bg); padding: 10px 14px 8px; font-family: var(--display); font-weight: 800; font-size: 20px; line-height: 1; text-transform: uppercase; letter-spacing: .03em; }
+  .look figcaption { padding-top: 12px; }
+  .look-ig { flex: 0 0 auto; scroll-snap-align: start; width: calc(var(--lh) * .75); height: var(--lh); display: flex; text-decoration: none; }
+  .look-ig > span { flex: 1; background: var(--ink); color: var(--on-dark); padding: clamp(22px, 2.4vw, 34px); display: flex; flex-direction: column; justify-content: space-between; }
+  .look-ig svg.ig { width: 28px; height: 28px; stroke-width: 1.3; color: var(--accent); }
+  .look-ig .handle { font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 2.4vw, 2.3rem); line-height: 1; text-transform: uppercase; word-break: break-word; }
+  .look-ig p { font-size: 15.5px; margin: 10px 0 18px; color: var(--on-dark-muted); }
+  .lb-progress { margin-top: 28px; height: 1px; background: var(--line); position: relative; }
+  .lb-progress span { position: absolute; left: 0; top: -1px; height: 3px; width: 100%; background: var(--ink); transform-origin: left; transform: scaleX(.15); transition: transform .2s linear; }
+
+  /* ---------- Booking (ticket) ---------- */
+  .book { padding: clamp(96px, 11vw, 150px) 0; }
+  .book-grid { display: grid; grid-template-columns: minmax(0, 4.4fr) minmax(0, 7.6fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .book-copy { display: grid; gap: 24px; position: sticky; top: 100px; }
+  .contact-ways { display: grid; border-top: 1px solid var(--dark-line); margin-top: 12px; }
+  .cway { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 16px; padding: 18px 0; border-bottom: 1px solid var(--dark-line); text-decoration: none; }
+  .cway-label { font-size: 10.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; color: var(--on-dark-muted); }
+  .cway-value { font-family: var(--display); font-weight: 600; font-size: 27px; line-height: 1.15; letter-spacing: .02em; grid-column: 1; }
+  .cway svg { grid-row: 1 / 3; grid-column: 2; width: 20px; height: 20px; stroke-width: 1.5; color: var(--on-dark-muted); transition: transform .45s var(--ease), color .45s var(--ease); }
+  .cway:hover svg { transform: translate(3px, -3px); color: var(--accent); }
+
+  .ticket { background: var(--paper); color: var(--ink); position: relative; border-radius: 3px; }
+  .ticket::before, .ticket::after { /* punched notches on the tear line */
+    content: ""; position: absolute; top: 96px; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); z-index: 2;
+  }
+  .ticket::before { left: -13px; } .ticket::after { right: -13px; }
+  .ticket :focus-visible { outline-color: var(--brand); }
+  .ticket .btn { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .ticket .btn:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .ticket .btn.plain { background: transparent; border-color: transparent; color: var(--ink); padding: 0 6px; }
+  .ticket .btn.plain:hover { color: var(--brand); }
+  .t-stub { height: 109px; padding: 0 clamp(24px, 3.6vw, 48px); display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 2px dashed var(--line-strong); }
+  .t-stub .bk-title { font-family: var(--display); font-weight: 900; font-size: clamp(2rem, 3vw, 2.8rem); line-height: .9; text-transform: uppercase; }
+  .t-stub .bk-title em { font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: none; color: var(--brand); font-size: .75em; }
+  .t-no { text-align: right; display: grid; gap: 2px; line-height: 1; }
+  .t-no small { font-size: 9.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+  .t-no b { font-family: var(--display); font-weight: 800; font-size: 26px; color: var(--brand); }
+  .t-body { padding: clamp(24px, 3.6vw, 48px); padding-top: 26px; }
+  .bk-sub { font-size: 15px; color: var(--muted); max-width: 36em; }
+  .bk-progress { display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 22px; }
+  .js .bk-progress { display: grid; }
+  .bk-progress li { border-top: 3px solid var(--line); padding-top: 10px; font-size: 10.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); transition: border-color .5s var(--ease), color .5s var(--ease); }
+  .bk-progress li .n { font-family: var(--display); font-weight: 800; font-size: 15px; letter-spacing: 0; margin-right: 6px; }
+  .bk-progress li.on, .bk-progress li.done { border-top-color: var(--ink); color: var(--ink); }
+  .bk-progress li.on { border-top-color: var(--brand); }
+  .bk-count [data-count] { display: none; }
+  .bk-count[data-mode="step"] [data-count="step"], .bk-count[data-mode="sent"] [data-count="sent"] { display: inline; }
+  .bk-step { margin-top: 28px; }
+  .bk-step + .bk-step { border-top: 1px solid var(--line); padding-top: 28px; }
+  .js .bk-step + .bk-step { border-top: 0; padding-top: 0; }
+  .js .bk-step[hidden] { display: none; }
+  .js .bk-step.enter { animation: fadeUp .6s var(--ease) both; }
+  .st-title { font-family: var(--display); font-weight: 800; font-size: 28px; line-height: 1.1; text-transform: uppercase; letter-spacing: .02em; outline: none; }
+  .st-title .n { color: var(--brand); margin-right: 10px; }
+  fieldset { border: 0; padding: 0; margin: 22px 0 0; min-width: 0; }
+  legend { padding: 0; font-size: 10.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; color: var(--brand-ink); margin-bottom: 10px; }
+  .svc-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; }
+  .opt-list { display: grid; }
+  .opt { position: relative; }
+  .opt input, .chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .opt label { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 12px; padding: 11px 0; cursor: pointer; border-bottom: 1px solid var(--line); font-size: 16px; line-height: 1.35; transition: color .3s var(--ease); }
+  .opt label::before { content: ""; width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--line-strong); background: #fff; transition: border-color .3s var(--ease), box-shadow .3s var(--ease); }
+  .opt label:hover::before { border-color: var(--ink); }
+  .opt input:checked + label::before { border-color: var(--brand); box-shadow: inset 0 0 0 4px #fff, inset 0 0 0 8px var(--brand); }
+  .opt input:checked + label { color: var(--brand-ink); }
+  .opt input:focus-visible + label { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .opt .p { font-family: var(--display); font-weight: 600; font-size: 19px; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip label { display: grid; justify-items: center; align-content: center; min-width: 64px; min-height: 64px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--line-strong); background: #fff; text-align: center; line-height: 1.15; border-radius: 2px; transition: background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease); }
+  .chip label b { font-family: var(--display); font-weight: 800; font-size: 21px; text-transform: uppercase; }
+  .chip label small { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+  .chip label:hover { border-color: var(--ink); }
+  .chip input:checked + label { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .chip input:checked + label small { color: var(--on-dark-muted); }
+  .chip input:focus-visible + label { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .chip input:disabled + label { cursor: not-allowed; opacity: .5; background: transparent; border-style: dashed; }
+  .chips.text .chip label { min-height: 48px; font-size: 15px; }
+  .field { display: grid; gap: 8px; min-width: 0; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 22px; }
+  .field label { font-size: 10.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; color: var(--brand-ink); }
+  .field input, .field textarea { width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--line-strong); border-radius: 0; padding: 10px 0 12px; font-size: 19px; line-height: 1.4; color: var(--ink); transition: border-color .3s var(--ease); }
+  .field textarea { min-height: 96px; resize: vertical; font-size: 17px; }
+  .field input::placeholder, .field textarea::placeholder { color: #8a7f74; font-family: var(--serif); font-style: italic; }
+  .field input:hover, .field textarea:hover { border-bottom-color: var(--ink); }
+  .field input:focus, .field textarea:focus { outline: none; border-bottom-color: var(--brand); box-shadow: 0 1px 0 var(--brand); }
+  .field input[aria-invalid="true"] { border-bottom-color: var(--brand); }
+  .field.full { margin-top: 22px; }
+  .err { margin-top: 12px; font-size: 14.5px; color: var(--brand-ink); display: flex; gap: 8px; align-items: center; }
+  .err[hidden] { display: none; }
+  .err svg { width: 16px; height: 16px; stroke-width: 1.6; }
+  .bk-nav { display: flex; align-items: center; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+  .bk-nav .spacer { flex: 1; }
+  .bk-nav .note { font-size: 13.5px; color: var(--muted); flex-basis: 100%; }
+  .bk-nav [data-prev], .bk-nav [data-next] { display: none; }
+  .js .bk-nav [data-prev], .js .bk-nav [data-next] { display: inline-flex; }
+  .btn.plain svg.lucide-arrow-left { transition: transform .45s var(--ease); }
+  .btn.plain:hover svg.lucide-arrow-left { transform: translateX(-4px); }
+  .bk-done { margin-top: 28px; outline: none; }
+  .bk-done[hidden] { display: none; }
+  .bk-done .mark { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--brand); display: grid; place-items: center; color: var(--brand); }
+  .bk-done .mark svg { width: 24px; height: 24px; stroke-width: 1.5; }
+  .bk-done h3 { font-family: var(--display); font-weight: 900; font-size: clamp(2rem, 3vw, 2.8rem); line-height: 1; text-transform: uppercase; margin-top: 22px; }
+  .bk-done p { color: var(--muted); margin-top: 12px; max-width: 32em; }
+  .summary { margin-top: 26px; border-top: 1px solid var(--ink); }
+  .summary div { display: grid; grid-template-columns: 9em 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .summary dt { font-size: 10.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+  .summary dd { margin: 0; font-family: var(--display); font-weight: 600; font-size: 21px; text-transform: uppercase; letter-spacing: .02em; }
+  .summary dd .p, .summary dd small { display: none; }
+
+  /* ---------- House rules ---------- */
+  .fine { padding: clamp(96px, 11vw, 150px) 0 clamp(80px, 9vw, 120px); }
+  .fine-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(40px, 7vw, 120px); align-items: start; }
+  .fine-side { display: grid; gap: 22px; position: sticky; top: 100px; }
+  .rules { counter-reset: r; display: grid; grid-template-columns: 1fr 1fr; gap: 0 clamp(32px, 4vw, 64px); }
+  .rules li { counter-increment: r; padding: 24px 0 30px; border-top: 1px solid var(--ink); display: grid; grid-template-columns: 58px 1fr; column-gap: 8px; }
+  .rules li::before { content: counter(r, decimal-leading-zero); grid-row: 1 / 3; font-family: var(--display); font-weight: 900; font-size: 34px; line-height: .9; color: var(--brand); }
+  .rules h3 { font-family: var(--display); font-weight: 800; font-size: clamp(1.5rem, 2vw, 1.9rem); line-height: 1.05; text-transform: uppercase; letter-spacing: .01em; }
+  .rules p { font-size: 16px; color: var(--muted); margin-top: 10px; }
+
+  /* ---------- Reviews (optional) ---------- */
+  .reviews { padding: clamp(80px, 9vw, 130px) 0; background: var(--paper); border-top: 1px solid var(--line); }
+  .rev-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .rev-main blockquote { margin: 0; font-family: var(--serif); font-size: clamp(2rem, 3.3vw, 3.1rem); line-height: 1.14; }
+  .rev-side { display: grid; gap: 34px; }
+  .rev-side blockquote { margin: 0; font-family: var(--serif); font-size: 22px; line-height: 1.38; }
+  .rev { display: grid; gap: 16px; }
+  .rev-side .rev { border-top: 1px solid var(--ink); padding-top: 22px; }
+  .rev-by { font-size: 12px; font-weight: 600; font-stretch: 125%; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .rev-by b { color: var(--ink); font-weight: 600; margin-right: 10px; }
+  .stars { display: inline-flex; gap: 3px; color: var(--brand); }
+  .stars svg { width: 15px; height: 15px; fill: currentColor; stroke-width: 0; }
+  .rating { display: flex; align-items: center; gap: 14px; margin-top: 24px; font-size: 15px; }
+  .rating b { font-family: var(--display); font-weight: 800; font-size: 36px; }
+
+  /* ---------- Visit ---------- */
+  .visit { padding: clamp(96px, 11vw, 150px) 0; border-top: 1px solid var(--line); }
+  .visit-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: stretch; }
+  .visit-info { display: grid; gap: 40px; align-content: start; }
+  .address { font-family: var(--display); font-weight: 900; font-size: clamp(2.8rem, 4.6vw, 4.4rem); line-height: .9; text-transform: uppercase; font-style: normal; }
+  .address span { display: block; font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: none; font-size: .46em; color: var(--muted); margin-top: 10px; }
+  .visit-info .small { font-size: 15.5px; color: var(--muted); margin-top: 14px; max-width: 30em; }
+  .visit .live { margin-top: 18px; font-size: 15px; font-weight: 500; }
+  .visit .live .dot { background: var(--line-strong); }
+  .visit .live.is-open .dot { background: #3f8f45; }
+  .visit .live.is-open .dot::after { border-color: #3f8f45; }
+  .visit .live.is-closed .dot, .visit .live.is-later .dot { background: var(--brand); }
+  .hours-label { margin-bottom: 12px; }
+  .hours { width: 100%; border-collapse: collapse; }
+  .hours th, .hours td { padding: 11px 0; border-bottom: 1px solid var(--line); text-align: left; font-weight: 400; }
+  .hours tr:first-child th, .hours tr:first-child td { border-top: 1px solid var(--ink); }
+  .hours th { font-family: var(--display); font-weight: 600; font-size: 20px; text-transform: uppercase; letter-spacing: .03em; }
+  .hours td { text-align: right; font-size: 16px; }
+  .hours tr.closed th, .hours tr.closed td { color: var(--muted); }
+  .hours .today-tag { display: none; font-family: var(--sans); font-size: 9.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .18em; text-transform: uppercase; color: #fff; background: var(--brand); padding: 3px 7px 2px; margin-left: 10px; vertical-align: 3px; }
+  .hours tr.today .today-tag { display: inline-block; }
+  .hours tr.today th, .hours tr.today td { color: var(--ink); }
+  .hours tr.today td { font-weight: 600; }
+  .towns { display: flex; flex-wrap: wrap; font-family: var(--serif); font-size: 21px; line-height: 1.55; }
+  .towns li:not(:last-child)::after { content: "·"; color: var(--brand); margin: 0 .45em; }
+  .map { position: relative; min-height: 560px; background: #dcd3c5; }
+  .map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; filter: grayscale(1) contrast(.95) sepia(.18) brightness(1.02); }
+  .map-tag { position: absolute; left: 16px; bottom: 16px; z-index: 2; background: var(--ink); color: var(--on-dark); padding: 12px 16px; font-size: 13px; pointer-events: none; }
+  .map-tag b { font-family: var(--display); font-weight: 800; font-size: 19px; letter-spacing: .04em; text-transform: uppercase; display: block; }
+
+  /* ---------- FAQ ---------- */
+  .faq { padding: 0 0 clamp(96px, 11vw, 150px); }
+  .faq-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(40px, 7vw, 120px); }
+  .faq-side { display: grid; gap: 22px; align-content: start; }
+  details { border-bottom: 1px solid var(--line); }
+  details:first-child { border-top: 1px solid var(--ink); }
+  summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 24px 0; font-family: var(--display); font-weight: 600; font-size: clamp(1.35rem, 1.9vw, 1.7rem); line-height: 1.2; text-transform: uppercase; letter-spacing: .02em; transition: color .3s var(--ease); }
+  summary:hover { color: var(--brand); }
+  summary::-webkit-details-marker { display: none; }
+  summary .pm { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-strong); position: relative; flex-shrink: 0; color: var(--ink); transition: background-color .35s var(--ease), border-color .35s var(--ease); }
+  summary .pm::before, summary .pm::after { content: ""; position: absolute; left: 50%; top: 50%; width: 13px; height: 1.5px; background: currentColor; transform: translate(-50%, -50%); transition: transform .4s var(--ease); }
+  summary .pm::after { transform: translate(-50%, -50%) rotate(90deg); }
+  details[open] summary .pm { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  details[open] summary .pm::after { transform: translate(-50%, -50%) rotate(0deg); }
+  details[open] summary:hover { color: var(--ink); }
+  details .answer { padding: 0 64px 26px 0; color: var(--muted); max-width: 40em; }
+
+  /* ---------- Footer ---------- */
+  .site-footer { padding: clamp(72px, 9vw, 120px) 0 36px; overflow: hidden; }
+  .foot-top { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)); gap: 48px; padding-bottom: 56px; }
+  .foot-cta .h2 { font-size: clamp(2.6rem, 4.2vw, 4rem); }
+  .foot-cta p:not(.h2) { margin-top: 18px; color: var(--on-dark-muted); max-width: 26em; font-size: 16px; }
+  .foot-cta .btn { margin-top: 26px; }
+  .site-footer h3 { font-size: 10.5px; font-weight: 600; font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .site-footer li, .site-footer address { font-size: 16px; font-style: normal; line-height: 1.85; }
+  .site-footer a { text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .45s var(--ease); }
+  .site-footer a:hover { background-size: 100% 1px; }
+  .bigname {
+    display: flex; align-items: baseline; gap: .12em; flex-wrap: nowrap;
+    font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: clamp(5rem, 25vw, 23rem); line-height: .78; letter-spacing: .02em;
+    border-top: 1px solid var(--dark-line); padding-top: .1em; margin: 0; color: var(--on-dark); white-space: nowrap;
+  }
+  .bigname em { color: var(--accent); font-size: .34em; }
+  .foot-bottom { display: flex; justify-content: space-between; gap: 12px 32px; flex-wrap: wrap; padding-top: 28px; margin-top: 28px; border-top: 1px solid var(--dark-line); font-size: 13px; color: var(--on-dark-muted); }
+
+  /* ---------- Mobile call bar ---------- */
+  .callbar { display: none; }
+
+  /* ---------- Scroll reveal (only with JS) ---------- */
+  .js .rv { opacity: 0; transform: translateY(20px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+  .js .rv.in { opacity: 1; transform: none; }
+  .js .rv.d1 { transition-delay: .08s; } .js .rv.d2 { transition-delay: .16s; } .js .rv.d3 { transition-delay: .24s; }
+  .js .rv-img .frame, .js .rv-img.frame { clip-path: inset(0 0 100% 0); transition: clip-path 1.2s var(--ease); }
+  .js .rv-img.in .frame, .js .rv-img.in.frame { clip-path: inset(0 0 0 0); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1240px) {
+    .nav { gap: 22px; }
+    .phone-link span.num { display: none; }
+    .window ul { grid-template-columns: 1.3fr 1fr 1fr; }
+    .window li:nth-child(4) { display: none; }
+  }
+  @media (max-width: 1080px) {
+    .nav, .header-actions .btn, .phone-link { display: none; }
+    .menu-btn { display: inline-flex; }
+    .header-actions { margin-left: auto; gap: 12px; }
+    .mobile-nav { position: fixed; top: 66px; left: 0; right: 0; z-index: 49; background: var(--ink); color: var(--on-dark); border-bottom: 1px solid var(--dark-line); padding: 8px var(--gutter) 24px; }
+    .mobile-nav.open { display: block; }
+    .mobile-nav a:not(.btn) { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--dark-line); font-family: var(--display); font-weight: 800; font-size: 30px; text-transform: uppercase; letter-spacing: .02em; text-decoration: none; }
+    .mobile-nav a small { font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: .2em; color: var(--accent); }
+    .mobile-nav .btn { width: 100%; margin-top: 20px; }
+    .site-header.menu-open { background: var(--ink); height: 66px; }
+    .standards ul { grid-template-columns: 1fr 1fr; }
+    .standards li:nth-child(3) { border-left: 0; padding-left: 0; }
+    .standards li:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .steps { grid-template-columns: 1fr 1fr; gap: 44px 0; }
+    .steps li:nth-child(3) { padding-left: 0; }
+    .steps li:nth-child(3)::before { display: none; }
+    .rules { grid-template-columns: 1fr; }
+    .foot-top { grid-template-columns: 1fr 1fr; }
+    .svc-groups { grid-template-columns: 1fr; }
+    .fg-facts { grid-template-columns: 1fr; }
+    .fg-facts div + div { padding-left: 0; border-left: 0; }
+  }
+  @media (max-width: 900px) {
+    :root { --header: 64px; }
+    body { font-size: 17px; padding-bottom: 64px; }
+    section { scroll-margin-top: 60px; }
+    .site-header { background: var(--ink); height: 64px; }
+    .site-header.scrolled { height: 64px; }
+    .logo svg, .scrolled .logo svg { width: 34px; height: 34px; }
+    .logo-name { font-size: 23px; }
+    .logo-name i { font-size: 18px; }
+    .logo-sub { font-size: 7.5px; letter-spacing: .3em; }
+
+    .hero { min-height: 0; }
+    .hero-media { position: relative; inset: auto; height: min(112vw, 520px); margin-top: var(--header); }
+    .hero-media img { object-position: 64% 40%; }
+    .hero-media::after { background: linear-gradient(0deg, var(--ink) 0%, rgba(21,17,14,.55) 26%, rgba(21,17,14,0) 55%); }
+    .hero-copy { padding: 0 var(--gutter) 34px; margin-top: calc(-1 * clamp(120px, 34vw, 170px)); }
+    .hero-title { font-size: clamp(4.2rem, 23vw, 7.4rem); margin-top: 14px; line-height: .82; }
+    .hero-title .ln.i1 { padding-left: .4em; }
+    .hero-title .where { font-size: .34em; }
+    .hero-side, .hero-kicker .rule { display: none; }
+    .hero-ctas .btn { flex: 1 1 100%; }
+    .window ul { grid-template-columns: 1fr 1fr; }
+    .window li { padding: 14px 14px 16px 0; border-left: 0; border-top: 1px solid rgba(192,154,91,.3); }
+    .window li:nth-child(even) { padding-left: 14px; border-left: 1px solid rgba(192,154,91,.3); }
+    .window li:first-child { grid-column: 1 / -1; padding-left: 0; }
+    .window li:nth-child(2) { padding-left: 0; border-left: 0; }
+    .window li:nth-child(3) { padding-left: 14px; border-left: 1px solid rgba(192,154,91,.3); }
+    .window li:nth-child(4) { display: none; }
+    .window .v { font-size: 19px; }
+    .window .wrap { padding-left: var(--gutter); }
+
+    .runhead { grid-template-columns: auto 1fr; }
+    .runhead .r { display: none; }
+    .runhead .c { text-align: right; }
+    .board-head, .team-head, .lb-head, .process-head { grid-template-columns: 1fr; }
+    .board-head .lead, .team-head .lead, .process-head .lead { justify-self: start; }
+    .board-grid, .fg, .feature-grid, .book-grid, .visit-grid, .faq-grid, .fine-grid, .rev-grid, .ways-grid { grid-template-columns: 1fr; }
+    .board-fig { display: none; }
+    .cat-img { display: block; margin-bottom: 22px; overflow: hidden; }
+    .cat-img img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+    .items li { padding-left: 0; }
+    .items li::before { display: none; }
+    .aside-note { padding-left: 0; }
+    .fg-fig { margin: 0 calc(-1 * var(--gutter)); }
+    .fg-fig figcaption { padding: 0 var(--gutter); }
+    .fg-frame { aspect-ratio: 1 / 1; }
+    .way-card + .way-card { border-left: 0; border-top: 1px solid var(--ink); }
+    .spread { min-height: 0; flex-direction: column; align-items: stretch; }
+    .spread > img { position: relative; height: 380px; }
+    .spread::before { display: none; }
+    .spread .wrap { padding-top: 44px; padding-bottom: 72px; }
+    .spread-cap { display: none; }
+    .feature-photo { margin-left: calc(-1 * var(--gutter)); margin-right: 0; }
+    .feature-photo img { aspect-ratio: 4 / 5; }
+    .feature-photo figcaption { padding-left: var(--gutter); }
+    .stamp { right: 14px; top: auto; bottom: 64px; width: 112px; }
+    .team-grid { grid-template-columns: 1fr; gap: 56px; }
+    .member:nth-child(2), .member:nth-child(3) { margin-top: 0; }
+    .member:nth-child(2) { padding-left: 12%; }
+    .member:nth-child(3) { padding-right: 12%; }
+    .book-copy, .fine-side { position: static; }
+    .ticket { margin: 0 calc(-1 * var(--gutter) + 8px); }
+    .ticket::before, .ticket::after { width: 16px; height: 16px; top: 101px; }
+    .ticket::before { left: -8px; } .ticket::after { right: -8px; }
+    .map { min-height: 360px; }
+    .foot-top { grid-template-columns: 1fr; gap: 36px; }
+    .callbar { display: grid; grid-template-columns: 1fr 1fr 1.25fr; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: var(--ink); border-top: 1px solid var(--dark-line); padding-bottom: env(safe-area-inset-bottom); }
+    .callbar a { display: flex; align-items: center; justify-content: center; gap: 9px; height: 60px; color: var(--on-dark); text-decoration: none; font-size: 11px; font-weight: 600; font-stretch: 125%; letter-spacing: .14em; text-transform: uppercase; }
+    .callbar a + a { border-left: 1px solid var(--dark-line); }
+    .callbar a.primary { background: var(--brand); color: #fff; border-left: 0; }
+    .callbar svg { width: 17px; height: 17px; stroke-width: 1.6; color: var(--accent); }
+    .callbar a.primary svg { color: #fff; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 16.5px; }
+    .standards ul { grid-template-columns: 1fr; }
+    .standards li, .standards li:nth-child(3) { border-left: 0; padding: 20px 0; }
+    .standards li + li { border-top: 1px solid var(--line); }
+    .steps { grid-template-columns: 1fr; gap: 0; }
+    .steps li, .steps li + li { padding: 20px 0 24px; grid-template-columns: 70px 1fr; column-gap: 10px; }
+    .steps li + li::before { display: none; }
+    .steps li .step-n { grid-row: 1 / 3; font-size: 3rem; }
+    .steps h3 { margin-top: 0; }
+    .item-top h4 { font-size: 22px; }
+    .price { font-size: 25px; }
+    .price .from { font-size: 15px; }
+    .item-bottom { flex-direction: column; gap: 8px; }
+    .cat-head .with { display: none; }
+    .fg-tabs label { font-size: 1.35rem; padding: 14px 0 12px; }
+    .fg-tabs label small { font-size: 8.5px; letter-spacing: .12em; }
+    .times div { grid-template-columns: 1fr auto; }
+    .times dt { grid-column: 1 / -1; }
+    .row { grid-template-columns: 1fr; }
+    .chip label { min-width: 56px; min-height: 58px; padding: 6px 10px; }
+    .chip label b { font-size: 18px; }
+    .summary div { grid-template-columns: 1fr; gap: 2px; }
+    details .answer { padding-right: 0; }
+    .lb-ctrl { display: none; }
+    .lookbook { --lh: 400px; }
+    .look.l { width: calc(var(--lh) * 1.05); }
+    .member:nth-child(2) { padding-left: 8%; }
+    .member:nth-child(3) { padding-right: 8%; }
+    .lang-switch button { min-width: 30px; padding: 6px 5px; }
+    .t-stub { height: 96px; }
+    .ticket::before, .ticket::after { top: 88px; }
+    .t-no { display: none; }
+    .rules li { grid-template-columns: 48px 1fr; }
+    .rules li::before { font-size: 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html:focus-within { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .js .rv, .js .rv.in { opacity: 1; transform: none; }
+    .js .rv-img .frame, .js .rv-img.frame { clip-path: none; }
+  }
+  /* header labels never break onto two lines (long Spanish labels collapse into the menu instead) */
+  .site-header a, .site-header button { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- slot: header -->
+<header class="site-header" id="top">
+  <div class="wrap header-in">
+    <!-- slot: nombre / logotipo -->
+    <a class="logo" href="#top">
+      <svg viewBox="0 0 44 44" aria-hidden="true">
+        <path d="M6 2.5h32l3.5 3.5v32L38 41.5H6L2.5 38V6z" fill="none" stroke="#c09a5b" stroke-width="1"/>
+        <path d="M8 5.5h28l2.5 2.5v28L36 38.5H8L5.5 36V8z" fill="none" stroke="#c09a5b" stroke-width=".5" opacity=".6"/>
+        <path d="M14 11h16v4.2H18.6v5.3h9.6v4.1h-9.6V33H14z" fill="currentColor"/>
+        <path d="M24.5 33.6L34 24.2" stroke="#8e2b20" stroke-width="2.4" stroke-linecap="square"/>
+      </svg>
+      <span class="logo-text">
+        <span class="logo-name">Filo <i>Barber Co.</i></span>
+        <span class="logo-sub">Bridgeport · Conn.</span>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#prices"><span data-en>Prices</span><span data-es>Precios</span></a>
+      <a href="#fades"><span data-en>Fade guide</span><span data-es>Guía de fades</span></a>
+      <a href="#barbers"><span data-en>Barbers</span><span data-es>Barberos</span></a>
+      <a href="#cuts"><span data-en>Cuts</span><span data-es>Cortes</span></a>
+      <a href="#visit"><span data-en>Visit</span><span data-es>Visítanos</span></a>
+    </nav>
+    <div class="header-actions">
+      <!-- slot: telefono -->
+      <a class="phone-link" href="tel:+12035550162"><i data-lucide="phone"></i><span class="num">(203) 555-0162</span></a>
+      <div class="lang-switch" role="group" aria-label="Language / Idioma">
+        <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+        <span class="sep" aria-hidden="true"></span>
+        <button type="button" data-set-lang="es" aria-pressed="false">ES</button>
+      </div>
+      <a class="btn red" href="#book"><span data-en>Book a chair</span><span data-es>Reservar</span></a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav">
+        <i data-lucide="menu"></i><span class="sr-only">Menu</span>
+      </button>
+    </div>
+  </div>
+</header>
+<nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+  <a href="#prices"><span><span data-en>Prices</span><span data-es>Precios</span></span><small>01</small></a>
+  <a href="#fades"><span><span data-en>Fade guide</span><span data-es>Guía de fades</span></span><small>02</small></a>
+  <a href="#barbers"><span><span data-en>Barbers</span><span data-es>Barberos</span></span><small>05</small></a>
+  <a href="#cuts"><span><span data-en>Cuts</span><span data-es>Cortes</span></span><small>06</small></a>
+  <a href="#visit"><span><span data-en>Hours &amp; map</span><span data-es>Horario y mapa</span></span><small>09</small></a>
+  <a class="btn red" href="#book"><span data-en>Book a chair</span><span data-es>Reserva tu turno</span></a>
+</nav>
+
+<main>
+
+<!-- slot: hero -->
+<section class="hero dark" aria-labelledby="hero-title">
+  <!-- slot: foto hero -->
+  <div class="hero-media ph">
+    <img src="https://images.unsplash.com/photo-1739302493888-6f96cbc37105?w=2200&h=1500&q=80&auto=format&fit=crop" alt="Tattooed barber giving a straight-razor shave to a reclined client under a single warm light" width="2200" height="1500" fetchpriority="high">
+  </div>
+  <div class="hero-copy">
+    <!-- slot: ciudad, direccion -->
+    <p class="hero-kicker label"><span><span data-en>Barbershop</span><span data-es>Barbería</span> · 1418 Park Ave · Bridgeport, CT</span><span class="rule" aria-hidden="true"></span></p>
+    <h1 class="hero-title" id="hero-title">
+      <span data-en><span class="ln"><span>Fades</span></span><span class="ln i1"><span>cuts &amp;</span></span><span class="ln"><span>shaves</span></span><span class="where"><span><em>on Park Avenue, Bridgeport</em></span></span></span>
+      <span data-es><span class="ln"><span>Fades</span></span><span class="ln i1"><span>cortes</span></span><span class="ln"><span>y navaja</span></span><span class="where"><span><em>en Park Avenue, Bridgeport</em></span></span></span>
+    </h1>
+    <p class="hero-lead" data-en>A three-chair barbershop in the North End. Skin fades, tapers, beard line-ups and hot-towel shaves, with the prices on the wall. Walk in, or book a chair by phone or text.</p>
+    <p class="hero-lead" data-es>Una barbería de tres sillas en el North End. Fades, tapers, perfilado de barba y afeitado con toalla caliente, con los precios a la vista. Entra sin cita o reserva tu silla con una llamada o un texto.</p>
+    <div class="hero-ctas">
+      <a class="btn red" href="#book"><span data-en>Book a chair</span><span data-es>Reserva tu silla</span><i data-lucide="arrow-right"></i></a>
+      <a class="btn ghost" href="#prices"><span data-en>See prices</span><span data-es>Ver precios</span></a>
+    </div>
+  </div>
+  <!-- slot: año de apertura -->
+  <span class="hero-side" aria-hidden="true">Est. 2026 · Park City</span>
+  <!-- slot: franja de escaparate (estado en vivo, sin cita, idioma, telefono) -->
+  <div class="window">
+    <div class="wrap">
+      <ul>
+        <li>
+          <span class="k"><span data-en>Right now</span><span data-es>Ahora mismo</span></span>
+          <p class="v live" data-live>
+            <span class="dot" aria-hidden="true"></span>
+            <span>
+              <span data-state="static"><span data-en>Walk-ins welcome</span><span data-es>Sin cita previa</span></span>
+              <span data-state="open"><span data-en>Open now · until </span><span data-es>Abierto · hasta las </span><span data-live-close></span></span>
+              <span data-state="later"><span data-en>Opens today at </span><span data-es>Abre hoy a las </span><span data-live-open></span></span>
+              <span data-state="closed"><span data-en>Closed · opens </span><span data-es>Cerrado · abre el </span><span data-live-day></span></span>
+            </span>
+          </p>
+        </li>
+        <li><span class="k"><span data-en>No appointment</span><span data-es>Sin cita</span></span><span class="v"><span data-en>Walk-ins Tue–Sun</span><span data-es>Mar a dom</span></span></li>
+        <li><span class="k">We speak Spanish</span><span class="v">Hablamos español</span></li>
+        <li><span class="k"><span data-en>Call or text</span><span data-es>Llama o escribe</span></span><a class="v num" href="tel:+12035550162">(203) 555-0162</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- slot: distintivos de confianza -->
+<section class="standards" aria-label="Why sit in our chair">
+  <div class="wrap">
+    <ul>
+      <li class="rv"><i data-lucide="badge-check"></i>
+        <h3><span data-en>CT-licensed barbers</span><span data-es>Barberos con licencia</span></h3>
+        <p><span data-en>Every chair licensed by the CT Department of Public Health.</span><span data-es>Cada silla con licencia del Departamento de Salud Pública de CT.</span></p>
+      </li>
+      <li class="rv d1"><i data-lucide="door-open"></i>
+        <h3><span data-en>Walk-ins welcome</span><span data-es>Sin cita, bienvenido</span></h3>
+        <p><span data-en>Next free chair, Tuesday to Sunday. Last walk-in 30 minutes before close.</span><span data-es>La próxima silla libre, de martes a domingo. Último turno sin cita 30 minutos antes de cerrar.</span></p>
+      </li>
+      <li class="rv d2"><i data-lucide="shield-check"></i>
+        <h3><span data-en>Fresh blade, every time</span><span data-es>Navaja nueva, siempre</span></h3>
+        <p><span data-en>Single-use razor blades. Clippers and combs disinfected between clients.</span><span data-es>Hojas de navaja de un solo uso. Máquinas y peines desinfectados entre cliente y cliente.</span></p>
+      </li>
+      <li class="rv d3"><i data-lucide="messages-square"></i>
+        <h3>We speak Spanish</h3>
+        <p><span data-en>Hablamos español, in every chair.</span><span data-es>Hablamos español en todas las sillas, y también inglés.</span></p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- slot: servicios -->
+<section class="board" id="prices" aria-labelledby="prices-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">01</span><span class="c"><span data-en>The price board</span><span data-es>La tabla de precios</span></span><span class="r">Filo · Bridgeport</span></div>
+    <div class="board-head">
+      <h2 class="h2 rv" id="prices-title"><span data-en>Prices <em>on the wall</em></span><span data-es>Precios <em>a la vista</em></span></h2>
+      <p class="lead rv d1" data-en>Starting prices and how long to plan for. Very long or very thick hair can take a little more; we tell you before the clippers come out.</p>
+      <p class="lead rv d1" data-es>Precios desde y el tiempo que conviene reservar. El pelo muy largo o abundante puede costar un poco más; te lo decimos antes de sacar la máquina.</p>
+    </div>
+
+    <div class="board-grid">
+      <!-- slot: fotos de la tabla (una por categoria) -->
+      <figure class="board-fig" aria-hidden="true">
+        <div class="board-frame ph">
+          <img class="on" src="https://images.unsplash.com/photo-1733995471047-62a3bb52b657?w=900&h=1125&q=80&auto=format&fit=crop" alt="" loading="lazy" width="900" height="1125">
+          <img src="https://images.unsplash.com/photo-1653875700329-a7c8aca94c95?w=900&h=1125&q=80&auto=format&fit=crop" alt="" loading="lazy" width="900" height="1125">
+          <img src="https://images.unsplash.com/photo-1704072650662-76df3af134a7?w=900&h=1125&q=80&auto=format&fit=crop&crop=focalpoint&fp-x=.5&fp-y=.42" alt="" loading="lazy" width="900" height="1125">
+          <span class="fig-n">01</span>
+        </div>
+        <figcaption class="cap">
+          <span data-cap class="on"><b>Fig. 01</b><span data-en>Scissor-over-comb on top, clipper work on the sides.</span><span data-es>Tijera sobre peine arriba, máquina a los lados.</span></span>
+          <span data-cap><b>Fig. 02</b><span data-en>The hot towel, before the razor.</span><span data-es>La toalla caliente, antes de la navaja.</span></span>
+          <span data-cap><b>Fig. 03</b><span data-en>A kids' cut, finished and brushed off.</span><span data-es>Un corte de niño, terminado y cepillado.</span></span>
+        </figcaption>
+      </figure>
+
+      <div class="board-list">
+        <!-- slot: categoria Cortes -->
+        <div class="cat on" data-cat="0">
+          <figure class="cat-img ph"><img src="https://images.unsplash.com/photo-1733995471047-62a3bb52b657?w=900&h=600&q=80&auto=format&fit=crop" alt="Barber lifting hair with a comb while trimming the side of a slick-back cut" loading="lazy" width="900" height="600"></figure>
+          <div class="cat-head">
+            <span class="n">01</span>
+            <h3 class="h3"><span data-en>Cuts</span><span data-es>Cortes</span></h3>
+            <p class="with"><span data-en>every chair</span><span data-es>en todas las sillas</span></p>
+          </div>
+          <ul class="items">
+            <li>
+              <div class="item-top"><h4><span data-en>Haircut</span><span data-es>Corte clásico</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$30</span></div>
+              <div class="item-bottom"><p><span data-en>Clipper or scissor cut, neck shave with hot lather, styled with the product you like.</span><span data-es>Corte a máquina o tijera, nuca a navaja con espuma caliente y peinado con el producto que prefieras.</span></p><span class="dur">30 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4>Skin fade</h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$35</span></div>
+              <div class="item-bottom"><p><span data-en>Low, mid or high, blended down to the skin with a foil shaver. Line-up included.</span><span data-es>Bajo, medio o alto, degradado hasta la piel con shaver. Perfilado incluido.</span></p><span class="dur">45 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4>Taper</h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$32</span></div>
+              <div class="item-bottom"><p><span data-en>Short at the sideburns and neckline only, so it grows out clean. Good for office and curls.</span><span data-es>Corto solo en patillas y nuca, para que crezca limpio. Ideal para la oficina y para rizos.</span></p><span class="dur">40 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Scissor cut</span><span data-es>Corte a tijera</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$40</span></div>
+              <div class="item-bottom"><p><span data-en>All scissors, for longer hair, curls and textured crops that need weight taken out by hand.</span><span data-es>Todo a tijera, para pelo largo, rizos y crops texturizados que piden quitar peso a mano.</span></p><span class="dur">45 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Buzz cut</span><span data-es>Rapado</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$22</span></div>
+              <div class="item-bottom"><p><span data-en>One guard all over, edges lined up and the neck cleaned with a razor.</span><span data-es>Un solo peine en toda la cabeza, bordes perfilados y nuca a navaja.</span></p><span class="dur">20 min</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- slot: categoria Barba y afeitado -->
+        <div class="cat" data-cat="1">
+          <figure class="cat-img ph"><img src="https://images.unsplash.com/photo-1653875700329-a7c8aca94c95?w=900&h=600&q=80&auto=format&fit=crop" alt="Barber pressing a folded hot towel over a reclined client's face" loading="lazy" width="900" height="600"></figure>
+          <div class="cat-head">
+            <span class="n">02</span>
+            <h3 class="h3"><span data-en>Beard &amp; shave</span><span data-es>Barba y navaja</span></h3>
+            <p class="with"><span data-en>hot towel every time</span><span data-es>siempre con toalla caliente</span></p>
+          </div>
+          <ul class="items">
+            <li>
+              <div class="item-top"><h4><span data-en>Beard trim &amp; line-up</span><span data-es>Barba y perfilado</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$22</span></div>
+              <div class="item-bottom"><p><span data-en>Shape and length, razor-sharp cheek and neck lines, hot towel and beard oil.</span><span data-es>Forma y largo, líneas de mejilla y cuello a navaja, toalla caliente y aceite para barba.</span></p><span class="dur">20 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Haircut + beard</span><span data-es>Corte + barba</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$50</span></div>
+              <div class="item-bottom"><p><span data-en>Any cut on the board with a full beard trim and line-up. The one most regulars book.</span><span data-es>Cualquier corte de la tabla con arreglo completo de barba y perfilado. El que más piden los clientes de siempre.</span></p><span class="dur">60 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Hot towel shave</span><span data-es>Afeitado con toalla caliente</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$40</span></div>
+              <div class="item-bottom"><p><span data-en>Two hot towels, pre-shave oil, hot lather, straight razor, cold towel and balm.</span><span data-es>Dos toallas calientes, aceite previo, espuma caliente, navaja, toalla fría y bálsamo.</span></p><span class="dur">40 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Head shave</span><span data-es>Cabeza a navaja</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$30</span></div>
+              <div class="item-bottom"><p><span data-en>Clippered down, then a smooth razor finish with a hot towel.</span><span data-es>Rebajado a máquina y acabado liso a navaja, con toalla caliente.</span></p><span class="dur">30 min</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- slot: categoria Niños y extras -->
+        <div class="cat" data-cat="2">
+          <figure class="cat-img ph"><img src="https://images.unsplash.com/photo-1704072650662-76df3af134a7?w=900&h=600&q=80&auto=format&fit=crop&crop=focalpoint&fp-x=.5&fp-y=.36" alt="Young boy in a barber cape showing his fresh side-part haircut" loading="lazy" width="900" height="600"></figure>
+          <div class="cat-head">
+            <span class="n">03</span>
+            <h3 class="h3"><span data-en>Kids &amp; extras</span><span data-es>Niños y extras</span></h3>
+            <p class="with"><span data-en>no rush</span><span data-es>sin prisa</span></p>
+          </div>
+          <ul class="items">
+            <li>
+              <div class="item-top"><h4><span data-en>Kids' cut <small>(12 &amp; under)</small></span><span data-es>Corte de niño <small>(hasta 12 años)</small></span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$22</span></div>
+              <div class="item-bottom"><p><span data-en>Patient, no-rush cuts. First haircut? Tell us, and we'll go slow and save a lock for you.</span><span data-es>Con paciencia y sin prisa. ¿Primer corte? Avísanos: vamos despacio y te guardamos un mechón.</span></p><span class="dur">30 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Line-up</span><span data-es>Perfilado</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$15</span></div>
+              <div class="item-bottom"><p><span data-en>Hairline, temples and neck cleaned up between cuts.</span><span data-es>Contorno, entradas y nuca limpios entre un corte y otro.</span></p><span class="dur">15 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Hard part or design</span><span data-es>Raya o diseño</span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$5</span></div>
+              <div class="item-bottom"><p><span data-en>A shaved part or simple lines, added to any cut. Bigger designs, ask the chair.</span><span data-es>Raya a navaja o líneas sencillas en cualquier corte. Diseños más grandes, pregunta en la silla.</span></p><span class="dur">10 min</span></div>
+            </li>
+            <li>
+              <div class="item-top"><h4><span data-en>Senior cut <small>(65+)</small></span><span data-es>Corte de mayores <small>(65+)</small></span></h4><span class="leader"></span><span class="price"><span class="from"><span data-en>from</span><span data-es>desde</span></span>$22</span></div>
+              <div class="item-bottom"><p><span data-en>Classic cut and neck shave, Tuesday to Friday.</span><span data-es>Corte clásico y nuca a navaja, de martes a viernes.</span></p><span class="dur">30 min</span></div>
+            </li>
+          </ul>
+          <p class="aside-note"><i data-lucide="door-open"></i><span><span data-en>Walk-ins welcome Tuesday to Sunday when a chair is free. Saturdays fill up, so text ahead to check the wait.</span><span data-es>Atendemos sin cita de martes a domingo si hay silla libre. Los sábados se llena: escríbenos antes para saber la espera.</span></span></p>
+        </div>
+
+        <p class="price-note"><span data-en>Prices are starting points and include tax. Cash, cards, Apple Pay and Google Pay. Tips can go on the card.</span><span data-es>Los precios son desde e incluyen impuestos. Efectivo, tarjetas, Apple Pay y Google Pay. La propina se puede poner en la tarjeta.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: guia de fades -->
+<section class="fades dark" id="fades" aria-labelledby="fades-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">02</span><span class="c"><span data-en>Fade guide</span><span data-es>Guía de fades</span></span><span class="r">Filo · Bridgeport</span></div>
+    <div class="fg">
+      <input type="radio" name="fade" id="fg-1">
+      <input type="radio" name="fade" id="fg-2" checked>
+      <input type="radio" name="fade" id="fg-3">
+      <input type="radio" name="fade" id="fg-4">
+      <!-- slot: foto guia de fades (perfil lateral) -->
+      <figure class="fg-fig rv">
+        <div class="fg-frame ph">
+          <img src="https://images.unsplash.com/photo-1640301133543-41fe25ad6450?w=1000&h=1250&q=80&auto=format&fit=crop" alt="Side profile of a man with a short skin fade, a barber's tattooed hands trimming his hairline" loading="lazy" width="1000" height="1250">
+          <span class="fg-band" aria-hidden="true"></span>
+          <span class="fg-line" aria-hidden="true"><span>
+            <span data-fade="1"><span data-en>Taper starts here</span><span data-es>El taper empieza aquí</span></span>
+            <span data-fade="2"><span data-en>Low fade starts here</span><span data-es>El fade bajo empieza aquí</span></span>
+            <span data-fade="3"><span data-en>Mid fade starts here</span><span data-es>El fade medio empieza aquí</span></span>
+            <span data-fade="4"><span data-en>High fade starts here</span><span data-es>El fade alto empieza aquí</span></span>
+          </span></span>
+        </div>
+        <figcaption class="cap"><b>Fig. 04</b><span data-en>Where each fade begins. Pick one on the right.</span><span data-es>Dónde empieza cada fade. Elige uno a la derecha.</span></figcaption>
+      </figure>
+      <div class="fg-copy">
+        <h2 class="h2 rv" id="fades-title"><span data-en>Know your <em>fade</em></span><span data-es>Conoce tu <em>fade</em></span></h2>
+        <p class="lead rv d1"><span data-en>Not sure what to ask for? The only real question is where the short part starts. Here's how we name it in the chair.</span><span data-es>¿No sabes qué pedir? La pregunta de verdad es dónde empieza lo corto. Así lo llamamos en la silla.</span></p>
+        <div class="fg-tabs rv d1">
+          <label for="fg-1">Taper<small><span data-en>edges</span><span data-es>bordes</span></small></label>
+          <label for="fg-2"><span data-en>Low</span><span data-es>Bajo</span><small><span data-en>above ear</span><span data-es>sobre oreja</span></small></label>
+          <label for="fg-3"><span data-en>Mid</span><span data-es>Medio</span><small><span data-en>temple</span><span data-es>sien</span></small></label>
+          <label for="fg-4"><span data-en>High</span><span data-es>Alto</span><small><span data-en>parietal</span><span data-es>parietal</span></small></label>
+        </div>
+        <div class="fg-panels rv d2">
+          <!-- slot: descripcion de fades -->
+          <div class="fg-panel" data-fade="1">
+            <h3><span data-en>Short only at the sideburns and the neckline.</span><span data-es>Corto solo en patillas y nuca.</span></h3>
+            <p><span data-en>The most natural option. The sides keep their length and only the edges are faded, so it grows out without a hard line. Works on straight hair, curls and locs.</span><span data-es>La opción más natural. Los lados conservan el largo y solo se degradan los bordes, así que crece sin marcar línea. Va bien con pelo lacio, rizos y locs.</span></p>
+            <dl class="fg-facts"><div><dt><span data-en>Suits</span><span data-es>Para</span></dt><dd><span data-en>Office, curls</span><span data-es>Oficina, rizos</span></dd></div><div><dt><span data-en>Back in</span><span data-es>Vuelve en</span></dt><dd><span data-en>3–4 weeks</span><span data-es>3–4 semanas</span></dd></div><div><dt><span data-en>From</span><span data-es>Desde</span></dt><dd class="num">$32</dd></div></dl>
+          </div>
+          <div class="fg-panel" data-fade="2">
+            <h3><span data-en>Starts just above the ear. Clean, but easy.</span><span data-es>Empieza justo encima de la oreja. Limpio, pero discreto.</span></h3>
+            <p><span data-en>The fade sits low, following the line of the ear around to the nape. Enough contrast to look sharp, enough length on the sides to go to work on Monday.</span><span data-es>El degradado va bajo, siguiendo la oreja hasta la nuca. Suficiente contraste para verse nítido y suficiente largo a los lados para ir a trabajar el lunes.</span></p>
+            <dl class="fg-facts"><div><dt><span data-en>Suits</span><span data-es>Para</span></dt><dd><span data-en>First fade</span><span data-es>Primer fade</span></dd></div><div><dt><span data-en>Back in</span><span data-es>Vuelve en</span></dt><dd><span data-en>2–3 weeks</span><span data-es>2–3 semanas</span></dd></div><div><dt><span data-en>From</span><span data-es>Desde</span></dt><dd class="num">$35</dd></div></dl>
+          </div>
+          <div class="fg-panel" data-fade="3">
+            <h3><span data-en>Starts at the temple. The classic.</span><span data-es>Empieza en la sien. El clásico.</span></h3>
+            <p><span data-en>The fade climbs to the temple, halfway up the side of the head. The one most people point at on their phone, and it pairs well with a crop, a quiff or a curly top.</span><span data-es>El degradado sube hasta la sien, a media altura. El que casi todos enseñan en el celular, y combina con un crop, un tupé o rizos arriba.</span></p>
+            <dl class="fg-facts"><div><dt><span data-en>Suits</span><span data-es>Para</span></dt><dd><span data-en>Crops, curls</span><span data-es>Crops, rizos</span></dd></div><div><dt><span data-en>Back in</span><span data-es>Vuelve en</span></dt><dd><span data-en>2 weeks</span><span data-es>2 semanas</span></dd></div><div><dt><span data-en>From</span><span data-es>Desde</span></dt><dd class="num">$35</dd></div></dl>
+          </div>
+          <div class="fg-panel" data-fade="4">
+            <h3><span data-en>Starts near the top of the head. Bold contrast.</span><span data-es>Empieza cerca de la coronilla. Contraste fuerte.</span></h3>
+            <p><span data-en>The short part runs up to where the head starts to round. Maximum contrast with the top; it looks sharpest in the first ten days, so plan on regular visits.</span><span data-es>Lo corto sube hasta donde la cabeza empieza a redondearse. Máximo contraste con la parte de arriba; se ve mejor los primeros diez días, así que toca venir seguido.</span></p>
+            <dl class="fg-facts"><div><dt><span data-en>Suits</span><span data-es>Para</span></dt><dd><span data-en>Short tops</span><span data-es>Arriba corto</span></dd></div><div><dt><span data-en>Back in</span><span data-es>Vuelve en</span></dt><dd><span data-en>1–2 weeks</span><span data-es>1–2 semanas</span></dd></div><div><dt><span data-en>From</span><span data-es>Desde</span></dt><dd class="num">$35</dd></div></dl>
+          </div>
+        </div>
+        <p class="fg-note rv"><i data-lucide="info"></i><span><span data-en>Any fade can go down to the skin (a skin fade) or stop at a #0.5 or #1 guard. Bring a photo if you have one; we'll tell you honestly if it suits your hair.</span><span data-es>Cualquier fade puede llegar a la piel (skin fade) o quedarse en el #0.5 o el #1. Trae una foto si tienes; te decimos con honestidad si le va a tu pelo.</span></span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: sin cita o con cita + como trabajamos -->
+<section class="ways-in" id="walk-ins" aria-labelledby="ways-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">03</span><span class="c"><span data-en>Two ways in</span><span data-es>Dos formas de venir</span></span><span class="r">Filo · Bridgeport</span></div>
+    <h2 class="sr-only" id="ways-title"><span data-en>Walk in or book</span><span data-es>Sin cita o con cita</span></h2>
+    <div class="ways-grid rv">
+      <div class="way-card">
+        <p class="big"><span data-en>Walk in</span><span data-es>Sin cita</span><em><span data-en>and take the next free chair</span><span data-es>y toma la próxima silla libre</span></em></p>
+        <p><span data-en>Put your name on the list at the front and grab a seat. If the wait is long we'll give you a time, so you can go get a coffee on Park Avenue and come back.</span><span data-es>Anota tu nombre en la lista de la entrada y siéntate. Si la espera es larga te damos una hora, para que vayas por un café en Park Avenue y vuelvas.</span></p>
+        <!-- slot: horas de mas y menos espera -->
+        <dl class="times">
+          <div><dt><span data-en>Quietest</span><span data-es>Más tranquilo</span></dt><dd><span data-en>Tue–Thu, before noon</span><span data-es>Mar–jue, antes del mediodía</span></dd><span class="meter" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></span></div>
+          <div><dt><span data-en>Steady</span><span data-es>Normal</span></dt><dd><span data-en>Weekdays after 4 pm</span><span data-es>Entre semana, después de las 4</span></dd><span class="meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div>
+          <div><dt><span data-en>Busiest</span><span data-es>Más lleno</span></dt><dd><span data-en>Saturday, 10 am–2 pm</span><span data-es>Sábado, 10 am–2 pm</span></dd><span class="meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+        </dl>
+      </div>
+      <div class="way-card">
+        <p class="big"><span data-en>Book</span><span data-es>Reserva</span><em><span data-en>and skip the list</span><span data-es>y sáltate la lista</span></em></p>
+        <p><span data-en>Pick a service, a day and a barber. We text you back to confirm the time, usually within the hour while we're open.</span><span data-es>Elige servicio, día y barbero. Te confirmamos la hora por texto, casi siempre en menos de una hora si estamos abiertos.</span></p>
+        <a class="btn red" href="#book"><span data-en>Book a chair</span><span data-es>Reserva tu silla</span><i data-lucide="arrow-right"></i></a>
+        <a class="ulink" href="sms:+12035550162"><span data-en>Or text to check the wait</span><span data-es>O pregunta la espera por texto</span><i data-lucide="arrow-up-right"></i></a>
+      </div>
+    </div>
+
+    <div class="process-head">
+      <h2 class="h2 rv" id="process-title"><span data-en>How a cut <em>goes here</em></span><span data-es>Así va <em>un corte aquí</em></span></h2>
+      <p class="lead rv d1"><span data-en>Same steps in every chair, whether it's a $15 line-up or the full cut and beard.</span><span data-es>Los mismos pasos en todas las sillas, sea un perfilado de $15 o el corte completo con barba.</span></p>
+    </div>
+    <ol class="steps">
+      <li class="rv"><span class="step-n">01</span>
+        <h3><span data-en>In the mirror</span><span data-es>Frente al espejo</span></h3>
+        <p><span data-en>We talk length, guard numbers and how you actually comb it in the morning. Photos help.</span><span data-es>Hablamos de largo, números de peine y cómo te peinas de verdad por la mañana. Las fotos ayudan.</span></p>
+      </li>
+      <li class="rv d1"><span class="step-n">02</span>
+        <h3><span data-en>The cut</span><span data-es>El corte</span></h3>
+        <p><span data-en>Clippers for the fade, scissors for the top. No rushing to the next name on the list.</span><span data-es>Máquina para el fade, tijera para arriba. Sin prisa por el siguiente nombre de la lista.</span></p>
+      </li>
+      <li class="rv d2"><span class="step-n">03</span>
+        <h3><span data-en>The detail</span><span data-es>El detalle</span></h3>
+        <p><span data-en>Razor line-up on the hairline and a neck shave with hot lather and a fresh blade.</span><span data-es>Perfilado a navaja en el contorno y nuca con espuma caliente y hoja nueva.</span></p>
+      </li>
+      <li class="rv d3"><span class="step-n">04</span>
+        <h3><span data-en>The finish</span><span data-es>El acabado</span></h3>
+        <p><span data-en>Hot towel, product, and a look at the back in the hand mirror before you get up.</span><span data-es>Toalla caliente, producto y un vistazo a la nuca con el espejo de mano antes de levantarte.</span></p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- slot: afeitado con toalla caliente (banda a pantalla completa) -->
+<section class="spread dark" id="shave" aria-labelledby="shave-title">
+  <img class="ph" src="https://images.unsplash.com/photo-1761148438883-e34e0289a214?w=2200&h=1400&q=80&auto=format&fit=crop" alt="Barber in black gloves shaving a reclined client with a straight razor while steam rises from a hot towel" loading="lazy" width="2200" height="1400">
+  <div class="wrap">
+    <div class="spread-copy">
+      <p class="label rv"><span data-en>Twenty quiet minutes</span><span data-es>Veinte minutos de calma</span></p>
+      <h2 class="h2 rv" id="shave-title"><span data-en>The hot towel <em>shave</em></span><span data-es>Afeitado <em>a navaja</em></span></h2>
+      <p class="rv d1"><span data-en>The old way, done properly: the chair goes back, the phone goes away, and the razor only comes out once the skin is ready.</span><span data-es>A la antigua y bien hecho: la silla se reclina, el celular se guarda y la navaja solo sale cuando la piel está lista.</span></p>
+      <ol class="ritual rv d1">
+        <li><span data-en>Hot towel to open the pores</span><span data-es>Toalla caliente para abrir los poros</span></li>
+        <li><span data-en>Pre-shave oil and hot lather, worked in by brush</span><span data-es>Aceite previo y espuma caliente con brocha</span></li>
+        <li><span data-en>Two passes with a straight razor and a fresh blade</span><span data-es>Dos pasadas de navaja con hoja nueva</span></li>
+        <li><span data-en>Cold towel and an alcohol-free balm</span><span data-es>Toalla fría y bálsamo sin alcohol</span></li>
+      </ol>
+      <div class="ctas rv d2">
+        <p class="price-tag num"><small><span data-en>from</span><span data-es>desde</span></small>$40</p>
+        <a class="btn" href="#book"><span data-en>Book a shave</span><span data-es>Reservar afeitado</span><i data-lucide="arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+  <p class="spread-cap"><span class="cap"><b>Fig. 05</b><span data-en>Steam off the second towel.</span><span data-es>El vapor de la segunda toalla.</span></span></p>
+</section>
+
+<!-- slot: sobre el dueno -->
+<section class="feature" aria-labelledby="about-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">04</span><span class="c"><span data-en>The owner</span><span data-es>El dueño</span></span><span class="r">Filo · Bridgeport</span></div>
+    <div class="feature-grid">
+      <figure class="feature-photo rv-img">
+        <div class="frame ph"><img src="https://images.unsplash.com/photo-1775494165568-42c0fbb4c782?w=1200&h=1440&q=80&auto=format&fit=crop" alt="Vintage barber chair in afternoon light next to an open shop door" loading="lazy" width="1200" height="1440"></div>
+        <!-- slot: año de apertura -->
+        <p class="stamp" aria-hidden="true"><span><small>Est.</small><b>2026</b><small>Bridgeport</small></span></p>
+        <figcaption class="cap"><b>Fig. 06</b><span data-en>Chair one, by the door. Bought used and rebuilt by hand.</span><span data-es>La silla uno, junto a la puerta. Comprada usada y restaurada a mano.</span></figcaption>
+      </figure>
+      <div class="feature-copy">
+        <h2 class="h2 rv" id="about-title"><span data-en>A North End shop, <em>owner at chair one</em></span><span data-es>Una barbería del North End, <em>con el dueño en la silla uno</em></span></h2>
+        <!-- slot: historia -->
+        <p class="standfirst rv d1"><span data-en>Héctor "Tito" Rivera grew up on Bridgeport's East Side and swept hair at his uncle's shop on East Main Street before he was tall enough to reach the chair. He's been cutting for twelve years in Stratford and Fairfield, and opened Filo in 2026.</span><span data-es>Héctor "Tito" Rivera creció en el East Side de Bridgeport y barría pelo en la barbería de su tío en East Main Street antes de alcanzar la silla. Lleva doce años cortando en Stratford y Fairfield, y abrió Filo en 2026.</span></p>
+        <div class="body-cols rv d2">
+          <p class="first"><span data-en>Filo means edge in Spanish: the edge of a razor, and the line that makes a cut look finished. The idea was a shop where a fade gets the same care as a hot-towel shave, where fathers and sons sit side by side on a Saturday, and where nobody has to switch languages to explain what they want.</span><span data-es>Filo es el borde de la navaja y también la línea que hace que un corte se vea terminado. La idea era una barbería donde un fade recibe el mismo cuidado que un afeitado con toalla caliente, donde padres e hijos se sientan lado a lado el sábado, y donde nadie tiene que cambiar de idioma para explicar lo que quiere.</span></p>
+          <p><span data-en>Tito still takes walk-ins at chair one most days, and he'll tell you straight when a different cut will work better with your hair.</span><span data-es>Tito sigue atendiendo sin cita en la silla uno casi todos los días, y te dice claro cuando otro corte le va mejor a tu pelo.</span></p>
+        </div>
+        <blockquote class="pull rv">
+          <p><span data-en>Tell me what you do for work and how you comb it in the morning. Then we cut.</span><span data-es>Dime en qué trabajas y cómo te peinas por la mañana. Después cortamos.</span></p>
+          <footer>Héctor "Tito" Rivera · <span data-en>Owner &amp; barber</span><span data-es>Dueño y barbero</span></footer>
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: equipo (barberos) -->
+<section class="team" id="barbers" aria-labelledby="team-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">05</span><span class="c"><span data-en>The barbers</span><span data-es>Los barberos</span></span><span class="r">Filo · Bridgeport</span></div>
+    <div class="team-head">
+      <h2 class="h2 rv" id="team-title"><span data-en>Three chairs, <em>three pairs of hands</em></span><span data-es>Tres sillas, <em>tres pares de manos</em></span></h2>
+      <p class="lead rv d1" data-en>Ask for someone by name when you book, or walk in and take whoever is free. Every chair does every cut on the board.</p>
+      <p class="lead rv d1" data-es>Pide a alguien por su nombre al reservar, o entra y siéntate con quien esté libre. Todas las sillas hacen todos los cortes de la tabla.</p>
+    </div>
+    <div class="team-grid">
+      <!-- slot: barbero 1 -->
+      <article class="member rv">
+        <div class="portrait rv-img"><div class="frame ph"><img src="https://images.unsplash.com/photo-1657105052497-f996284ffff8?w=900&h=1200&q=80&auto=format&fit=crop" alt="Barber's hands cutting over a comb with thinning shears at the back of a client's head" loading="lazy" width="900" height="1200"></div><span class="chair"><small><span data-en>Chair</span><span data-es>Silla</span></small><b>01</b></span></div>
+        <div class="member-body">
+          <p class="role"><span data-en>Owner · Barber</span><span data-es>Dueño · Barbero</span></p>
+          <h3>Tito <em>Rivera</em></h3>
+          <p class="spec"><span data-en>Scissor work, classic cuts, tapers for curly hair and hot-towel shaves.</span><span data-es>Trabajo a tijera, cortes clásicos, tapers para rizos y afeitado con toalla caliente.</span></p>
+          <div class="week" aria-hidden="true"><span>M</span><span class="on">T</span><span class="on">W</span><span class="on">T</span><span class="on">F</span><span class="on">S</span><span>S</span></div>
+          <p class="days-label"><span data-en>Tuesday to Saturday</span><span data-es>De martes a sábado</span></p>
+          <a class="ulink" href="#book" data-barber="1"><span data-en>Book with Tito</span><span data-es>Reservar con Tito</span><i data-lucide="arrow-up-right"></i></a>
+        </div>
+      </article>
+      <!-- slot: barbero 2 -->
+      <article class="member rv d1">
+        <div class="portrait rv-img"><div class="frame ph"><img src="https://images.unsplash.com/photo-1669568921948-f0346e0ee73e?w=900&h=1200&q=80&auto=format&fit=crop&crop=focalpoint&fp-x=.45&fp-y=.5" alt="Close-up of a barber's hands blending a fade above the ear with detail clippers" loading="lazy" width="900" height="1200"></div><span class="chair"><small><span data-en>Chair</span><span data-es>Silla</span></small><b>02</b></span></div>
+        <div class="member-body">
+          <p class="role"><span data-en>Barber · Fades</span><span data-es>Barbero · Fades</span></p>
+          <h3>Jay <em>Morales</em></h3>
+          <p class="spec"><span data-en>Skin fades, burst fades, crops and hard parts. The one to ask for a design.</span><span data-es>Skin fades, burst fades, crops y rayas. A quien pedirle un diseño.</span></p>
+          <div class="week" aria-hidden="true"><span>M</span><span class="on">T</span><span class="on">W</span><span>T</span><span class="on">F</span><span class="on">S</span><span class="on">S</span></div>
+          <p class="days-label"><span data-en>Tue, Wed, Fri, Sat &amp; Sun</span><span data-es>Mar, mié, vie, sáb y dom</span></p>
+          <a class="ulink" href="#book" data-barber="2"><span data-en>Book with Jay</span><span data-es>Reservar con Jay</span><i data-lucide="arrow-up-right"></i></a>
+        </div>
+      </article>
+      <!-- slot: barbero 3 -->
+      <article class="member rv d2">
+        <div class="portrait rv-img"><div class="frame ph"><img src="https://images.unsplash.com/photo-1653875700318-c235ce6eb128?w=900&h=1200&q=80&auto=format&fit=crop" alt="Tattooed hands holding a straight razor over a client's cheek, a hot towel across his eyes" loading="lazy" width="900" height="1200"></div><span class="chair"><small><span data-en>Chair</span><span data-es>Silla</span></small><b>03</b></span></div>
+        <div class="member-body">
+          <p class="role"><span data-en>Barber · Beards &amp; kids</span><span data-es>Barbero · Barbas y niños</span></p>
+          <h3>Nando <em>Ortiz</em></h3>
+          <p class="spec"><span data-en>Beard shaping, razor line-ups and patient first haircuts for little ones.</span><span data-es>Diseño de barba, perfilado a navaja y primeros cortes con mucha paciencia para los más pequeños.</span></p>
+          <div class="week" aria-hidden="true"><span>M</span><span>T</span><span class="on">W</span><span class="on">T</span><span class="on">F</span><span class="on">S</span><span class="on">S</span></div>
+          <p class="days-label"><span data-en>Wednesday to Sunday</span><span data-es>De miércoles a domingo</span></p>
+          <a class="ulink" href="#book" data-barber="3"><span data-en>Book with Nando</span><span data-es>Reservar con Nando</span><i data-lucide="arrow-up-right"></i></a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- slot: galeria (lookbook de cortes) -->
+<section class="lookbook" id="cuts" aria-labelledby="cuts-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">06</span><span class="c"><span data-en>The cut book</span><span data-es>El libro de cortes</span></span><span class="r">Filo · Bridgeport</span></div>
+    <div class="lb-head">
+      <div>
+        <h2 class="h2 rv" id="cuts-title"><span data-en>Off the chair, <em>this month</em></span><span data-es>Recién salidos <em>de la silla</em></span></h2>
+        <p class="lead rv d1"><span data-en>Point at one when you sit down. Drag, swipe or use the arrows.</span><span data-es>Señala uno cuando te sientes. Arrastra, desliza o usa las flechas.</span></p>
+      </div>
+      <div class="lb-ctrl">
+        <button type="button" data-lb="-1" aria-controls="lb-track"><i data-lucide="arrow-left"></i><span class="sr-only">Previous</span></button>
+        <button type="button" data-lb="1" aria-controls="lb-track"><i data-lucide="arrow-right"></i><span class="sr-only">Next</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="lb-track" id="lb-track" tabindex="0" role="region" aria-label="Lookbook">
+    <figure class="look ph"><div class="frame"><img src="https://images.unsplash.com/photo-1701891123509-e983d6c45259?w=800&h=1067&q=80&auto=format&fit=crop" alt="Barber detailing a mid skin fade with a trimmer on a client with a full beard" loading="lazy" width="800" height="1067"><span class="tag">Mid skin fade</span></div><figcaption class="cap"><b>No. 01</b><span data-en>Blended into a full beard.</span><span data-es>Degradado hasta una barba completa.</span></figcaption></figure>
+    <figure class="look ph"><div class="frame"><img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&h=1067&q=80&auto=format&fit=crop" alt="Back view of a textured crop with a clean low fade at the neckline" loading="lazy" width="800" height="1067"><span class="tag">Textured crop</span></div><figcaption class="cap"><b>No. 02</b><span data-en>Scissor-cut top, low fade.</span><span data-es>Arriba a tijera, fade bajo.</span></figcaption></figure>
+    <figure class="look l ph"><div class="frame"><img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=1100&h=825&q=80&auto=format&fit=crop" alt="Row of black leather barber chairs in front of mirrors, brick walls and warm pendant lights" loading="lazy" width="1100" height="825"><span class="tag"><span data-en>The shop</span><span data-es>El local</span></span></div><figcaption class="cap"><b>No. 03</b><span data-en>Three chairs, before the door opens.</span><span data-es>Tres sillas, antes de abrir la puerta.</span></figcaption></figure>
+    <figure class="look ph"><div class="frame"><img src="https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=800&h=1067&q=80&auto=format&fit=crop" alt="Barber in gloves shaping a curly top with a high taper on the sides" loading="lazy" width="800" height="1067"><span class="tag">Curly top</span></div><figcaption class="cap"><b>No. 04</b><span data-en>Curls kept, sides tapered.</span><span data-es>Rizos intactos, lados en taper.</span></figcaption></figure>
+    <figure class="look ph"><div class="frame"><img src="https://images.unsplash.com/photo-1788930045572-5be1e03c1433?w=800&h=1067&q=80&auto=format&fit=crop" alt="Boy in a red barber cape with a textured fringe and a fresh taper" loading="lazy" width="800" height="1067"><span class="tag"><span data-en>Kids' cut</span><span data-es>Niño</span></span></div><figcaption class="cap"><b>No. 05</b><span data-en>Fringe and taper, age eleven.</span><span data-es>Flequillo y taper, once años.</span></figcaption></figure>
+    <figure class="look ph"><div class="frame"><img src="https://images.unsplash.com/photo-1599011176306-4a96f1516d4d?w=800&h=1067&q=80&auto=format&fit=crop" alt="Barber trimming the edge of a client's full beard with scissors" loading="lazy" width="800" height="1067"><span class="tag"><span data-en>Beard</span><span data-es>Barba</span></span></div><figcaption class="cap"><b>No. 06</b><span data-en>Shaped with scissors, lined with a razor.</span><span data-es>Forma a tijera, línea a navaja.</span></figcaption></figure>
+    <figure class="look l ph"><div class="frame"><img src="https://images.unsplash.com/photo-1647140656316-04db1f605617?w=1100&h=825&q=80&auto=format&fit=crop" alt="Gold clippers and trimmers, a razor and a tin of pomade on a black surface" loading="lazy" width="1100" height="825"><span class="tag"><span data-en>The tools</span><span data-es>Las herramientas</span></span></div><figcaption class="cap"><b>No. 07</b><span data-en>Cleaned and disinfected after every client.</span><span data-es>Limpias y desinfectadas después de cada cliente.</span></figcaption></figure>
+    <!-- slot: instagram -->
+    <a class="look-ig" href="https://www.instagram.com/" rel="noopener">
+      <span>
+        <i class="ig" data-lucide="instagram"></i>
+        <span>
+          <span class="handle">@filobarber.<wbr>bpt</span>
+          <p><span data-en>New cuts every week, straight from the chair.</span><span data-es>Cortes nuevos cada semana, directo de la silla.</span></p>
+          <span class="ulink"><span data-en>Follow</span><span data-es>Seguir</span><i data-lucide="arrow-up-right"></i></span>
+        </span>
+      </span>
+    </a>
+  </div>
+  <div class="wrap"><div class="lb-progress" aria-hidden="true"><span></span></div></div>
+</section>
+
+<!-- slot: reservar / contacto -->
+<section class="book dark" id="book" aria-labelledby="book-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">07</span><span class="c"><span data-en>Book a chair</span><span data-es>Reserva</span></span><span class="r">Filo · Bridgeport</span></div>
+    <div class="book-grid">
+      <div class="book-copy">
+        <h2 class="h2 rv" id="book-title"><span data-en>Hold <em>your spot</em></span><span data-es>Aparta <em>tu turno</em></span></h2>
+        <p class="lead rv d1" data-en>Three short steps, no account. Or just call or text: whoever has clean hands picks up.</p>
+        <p class="lead rv d1" data-es>Tres pasos cortos, sin crear cuenta. O llama o escribe: contesta quien tenga las manos libres.</p>
+        <div class="contact-ways rv d2">
+          <a class="cway" href="tel:+12035550162"><span class="cway-label"><span data-en>Call</span><span data-es>Llamar</span></span><span class="cway-value num">(203) 555-0162</span><i data-lucide="arrow-up-right"></i></a>
+          <a class="cway" href="sms:+12035550162"><span class="cway-label"><span data-en>Text the same number</span><span data-es>Texto al mismo número</span></span><span class="cway-value"><span data-en>Send a text</span><span data-es>Enviar mensaje</span></span><i data-lucide="arrow-up-right"></i></a>
+          <a class="cway" href="mailto:hola@filobarber.com"><span class="cway-label">Email</span><span class="cway-value">hola@filobarber.com</span><i data-lucide="arrow-up-right"></i></a>
+        </div>
+      </div>
+
+      <form class="ticket" action="#" method="post" id="book-form" novalidate>
+        <div class="t-stub">
+          <h3 class="bk-title"><span data-en>Chair <em>request</em></span><span data-es>Pide <em>tu silla</em></span></h3>
+          <p class="t-no">
+            <small class="bk-count" id="bk-count" aria-live="polite" data-mode="step">
+              <span data-count="step"><span data-en>Step <span class="bk-n">1</span> of 3</span><span data-es>Paso <span class="bk-n">1</span> de 3</span></span>
+              <span data-count="sent"><span data-en>Sent</span><span data-es>Enviado</span></span>
+            </small>
+            <b aria-hidden="true">No. 0001</b>
+          </p>
+        </div>
+        <div class="t-body">
+        <p class="bk-sub"><span data-en>This is a request, not a confirmed booking. We text you back to confirm, usually within the hour while we're open.</span><span data-es>Es una solicitud, no una cita confirmada. Te respondemos por texto para confirmar, casi siempre en menos de una hora si estamos abiertos.</span></p>
+        <ol class="bk-progress" aria-hidden="true">
+          <li data-dot="1"><span class="n">01</span><span data-en>Service</span><span data-es>Servicio</span></li>
+          <li data-dot="2"><span class="n">02</span><span data-en>Day &amp; barber</span><span data-es>Día y barbero</span></li>
+          <li data-dot="3"><span class="n">03</span><span data-en>Contact</span><span data-es>Contacto</span></li>
+        </ol>
+
+        <!-- Step 1 -->
+        <div class="bk-step" data-step="1">
+          <h4 class="st-title" id="st1" tabindex="-1"><span class="n">01</span><span data-en>What are we doing?</span><span data-es>¿Qué te hacemos?</span></h4>
+          <!-- slot: servicios del formulario -->
+          <div class="svc-groups">
+            <fieldset>
+              <legend><span data-en>Cuts</span><span data-es>Cortes</span></legend>
+              <div class="opt-list">
+                <div class="opt"><input type="radio" name="service" id="sv1" value="1"><label for="sv1"><span><span data-en>Haircut</span><span data-es>Corte clásico</span></span><span class="p">$30</span></label></div>
+                <div class="opt"><input type="radio" name="service" id="sv2" value="2"><label for="sv2"><span>Skin fade</span><span class="p">$35</span></label></div>
+                <div class="opt"><input type="radio" name="service" id="sv3" value="3"><label for="sv3"><span>Taper</span><span class="p">$32</span></label></div>
+                <div class="opt"><input type="radio" name="service" id="sv4" value="4"><label for="sv4"><span><span data-en>Scissor cut</span><span data-es>Corte a tijera</span></span><span class="p">$40</span></label></div>
+                <div class="opt"><input type="radio" name="service" id="sv5" value="5"><label for="sv5"><span><span data-en>Buzz cut</span><span data-es>Rapado</span></span><span class="p">$22</span></label></div>
+              </div>
+            </fieldset>
+            <div>
+              <fieldset>
+                <legend><span data-en>Beard &amp; shave</span><span data-es>Barba y navaja</span></legend>
+                <div class="opt-list">
+                  <div class="opt"><input type="radio" name="service" id="sv6" value="6"><label for="sv6"><span><span data-en>Haircut + beard</span><span data-es>Corte + barba</span></span><span class="p">$50</span></label></div>
+                  <div class="opt"><input type="radio" name="service" id="sv7" value="7"><label for="sv7"><span><span data-en>Beard trim &amp; line-up</span><span data-es>Barba y perfilado</span></span><span class="p">$22</span></label></div>
+                  <div class="opt"><input type="radio" name="service" id="sv8" value="8"><label for="sv8"><span><span data-en>Hot towel shave</span><span data-es>Afeitado con toalla caliente</span></span><span class="p">$40</span></label></div>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend><span data-en>Kids &amp; extras</span><span data-es>Niños y extras</span></legend>
+                <div class="opt-list">
+                  <div class="opt"><input type="radio" name="service" id="sv9" value="9"><label for="sv9"><span><span data-en>Kids' cut</span><span data-es>Corte de niño</span></span><span class="p">$22</span></label></div>
+                  <div class="opt"><input type="radio" name="service" id="sv10" value="10"><label for="sv10"><span><span data-en>Line-up</span><span data-es>Perfilado</span></span><span class="p">$15</span></label></div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <p class="err" id="err1" hidden><i data-lucide="circle-alert"></i><span><span data-en>Choose a service to continue.</span><span data-es>Elige un servicio para continuar.</span></span></p>
+          <div class="bk-nav">
+            <span class="spacer"></span>
+            <button class="btn" type="button" data-next><span data-en>Continue</span><span data-es>Continuar</span><i data-lucide="arrow-right"></i></button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="bk-step" data-step="2">
+          <h4 class="st-title" id="st2" tabindex="-1"><span class="n">02</span><span data-en>When, and with who?</span><span data-es>¿Cuándo y con quién?</span></h4>
+          <fieldset>
+            <legend><span data-en>Preferred day</span><span data-es>Día preferido</span></legend>
+            <!-- slot: dias del formulario (segun horario) -->
+            <div class="chips">
+              <div class="chip"><input type="radio" name="day" id="d0" value="0" checked><label for="d0"><b><span data-en>Any</span><span data-es>Cualq.</span></b><small><span data-en>day</span><span data-es>día</span></small><span class="sr-only"><span data-en>Any day</span><span data-es>Cualquier día</span></span></label></div>
+              <div class="chip"><input type="radio" name="day" id="d1" value="1" disabled><label for="d1"><b><span data-en>Mon</span><span data-es>Lun</span></b><small><span data-en>closed</span><span data-es>cerrado</span></small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d2" value="2"><label for="d2"><b><span data-en>Tue</span><span data-es>Mar</span></b><small>9–7</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d3" value="3"><label for="d3"><b><span data-en>Wed</span><span data-es>Mié</span></b><small>9–7</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d4" value="4"><label for="d4"><b><span data-en>Thu</span><span data-es>Jue</span></b><small>9–7</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d5" value="5"><label for="d5"><b><span data-en>Fri</span><span data-es>Vie</span></b><small>9–7</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d6" value="6"><label for="d6"><b><span data-en>Sat</span><span data-es>Sáb</span></b><small>8–5</small></label></div>
+              <div class="chip"><input type="radio" name="day" id="d7" value="7"><label for="d7"><b><span data-en>Sun</span><span data-es>Dom</span></b><small>9–2</small></label></div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend><span data-en>Time of day</span><span data-es>Horario</span></legend>
+            <div class="chips text">
+              <div class="chip"><input type="radio" name="time" id="t0" value="0" checked><label for="t0"><span data-en>Any time</span><span data-es>Cualquier hora</span></label></div>
+              <div class="chip"><input type="radio" name="time" id="t1" value="1"><label for="t1"><span data-en>Morning</span><span data-es>Mañana</span></label></div>
+              <div class="chip"><input type="radio" name="time" id="t2" value="2"><label for="t2"><span data-en>Afternoon</span><span data-es>Tarde</span></label></div>
+              <div class="chip"><input type="radio" name="time" id="t3" value="3"><label for="t3"><span data-en>After 5 pm</span><span data-es>Después de las 5</span></label></div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend><span data-en>Barber</span><span data-es>Barbero</span></legend>
+            <!-- slot: barberos del formulario -->
+            <div class="chips text">
+              <div class="chip"><input type="radio" name="barber" id="w0" value="0" checked><label for="w0"><span data-en>First available</span><span data-es>El primero libre</span></label></div>
+              <div class="chip"><input type="radio" name="barber" id="w1" value="1"><label for="w1">Tito</label></div>
+              <div class="chip"><input type="radio" name="barber" id="w2" value="2"><label for="w2">Jay</label></div>
+              <div class="chip"><input type="radio" name="barber" id="w3" value="3"><label for="w3">Nando</label></div>
+            </div>
+          </fieldset>
+          <div class="bk-nav">
+            <button class="btn plain" type="button" data-prev><i data-lucide="arrow-left"></i><span data-en>Back</span><span data-es>Atrás</span></button>
+            <span class="spacer"></span>
+            <button class="btn" type="button" data-next><span data-en>Continue</span><span data-es>Continuar</span><i data-lucide="arrow-right"></i></button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="bk-step" data-step="3">
+          <h4 class="st-title" id="st3" tabindex="-1"><span class="n">03</span><span data-en>Where do we text you?</span><span data-es>¿Dónde te escribimos?</span></h4>
+          <div class="row">
+            <div class="field">
+              <label for="f-name"><span data-en>Name</span><span data-es>Nombre</span></label>
+              <input id="f-name" name="name" type="text" autocomplete="name" required data-ph-en="First and last name" data-ph-es="Nombre y apellido" placeholder="First and last name">
+            </div>
+            <div class="field">
+              <label for="f-phone"><span data-en>Mobile phone</span><span data-es>Celular</span></label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required data-ph-en="(203) 555-0100" data-ph-es="(203) 555-0100" placeholder="(203) 555-0100">
+            </div>
+          </div>
+          <div class="field full">
+            <label for="f-msg"><span data-en>Anything we should know?</span><span data-es>¿Algo que debamos saber?</span></label>
+            <textarea id="f-msg" name="message" data-ph-en="Guard number, the fade you want, a kid's first cut…" data-ph-es="Número de peine, el fade que quieres, primer corte de un niño…" placeholder="Guard number, the fade you want, a kid's first cut…"></textarea>
+          </div>
+          <p class="err" id="err3" hidden><i data-lucide="circle-alert"></i><span><span data-en>Add your name and a mobile number so we can text you.</span><span data-es>Escribe tu nombre y un celular para poder escribirte.</span></span></p>
+          <div class="bk-nav">
+            <button class="btn plain" type="button" data-prev><i data-lucide="arrow-left"></i><span data-en>Back</span><span data-es>Atrás</span></button>
+            <span class="spacer"></span>
+            <button class="btn" type="submit"><span data-en>Send request</span><span data-es>Enviar solicitud</span><i data-lucide="arrow-right"></i></button>
+            <p class="note"><span data-en>We only use your number to confirm your chair.</span><span data-es>Solo usamos tu número para confirmar tu turno.</span></p>
+          </div>
+        </div>
+
+        <div class="bk-done" id="bk-done" tabindex="-1" hidden>
+          <span class="mark"><i data-lucide="message-square-text"></i></span>
+          <h3><span data-en>Request received.</span><span data-es>Solicitud recibida.</span></h3>
+          <p><span data-en>We'll text </span><span data-es>Te escribimos al </span><b class="done-phone"></b><span data-en> to confirm a time, usually within the hour while we're open.</span><span data-es> para confirmar la hora, casi siempre en menos de una hora si estamos abiertos.</span></p>
+          <dl class="summary">
+            <div><dt><span data-en>Service</span><span data-es>Servicio</span></dt><dd data-sum="service"></dd></div>
+            <div><dt><span data-en>When</span><span data-es>Cuándo</span></dt><dd data-sum="when"></dd></div>
+            <div><dt><span data-en>Barber</span><span data-es>Barbero</span></dt><dd data-sum="barber"></dd></div>
+          </dl>
+        </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- slot: politicas -->
+<section class="fine" id="policies" aria-labelledby="pol-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">08</span><span class="c"><span data-en>House rules</span><span data-es>Reglas de la casa</span></span><span class="r">Filo · Bridgeport</span></div>
+    <div class="fine-grid">
+      <div class="fine-side">
+        <h2 class="h2 rv" id="pol-title"><span data-en>Good to know <em>before you sit</em></span><span data-es>Antes de <em>sentarte</em></span></h2>
+        <p class="muted rv d1"><span data-en>Four rules, kept short. They keep the list moving and every cut unhurried.</span><span data-es>Cuatro reglas, en corto. Así la lista avanza y ningún corte se hace con prisa.</span></p>
+      </div>
+      <ol class="rules">
+        <li class="rv">
+          <h3><span data-en>Last walk-in, 30 minutes before close</span><span data-es>Último sin cita, 30 minutos antes de cerrar</span></h3>
+          <p><span data-en>After that, the list is closed so the last client of the day gets the same cut as the first.</span><span data-es>Después cerramos la lista, para que el último cliente del día reciba el mismo corte que el primero.</span></p>
+        </li>
+        <li class="rv d1">
+          <h3><span data-en>Running late? Call</span><span data-es>¿Vas tarde? Llama</span></h3>
+          <p><span data-en>We hold a booked chair for 10 minutes. After that, we may move you to the next opening.</span><span data-es>Guardamos la silla reservada 10 minutos. Después, puede que te pasemos al siguiente hueco.</span></p>
+        </li>
+        <li class="rv">
+          <h3><span data-en>Cancel 12 hours ahead</span><span data-es>Cancela con 12 horas</span></h3>
+          <p><span data-en>A quick text is enough. Repeated no-shows may be asked to walk in instead of booking.</span><span data-es>Basta con un texto. A quien falte varias veces le pediremos que venga sin cita en lugar de reservar.</span></p>
+        </li>
+        <li class="rv d1">
+          <h3><span data-en>Kids stay with an adult</span><span data-es>Niños con un adulto</span></h3>
+          <p><span data-en>Children under 12 need a parent or guardian in the shop for the whole cut.</span><span data-es>Los menores de 12 años necesitan a su papá, mamá o un adulto en el local durante todo el corte.</span></p>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- slot: reviews · OPTIONAL: solo si hay reseñas reales de Google; si no, se elimina -->
+<section class="reviews" id="reviews" aria-labelledby="rev-title">
+  <div class="wrap">
+    <div class="runhead"><span class="n">&mdash;</span><span class="c"><span data-en>Google reviews</span><span data-es>Reseñas de Google</span></span><span class="r">Filo · Bridgeport</span></div>
+    <div class="rev-grid">
+      <div class="rev-main">
+        <h2 class="sr-only" id="rev-title"><span data-en>Google reviews</span><span data-es>Reseñas de Google</span></h2>
+        <article class="rev rv">
+          <blockquote>“Best skin fade I've had in Bridgeport. Jay took his time, checked the back twice and the line-up lasted all week.”</blockquote>
+          <p class="rev-by"><b>Marcus D.</b>Google</p>
+        </article>
+        <!-- slot: nota y numero de resenas de Google -->
+        <p class="rating rv d1"><b>4.9</b><span class="stars" aria-hidden="true"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span><span><span data-en>31 reviews on Google</span><span data-es>31 reseñas en Google</span></span></p>
+      </div>
+      <div class="rev-side">
+        <article class="rev rv">
+          <span class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+          <blockquote>“The hot towel shave is worth every dollar. Clean shop, fresh blade, no rush.”</blockquote>
+          <p class="rev-by"><b>Kevin T.</b>Google</p>
+        </article>
+        <article class="rev rv d1">
+          <span class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+          <blockquote>“Llevé a mi hijo a su primer corte con Nando. Mucha paciencia, todo en español y me guardaron el mechón.”</blockquote>
+          <p class="rev-by"><b>Yesenia R.</b>Google</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- /OPTIONAL -->
+
+<!-- slot: ubicacion y horario -->
+<section class="visit" id="visit" aria-labelledby="visit-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">09</span><span class="c"><span data-en>Visit</span><span data-es>Visítanos</span></span><span class="r">Filo · Bridgeport</span></div>
+    <div class="visit-grid">
+      <div class="visit-info">
+        <div class="rv">
+          <h2 class="sr-only" id="visit-title"><span data-en>Address and hours</span><span data-es>Dirección y horario</span></h2>
+          <!-- slot: direccion -->
+          <address class="address">1418 Park Avenue<span>Bridgeport, CT 06604</span></address>
+          <p class="small"><span data-en>In the North End, on the corner by the bus stop. Street parking on Park Avenue and a small lot behind the building. Ten minutes from I-95 and Route 8.</span><span data-es>En el North End, en la esquina de la parada del bus. Estacionamiento en la calle y un pequeño lote detrás del edificio. A diez minutos de la I-95 y la Ruta 8.</span></p>
+          <p class="live" data-live>
+            <span class="dot" aria-hidden="true"></span>
+            <span>
+              <span data-state="static"><span data-en>Walk-ins welcome during open hours</span><span data-es>Sin cita en horario de atención</span></span>
+              <span data-state="open"><span data-en>Open now · until </span><span data-es>Abierto ahora · hasta las </span><span data-live-close></span></span>
+              <span data-state="later"><span data-en>Opens today at </span><span data-es>Abre hoy a las </span><span data-live-open></span></span>
+              <span data-state="closed"><span data-en>Closed now · opens </span><span data-es>Cerrado ahora · abre el </span><span data-live-day></span></span>
+            </span>
+          </p>
+        </div>
+        <div class="rv d1">
+          <p class="label hours-label"><span data-en>Hours</span><span data-es>Horario</span></p>
+          <!-- slot: horario (una fila por dia; el estado en vivo se calcula leyendo esta tabla) -->
+          <table class="hours">
+            <tbody>
+              <tr data-day="1"><th scope="row"><span data-en>Monday</span><span data-es>Lunes</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td><span data-en>Closed</span><span data-es>Cerrado</span></td></tr>
+              <tr data-day="2"><th scope="row"><span data-en>Tuesday</span><span data-es>Martes</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td>9:00 am – 7:00 pm</td></tr>
+              <tr data-day="3"><th scope="row"><span data-en>Wednesday</span><span data-es>Miércoles</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td>9:00 am – 7:00 pm</td></tr>
+              <tr data-day="4"><th scope="row"><span data-en>Thursday</span><span data-es>Jueves</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td>9:00 am – 7:00 pm</td></tr>
+              <tr data-day="5"><th scope="row"><span data-en>Friday</span><span data-es>Viernes</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td>9:00 am – 7:00 pm</td></tr>
+              <tr data-day="6"><th scope="row"><span data-en>Saturday</span><span data-es>Sábado</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td>8:00 am – 5:00 pm</td></tr>
+              <tr data-day="0"><th scope="row"><span data-en>Sunday</span><span data-es>Domingo</span><span class="today-tag"><span data-en>Today</span><span data-es>Hoy</span></span></th><td>9:00 am – 2:00 pm</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="rv d2">
+          <p class="label hours-label"><span data-en>Clients come from</span><span data-es>Nos visitan desde</span></p>
+          <!-- slot: zona -->
+          <ul class="towns">
+            <li>North End</li><li>East Side</li><li>Black Rock</li><li>Stratford</li><li>Trumbull</li><li>Fairfield</li><li>Monroe</li>
+          </ul>
+        </div>
+      </div>
+      <!-- slot: mapa -->
+      <div class="map rv-img"><div class="frame" style="position:absolute;inset:0">
+        <iframe src="https://maps.google.com/maps?q=Bridgeport,+CT&amp;z=13&amp;output=embed" title="Map: Bridgeport, CT" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div><p class="map-tag"><b>Filo Barber Co.</b>1418 Park Ave · Bridgeport</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: FAQ -->
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <div class="runhead rv"><span class="n">10</span><span class="c">FAQ</span><span class="r">Filo · Bridgeport</span></div>
+    <div class="faq-grid">
+      <div class="faq-side">
+        <h2 class="h2 rv" id="faq-title"><span data-en>Asked <em>in the chair</em></span><span data-es>Lo que nos <em>preguntan en la silla</em></span></h2>
+        <p class="muted rv d1"><span data-en>Something else? Text us and a barber answers.</span><span data-es>¿Otra duda? Escríbenos y te contesta un barbero.</span></p>
+      </div>
+      <div class="rv">
+        <details>
+          <summary><span data-en>How long is the wait for a walk-in?</span><span data-es>¿Cuánto se espera sin cita?</span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="answer"><span data-en>On weekday mornings, often none. Saturdays between 10 and 2 it can be an hour or more. Text us before you come and we'll tell you how many names are on the list.</span><span data-es>Entre semana por la mañana, muchas veces nada. Los sábados de 10 a 2 puede ser una hora o más. Escríbenos antes de venir y te decimos cuántos nombres hay en la lista.</span></p>
+        </details>
+        <details>
+          <summary><span data-en>Do you cut curly and textured hair?</span><span data-es>¿Cortan pelo rizado y afro?</span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="answer"><span data-en>Every day. Tapers, sponge twists, curly tops and fades on coarse hair are a big part of what we do. Come with your hair clean and dry if you can.</span><span data-es>Todos los días. Tapers, twists con esponja, rizos arriba y fades en pelo grueso son gran parte de lo que hacemos. Si puedes, ven con el pelo limpio y seco.</span></p>
+        </details>
+        <details>
+          <summary><span data-en>Is it good for a kid's first haircut?</span><span data-es>¿Sirve para el primer corte de un niño?</span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="answer"><span data-en>Yes. Book a weekday morning if you can, when the shop is quiet. We go slowly, use scissors first if clippers scare them, and save a lock of hair for you.</span><span data-es>Sí. Si puedes, reserva entre semana por la mañana, cuando está tranquilo. Vamos despacio, empezamos con tijera si la máquina les da miedo y te guardamos un mechón.</span></p>
+        </details>
+        <details>
+          <summary><span data-en>How do you keep the tools clean?</span><span data-es>¿Cómo limpian las herramientas?</span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="answer"><span data-en>Razor blades are single-use and go in the sharps box in front of you. Clippers, guards and combs are brushed and disinfected between every client, and capes and towels are washed after each use.</span><span data-es>Las hojas de navaja son de un solo uso y van al contenedor delante de ti. Máquinas, peines y guías se limpian y desinfectan entre cada cliente, y las capas y toallas se lavan después de cada uso.</span></p>
+        </details>
+        <details>
+          <summary><span data-en>How can I pay?</span><span data-es>¿Cómo puedo pagar?</span><span class="pm" aria-hidden="true"></span></summary>
+          <p class="answer"><span data-en>Cash, all major credit and debit cards, Apple Pay and Google Pay. Tips can be added to the card.</span><span data-es>Efectivo, todas las tarjetas de crédito y débito, Apple Pay y Google Pay. La propina se puede agregar a la tarjeta.</span></p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- slot: footer -->
+<footer class="site-footer dark">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-cta">
+        <p class="h2"><span data-en>See you <em>in the chair.</em></span><span data-es>Nos vemos <em>en la silla.</em></span></p>
+        <p><span data-en>Fades, cuts, beards and hot-towel shaves on Park Avenue in Bridgeport. We speak Spanish · Hablamos español.</span><span data-es>Fades, cortes, barba y afeitado con toalla caliente en Park Avenue, Bridgeport. We speak Spanish · Hablamos español.</span></p>
+        <a class="btn red" href="#book"><span data-en>Book a chair</span><span data-es>Reserva tu silla</span><i data-lucide="arrow-right"></i></a>
+      </div>
+      <div>
+        <h3><span data-en>Visit</span><span data-es>Dirección</span></h3>
+        <address>1418 Park Avenue<br>Bridgeport, CT 06604</address>
+      </div>
+      <div>
+        <h3><span data-en>Hours</span><span data-es>Horario</span></h3>
+        <ul class="tab">
+          <li><span data-en>Tue–Fri 9–7</span><span data-es>Mar–vie 9–7</span></li>
+          <li><span data-en>Sat 8–5 · Sun 9–2</span><span data-es>Sáb 8–5 · dom 9–2</span></li>
+          <li><span data-en>Mon closed</span><span data-es>Lunes cerrado</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3><span data-en>Contact</span><span data-es>Contacto</span></h3>
+        <ul>
+          <li><a href="tel:+12035550162">(203) 555-0162</a></li>
+          <li><a href="sms:+12035550162"><span data-en>Text us</span><span data-es>Mándanos un texto</span></a></li>
+          <li><a href="mailto:hola@filobarber.com">hola@filobarber.com</a></li>
+          <li><a href="https://www.instagram.com/" rel="noopener">@filobarber.bpt</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="bigname" aria-hidden="true">Filo <em>Barber Co.</em></p>
+    <div class="foot-bottom">
+      <!-- slot: licencias -->
+      <p>© 2026 Filo Barber Co. LLC</p>
+      <p><span data-en>Barbershop lic. #BAR.0000000 · Fully insured</span><span data-es>Licencia de barbería #BAR.0000000 · Con seguro</span></p>
+    </div>
+  </div>
+</footer>
+
+<!-- slot: barra movil -->
+<nav class="callbar" aria-label="Quick contact">
+  <a href="tel:+12035550162"><i data-lucide="phone"></i><span data-en>Call</span><span data-es>Llamar</span></a>
+  <a href="sms:+12035550162"><i data-lucide="message-square-text"></i><span data-en>Text</span><span data-es>Texto</span></a>
+  <a class="primary" href="#book"><i data-lucide="calendar-check"></i><span data-en>Book</span><span data-es>Reservar</span></a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script>
+(function () {
+  var root = document.documentElement;
+  root.classList.add('js');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lang = 'en';
+
+  function setLang(l) {
+    lang = l === 'es' ? 'es' : 'en';
+    root.classList.remove('lang-en', 'lang-es');
+    root.classList.add('lang-' + lang);
+    root.setAttribute('lang', lang);
+    document.querySelectorAll('[data-ph-' + lang + ']').forEach(function (el) {
+      el.setAttribute('placeholder', el.getAttribute('data-ph-' + lang));
+    });
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === lang));
+    });
+    try { localStorage.setItem('wc360-lang-barberia', lang); } catch (e) {}
+  }
+
+  var initial = 'en';
+  try { var saved = localStorage.getItem('wc360-lang-barberia'); if (saved) initial = saved; } catch (e) {}
+  var q = new URLSearchParams(location.search).get('lang');
+  if (q === 'es' || q === 'en') initial = q;
+  document.querySelectorAll('[data-set-lang]').forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.getAttribute('data-set-lang')); });
+  });
+
+  if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5 } });
+
+  // Header: gains a background and compacts on scroll
+  var header = document.querySelector('.site-header');
+  function onScroll() { header.classList.toggle('scrolled', window.scrollY > 24); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // Mobile menu
+  var btn = document.querySelector('.menu-btn');
+  var mnav = document.getElementById('mobile-nav');
+  function closeMenu() { mnav.classList.remove('open'); header.classList.remove('menu-open'); btn.setAttribute('aria-expanded', 'false'); }
+  btn.addEventListener('click', function () {
+    var open = mnav.classList.toggle('open');
+    header.classList.toggle('menu-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  mnav.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+
+  // Scroll reveal (progressive enhancement)
+  var revealEls = document.querySelectorAll('.rv, .rv-img');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // Price board: the reference photo follows the category you hover, focus or scroll to
+  var cats = document.querySelectorAll('.cat');
+  var figImgs = document.querySelectorAll('.board-frame img');
+  var caps = document.querySelectorAll('.board-fig [data-cap]');
+  var figN = document.querySelector('.board-frame .fig-n');
+  function showCat(i) {
+    cats.forEach(function (c, k) { c.classList.toggle('on', k === i); });
+    figImgs.forEach(function (im, k) { im.classList.toggle('on', k === i); });
+    caps.forEach(function (c, k) { c.classList.toggle('on', k === i); });
+    var n = cats[i] && cats[i].querySelector('.cat-head .n');
+    if (figN && n) figN.textContent = n.textContent;
+  }
+  cats.forEach(function (c, i) {
+    c.addEventListener('mouseenter', function () { showCat(i); });
+    c.addEventListener('focusin', function () { showCat(i); });
+  });
+  if ('IntersectionObserver' in window) {
+    var catIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) showCat(Array.prototype.indexOf.call(cats, en.target)); });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    cats.forEach(function (c) { catIO.observe(c); });
+  }
+
+  // Lookbook: arrows, progress and mouse drag (touch scrolls natively)
+  var track = document.getElementById('lb-track');
+  var bar = document.querySelector('.lb-progress span');
+  var prev = document.querySelector('[data-lb="-1"]'), next = document.querySelector('[data-lb="1"]');
+  function lbUpdate() {
+    var max = track.scrollWidth - track.clientWidth;
+    var p = max > 0 ? track.scrollLeft / max : 1;
+    var vis = track.clientWidth / track.scrollWidth;
+    bar.style.transform = 'translateX(' + (p * (1 - vis) * 100 / vis) + '%) scaleX(1)';
+    bar.style.width = (vis * 100) + '%';
+    prev.disabled = track.scrollLeft < 4;
+    next.disabled = track.scrollLeft > max - 4;
+  }
+  function step(dir) {
+    var item = track.querySelector('.look, .look-ig');
+    var w = item ? item.getBoundingClientRect().width + 20 : 400;
+    track.scrollBy({ left: dir * w, behavior: reduce ? 'auto' : 'smooth' });
+  }
+  prev.addEventListener('click', function () { step(-1); });
+  next.addEventListener('click', function () { step(1); });
+  track.addEventListener('scroll', lbUpdate, { passive: true });
+  window.addEventListener('resize', lbUpdate);
+  track.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+  });
+  var drag = null, moved = false;
+  track.addEventListener('pointerdown', function (e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    drag = { x: e.clientX, left: track.scrollLeft }; moved = false;
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.x;
+    if (!moved && Math.abs(dx) > 5) { moved = true; track.classList.add('dragging'); }
+    if (moved) track.scrollLeft = drag.left - dx;
+  });
+  window.addEventListener('pointerup', function () {
+    if (!drag) return;
+    drag = null;
+    if (moved) { var left = track.scrollLeft; track.classList.remove('dragging'); track.scrollLeft = left; }
+  });
+  track.addEventListener('click', function (e) { if (moved) { e.preventDefault(); moved = false; } }, true);
+  track.addEventListener('dragstart', function (e) { e.preventDefault(); });
+  lbUpdate();
+
+  // Live hours: everything is read from the hours table (one row per day)
+  var TIME = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)\s*[–—-]\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i;
+  function mins(h, m, ap) { h = +h % 12; if (/pm/i.test(ap)) h += 12; return h * 60 + (+m || 0); }
+  var rows = {};
+  document.querySelectorAll('.hours tr[data-day]').forEach(function (tr) {
+    var td = tr.querySelector('td'); var m = td ? td.textContent.match(TIME) : null;
+    rows[tr.getAttribute('data-day')] = {
+      tr: tr,
+      open: m ? mins(m[1], m[2], m[3]) : null, close: m ? mins(m[4], m[5], m[6]) : null,
+      openTxt: m ? m[0].split(/\s*[–—-]\s*/)[0] : '', closeTxt: m ? m[0].split(/\s*[–—-]\s*/)[1] : ''
+    };
+  });
+  var now = new Date(), today = now.getDay(), nowMin = now.getHours() * 60 + now.getMinutes();
+  if (rows[today]) rows[today].tr.classList.add('today');
+  Object.keys(rows).forEach(function (k) { if (rows[k].open === null) rows[k].tr.classList.add('closed'); });
+  function dayLabel(r) {
+    var th = r.tr.querySelector('th').cloneNode(true);
+    th.querySelectorAll('.today-tag').forEach(function (x) { x.remove(); });
+    return th.innerHTML;
+  }
+  var state = null, r = rows[today];
+  if (Object.keys(rows).length) {
+    if (r && r.open !== null && nowMin >= r.open && nowMin < r.close) state = 'open';
+    else if (r && r.open !== null && nowMin < r.open) state = 'later';
+    else state = 'closed';
+    var nextRow = null;
+    for (var i = 1; i <= 7 && state === 'closed'; i++) {
+      var c = rows[(today + i) % 7];
+      if (c && c.open !== null) { nextRow = c; break; }
+    }
+    if (state === 'closed' && !nextRow) state = null;
+  }
+  if (state) {
+    document.querySelectorAll('[data-live]').forEach(function (el) {
+      el.classList.add('is-' + state);
+      el.querySelectorAll('[data-live-close]').forEach(function (s) { s.textContent = r ? r.closeTxt : ''; });
+      el.querySelectorAll('[data-live-open]').forEach(function (s) { s.textContent = r ? r.openTxt : ''; });
+      if (nextRow) el.querySelectorAll('[data-live-day]').forEach(function (s) { s.innerHTML = dayLabel(nextRow) + ', ' + nextRow.openTxt; });
+    });
+  }
+
+  // Booking: three steps on one page, no reload
+  var form = document.getElementById('book-form');
+  var steps = form.querySelectorAll('.bk-step');
+  var dots = form.querySelectorAll('.bk-progress li');
+  var countEl = document.getElementById('bk-count');
+  var done = document.getElementById('bk-done');
+  var current = 1;
+  function updateCount() {
+    countEl.setAttribute('data-mode', done.hidden ? 'step' : 'sent');
+    countEl.querySelectorAll('.bk-n').forEach(function (n) { n.textContent = current; });
+  }
+  function show(n, focus) {
+    current = n;
+    steps.forEach(function (s) {
+      var on = +s.getAttribute('data-step') === n;
+      s.hidden = !on;
+      s.classList.toggle('enter', on && focus);
+    });
+    dots.forEach(function (d) {
+      var k = +d.getAttribute('data-dot');
+      d.classList.toggle('on', k === n); d.classList.toggle('done', k < n);
+    });
+    updateCount();
+    if (focus) {
+      var t = form.querySelector('#st' + n);
+      if (t) t.focus({ preventScroll: true });
+      if (form.getBoundingClientRect().top < 0) form.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    }
+  }
+  function valid(n) {
+    if (n === 1) {
+      var ok = !!form.querySelector('input[name="service"]:checked');
+      document.getElementById('err1').hidden = ok;
+      if (!ok) form.querySelector('#sv1').focus();
+      return ok;
+    }
+    if (n === 3) {
+      var name = document.getElementById('f-name'), phone = document.getElementById('f-phone');
+      var okName = name.value.trim().length > 1;
+      var okPhone = phone.value.replace(/\D/g, '').length >= 10;
+      name.setAttribute('aria-invalid', String(!okName));
+      phone.setAttribute('aria-invalid', String(!okPhone));
+      document.getElementById('err3').hidden = okName && okPhone;
+      if (!okName) name.focus(); else if (!okPhone) phone.focus();
+      return okName && okPhone;
+    }
+    return true;
+  }
+  form.querySelectorAll('input[name="service"]').forEach(function (rd) {
+    rd.addEventListener('change', function () { document.getElementById('err1').hidden = true; });
+  });
+  form.querySelectorAll('[data-next]').forEach(function (b) {
+    b.addEventListener('click', function () { if (valid(current)) show(current + 1, true); });
+  });
+  form.querySelectorAll('[data-prev]').forEach(function (b) {
+    b.addEventListener('click', function () { show(current - 1, true); });
+  });
+  function labelHTML(input, keepSr) {
+    var l = form.querySelector('label[for="' + input.id + '"]');
+    if (!l) return '';
+    var c = l.cloneNode(true);
+    var sr = c.querySelector('.sr-only');
+    if (sr) return sr.innerHTML;
+    c.querySelectorAll('.p, small').forEach(function (x) { x.remove(); });
+    return c.innerHTML;
+  }
+  function dayHTML(input) {
+    var row = rows[+input.value % 7];
+    return (+input.value && row) ? dayLabel(row) : labelHTML(input);
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!valid(1)) { show(1, true); return; }
+    if (!valid(3)) { show(3, false); return; }
+    var svc = form.querySelector('input[name="service"]:checked');
+    var day = form.querySelector('input[name="day"]:checked');
+    var time = form.querySelector('input[name="time"]:checked');
+    var bar2 = form.querySelector('input[name="barber"]:checked');
+    form.querySelector('[data-sum="service"]').innerHTML = labelHTML(svc);
+    form.querySelector('[data-sum="when"]').innerHTML = dayHTML(day) + ' · ' + labelHTML(time);
+    form.querySelector('[data-sum="barber"]').innerHTML = labelHTML(bar2);
+    form.querySelector('.done-phone').textContent = document.getElementById('f-phone').value.trim();
+    steps.forEach(function (s) { s.hidden = true; });
+    dots.forEach(function (d) { d.classList.remove('on'); d.classList.add('done'); });
+    done.hidden = false;
+    updateCount();
+    done.focus({ preventScroll: true });
+    form.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  });
+
+  // "Book with ..." preselects the barber (by chair number)
+  document.querySelectorAll('[data-barber]').forEach(function (a) {
+    a.addEventListener('click', function () {
+      var rd = form.querySelector('input[name="barber"][value="' + a.getAttribute('data-barber') + '"]');
+      if (rd) rd.checked = true;
+    });
+  });
+
+  setLang(initial);
+  show(1, false);
+})();
+</script>
+</body>
+</html>

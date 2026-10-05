@@ -1,10 +1,9 @@
 import { Router } from 'express';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
 import { requireAuth } from '../middleware/auth.js';
+import supabase from '../db/supabase.js';
 
 const router = Router();
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 function stripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -19,6 +18,8 @@ const PRICES = {
   agency_monthly:  process.env.STRIPE_AGENCY_MONTHLY,
   agency_annual:   process.env.STRIPE_AGENCY_ANNUAL,
 };
+
+const TRIAL_DAYS = 14;   // only for a first subscription (someone who already had one doesn't get another trial)
 
 // POST /api/billing/checkout — create Stripe Checkout session
 router.post('/checkout', requireAuth, async (req, res) => {
@@ -47,10 +48,17 @@ router.post('/checkout', requireAuth, async (req, res) => {
     mode: 'subscription',
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${process.env.BASE_URL}/app.html?checkout=success`,
+    success_url: `${process.env.BASE_URL}/billing.html?checkout=success`,
     cancel_url: `${process.env.BASE_URL}/billing.html`,
+    // What the landing and the billing page promise: 14 free days, no card needed to start. Without a card by the end
+    // of the trial the subscription is cancelled (not charged).
+    payment_method_collection: 'if_required',
     subscription_data: {
       metadata: { user_id: req.user.id, plan, interval },
+      ...(s.stripe_subscription_id || (s.plan_status && s.plan_status !== 'inactive') ? {} : {
+        trial_period_days: TRIAL_DAYS,
+        trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
+      }),
     },
   });
 

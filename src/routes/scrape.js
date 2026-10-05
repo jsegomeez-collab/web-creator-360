@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import supabase from '../db/supabase.js';
-import { scrapeBusinessProfile } from '../services/gemini.js';
+import { scrapeBusinessProfile } from '../services/businessProfile.js';
 
 const router = Router();
 

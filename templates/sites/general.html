@@ -1,0 +1,1291 @@
+<!-- DEMO · negocio y datos ficticios · plantilla general de Web Creator 360 -->
+<!--
+  PLANTILLA COMODÍN (servicios profesionales, seguros, transporte, talleres, salud, eventos…)
+  Para adaptarla a otro negocio basta con:
+    1. Cambiar --brand en :root (todo el color se deriva de ahí con color-mix). Demo: ?brand=0e7490 en la URL.
+       Usa un color de marca oscuro/medio (texto blanco encima con contraste AA).
+    2. Sustituir las fotos (slot: photo-*), los iconos Lucide de los servicios y los textos.
+    3. Horario: edita las filas .hrow de la tarjeta de horario (data-days="1-5" data-open="09:00" data-close="19:00");
+       el estado "Abierto ahora · cierra a las 7" se calcula solo con la zona horaria data-tz.
+  Secciones marcadas con "slot" y las opcionales con "OPTIONAL": se pueden quitar sin romper el ritmo
+  (la numeración 01, 02… de las secciones y de los servicios se recalcula sola).
+  Servicios: rejilla "bento" que se recompone con 2, 3, 4, 5 o 6 tarjetas; la primera es la destacada.
+-->
+<!doctype html>
+<html lang="en" class="lang-en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- slot: seo -->
+<title>Núñez Tax &amp; Insurance · Taxes, bookkeeping &amp; insurance in Waterbury, CT</title>
+<meta name="description" content="Personal and business tax returns, ITIN applications, bookkeeping, auto/home/business insurance and LLC setup in Waterbury, CT. Hablamos español.">
+<meta name="theme-color" content="#f5f3ee">
+<script>
+/* Antes de pintar: marca que hay JS, color de demo (?brand=) e idioma, para evitar parpadeos */
+(function(d){var r=d.documentElement;r.classList.add('js');try{var p=new URLSearchParams(location.search),b=p.get('brand');if(b&&/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(b))r.style.setProperty('--brand','#'+b);var l=p.get('lang');if(!l){try{l=localStorage.getItem('wc360-lang-general')}catch(e){}}if(l==='es'){r.classList.remove('lang-en');r.classList.add('lang-es');r.lang='es'}}catch(e){}})(document);
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1551836022-4c4c79ecde51?w=2200&q=80&auto=format&fit=crop" fetchpriority="high">
+<style>
+/* CONCEPTO — "Oficina de barrio, oficio de gran firma": la precisión de un producto de software de primer nivel
+   (retícula, filetes finos, números tabulares, estados en vivo, microinteracciones) con la calidez de una ventanilla
+   que atiende su dueño (papel cálido, fotografía humana con el mismo tratamiento, la cita del dueño en serif). */
+
+/* ============ TOKENS · cambia --brand y todo lo demás se recalcula ============ */
+:root{
+  --brand:#1f5190;                                                    /* slot: brand-color */
+  --brand-hover:color-mix(in oklab, var(--brand) 84%, #000);
+  --brand-ink:color-mix(in oklab, var(--brand) 86%, #000);            /* texto de marca sobre claro */
+  --brand-tint:color-mix(in oklab, var(--brand) 7%, #fff);
+  --brand-tint-2:color-mix(in oklab, var(--brand) 14%, #fff);
+  --brand-line:color-mix(in oklab, var(--brand) 28%, #fff);
+  --brand-deep:color-mix(in oklab, var(--brand) 44%, #0b0d11);        /* panel oscuro de contacto */
+  --brand-soft-on-dark:color-mix(in oklab, var(--brand) 26%, #fff);
+  --on-brand:#fff;
+  --accent:var(--brand);                                              /* opcional: un único acento */
+
+  --paper:color-mix(in oklab, var(--brand) 2%, #f8f5ef);           /* neutros cálidos tintados de marca */
+  --paper-2:color-mix(in oklab, var(--brand) 4%, #efe9de);
+  --surface:#fffefb;
+  --ink:color-mix(in oklab, var(--brand) 12%, #111318);
+  --ink-2:color-mix(in oklab, var(--brand) 8%, #353940);
+  --muted:color-mix(in oklab, var(--brand) 6%, #5a5e67);
+  --line:color-mix(in oklab, var(--ink) 11%, transparent);
+  --line-2:color-mix(in oklab, var(--ink) 19%, transparent);
+  --star:#d99a12;
+  --ok:#1d7a4c; --warn:#b76e0f; --off:#9aa0a8; --err:#b42318;
+
+  --f-sans:"Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-serif:"Newsreader", "Iowan Old Style", Georgia, serif;
+  --wrap:1320px;
+  --gutter:clamp(20px, 4vw, 48px);
+  --hh:80px;                                                          /* alto de la cabecera */
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --grade:saturate(.84) contrast(1.04) brightness(1.01);              /* mismo tratamiento para todas las fotos */
+  --shadow-lg:0 1px 2px rgba(12,14,18,.06), 0 30px 60px -30px rgba(12,14,18,.38);
+  interpolate-size:allow-keywords;
+}
+
+/* ============ BASE ============ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--hh) + 20px);overflow-x:clip}
+html:focus-within{scroll-behavior:smooth}
+body{margin:0;overflow-x:clip;color:var(--ink-2);font:400 18px/1.6 var(--f-sans);font-feature-settings:"ss01";-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;counter-reset:sec;
+  background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--brand-ink);text-decoration-thickness:1px;text-underline-offset:3px}
+h1,h2,h3,h4{font-family:var(--f-sans);color:var(--ink);margin:0;font-weight:600;letter-spacing:-.03em;line-height:1.08;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+ul,ol{margin:0;padding:0;list-style:none}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
+::selection{background:var(--brand-tint-2);color:var(--ink)}
+.lang-en [data-es], .lang-es [data-en]{display:none !important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--ink);color:#fff;padding:10px 14px;border-radius:8px}
+.skip:focus{top:12px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gutter)}
+.ico{display:inline-flex}
+.ico svg{width:20px;height:20px;flex:none}
+.tnum{font-variant-numeric:tabular-nums}
+.nw{white-space:nowrap}
+.area .h2,.faq .h2{font-size:clamp(2.1rem, 1.3rem + 2.3vw, 3.3rem)}
+
+/* Tipografía de sección · la numeración 01, 02… sale de un contador CSS */
+.eyebrow{display:flex;align-items:center;gap:0;margin:0 0 26px;font:500 12.5px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.eyebrow.num::before{counter-increment:sec;content:counter(sec, decimal-leading-zero);color:var(--brand-ink);padding-right:52px;margin-right:14px;background:linear-gradient(currentColor,currentColor) no-repeat right center / 38px 1px}
+.h2{font-size:clamp(2.2rem, 1.25rem + 2.95vw, 4rem);letter-spacing:-.045em;line-height:.99}
+.lead{font-size:clamp(1.07rem, 1rem + .3vw, 1.22rem);line-height:1.58;color:var(--ink-2);max-width:56ch}
+
+/* Enlaces con subrayado animado */
+.ulink{text-decoration:none;background:linear-gradient(currentColor,currentColor) no-repeat 0 100% / 0 1px;transition:background-size .4s var(--ease)}
+.ulink:hover{background-size:100% 1px}
+
+/* Botones · flecha con microanimación */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:54px;padding:0 22px 0 24px;border-radius:12px;border:1px solid transparent;font:500 16px/1 var(--f-sans);letter-spacing:-.005em;text-decoration:none;white-space:nowrap;transition:background-color .25s, border-color .25s, color .25s, box-shadow .25s, transform .15s}
+.btn:active{transform:translateY(1px)}
+.btn .ico svg{width:18px;height:18px}
+.btn .arr svg{transition:transform .35s var(--ease)}
+.btn:hover .arr svg{transform:translateX(3px)}
+.btn-primary{background:var(--brand);color:var(--on-brand);box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 1px 1px rgba(12,14,18,.14), 0 10px 22px -12px rgba(12,14,18,.5)}
+.btn-primary:hover{background:var(--brand-hover)}
+.btn-ghost{background:var(--surface);color:var(--ink);border-color:var(--line-2)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-sm{min-height:42px;padding:0 16px 0 18px;font-size:15px;border-radius:10px;gap:9px}
+.btn-sm .ico svg{width:16px;height:16px}
+
+/* Secciones: sobre papel; las "panel" van en un bloque redondeado.
+   Dos secciones .plain seguidas se separan con un filete fino → se puede quitar cualquiera. */
+.section{padding:clamp(88px, 9vw, 136px) 0}
+.section.plain + .section.plain{padding-top:0}
+.section.plain + .section.plain > .wrap::before{content:"";display:block;height:1px;background:var(--line-2);margin-bottom:clamp(88px, 9vw, 136px);grid-column:1 / -1}
+.panel-outer{padding:0 clamp(10px, 1.6vw, 24px)}
+.panel{background:var(--paper-2);border-radius:clamp(22px, 3vw, 36px);padding:clamp(72px, 8.5vw, 128px) 0;position:relative;overflow:hidden}
+.section.is-panel{padding:clamp(10px, 1.6vw, 24px) 0}
+.section-head{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:clamp(24px,6vw,96px);align-items:end;margin-bottom:clamp(44px,5vw,72px)}
+.section-head .lead{justify-self:end}
+
+/* Reveal al hacer scroll: solo con JS (clase .js en <html>); sin JS todo se ve */
+.js .rv{opacity:0;transform:translateY(18px);transition:opacity .75s var(--ease), transform .75s var(--ease);transition-delay:var(--d,0s)}
+.js .rv.in{opacity:1;transform:none}
+
+/* ============ TOP BAR + HEADER ============ */
+.topbar{background:var(--ink);color:color-mix(in oklab, #fff 74%, var(--brand));font-size:13.5px}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:38px}
+.topbar strong{color:#fff;font-weight:500}
+.topbar ul{display:flex;gap:28px}
+.topbar li{display:flex;align-items:center;gap:8px}
+.topbar .ico svg{width:14px;height:14px;color:var(--brand-soft-on-dark)}
+
+.header{position:sticky;top:0;z-index:50;background:var(--paper);transition:box-shadow .35s var(--ease), background-color .35s}
+.header .wrap{display:flex;align-items:center;gap:28px;height:var(--hh);transition:height .35s var(--ease)}
+.header.is-scrolled{background:color-mix(in oklab, var(--paper) 70%, #fff);box-shadow:0 1px 0 var(--line), 0 14px 30px -26px rgba(12,14,18,.45)}
+.header.is-scrolled .wrap{height:64px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);flex:none}
+/* slot: logo-mark · inicial del negocio en un sello con esquina doblada (sirve para cualquier sector) */
+.logo-mark{position:relative;width:40px;height:40px;border-radius:11px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font:600 21px/1 var(--f-sans);letter-spacing:-.05em;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 1px 2px rgba(12,14,18,.18)}
+.logo-mark::before{content:"";position:absolute;right:0;top:0;width:13px;height:13px;background:linear-gradient(225deg, var(--paper) 50%, var(--brand-soft-on-dark) 50%);border-bottom-left-radius:4px}
+.logo-mark::after{content:"";position:absolute;left:8px;right:8px;bottom:7px;height:1.5px;border-radius:2px;background:rgba(255,255,255,.4)}
+.logo-mark span{transform:translateY(-1px)}
+.logo-text{display:flex;flex-direction:column;line-height:1}
+.logo-name{font:600 20px/1 var(--f-sans);letter-spacing:-.035em}
+.logo-sub{font:500 10.5px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.nav{display:flex;gap:2px;margin-left:auto}
+.nav a{position:relative;padding:10px 12px;color:var(--ink-2);text-decoration:none;font-weight:500;font-size:15px;transition:color .2s}
+.nav a::after{content:"";position:absolute;left:12px;right:12px;bottom:5px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
+.nav a:hover{color:var(--ink)}
+.nav a:hover::after{transform:scaleX(1)}
+.header-actions{display:flex;align-items:center;gap:14px}
+.phone-link{display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font-weight:500;font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.phone-link .ico svg{width:16px;height:16px;color:var(--brand)}
+.phone-link:hover{color:var(--brand-ink)}
+.lang{display:inline-flex;padding:3px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface)}
+.lang button{border:0;background:none;padding:0 9px;height:28px;border-radius:7px;font:500 12px/1 var(--f-mono);letter-spacing:.06em;color:var(--muted);transition:background-color .2s, color .2s}
+.lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.menu-btn{display:none;width:44px;height:44px;border:1px solid var(--line-2);border-radius:11px;background:var(--surface);color:var(--ink);align-items:center;justify-content:center}
+.menu-btn .i-close{display:none}
+.menu-btn[aria-expanded="true"] .i-open{display:none}
+.menu-btn[aria-expanded="true"] .i-close{display:inline-flex}
+.mobile-nav{display:none}
+header a, header button{white-space:nowrap}
+
+/* ============ HERO ============ */
+.hero{padding:clamp(28px,3.6vw,52px) 0 0}
+.hero-row{display:flex;align-items:center;justify-content:space-between;gap:14px 24px;flex-wrap:wrap;padding-bottom:clamp(26px,3.4vw,44px)}
+.hero-loc{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font:500 12.5px/1 var(--f-mono);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2)}
+.hero-loc .rule{width:34px;height:1px;background:currentColor;opacity:.6}
+.lang-badge{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 13px;border-radius:999px;background:var(--brand-tint);border:1px solid var(--brand-line);color:var(--brand-ink);font:500 13.5px/1 var(--f-sans);letter-spacing:0;text-transform:none}
+.lang-badge .ico svg{width:15px;height:15px}
+.status{display:inline-flex;align-items:center;gap:10px;height:36px;padding:0 15px 0 13px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font:500 14px/1 var(--f-sans);color:var(--ink);text-decoration:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dot{position:relative;width:8px;height:8px;border-radius:50%;background:var(--off);flex:none}
+.is-open .dot{background:var(--ok)}
+.is-soon .dot{background:var(--warn)}
+.is-open .dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--ok);opacity:0;animation:ping 2.4s var(--ease) infinite}
+@keyframes ping{0%{transform:scale(.6);opacity:.7}70%,100%{transform:scale(1.5);opacity:0}}
+a.status:hover{border-color:var(--line-2)}
+
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:clamp(32px,5vw,88px);align-items:end}
+.hero h1{--s:1;font-size:calc(var(--s) * clamp(2.85rem, .7rem + 5.8vw, 6.6rem));font-weight:600;letter-spacing:-.055em;line-height:.93;max-width:15ch}
+.lang-es .hero h1{--s:.86;max-width:17ch}
+.hero-aside .lead{font-size:clamp(1.05rem, 1rem + .2vw, 1.15rem);max-width:40ch}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+
+.hero-media{position:relative;margin:clamp(36px,4.6vw,68px) clamp(10px,1.6vw,24px) 0}
+.hero-photo{margin:0;position:relative;height:clamp(440px, 64vh, 700px);border-radius:clamp(20px,2.6vw,34px);overflow:hidden;background:var(--paper-2)}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 50%;filter:var(--grade)}
+.hero-photo::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg, rgba(12,14,18,0) 55%, rgba(12,14,18,.34));}
+.hero-photo figcaption{position:absolute;right:clamp(18px,2.6vw,36px);bottom:clamp(18px,2.4vw,32px);z-index:1;display:flex;align-items:center;gap:10px;font:500 12px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.92);max-width:36ch;text-align:right}
+.hero-photo figcaption::before{content:"";width:28px;height:1px;background:currentColor;flex:none}
+
+/* Tarjeta de horario viva · slot: hours */
+.hours-card{position:absolute;left:clamp(18px,2.6vw,36px);bottom:clamp(18px,2.6vw,36px);z-index:2;width:330px;background:var(--surface);border-radius:20px;padding:20px 22px 18px;box-shadow:var(--shadow-lg);color:var(--ink-2)}
+.hc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.hc-title{font:500 11.5px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hc-status{display:flex;align-items:center;gap:10px;margin-top:14px;font:600 17px/1.25 var(--f-sans);letter-spacing:-.015em;color:var(--ink)}
+.hc-rows{margin:12px 0 0;display:grid;font-size:15px;font-variant-numeric:tabular-nums}
+.hrow{display:flex;justify-content:space-between;gap:16px;padding:7px 0}
+.hrow dt{color:var(--muted);display:flex;align-items:center;gap:8px}
+.hrow dd{margin:0;color:var(--ink);font-weight:500}
+.hrow.is-today dt{color:var(--ink);font-weight:500}
+.hrow.is-today dt::after{font:500 10px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 6px;border-radius:5px;background:var(--brand-tint-2);color:var(--brand-ink)}
+.lang-en .hrow.is-today dt::after{content:"Today"}
+.lang-es .hrow.is-today dt::after{content:"Hoy"}
+.hc-note{margin-top:10px;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px;color:var(--brand-ink);font-weight:500}
+
+/* Distintivos honestos */
+.trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:clamp(28px,3vw,40px);border-bottom:1px solid var(--line)}
+.trust li{display:flex;gap:14px;align-items:flex-start;padding:22px 22px 26px;border-left:1px solid var(--line)}
+.trust li:first-child{border-left:0;padding-left:0}
+.t-ico{width:36px;height:36px;border-radius:50%;border:1px solid var(--brand-line);background:var(--surface);color:var(--brand-ink);display:grid;place-items:center;flex:none}
+.t-ico svg{width:17px;height:17px}
+.trust strong{display:block;color:var(--ink);font:600 15px/1.3 var(--f-sans);letter-spacing:-.01em;margin-top:1px}
+.trust small{display:block;font-size:13.5px;line-height:1.45;color:var(--muted);margin-top:3px}
+
+/* Coreografía de entrada del hero (solo CSS) */
+@media (prefers-reduced-motion: no-preference){
+  .hero-row,.hero h1,.hero-aside,.hours-card{animation:rise .9s var(--ease) both}
+  .hero h1{animation-delay:.08s}
+  .hero-aside{animation-delay:.2s}
+  .hero-photo{animation:reveal 1.1s var(--ease) .18s both}
+  .hero-photo img{animation:settle 1.8s var(--ease) .18s both}
+  .hours-card{animation-delay:.7s}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}}
+  @keyframes reveal{from{opacity:0;clip-path:inset(6% 3% 0 3% round 34px)}to{clip-path:inset(0 0 0 0 round 0)}}
+  @keyframes settle{from{transform:scale(1.07)}}
+}
+
+/* ============ SERVICES · bento que se recompone con 2, 3, 4, 5 o 6 tarjetas ============ */
+.bento{counter-reset:svc;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.svc{counter-increment:svc;grid-column:span 4;position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:28px 30px 26px;transition:border-color .35s, box-shadow .45s var(--ease), translate .45s var(--ease)}
+.svc:hover{border-color:var(--brand-line);box-shadow:0 1px 2px rgba(12,14,18,.05), 0 26px 44px -30px rgba(12,14,18,.4);translate:0 -3px}
+.svc:nth-child(1){grid-column:span 7;grid-row:span 2}
+.svc:nth-child(2),.svc:nth-child(3){grid-column:span 5}
+/* 4 tarjetas: damero 7/5 · 5/7 */
+.bento:has(> :nth-child(4):last-child) > :nth-child(1){grid-row:auto}
+.bento:has(> :nth-child(4):last-child) > :nth-child(4){grid-column:span 7}
+/* 5 tarjetas: destacada + 2, luego 2 mitades */
+.bento:has(> :nth-child(5):last-child) > :nth-child(n+4){grid-column:span 6}
+/* 2 tarjetas */
+.bento:has(> :nth-child(2):last-child) > :nth-child(1){grid-row:auto}
+
+.svc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:auto;padding-bottom:30px}
+.svc-num{font:500 12px/1 var(--f-mono);letter-spacing:.1em;color:var(--muted);padding-top:4px}
+.svc-num::before{content:counter(svc, decimal-leading-zero)}
+/* Icono con tratamiento propio: pastilla con relieve y filete de marca */
+.svc-ico{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;color:var(--brand-ink);background:linear-gradient(180deg, var(--surface), var(--brand-tint));border:1px solid var(--brand-line);box-shadow:inset 0 -3px 0 var(--brand-tint-2), 0 1px 2px rgba(12,14,18,.06);transition:transform .5s var(--ease)}
+.svc-ico svg{width:24px;height:24px;stroke-width:1.5}
+.svc:hover .svc-ico{transform:rotate(-4deg) scale(1.04)}
+.svc h3{font-size:clamp(1.3rem, 1.15rem + .4vw, 1.5rem);letter-spacing:-.028em;line-height:1.15}
+.svc p{margin-top:10px;color:var(--muted);font-size:16px;line-height:1.55;max-width:46ch}
+.ticks{margin-top:20px;padding-top:18px;border-top:1px solid var(--line);display:grid;gap:9px;font-size:15px;color:var(--ink-2)}
+.ticks li{position:relative;padding-left:26px;line-height:1.4}
+.ticks li::before{content:"";position:absolute;left:0;top:3px;width:15px;height:15px;background:var(--brand);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat}
+.svc-link{margin-top:22px;display:inline-flex;align-items:center;gap:10px;font-weight:500;font-size:15px;color:var(--brand-ink);text-decoration:none;align-self:flex-start}
+.svc-link .circ{width:30px;height:30px;border-radius:50%;border:1px solid var(--brand-line);display:grid;place-items:center;transition:background-color .3s, border-color .3s, color .3s}
+.svc-link .circ svg{width:15px;height:15px;transition:transform .35s var(--ease)}
+.svc-link:hover .circ{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.svc-link:hover .circ svg{transform:translateX(2px)}
+.svc-link::after{content:"";position:absolute;inset:0;z-index:1}  /* toda la tarjeta es clicable */
+
+/* Tarjeta destacada (la primera): color de marca y sello de anillos */
+.svc:first-child{background:var(--brand);border-color:transparent;color:color-mix(in oklab, #fff 82%, var(--brand))}
+.svc:first-child::before{content:"";position:absolute;z-index:-1;right:-150px;bottom:-170px;width:480px;height:480px;border-radius:50%;background:repeating-radial-gradient(circle, transparent 0 26px, rgba(255,255,255,.075) 26px 27px)}
+.svc:first-child h3{color:#fff;font-size:clamp(1.75rem, 1.1rem + 1.6vw, 2.6rem);letter-spacing:-.04em;line-height:1.02;max-width:14ch}
+.svc:first-child p{color:inherit;font-size:17px;max-width:40ch;margin-top:14px}
+.svc:first-child .svc-num{color:rgba(255,255,255,.7)}
+.svc:first-child .svc-ico{color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
+.svc:first-child .ticks{border-top-color:rgba(255,255,255,.18);color:#fff;max-width:420px}
+.svc:first-child .ticks li::before{background:#fff}
+.svc:first-child .svc-link{color:#fff}
+.svc:first-child .svc-link .circ{border-color:rgba(255,255,255,.35)}
+.svc:first-child .svc-link:hover .circ{background:#fff;border-color:#fff;color:var(--brand-ink)}
+.svc:first-child:hover{border-color:transparent}
+
+.services-note{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:16px 28px;flex-wrap:wrap;padding:20px 22px 20px 28px;border-radius:18px;border:1px dashed var(--line-2);color:var(--ink-2);font-size:16.5px}
+.services-note p{max-width:70ch}
+
+/* ============ PROCESS · la línea se dibuja con el scroll ============ */
+.process-head{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(32px,6vw,104px);align-items:end;margin-bottom:clamp(56px,6.5vw,96px)}
+.process-head .lead{margin-top:24px}
+.process-photo{margin:0;position:relative;border-radius:20px;overflow:hidden}
+.process-photo img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:50% 40%;filter:var(--grade);transition:transform 1.2s var(--ease)}
+.process-photo:hover img{transform:scale(1.03)}
+.steps{--g:clamp(28px,4vw,64px);counter-reset:step;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:var(--g)}
+.step{position:relative;counter-increment:step;--seg:1}
+.js .step{--seg:0}
+.node{position:relative;z-index:1;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line-2);font:500 13.5px/1 var(--f-mono);color:var(--muted);transition:background-color .5s var(--ease), color .5s, border-color .5s, box-shadow .6s var(--ease)}
+.node::before{content:counter(step, decimal-leading-zero)}
+html:not(.js) .node, .step.on .node{background:var(--brand);border-color:var(--brand);color:var(--on-brand);box-shadow:0 0 0 7px color-mix(in oklab, var(--brand) 12%, transparent)}
+.step:not(:last-child)::before,.step:not(:last-child)::after{content:"";position:absolute;top:24px;left:64px;right:calc(-1 * var(--g) + 16px);height:1px;background:var(--line-2)}
+.step:not(:last-child)::after{height:2px;top:23.5px;background:var(--brand);transform:scaleX(var(--seg));transform-origin:left}
+.step-body{margin-top:30px;padding-right:8px}
+.step h3{font-size:clamp(1.3rem, 1.15rem + .45vw, 1.55rem);letter-spacing:-.028em;line-height:1.18}
+.step p{margin-top:12px;color:var(--ink-2);font-size:16.5px;max-width:40ch}
+.step .aside{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13.5px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.step .aside .ico svg{width:15px;height:15px;color:var(--brand)}
+
+/* ============ ABOUT · la cita del dueño ============ */
+.about{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(40px,7vw,128px);align-items:start}
+.about-photo{position:sticky;top:calc(var(--hh) + 16px);margin:0 0 0 calc(-1 * (max(0px, (100vw - var(--wrap)) / 2) + var(--gutter)))}
+.about-photo .frame{overflow:hidden;border-radius:0 28px 28px 0}
+.about-photo img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:62% 50%;filter:var(--grade);transition:transform 1.2s var(--ease)}
+.about-photo:hover img{transform:scale(1.03)}
+.about-photo figcaption{display:flex;align-items:center;gap:10px;margin-top:14px;padding-left:calc(max(0px, (100vw - var(--wrap)) / 2) + var(--gutter));font:500 12px/1.4 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.about-photo figcaption::before{content:"";width:24px;height:1px;background:currentColor;flex:none}
+.about-body{padding-top:clamp(0px,2vw,24px)}
+.quote{margin:0;position:relative}
+.quote p{font:400 italic clamp(1.95rem, 1.05rem + 2.35vw, 3.35rem)/1.1 var(--f-serif);letter-spacing:-.02em;color:var(--ink);text-wrap:balance;text-indent:-.42em}
+.quote p::first-letter{color:var(--brand)}
+.signoff{display:flex;align-items:center;gap:16px;margin-top:34px}
+.signoff .bar{width:44px;height:1px;background:var(--brand)}
+.signoff strong{display:block;color:var(--ink);font-weight:600;font-size:16.5px;letter-spacing:-.01em}
+.signoff small{display:block;font:500 11.5px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.about-story{margin-top:clamp(48px,5vw,72px);padding-top:clamp(36px,4vw,48px);border-top:1px solid var(--line-2);display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.about-story h3{font-size:clamp(1.35rem, 1.2rem + .4vw, 1.6rem);letter-spacing:-.028em;margin-bottom:4px}
+.about-story p{max-width:60ch;color:var(--ink-2)}
+.facts{margin:36px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px}
+.facts div{padding:16px 0;border-top:1px solid var(--line)}
+.facts dt{font:500 11.5px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.facts dd{margin:6px 0 0;color:var(--ink);font-weight:500;font-size:16.5px;font-variant-numeric:tabular-nums}
+
+/* ============ AREA ============ */
+.area{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(40px,6vw,104px);align-items:stretch}
+.area .lead{margin-top:24px}
+.towns{columns:2;column-gap:32px;margin-top:40px;border-top:1px solid var(--line-2)}
+.towns li{break-inside:avoid;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:16px;color:var(--ink)}
+.towns li::before{content:"";width:5px;height:5px;border-radius:50%;border:1px solid var(--brand);flex:none;order:-1}
+.towns li{justify-content:flex-start}
+.towns li.main{font-weight:600}
+.towns li.main::before{background:var(--brand)}
+.towns li.main span{margin-left:auto;font:500 10.5px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--brand-ink);padding:4px 7px;border-radius:5px;background:var(--brand-tint-2)}
+.map-frame{position:relative;border-radius:26px;overflow:hidden;min-height:580px;border:1px solid var(--line);background:var(--paper-2)}
+.map-frame iframe{position:absolute;left:0;top:-64px;width:100%;height:calc(100% + 64px);border:0;filter:grayscale(1) contrast(1.06) brightness(1.03)}
+.map-frame::after{content:"";position:absolute;inset:0;pointer-events:none;background:var(--brand);mix-blend-mode:multiply;opacity:.1}
+.map-card{position:absolute;left:18px;top:18px;z-index:1;max-width:350px;background:var(--surface);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow-lg)}
+.map-card .hc-title{display:block;margin-bottom:10px}
+.map-card address{font-style:normal;color:var(--ink);font-weight:600;font-size:17px;line-height:1.35;letter-spacing:-.01em}
+.map-card ul{margin-top:12px;display:grid;gap:6px;font-size:14.5px;color:var(--muted)}
+.map-card li{display:flex;gap:8px;align-items:center}
+.map-card li .ico svg{width:15px;height:15px;color:var(--brand)}
+.map-card .btn{margin-top:16px}
+
+/* ============ REVIEWS (OPTIONAL) ============ */
+.reviews-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:32px;margin-bottom:clamp(40px,5vw,64px)}
+.rating{display:flex;align-items:flex-end;gap:20px}
+.rating-num{font:600 clamp(4rem, 2.8rem + 3.4vw, 6.4rem)/.8 var(--f-sans);letter-spacing:-.065em;color:var(--ink);font-variant-numeric:tabular-nums}
+.stars{display:flex;gap:2px;color:var(--star)}
+.stars svg{width:17px;height:17px;fill:currentColor;stroke:currentColor}
+.rating small{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);margin-top:8px}
+.g-logo{width:16px;height:16px;flex:none}
+.reviews{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.review{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:30px 30px 26px;display:flex;flex-direction:column}
+.review blockquote{margin:20px 0 0;color:var(--ink);font:400 1.2rem/1.45 var(--f-serif);letter-spacing:-.005em}
+.review footer{margin-top:auto;padding-top:26px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:var(--muted)}
+.review .who{display:flex;align-items:center;gap:12px}
+.review .initial{width:38px;height:38px;border-radius:50%;background:var(--brand-tint-2);color:var(--brand-ink);display:grid;place-items:center;font-weight:600}
+.review .who strong{display:block;color:var(--ink);font-weight:600;font-size:15px}
+
+/* ============ FAQ ============ */
+.faq{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(40px,7vw,128px);align-items:start}
+.faq-aside{position:sticky;top:calc(64px + 40px)}
+.faq-aside .lead{margin-top:24px}
+.faq-aside .btn{margin-top:32px}
+.faq-list{counter-reset:q;border-top:1px solid var(--ink)}
+.faq-list details{counter-increment:q;border-bottom:1px solid var(--line-2)}
+.faq-list summary{list-style:none;display:grid;grid-template-columns:48px minmax(0,1fr) 36px;align-items:center;gap:10px;padding:26px 0;cursor:pointer;font:600 clamp(1.08rem, 1rem + .3vw, 1.22rem)/1.35 var(--f-sans);letter-spacing:-.02em;color:var(--ink);transition:color .2s}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary::before{content:counter(q, decimal-leading-zero);font:500 12.5px/1 var(--f-mono);letter-spacing:.06em;color:var(--muted);transition:color .2s}
+.faq-list summary:hover{color:var(--brand-ink)}
+.faq-list details[open] summary::before{color:var(--brand-ink)}
+.faq-list .pm{position:relative;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-2);transition:background-color .3s, border-color .3s, transform .45s var(--ease)}
+.faq-list .pm::before,.faq-list .pm::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:1.5px;background:var(--ink);transform:translate(-50%,-50%);transition:transform .35s var(--ease), background-color .3s}
+.faq-list .pm::after{transform:translate(-50%,-50%) rotate(90deg)}
+.faq-list summary:hover .pm{border-color:var(--ink)}
+.faq-list details[open] .pm{background:var(--brand);border-color:var(--brand);transform:rotate(180deg)}
+.faq-list details[open] .pm::before{background:var(--on-brand)}
+.faq-list details[open] .pm::after{transform:translate(-50%,-50%) rotate(0);background:var(--on-brand)}
+.faq-list .answer{padding:0 58px 28px 58px;color:var(--ink-2);font-size:17px}
+.faq-list .answer p{max-width:60ch}
+@supports selector(::details-content){
+  @media (prefers-reduced-motion: no-preference){
+    .faq-list details::details-content{block-size:0;overflow:hidden;opacity:0;transition:block-size .5s var(--ease), opacity .4s, content-visibility .5s allow-discrete}
+    .faq-list details[open]::details-content{block-size:auto;opacity:1}
+  }
+}
+
+/* ============ CONTACT ============ */
+.contact-panel{background:var(--brand-deep);color:color-mix(in oklab, #fff 76%, var(--brand))}
+.contact-panel::before{content:"";position:absolute;right:-260px;top:-260px;width:720px;height:720px;border-radius:50%;background:repeating-radial-gradient(circle, transparent 0 34px, rgba(255,255,255,.045) 34px 35px);pointer-events:none}
+.contact{position:relative;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(40px,6vw,104px);align-items:start}
+.contact .eyebrow{color:rgba(255,255,255,.72)}
+.contact .eyebrow.num::before{color:var(--brand-soft-on-dark)}
+.contact .h2{color:#fff}
+.contact .lead{color:color-mix(in oklab, #fff 78%, var(--brand));margin-top:24px}
+.contact-list{margin-top:40px;border-top:1px solid rgba(255,255,255,.14)}
+.contact-list a,.contact-list div.row{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:16px;padding:14px 0;color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.14)}
+.contact-list .ico{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:grid;place-items:center;color:#fff}
+.contact-list .ico svg{width:18px;height:18px}
+.contact-list small{display:block;font:500 11px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.contact-list b{font-weight:500;font-size:17px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.contact-list .go svg{width:18px;height:18px;color:rgba(255,255,255,.5);transition:transform .35s var(--ease), color .3s}
+.contact-list a:hover .go svg{transform:translate(2px,-2px);color:#fff}
+.contact-hours{margin-top:32px}
+.contact-hours .status{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14);color:#fff}
+.contact-hours dl{margin:14px 0 0;display:grid;gap:0;font-size:15px;max-width:360px;font-variant-numeric:tabular-nums}
+.contact-hours .hrow{border-bottom:1px solid rgba(255,255,255,.1)}
+.contact-hours .hrow dt{color:rgba(255,255,255,.66)}
+.contact-hours .hrow dd{color:#fff}
+.contact-hours .hrow.is-today dt{color:#fff}
+.contact-hours .hrow.is-today dt::after{background:rgba(255,255,255,.14);color:#fff}
+
+/* Formulario con estados · controles propios */
+.form{position:relative;background:var(--surface);border-radius:28px;padding:clamp(26px,3.4vw,44px);color:var(--ink-2);box-shadow:0 40px 80px -40px rgba(0,0,0,.55)}
+.form-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.form h3{font-size:clamp(1.4rem, 1.2rem + .6vw, 1.75rem);letter-spacing:-.03em}
+.form-head p{margin-top:8px;color:var(--muted);font-size:15.5px}
+.who-replies{display:flex;align-items:center;gap:10px;flex:none;font-size:13px;color:var(--muted);line-height:1.25;text-align:right}
+.faces{display:flex}
+.faces span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:600 12.5px/1 var(--f-sans);color:var(--brand-ink);background:var(--brand-tint-2);border:2px solid var(--surface)}
+.faces span + span{margin-left:-9px;background:var(--brand-tint)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+.field{position:relative;display:grid;gap:8px;align-content:start;min-width:0;margin:0;padding:0;border:0}
+.field.full{grid-column:1/-1}
+.field label,.field legend{font:500 14.5px/1.2 var(--f-sans);color:var(--ink);padding:0}
+.field legend{margin-bottom:8px}
+.field .opt{font:400 12px/1 var(--f-mono);letter-spacing:.06em;color:var(--muted);margin-left:6px;text-transform:uppercase}
+.field input,.field select,.field textarea{width:100%;height:54px;font:400 16.5px/1.3 var(--f-sans);color:var(--ink);background:var(--paper);border:1px solid var(--line-2);border-radius:12px;padding:0 16px;transition:border-color .2s, box-shadow .25s, background-color .2s;-webkit-appearance:none;appearance:none}
+.field textarea{height:auto;min-height:120px;padding:14px 16px;resize:vertical;line-height:1.5}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%235a5e67' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:44px;cursor:pointer}
+.field input::placeholder,.field textarea::placeholder{color:color-mix(in oklab, var(--muted) 75%, #fff)}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:color-mix(in oklab, var(--ink) 34%, transparent)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;background:var(--surface);border-color:var(--brand);box-shadow:0 0 0 4px color-mix(in oklab, var(--brand) 16%, transparent)}
+.field .okm{position:absolute;right:14px;top:43px;width:22px;height:22px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.6);transition:opacity .25s, transform .35s var(--ease);pointer-events:none}
+.field .okm svg{width:13px;height:13px;stroke-width:3}
+.field.valid .okm{opacity:1;transform:none}
+.field.valid input{padding-right:46px}
+.field.invalid input,.field.invalid select{border-color:var(--err);background:color-mix(in oklab, var(--err) 3%, #fff)}
+.field.invalid input:focus{box-shadow:0 0 0 4px color-mix(in oklab, var(--err) 14%, transparent)}
+.err{display:none;align-items:center;gap:6px;font-size:13.5px;color:var(--err);font-weight:500}
+.err .ico svg{width:15px;height:15px}
+.field.invalid .err{display:flex}
+.seg-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg-opts label{position:relative;cursor:pointer}
+.seg-opts input{position:absolute;opacity:0;width:1px;height:1px}
+.seg-opts .pill{display:flex;align-items:center;justify-content:center;gap:10px;height:52px;border-radius:12px;border:1px solid var(--line-2);background:var(--paper);font:500 15.5px/1 var(--f-sans);color:var(--ink-2);transition:border-color .2s, background-color .2s, color .2s, box-shadow .25s}
+.seg-opts .pill .ico svg{width:17px;height:17px}
+.seg-opts label:hover .pill{border-color:color-mix(in oklab, var(--ink) 34%, transparent)}
+.seg-opts input:checked + .pill{background:var(--brand-tint);border-color:var(--brand);color:var(--brand-ink);box-shadow:inset 0 0 0 1px var(--brand)}
+.seg-opts input:focus-visible + .pill{outline:2px solid var(--brand);outline-offset:3px}
+.form .submit{width:100%;margin-top:26px;min-height:58px;font-size:16.5px}
+.spin{display:none;width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.form.is-loading .submit{pointer-events:none;opacity:.92}
+.form.is-loading .submit .spin{display:inline-block}
+.form.is-loading .submit .arr,.form.is-loading .submit .lbl{display:none}
+.form .submit .lbl-wait{display:none}
+.form.is-loading .submit .lbl-wait{display:inline}
+.form-note{margin-top:14px;font-size:13.5px;color:var(--muted);text-align:center}
+.form-done{display:none;text-align:center;padding:clamp(24px,5vw,56px) 8px}
+.form.is-done > :not(.form-done){display:none}
+.form.is-done .form-done{display:block}
+.form-done:focus{outline:none}
+.check-anim{width:76px;height:76px;margin:0 auto 26px;color:var(--ok)}
+.check-anim circle{stroke-dasharray:190;stroke-dashoffset:190;animation:draw .8s var(--ease) forwards}
+.check-anim path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .45s var(--ease) .6s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.form-done h3{font-size:1.75rem}
+.form-done p{margin:12px auto 0;max-width:40ch;color:var(--ink-2)}
+.form-done .btn{margin-top:28px}
+
+/* ============ FOOTER ============ */
+.footer{background:var(--ink);color:color-mix(in oklab, #fff 66%, var(--brand));font-size:15px;margin-top:clamp(10px,1.6vw,24px);padding:clamp(64px,7vw,96px) 0 28px;overflow:hidden}
+.footer .logo{color:#fff}
+.footer .logo-sub{color:rgba(255,255,255,.55)}
+.footer .logo-mark::before{background:linear-gradient(225deg, var(--ink) 50%, var(--brand-soft-on-dark) 50%)}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px}
+.footer h2{font:500 11.5px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:20px}
+.footer ul{display:grid;gap:10px}
+.footer a{color:#fff;text-decoration:none}
+.footer a:hover{text-decoration:underline;text-underline-offset:4px}
+.footer-about p{margin-top:22px;max-width:34ch;line-height:1.6}
+.footer .status{margin-top:24px;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:#fff}
+.footer-word{margin-top:clamp(56px,7vw,96px);line-height:.78;white-space:nowrap;overflow:hidden}
+.footer-word span{display:inline-block;font:600 18vw/.8 var(--f-sans);letter-spacing:-.065em;color:color-mix(in oklab, var(--brand) 42%, var(--ink));padding-bottom:.06em}
+.footer-bottom{margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12);display:flex;justify-content:space-between;align-items:center;gap:12px 24px;flex-wrap:wrap;font-size:13.5px;color:rgba(255,255,255,.6)}
+.to-top{display:inline-flex;align-items:center;gap:8px}
+.to-top .ico svg{width:15px;height:15px;transition:transform .35s var(--ease)}
+.to-top:hover .ico svg{transform:translateY(-2px)}
+
+/* ============ MOBILE BAR ============ */
+.mobile-bar{display:none}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:1240px){
+  .nav a{padding:10px 9px;font-size:14.5px}
+  .nav a::after{left:9px;right:9px}
+  .header .wrap{gap:18px}
+  .phone-link .num{display:none}
+}
+@media (max-width:1080px){
+  .topbar{display:none}
+  .nav,.header-actions .phone-link,.header-actions .btn{display:none}
+  .header-actions{margin-left:auto}
+  .menu-btn{display:inline-flex}
+  .mobile-nav{position:fixed;left:0;right:0;top:var(--hh);bottom:0;z-index:49;display:flex;flex-direction:column;overflow:auto;background:var(--paper);padding:12px var(--gutter) 32px;counter-reset:mn;visibility:hidden;opacity:0;transform:translateY(-8px);transition:opacity .3s var(--ease), transform .35s var(--ease), visibility 0s .35s}
+  .header.is-scrolled ~ .mobile-nav{top:64px}
+  .mobile-nav.open{visibility:visible;opacity:1;transform:none;transition:opacity .3s var(--ease), transform .35s var(--ease)}
+  .mobile-nav a.link{counter-increment:mn;display:flex;align-items:baseline;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600;font-size:1.65rem;letter-spacing:-.035em}
+  .mobile-nav a.link::before{content:counter(mn, decimal-leading-zero);font:500 12px/1 var(--f-mono);color:var(--brand-ink);letter-spacing:.08em}
+  .mobile-nav .btn{width:100%;margin-top:24px}
+  .mobile-nav .mn-meta{margin-top:auto;padding-top:28px;display:grid;gap:6px;font-size:14.5px;color:var(--muted)}
+  html.menu-open{overflow:hidden}
+  .bento{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bento > .svc{grid-column:auto !important;grid-row:auto !important}
+  .bento > .svc:first-child,.bento > .svc:last-child:nth-child(even){grid-column:1 / -1 !important}
+  .svc:first-child{min-height:0}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .trust{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .trust li:nth-child(3n+1){border-left:0;padding-left:0}
+  .trust li:nth-child(n+4){border-top:1px solid var(--line)}
+}
+@media (max-width:900px){
+  .hero-grid,.process-head,.about,.area,.faq,.contact,.section-head,.reviews-head{grid-template-columns:minmax(0,1fr)}
+  .section-head{align-items:start;gap:20px}
+  .section-head .lead{justify-self:start}
+  .hero-aside .lead{max-width:52ch}
+  .about-photo{position:relative;top:auto;margin:0 calc(-1 * var(--gutter))}
+  .about-photo .frame{border-radius:0}
+  .about-photo img{aspect-ratio:4/4.2}
+  .about-photo figcaption{padding-left:var(--gutter)}
+  .faq-aside{position:static}
+  .map-frame{min-height:0;display:flex;flex-direction:column}
+  .map-frame iframe{position:relative;inset:auto;top:auto;height:420px;margin-top:-60px;flex:none}
+  .map-frame::after{bottom:auto;height:360px}
+  .map-card{position:relative;left:auto;bottom:auto;max-width:none;border-radius:0;box-shadow:none;border-top:1px solid var(--line)}
+  .reviews{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:0 calc(-1 * var(--gutter));padding:4px var(--gutter) 8px;scroll-padding:0 var(--gutter);scrollbar-width:none}
+  .reviews::-webkit-scrollbar{display:none}
+  .review{flex:0 0 min(86%, 420px);scroll-snap-align:start}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:760px){
+  .steps{grid-auto-flow:row;grid-auto-columns:auto;gap:0}
+  .step{display:grid;grid-template-columns:48px minmax(0,1fr);gap:20px;padding-bottom:44px}
+  .step:last-child{padding-bottom:0}
+  .step-body{margin-top:6px}
+  .step:not(:last-child)::before,.step:not(:last-child)::after{top:62px;bottom:14px;left:24px;right:auto;width:1px;height:auto}
+  .step:not(:last-child)::after{width:2px;left:23.5px;transform:scaleY(var(--seg));transform-origin:top}
+}
+@media (max-width:640px){
+  :root{--hh:64px}
+  body{font-size:17px;padding-bottom:78px}
+  .header.is-scrolled .wrap{height:58px}
+  .header.is-scrolled ~ .mobile-nav{top:58px}
+  .logo-mark{width:36px;height:36px;font-size:19px;border-radius:10px}
+  .logo-name{font-size:18px}
+  .logo-sub{font-size:9.5px}
+  .hero{padding-top:18px}
+  .hero-row{padding-bottom:26px}
+  .hero-loc .rule,.hero-loc > span:first-child,.hero-row > .status{display:none}
+  .hero h1{font-size:calc(var(--s) * 3.05rem);line-height:.95;letter-spacing:-.05em}
+  .lang-es .hero h1{--s:.9}
+  .hero-ctas .btn{flex:1 1 100%}
+  .hero-media{margin:34px 0 0}
+  .hero-photo{height:auto;aspect-ratio:4/4.1;border-radius:0}
+  .hero-photo img{object-position:58% 60%}
+  .hero-photo figcaption{left:18px;right:auto;bottom:auto;top:18px;text-align:left}
+  .hero-photo figcaption::before{display:none}
+  .hero-photo::after{background:linear-gradient(0deg, rgba(12,14,18,0) 60%, rgba(12,14,18,.36))}
+  .hours-card{position:relative;left:auto;bottom:auto;width:auto;margin:-64px 14px 0}
+  .trust{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .trust li,.trust li:nth-child(3n+1){padding:18px 14px 18px 0;border-left:0;flex-direction:column;gap:10px}
+  .trust li:nth-child(n+3){border-top:1px solid var(--line)}
+  .trust li:nth-child(even){padding-left:14px;border-left:1px solid var(--line)}
+  .trust li:last-child:nth-child(odd){grid-column:1/-1}
+  .bento{grid-template-columns:minmax(0,1fr);gap:12px}
+  .bento > .svc,.bento > .svc:first-child{grid-column:1 / -1 !important}
+  .svc{padding:22px 22px 20px}
+  .svc-top{padding-bottom:18px}
+  .svc:not(:first-child) .svc-ico{width:46px;height:46px;border-radius:13px}
+  .svc:not(:first-child) .svc-ico svg{width:21px;height:21px}
+  .svc-link{margin-top:16px}
+  .svc:first-child::before{width:360px;height:360px;right:-140px;bottom:-150px}
+  .services-note{padding:20px;border-radius:16px}
+  .services-note .btn{width:100%}
+  .quote p{text-indent:-.36em}
+  .facts{grid-template-columns:minmax(0,1fr)}
+  .towns{column-gap:20px}
+  .fields,.seg-opts{grid-template-columns:minmax(0,1fr)}
+  .seg-opts{grid-template-columns:1fr 1fr}
+  .who-replies{display:none}
+  .faq-list summary{grid-template-columns:34px minmax(0,1fr) 32px;padding:22px 0}
+  .faq-list .pm{width:32px;height:32px}
+  .faq-list .answer{padding:0 0 24px 44px;font-size:16.5px}
+  .review{padding:24px}
+  .footer-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px 20px}
+  .footer-about{grid-column:1 / -1}
+  .contact-list a,.contact-list div.row{grid-template-columns:42px minmax(0,1fr) auto}
+  .mobile-bar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:color-mix(in oklab, var(--paper) 60%, #fff);border-top:1px solid var(--line);box-shadow:0 -12px 30px -22px rgba(12,14,18,.45)}
+  .mobile-bar .btn{min-height:52px;padding:0 12px;gap:9px}
+  html.menu-open .mobile-bar{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  html:focus-within{scroll-behavior:auto}
+  *,*::before,*::after{animation:none !important;transition:none !important}
+  .js .rv{opacity:1;transform:none}
+  .check-anim circle,.check-anim path{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main"><span data-en>Skip to content</span><span data-es>Ir al contenido</span></a>
+
+<!-- slot: topbar · OPTIONAL -->
+<div class="topbar">
+  <div class="wrap">
+    <p><strong>We speak Spanish</strong> · <strong>Hablamos español</strong></p>
+    <ul>
+      <!-- slot: address -->
+      <li><span class="ico"><i data-lucide="map-pin"></i></span>412 East Main St., Waterbury, CT</li>
+      <!-- slot: hours-short -->
+      <li><span class="ico"><i data-lucide="clock"></i></span><span data-en>Mon–Fri 9–7 · Sat 10–3</span><span data-es>Lun–Vie 9–7 · Sáb 10–3</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- slot: header -->
+<header class="header" id="header">
+  <div class="wrap">
+    <!-- slot: logo (inicial + nombre + línea) -->
+    <a class="logo" href="#top" aria-label="Núñez Tax & Insurance, home">
+      <span class="logo-mark" aria-hidden="true"><span>N</span></span>
+      <span class="logo-text"><span class="logo-name">Núñez</span><span class="logo-sub">Tax &amp; Insurance</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#services"><span data-en>Services</span><span data-es>Servicios</span></a>
+      <a href="#process"><span data-en>How it works</span><span data-es>Cómo trabajamos</span></a>
+      <a href="#about"><span data-en>About</span><span data-es>Quiénes somos</span></a>
+      <a href="#area"><span data-en>Service area</span><span data-es>Zona</span></a>
+      <a href="#faq"><span data-en>FAQ</span><span data-es>Preguntas</span></a>
+    </nav>
+    <div class="header-actions">
+      <!-- slot: phone -->
+      <a class="phone-link" href="tel:+12035550142" aria-label="Call (203) 555-0142"><span class="ico"><i data-lucide="phone"></i></span><span class="num">(203) 555-0142</span></a>
+      <div class="lang" role="group" aria-label="Language / Idioma">
+        <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-set-lang="es" aria-pressed="false">ES</button>
+      </div>
+      <a class="btn btn-primary btn-sm" href="#contact"><span data-en>Free consultation</span><span data-es>Consulta gratis</span><span class="ico arr"><i data-lucide="arrow-right"></i></span></a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav"><span class="ico i-open"><i data-lucide="menu"></i></span><span class="ico i-close"><i data-lucide="x"></i></span><span class="sr-only">Menu</span></button>
+    </div>
+  </div>
+</header>
+<nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+  <a class="link" href="#services"><span data-en>Services</span><span data-es>Servicios</span></a>
+  <a class="link" href="#process"><span data-en>How it works</span><span data-es>Cómo trabajamos</span></a>
+  <a class="link" href="#about"><span data-en>About</span><span data-es>Quiénes somos</span></a>
+  <a class="link" href="#area"><span data-en>Service area</span><span data-es>Zona de servicio</span></a>
+  <a class="link" href="#faq"><span data-en>FAQ</span><span data-es>Preguntas frecuentes</span></a>
+  <a class="btn btn-primary" href="#contact"><span data-en>Book a free consultation</span><span data-es>Pida una consulta gratis</span><span class="ico arr"><i data-lucide="arrow-right"></i></span></a>
+  <div class="mn-meta">
+    <span>412 East Main St., Waterbury, CT</span>
+    <span>We speak Spanish · Hablamos español</span>
+  </div>
+</nav>
+
+<main id="main">
+<span id="top"></span>
+
+<!-- slot: hero -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap">
+    <div class="hero-row">
+      <p class="hero-loc">
+        <!-- slot: city -->
+        <span>Waterbury, Connecticut</span><span class="rule" aria-hidden="true"></span>
+        <span class="lang-badge"><span class="ico"><i data-lucide="languages"></i></span><span data-en>Hablamos español</span><span data-es>We speak English too</span></span>
+      </p>
+      <a class="status" href="#hours" data-status><span class="dot" aria-hidden="true"></span><span data-en>Mon–Fri 9–7 · Sat 10–3</span><span data-es>Lun–Vie 9–7 · Sáb 10–3</span></a>
+    </div>
+    <div class="hero-grid">
+      <!-- slot: headline (qué hacen + dónde) -->
+      <h1 id="hero-title"><span data-en>Tax, bookkeeping &amp; insurance in Waterbury, CT</span><span data-es>Impuestos, contabilidad y seguros en Waterbury, CT</span></h1>
+      <div class="hero-aside">
+        <!-- slot: subheadline -->
+        <p class="lead" data-en>Tax returns, ITIN applications, monthly bookkeeping, insurance and LLC setup. Handled in person by the Núñez family, from one office on East Main Street.</p>
+        <p class="lead" data-es>Declaraciones de impuestos, trámite de ITIN, contabilidad mensual, seguros y apertura de LLC. La familia Núñez le atiende en persona, en una oficina de la East Main Street.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#contact"><span data-en>Book a free consultation</span><span data-es>Pida una consulta gratis</span><span class="ico arr"><i data-lucide="arrow-right"></i></span></a>
+          <a class="btn btn-ghost" href="tel:+12035550142"><span class="ico"><i data-lucide="phone"></i></span><span data-en>Call (203) 555-0142</span><span data-es>Llame al (203) 555-0142</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-media">
+    <!-- slot: photo-hero (persona atendiendo a un cliente; cualquier sector) -->
+    <figure class="hero-photo">
+      <img src="https://images.unsplash.com/photo-1551836022-4c4c79ecde51?w=2200&q=80&auto=format&fit=crop"
+           srcset="https://images.unsplash.com/photo-1551836022-4c4c79ecde51?w=900&q=80&auto=format&fit=crop 900w, https://images.unsplash.com/photo-1551836022-4c4c79ecde51?w=1500&q=80&auto=format&fit=crop 1500w, https://images.unsplash.com/photo-1551836022-4c4c79ecde51?w=2200&q=80&auto=format&fit=crop 2200w"
+           sizes="100vw" width="2200" height="1467" fetchpriority="high"
+           alt="Tax preparer going over paperwork with a client at a wooden table in an office with a brick wall">
+      <figcaption><span data-en>Consultations in person, in English or Spanish</span><span data-es>Consultas en persona, en inglés o en español</span></figcaption>
+    </figure>
+    <!-- slot: hours · filas con data-days (0=dom … 6=sáb), data-open y data-close en 24 h -->
+    <aside class="hours-card" id="hours" data-tz="America/New_York" aria-label="Office hours">
+      <div class="hc-head"><span class="hc-title"><span data-en>Office hours</span><span data-es>Horario</span></span><span class="hc-title">EST</span></div>
+      <p class="hc-status" data-status><span class="dot" aria-hidden="true"></span><span data-en>Walk-ins welcome Jan–Apr</span><span data-es>Sin cita de enero a abril</span></p>
+      <dl class="hc-rows">
+        <div class="hrow" data-days="1-5" data-open="09:00" data-close="19:00"><dt><span data-en>Mon – Fri</span><span data-es>Lun – Vie</span></dt><dd>9:00 – 7:00</dd></div>
+        <div class="hrow" data-days="6" data-open="10:00" data-close="15:00"><dt><span data-en>Saturday</span><span data-es>Sábado</span></dt><dd>10:00 – 3:00</dd></div>
+        <div class="hrow" data-days="0"><dt><span data-en>Sunday</span><span data-es>Domingo</span></dt><dd><span data-en>Closed</span><span data-es>Cerrado</span></dd></div>
+      </dl>
+      <p class="hc-note" data-en>Longer hours Jan 15 – Apr 15</p>
+      <p class="hc-note" data-es>Horario extendido del 15 de enero al 15 de abril</p>
+    </aside>
+  </div>
+
+  <!-- slot: trust (solo datos verificables) -->
+  <div class="wrap">
+    <ul class="trust" aria-label="Why clients choose us">
+      <li><span class="t-ico"><i data-lucide="languages"></i></span><span><strong>Hablamos español</strong><small data-en>Every service, start to finish</small><small data-es>Todo el servicio, de principio a fin</small></span></li>
+      <!-- slot: license -->
+      <li><span class="t-ico"><i data-lucide="badge-check"></i></span><span><strong data-en>Licensed in Connecticut</strong><strong data-es>Licencia en Connecticut</strong><small data-en>Insurance producer Lic. #0000000</small><small data-es>Agente de seguros, Lic. #0000000</small></span></li>
+      <li><span class="t-ico"><i data-lucide="file-check"></i></span><span><strong data-en>IRS e-file provider</strong><strong data-es>Proveedor e-file del IRS</strong><small data-en>Preparers registered with a PTIN</small><small data-es>Preparadores registrados con PTIN</small></span></li>
+      <li><span class="t-ico"><i data-lucide="receipt"></i></span><span><strong data-en>Price in writing first</strong><strong data-es>Precio por escrito</strong><small data-en>Before we start any work</small><small data-es>Antes de empezar cualquier trabajo</small></span></li>
+      <li><span class="t-ico"><i data-lucide="message-square"></i></span><span><strong data-en>Same-day reply</strong><strong data-es>Respuesta el mismo día</strong><small data-en>Calls and texts, <span class="nw">Mon–Sat</span></small><small data-es>Llamadas y mensajes, <span class="nw">lunes a sábado</span></small></span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- slot: services (bento: funciona con 2, 3, 4, 5 o 6 tarjetas; la primera es la destacada; cambia el icono Lucide de cada una) -->
+<section class="section plain" id="services" aria-labelledby="services-title">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="rv">
+        <p class="eyebrow num"><span data-en>Services</span><span data-es>Servicios</span></p>
+        <h2 class="h2" id="services-title"><span data-en>For households and small businesses</span><span data-es>Para familias y pequeños negocios</span></h2>
+      </div>
+      <p class="lead rv" style="--d:.1s" data-en>Most clients come in for their taxes and stay for the rest. One office, one file, and people who already know your case.</p>
+      <p class="lead rv" style="--d:.1s" data-es>La mayoría viene por los impuestos y se queda para lo demás. Una sola oficina, un solo expediente y gente que ya conoce su caso.</p>
+    </div>
+
+    <div class="bento">
+      <!-- slot: service-1 (destacada) -->
+      <article class="svc rv">
+        <div class="svc-top"><span class="svc-ico"><i data-lucide="file-text"></i></span><span class="svc-num" aria-hidden="true"></span></div>
+        <h3><span data-en>Personal tax returns</span><span data-es>Declaración de impuestos personal</span></h3>
+        <p data-en>Federal and Connecticut returns for <span class="nw">W-2</span> and 1099 earners, with every credit you qualify for.</p>
+        <p data-es>Declaraciones federales y de Connecticut para empleados <span class="nw">W-2</span> y trabajadores 1099, con todos los créditos que le correspondan.</p>
+        <ul class="ticks">
+          <li><span data-en>E-file with direct deposit</span><span data-es>E-file con depósito directo</span></li>
+          <li><span data-en>Earned Income and Child Tax Credits</span><span data-es>Créditos por ingreso del trabajo y por hijos</span></li>
+          <li><span data-en>Past-year and amended returns</span><span data-es>Años anteriores y enmiendas</span></li>
+        </ul>
+        <a class="svc-link" href="#contact" data-service="Personal tax return"><span data-en>Ask about this</span><span data-es>Consultar</span><span class="circ"><i data-lucide="arrow-right"></i></span></a>
+      </article>
+      <!-- slot: service-2 -->
+      <article class="svc rv" style="--d:.06s">
+        <div class="svc-top"><span class="svc-ico"><i data-lucide="briefcase-business"></i></span><span class="svc-num" aria-hidden="true"></span></div>
+        <h3><span data-en>Small-business taxes</span><span data-es>Impuestos de negocio</span></h3>
+        <p data-en>Schedule C, LLC, partnership and S-corp returns, plus quarterly estimates so April holds no surprises.</p>
+        <p data-es>Schedule C, LLC, sociedades y S-corp, más los estimados trimestrales para que abril no traiga sorpresas.</p>
+        <a class="svc-link" href="#contact" data-service="Business taxes"><span data-en>Ask about this</span><span data-es>Consultar</span><span class="circ"><i data-lucide="arrow-right"></i></span></a>
+      </article>
+      <!-- slot: service-3 -->
+      <article class="svc rv" style="--d:.12s">
+        <div class="svc-top"><span class="svc-ico"><i data-lucide="id-card"></i></span><span class="svc-num" aria-hidden="true"></span></div>
+        <h3><span data-en>ITIN applications</span><span data-es>Trámite de ITIN</span></h3>
+        <p data-en>We prepare Form W-7 with your return and tell you exactly which documents the IRS will accept.</p>
+        <p data-es>Preparamos el formulario W-7 con su declaración y le decimos exactamente qué documentos acepta el IRS.</p>
+        <a class="svc-link" href="#contact" data-service="ITIN"><span data-en>Ask about this</span><span data-es>Consultar</span><span class="circ"><i data-lucide="arrow-right"></i></span></a>
+      </article>
+      <!-- slot: service-4 -->
+      <article class="svc rv">
+        <div class="svc-top"><span class="svc-ico"><i data-lucide="calculator"></i></span><span class="svc-num" aria-hidden="true"></span></div>
+        <h3><span data-en>Monthly bookkeeping</span><span data-es>Contabilidad mensual</span></h3>
+        <p data-en>We reconcile your bank and card accounts every month and send a profit-and-loss report you can actually read.</p>
+        <p data-es>Cuadramos sus cuentas de banco y tarjetas cada mes y le enviamos un estado de ganancias y pérdidas fácil de leer.</p>
+        <a class="svc-link" href="#contact" data-service="Bookkeeping"><span data-en>Ask about this</span><span data-es>Consultar</span><span class="circ"><i data-lucide="arrow-right"></i></span></a>
+      </article>
+      <!-- slot: service-5 -->
+      <article class="svc rv" style="--d:.06s">
+        <div class="svc-top"><span class="svc-ico"><i data-lucide="shield-check"></i></span><span class="svc-num" aria-hidden="true"></span></div>
+        <h3><span data-en>Auto, home &amp; business insurance</span><span data-es>Seguros de auto, casa y negocio</span></h3>
+        <p data-en>Quotes from several carriers side by side, explained in plain language before you sign anything.</p>
+        <p data-es>Cotizaciones de varias aseguradoras, lado a lado, explicadas con claridad antes de firmar nada.</p>
+        <a class="svc-link" href="#contact" data-service="Insurance"><span data-en>Ask about this</span><span data-es>Consultar</span><span class="circ"><i data-lucide="arrow-right"></i></span></a>
+      </article>
+      <!-- slot: service-6 -->
+      <article class="svc rv" style="--d:.12s">
+        <div class="svc-top"><span class="svc-ico"><i data-lucide="building-2"></i></span><span class="svc-num" aria-hidden="true"></span></div>
+        <h3><span data-en>LLC formation &amp; EIN</span><span data-es>Apertura de LLC y EIN</span></h3>
+        <p data-en>We register your LLC with the State of Connecticut, get your EIN and set up your first-year filings.</p>
+        <p data-es>Registramos su LLC en el estado de Connecticut, sacamos su EIN y dejamos listas las obligaciones del primer año.</p>
+        <a class="svc-link" href="#contact" data-service="LLC"><span data-en>Ask about this</span><span data-es>Consultar</span><span class="circ"><i data-lucide="arrow-right"></i></span></a>
+      </article>
+    </div>
+
+    <div class="services-note rv">
+      <p data-en>Not sure which one you need? Call and describe it. We'll tell you if we can help, and if we can't, who can.</p>
+      <p data-es>¿No sabe cuál necesita? Llame y cuéntenos. Le decimos si podemos ayudarle y, si no, quién puede.</p>
+      <a class="btn btn-ghost btn-sm" href="tel:+12035550142"><span class="ico"><i data-lucide="phone"></i></span><span class="tnum">(203) 555-0142</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- slot: process (pasos; funciona con 3 o 4) · OPTIONAL -->
+<section class="section is-panel" id="process" aria-labelledby="process-title">
+  <div class="panel-outer"><div class="panel">
+    <div class="wrap">
+      <div class="process-head">
+        <div class="rv">
+          <p class="eyebrow num"><span data-en>How it works</span><span data-es>Cómo trabajamos</span></p>
+          <h2 class="h2" id="process-title"><span data-en>Three steps, and a price before we start</span><span data-es>Tres pasos, y el precio antes de empezar</span></h2>
+          <p class="lead" data-en>Most appointments take 30 minutes. You leave knowing what's needed, how long it takes and what it costs.</p>
+          <p class="lead" data-es>La mayoría de las citas dura 30 minutos. Sale sabiendo qué hace falta, cuánto tarda y cuánto cuesta.</p>
+        </div>
+        <!-- slot: photo-process (manos, documentos, herramienta del oficio) -->
+        <figure class="process-photo rv" style="--d:.12s"><img src="https://images.unsplash.com/photo-1562564055-71e051d33c19?w=1200&q=80&auto=format&fit=crop" width="1200" height="800" loading="lazy" alt="Client signing a document at a table while the preparer holds the pages"></figure>
+      </div>
+      <ol class="steps" data-steps>
+        <li class="step">
+          <span class="node" aria-hidden="true"></span>
+          <div class="step-body">
+            <h3><span data-en>Call, text or walk in</span><span data-es>Llame, escriba o pase por la oficina</span></h3>
+            <p data-en>Tell us what you need. We book a 30-minute appointment, in person or by phone, usually within the same week.</p>
+            <p data-es>Cuéntenos qué necesita. Le damos una cita de 30 minutos, en persona o por teléfono, normalmente esa misma semana.</p>
+            <span class="aside"><span class="ico"><i data-lucide="phone"></i></span>(203) 555-0142</span>
+          </div>
+        </li>
+        <li class="step">
+          <span class="node" aria-hidden="true"></span>
+          <div class="step-body">
+            <h3><span data-en>Bring your papers, get the price in writing</span><span data-es>Traiga sus papeles y reciba el precio por escrito</span></h3>
+            <p data-en>We send a checklist ahead of time. At the appointment we go through everything and give you a written quote. You decide from there.</p>
+            <p data-es>Le enviamos antes una lista de documentos. En la cita revisamos todo y le damos el precio por escrito. Usted decide a partir de ahí.</p>
+            <span class="aside"><span class="ico"><i data-lucide="clipboard-list"></i></span><span data-en>Checklist in English or Spanish</span><span data-es>Lista en inglés o en español</span></span>
+          </div>
+        </li>
+        <li class="step">
+          <span class="node" aria-hidden="true"></span>
+          <div class="step-body">
+            <h3><span data-en>We file, and we stay on it</span><span data-es>Presentamos y damos seguimiento</span></h3>
+            <p data-en>You review and sign, we e-file and send you copies. If the IRS or the state writes to you later, bring the letter in: answering it is part of the job.</p>
+            <p data-es>Usted revisa y firma, nosotros enviamos y le damos sus copias. Si después le escribe el IRS o el estado, traiga la carta: responderla es parte del trabajo.</p>
+            <span class="aside"><span class="ico"><i data-lucide="file-check"></i></span><span data-en>Copies on paper or PDF</span><span data-es>Copias en papel o PDF</span></span>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div></div>
+</section>
+
+<!-- slot: about (dueño / familia · cita grande + retrato) -->
+<section class="section plain" id="about" aria-labelledby="about-title">
+  <div class="wrap about">
+    <!-- slot: photo-about (el dueño en su local / en el trabajo) -->
+    <figure class="about-photo rv">
+      <div class="frame"><img src="https://images.unsplash.com/photo-1687293233471-187c8df1beef?w=1200&q=80&auto=format&fit=crop" width="1200" height="800" loading="lazy" alt="Owner working on a laptop at her desk, with framed certificates on the office wall"></div>
+      <figcaption><span data-en>Carmen at the office on East Main Street</span><span data-es>Carmen en la oficina de la East Main Street</span></figcaption>
+    </figure>
+    <div class="about-body">
+      <h2 class="eyebrow num" id="about-title"><span data-en>About us</span><span data-es>Quiénes somos</span></h2>
+      <!-- slot: owner-quote -->
+      <blockquote class="quote rv">
+        <p data-en>“I opened this office so my neighbors would have a proper place to come, and someone who still picks up the phone after April.”</p>
+        <p data-es>“Abrí esta oficina para que mis vecinos tuvieran un lugar de verdad adonde venir, y alguien que siga contestando el teléfono después de abril.”</p>
+      </blockquote>
+      <div class="signoff rv" style="--d:.1s">
+        <span class="bar" aria-hidden="true"></span>
+        <div><strong>Carmen Núñez</strong><small data-en>Owner and tax preparer</small><small data-es>Dueña y preparadora de impuestos</small></div>
+      </div>
+      <!-- slot: owner-story -->
+      <div class="about-story rv">
+        <h3><span data-en>A family office on East Main Street</span><span data-es>Una oficina familiar en la East Main Street</span></h3>
+        <p data-en>Carmen grew up in Waterbury's South End and for years did taxes for neighbors and relatives at her kitchen table. In 2019 she opened this office.</p>
+        <p data-es>Carmen creció en el South End de Waterbury y durante años preparó los impuestos de vecinos y familiares en la mesa de su cocina. En 2019 abrió esta oficina.</p>
+        <p data-en>Her brother Luis runs the insurance side. Between the two of them they see every client personally: nobody gets passed to a call center, and you won't have to explain your situation twice.</p>
+        <p data-es>Su hermano Luis lleva la parte de seguros. Entre los dos atienden a cada cliente en persona: aquí nadie termina en un call center ni tiene que explicar su caso dos veces.</p>
+      </div>
+      <!-- slot: facts (solo datos reales) -->
+      <dl class="facts rv">
+        <div><dt><span data-en>Founded</span><span data-es>Desde</span></dt><dd>2019</dd></div>
+        <div><dt><span data-en>Languages</span><span data-es>Idiomas</span></dt><dd>English · Español</dd></div>
+        <div><dt><span data-en>Insurance license</span><span data-es>Licencia de seguros</span></dt><dd>CT #0000000</dd></div>
+        <div><dt><span data-en>Tax preparers</span><span data-es>Preparadores</span></dt><dd><span data-en>PTIN on file with the IRS</span><span data-es>Registrados en el IRS (PTIN)</span></dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- slot: area (pueblos + mapa) -->
+<section class="section plain" id="area" aria-labelledby="area-title">
+  <div class="wrap area">
+    <div class="rv">
+      <p class="eyebrow num"><span data-en>Service area</span><span data-es>Zona de servicio</span></p>
+      <h2 class="h2" id="area-title"><span data-en>Based in Waterbury, serving the Naugatuck Valley</span><span data-es>En Waterbury, para todo el Naugatuck Valley</span></h2>
+      <p class="lead" data-en>Most clients come to the office. If you can't, we work by phone, email and secure upload with clients anywhere in Connecticut.</p>
+      <p class="lead" data-es>La mayoría viene a la oficina. Si usted no puede, trabajamos por teléfono, email y envío seguro de documentos con clientes de todo Connecticut.</p>
+      <!-- slot: towns -->
+      <ul class="towns" aria-label="Towns we serve">
+        <li class="main">Waterbury <span data-en>Office</span><span data-es>Oficina</span></li><li>Naugatuck</li><li>Watertown</li><li>Oakville</li><li>Wolcott</li><li>Prospect</li><li>Cheshire</li><li>Middlebury</li><li>Thomaston</li><li>Beacon Falls</li><li>Southington</li><li>Torrington</li>
+      </ul>
+    </div>
+    <!-- slot: map -->
+    <div class="map-frame rv" style="--d:.1s">
+      <iframe src="https://maps.google.com/maps?q=Waterbury,+CT&z=11&output=embed" title="Map of Waterbury, CT and surrounding towns" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-card">
+        <span class="hc-title"><span data-en>The office</span><span data-es>La oficina</span></span>
+        <!-- slot: address-full -->
+        <address>412 East Main St., Suite 2<br>Waterbury, CT 06702</address>
+        <ul>
+          <li><span class="ico"><i data-lucide="square-parking"></i></span><span data-en>Free parking behind the building</span><span data-es>Estacionamiento gratis detrás del edificio</span></li>
+          <li><span class="ico"><i data-lucide="navigation"></i></span><span data-en>Five minutes from I-84, exit 22</span><span data-es>A cinco minutos de la I-84, salida 22</span></li>
+        </ul>
+        <a class="btn btn-ghost btn-sm" href="https://maps.google.com/?q=Waterbury,+CT" target="_blank" rel="noopener"><span data-en>Get directions</span><span data-es>Cómo llegar</span><span class="ico arr"><i data-lucide="arrow-up-right"></i></span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- slot: reviews · OPTIONAL: solo si hay reseñas reales de Google; si no, se elimina -->
+<!-- Las reseñas se muestran en su idioma original (tal como están en Google). -->
+<section class="section is-panel" id="reviews" aria-labelledby="reviews-title">
+  <div class="panel-outer"><div class="panel">
+    <div class="wrap">
+      <div class="reviews-head">
+        <div class="rv">
+          <p class="eyebrow num"><span data-en>Google reviews</span><span data-es>Reseñas en Google</span></p>
+          <h2 class="h2" id="reviews-title"><span data-en>From clients in the Valley</span><span data-es>De clientes de la zona</span></h2>
+        </div>
+        <!-- slot: google-rating -->
+        <div class="rating rv" style="--d:.1s">
+          <span class="rating-num">4.9</span>
+          <div>
+            <div class="stars" role="img" aria-label="4.9 out of 5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+            <small><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.94 23.94 0 0 0 0 24c0 3.77.9 7.35 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span data-en>38 reviews on Google</span><span data-es>38 reseñas en Google</span></small>
+          </div>
+        </div>
+      </div>
+      <div class="reviews">
+        <!-- slot: review-1 -->
+        <article class="review rv">
+          <div class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+          <blockquote lang="es">“Carmen nos hizo los impuestos y el ITIN de mi esposo en la misma cita. Todo explicado en español y con el precio claro desde el principio.”</blockquote>
+          <footer><div class="who"><span class="initial">M</span><div><strong>Maria G.</strong><span data-en>2 months ago</span><span data-es>hace 2 meses</span></div></div><svg class="g-logo" viewBox="0 0 48 48" role="img" aria-label="Google"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.720 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.94 23.94 0 0 0 0 24c0 3.77.9 7.35 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></footer>
+        </article>
+        <!-- slot: review-2 -->
+        <article class="review rv" style="--d:.08s">
+          <div class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+          <blockquote lang="en">“Moved my car and renters insurance over through Luis. He showed me three quotes side by side, and I’m paying less for better coverage.”</blockquote>
+          <footer><div class="who"><span class="initial">K</span><div><strong>Kevin R.</strong><span data-en>5 months ago</span><span data-es>hace 5 meses</span></div></div><svg class="g-logo" viewBox="0 0 48 48" role="img" aria-label="Google"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.94 23.94 0 0 0 0 24c0 3.77.9 7.35 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></footer>
+        </article>
+        <!-- slot: review-3 -->
+        <article class="review rv" style="--d:.16s">
+          <div class="stars" role="img" aria-label="5 stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+          <blockquote lang="en">“They caught up two years of bookkeeping for my landscaping LLC. Organized, quick to reply, and someone actually answers the phone.”</blockquote>
+          <footer><div class="who"><span class="initial">A</span><div><strong>Ana P.</strong><span data-en>8 months ago</span><span data-es>hace 8 meses</span></div></div><svg class="g-logo" viewBox="0 0 48 48" role="img" aria-label="Google"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.94 23.94 0 0 0 0 24c0 3.77.9 7.35 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></footer>
+        </article>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- slot: faq -->
+<section class="section plain" id="faq" aria-labelledby="faq-title">
+  <div class="wrap faq">
+    <div class="faq-aside rv">
+      <p class="eyebrow num"><span data-en>Questions</span><span data-es>Preguntas</span></p>
+      <h2 class="h2" id="faq-title"><span data-en>What people ask before they come in</span><span data-es>Lo que nos preguntan antes de venir</span></h2>
+      <p class="lead" data-en>Something else on your mind? Call or text. You'll talk to Carmen or Luis, not a recording.</p>
+      <p class="lead" data-es>¿Tiene otra duda? Llame o escríbanos. Le contesta Carmen o Luis, no una grabación.</p>
+      <a class="btn btn-ghost" href="sms:+12035550142"><span class="ico"><i data-lucide="message-square"></i></span><span data-en>Text us a question</span><span data-es>Envíenos un mensaje</span></a>
+    </div>
+    <div class="faq-list rv" style="--d:.08s">
+      <details open>
+        <summary><span data-en>Do I need an appointment?</span><span data-es>¿Necesito cita?</span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p data-en>It helps, but from January to April we take walk-ins Monday through Saturday. The rest of the year, call or text first so someone is at the desk when you arrive.</p><p data-es>Ayuda, pero de enero a abril atendemos sin cita de lunes a sábado. El resto del año, llame o escriba antes para que haya alguien en la oficina cuando llegue.</p></div>
+      </details>
+      <details>
+        <summary><span data-en>What should I bring for my tax return?</span><span data-es>¿Qué traigo para mi declaración?</span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p data-en>Photo ID, Social Security or ITIN numbers for everyone on the return, all your W-2 and 1099 forms, last year's return, and a voided check for direct deposit. We send the full checklist when you book.</p><p data-es>Identificación con foto, número de Seguro Social o ITIN de cada persona en la declaración, todos sus formularios W-2 y 1099, la declaración del año pasado y un cheque anulado para el depósito directo. Le mandamos la lista completa al hacer la cita.</p></div>
+      </details>
+      <details>
+        <summary><span data-en>How much does it cost?</span><span data-es>¿Cuánto cuesta?</span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p data-en>It depends on the forms involved. We look at your documents first and give you the price in writing before we start. The first consultation is free.</p><p data-es>Depende de los formularios que lleve su caso. Primero revisamos sus documentos y le damos el precio por escrito antes de empezar. La primera consulta es gratis.</p></div>
+      </details>
+      <details>
+        <summary><span data-en>Can you file for me if I don't have a Social Security number?</span><span data-es>¿Pueden hacer mi declaración si no tengo Seguro Social?</span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p data-en>Yes. We prepare your return together with the ITIN application (Form W-7). With an ITIN you can file every year, claim some credits and keep a clean record with the IRS.</p><p data-es>Sí. Preparamos su declaración junto con la solicitud de ITIN (formulario W-7). Con el ITIN puede declarar cada año, pedir algunos créditos y mantener un historial limpio con el IRS.</p></div>
+      </details>
+      <details>
+        <summary><span data-en>Which insurance companies do you work with?</span><span data-es>¿Con qué aseguradoras trabajan?</span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p data-en>We're an independent agency, so we quote with several carriers licensed in Connecticut and show you the options side by side. The list depends on the type of policy.</p><p data-es>Somos una agencia independiente: cotizamos con varias aseguradoras autorizadas en Connecticut y le mostramos las opciones lado a lado. Las compañías dependen del tipo de póliza.</p></div>
+      </details>
+      <details>
+        <summary><span data-en>Can we do everything remotely?</span><span data-es>¿Se puede hacer todo a distancia?</span><span class="pm" aria-hidden="true"></span></summary>
+        <div class="answer"><p data-en>Yes. Send your documents by secure upload or email, go over the return with us by phone or video, and sign electronically.</p><p data-es>Sí. Nos envía los documentos por un enlace seguro o por email, revisamos la declaración por teléfono o videollamada y firma electrónicamente.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- slot: contact -->
+<section class="section is-panel" id="contact" aria-labelledby="contact-title">
+  <div class="panel-outer"><div class="panel contact-panel">
+    <div class="wrap contact">
+      <div class="rv">
+        <p class="eyebrow num"><span data-en>Contact</span><span data-es>Contacto</span></p>
+        <h2 class="h2" id="contact-title"><span data-en>Book a free consultation</span><span data-es>Pida una consulta gratis</span></h2>
+        <p class="lead" data-en>Tell us what you need and we'll get back to you the same business day, in English or Spanish.</p>
+        <p class="lead" data-es>Cuéntenos qué necesita y le respondemos el mismo día hábil, en español o en inglés.</p>
+        <div class="contact-list">
+          <a href="tel:+12035550142"><span class="ico"><i data-lucide="phone"></i></span><span><small data-en>Call</small><small data-es>Llamar</small><b>(203) 555-0142</b></span><span class="go"><i data-lucide="arrow-up-right"></i></span></a>
+          <a href="sms:+12035550142"><span class="ico"><i data-lucide="message-square"></i></span><span><small data-en>Text</small><small data-es>Mensaje de texto</small><b>(203) 555-0142</b></span><span class="go"><i data-lucide="arrow-up-right"></i></span></a>
+          <!-- slot: email -->
+          <a href="mailto:hola@nuneztax.com"><span class="ico"><i data-lucide="mail"></i></span><span><small>Email</small><b>hola@nuneztax.com</b></span><span class="go"><i data-lucide="arrow-up-right"></i></span></a>
+          <div class="row"><span class="ico"><i data-lucide="map-pin"></i></span><span><small data-en>Office</small><small data-es>Oficina</small><b>412 East Main St., Suite 2, Waterbury</b></span></div>
+        </div>
+        <div class="contact-hours">
+          <span class="status" data-status><span class="dot" aria-hidden="true"></span><span data-en>Office hours</span><span data-es>Horario</span></span>
+          <dl>
+            <div class="hrow" data-days="1-5"><dt><span data-en>Mon – Fri</span><span data-es>Lun – Vie</span></dt><dd><span data-en>9:00 am – 7:00 pm</span><span data-es>9:00 a. m. – 7:00 p. m.</span></dd></div>
+            <div class="hrow" data-days="6"><dt><span data-en>Saturday</span><span data-es>Sábado</span></dt><dd><span data-en>10:00 am – 3:00 pm</span><span data-es>10:00 a. m. – 3:00 p. m.</span></dd></div>
+            <div class="hrow" data-days="0"><dt><span data-en>Sunday</span><span data-es>Domingo</span></dt><dd><span data-en>Closed</span><span data-es>Cerrado</span></dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <form class="form rv" style="--d:.1s" action="#" method="post" novalidate>
+        <div class="form-head">
+          <div>
+            <h3><span data-en>Request a call back</span><span data-es>Pida que le llamemos</span></h3>
+            <p data-en>Takes a minute. No obligation.</p>
+            <p data-es>Es un minuto. Sin compromiso.</p>
+          </div>
+          <!-- slot: who-replies (iniciales de quien atiende) -->
+          <div class="who-replies"><span class="faces" aria-hidden="true"><span>CN</span><span>LN</span></span><span data-en>Carmen or Luis<br>will reply</span><span data-es>Le responde<br>Carmen o Luis</span></div>
+        </div>
+        <div class="fields">
+          <div class="field" data-validate>
+            <label for="f-name"><span data-en>Name</span><span data-es>Nombre</span></label>
+            <input id="f-name" name="name" autocomplete="name" required aria-describedby="e-name" data-ph-en="Your name" data-ph-es="Su nombre">
+            <span class="okm" aria-hidden="true"><i data-lucide="check"></i></span>
+            <p class="err" id="e-name"><span class="ico"><i data-lucide="circle-alert"></i></span><span data-en>Please tell us your name</span><span data-es>Escriba su nombre, por favor</span></p>
+          </div>
+          <div class="field" data-validate>
+            <label for="f-phone"><span data-en>Phone</span><span data-es>Teléfono</span></label>
+            <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="e-phone" data-ph-en="(203) 000-0000" data-ph-es="(203) 000-0000">
+            <span class="okm" aria-hidden="true"><i data-lucide="check"></i></span>
+            <p class="err" id="e-phone"><span class="ico"><i data-lucide="circle-alert"></i></span><span data-en>Enter a 10-digit phone number</span><span data-es>Escriba un teléfono de 10 dígitos</span></p>
+          </div>
+          <div class="field full"><label for="f-service"><span data-en>Service</span><span data-es>Servicio</span></label>
+            <select id="f-service" name="service">
+              <option value="" data-en-text="Choose one" data-es-text="Elija uno">Choose one</option>
+              <option value="Personal tax return" data-en-text="Personal tax return" data-es-text="Declaración de impuestos personal">Personal tax return</option>
+              <option value="Business taxes" data-en-text="Small-business taxes" data-es-text="Impuestos de negocio">Small-business taxes</option>
+              <option value="ITIN" data-en-text="ITIN application" data-es-text="Trámite de ITIN">ITIN application</option>
+              <option value="Bookkeeping" data-en-text="Monthly bookkeeping" data-es-text="Contabilidad mensual">Monthly bookkeeping</option>
+              <option value="Insurance" data-en-text="Auto, home or business insurance" data-es-text="Seguro de auto, casa o negocio">Auto, home or business insurance</option>
+              <option value="LLC" data-en-text="LLC formation & EIN" data-es-text="Apertura de LLC y EIN">LLC formation &amp; EIN</option>
+              <option value="Other" data-en-text="Something else" data-es-text="Otra cosa">Something else</option>
+            </select>
+          </div>
+          <fieldset class="field full">
+            <legend><span data-en>Best way to reach you</span><span data-es>¿Cómo prefiere que le contactemos?</span></legend>
+            <div class="seg-opts">
+              <label><input type="radio" name="method" value="call" checked><span class="pill"><span class="ico"><i data-lucide="phone"></i></span><span data-en>Call me</span><span data-es>Llamada</span></span></label>
+              <label><input type="radio" name="method" value="text"><span class="pill"><span class="ico"><i data-lucide="message-square"></i></span><span data-en>Text me</span><span data-es>Mensaje</span></span></label>
+            </div>
+          </fieldset>
+          <div class="field full"><label for="f-msg"><span data-en>Message</span><span data-es>Mensaje</span><span class="opt" data-en>Optional</span><span class="opt" data-es>Opcional</span></label><textarea id="f-msg" name="message" data-ph-en="A few words about what you need" data-ph-es="Unas palabras sobre lo que necesita"></textarea></div>
+        </div>
+        <button class="btn btn-primary submit" type="submit"><span class="lbl"><span data-en>Send request</span><span data-es>Enviar solicitud</span></span><span class="lbl-wait"><span data-en>Sending…</span><span data-es>Enviando…</span></span><span class="spin" aria-hidden="true"></span><span class="ico arr"><i data-lucide="arrow-right"></i></span></button>
+        <p class="form-note" data-en>We reply the same business day. Your information stays with us.</p>
+        <p class="form-note" data-es>Respondemos el mismo día hábil. Sus datos se quedan con nosotros.</p>
+        <div class="form-done" role="status" tabindex="-1">
+          <svg class="check-anim" viewBox="0 0 76 76" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="38" cy="38" r="30"/><path d="m26 39 8 8 16-17"/></svg>
+          <h3><span data-en>Request received</span><span data-es>Solicitud recibida</span></h3>
+          <p data-en>Thank you, <span class="js-name"></span>. We'll get back to you at <b class="js-phone tnum"></b> the same business day.</p>
+          <p data-es>Gracias, <span class="js-name"></span>. Le contactamos al <b class="js-phone tnum"></b> el mismo día hábil.</p>
+          <button class="btn btn-ghost btn-sm js-again" type="button"><span data-en>Send another request</span><span data-es>Enviar otra solicitud</span></button>
+        </div>
+      </form>
+    </div>
+  </div></div>
+</section>
+</main>
+
+<!-- slot: footer -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a class="logo" href="#top" aria-label="Núñez Tax & Insurance, back to top">
+          <span class="logo-mark" aria-hidden="true"><span>N</span></span>
+          <span class="logo-text"><span class="logo-name">Núñez</span><span class="logo-sub">Tax &amp; Insurance</span></span>
+        </a>
+        <p data-en>Taxes, bookkeeping and insurance for families and small businesses in Waterbury and the Naugatuck Valley.</p>
+        <p data-es>Impuestos, contabilidad y seguros para familias y pequeños negocios de Waterbury y el Naugatuck Valley.</p>
+        <span class="status" data-status><span class="dot" aria-hidden="true"></span><span data-en>Mon–Fri 9–7 · Sat 10–3</span><span data-es>Lun–Vie 9–7 · Sáb 10–3</span></span>
+      </div>
+      <div>
+        <h2><span data-en>Office</span><span data-es>Oficina</span></h2>
+        <ul>
+          <li>412 East Main St., Suite 2<br>Waterbury, CT 06702</li>
+          <li><a class="tnum" href="tel:+12035550142">(203) 555-0142</a></li>
+          <li><a href="mailto:hola@nuneztax.com">hola@nuneztax.com</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2><span data-en>Hours</span><span data-es>Horario</span></h2>
+        <ul class="tnum">
+          <li><span data-en>Mon–Fri 9:00 am – 7:00 pm</span><span data-es>Lun–Vie 9:00 a. m. – 7:00 p. m.</span></li>
+          <li><span data-en>Sat 10:00 am – 3:00 pm</span><span data-es>Sáb 10:00 a. m. – 3:00 p. m.</span></li>
+          <li><span data-en>Sun closed</span><span data-es>Dom cerrado</span></li>
+        </ul>
+      </div>
+      <div>
+        <!-- slot: licenses -->
+        <h2><span data-en>Licenses</span><span data-es>Licencias</span></h2>
+        <ul>
+          <li><span data-en>CT insurance producer Lic. #0000000</span><span data-es>Agente de seguros de CT, Lic. #0000000</span></li>
+          <li><span data-en>IRS authorized e-file provider</span><span data-es>Proveedor autorizado e-file del IRS</span></li>
+          <li><span data-en>Preparers registered with a PTIN</span><span data-es>Preparadores registrados con PTIN</span></li>
+        </ul>
+      </div>
+    </div>
+    <!-- slot: footer-wordmark (nombre corto del negocio; se ajusta solo al ancho) -->
+    <div class="footer-word" aria-hidden="true"><span data-fit>Núñez</span></div>
+    <div class="footer-bottom">
+      <span>© 2026 Núñez Tax &amp; Insurance LLC</span>
+      <span>We speak Spanish · Hablamos español</span>
+      <a class="to-top" href="#top"><span data-en>Back to top</span><span data-es>Volver arriba</span><span class="ico"><i data-lucide="arrow-up"></i></span></a>
+    </div>
+  </div>
+</footer>
+
+<!-- slot: mobile-bar -->
+<div class="mobile-bar">
+  <a class="btn btn-primary" href="tel:+12035550142"><span class="ico"><i data-lucide="phone"></i></span><span data-en>Call</span><span data-es>Llamar</span></a>
+  <a class="btn btn-ghost" href="#contact"><span class="ico"><i data-lucide="calendar-check"></i></span><span data-en>Free consultation</span><span data-es>Consulta gratis</span></a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script>
+(function(){
+  var root = document.documentElement, params = new URLSearchParams(location.search);
+  var $ = function(s, c){ return (c || document).querySelector(s); };
+  var $$ = function(s, c){ return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  try {
+  /* Color de marca de demo: ?brand=0e7490 (también se aplica en <head> para evitar parpadeo) */
+  var b = params.get('brand');
+  if (b && /^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(b)) root.style.setProperty('--brand', '#' + b);
+
+  /* Idioma: ?lang= > localStorage > en */
+  function setLang(l){
+    l = l === 'es' ? 'es' : 'en';
+    root.classList.remove('lang-en','lang-es'); root.classList.add('lang-' + l); root.lang = l;
+    $$('[data-set-lang]').forEach(function(btn){ btn.setAttribute('aria-pressed', btn.dataset.setLang === l); });
+    $$('[data-ph-' + l + ']').forEach(function(el){ el.placeholder = el.getAttribute('data-ph-' + l); });
+    $$('option[data-' + l + '-text]').forEach(function(o){ o.textContent = o.getAttribute('data-' + l + '-text'); });
+    try { localStorage.setItem('wc360-lang-general', l); } catch(e){}
+    fitWord();
+  }
+  var saved = null; try { saved = localStorage.getItem('wc360-lang-general'); } catch(e){}
+  $$('[data-set-lang]').forEach(function(btn){ btn.addEventListener('click', function(){ setLang(btn.dataset.setLang); }); });
+
+  /* Menú móvil */
+  var menuBtn = $('.menu-btn'), mnav = $('#mobile-nav');
+  function closeMenu(){ mnav.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); root.classList.remove('menu-open'); }
+  menuBtn.addEventListener('click', function(){ var o = mnav.classList.toggle('open'); menuBtn.setAttribute('aria-expanded', o); root.classList.toggle('menu-open', o); });
+  $$('a', mnav).forEach(function(a){ a.addEventListener('click', closeMenu); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeMenu(); });
+
+  /* "Consultar" en una tarjeta preselecciona el servicio en el formulario */
+  var sel = $('#f-service');
+  $$('[data-service]').forEach(function(a){ a.addEventListener('click', function(){ if (sel) sel.value = a.dataset.service; }); });
+
+  /* Horario vivo: "Abierto ahora · cierra a las 7" (zona horaria del negocio) */
+  var card = $('.hours-card'), sched = {};
+  if (card) $$('.hrow[data-open]', card).forEach(function(r){
+    var t = function(s){ var p = s.split(':'); return (+p[0]) * 60 + (+p[1] || 0); };
+    daysOf(r.dataset.days).forEach(function(d){ sched[d] = [t(r.dataset.open), t(r.dataset.close)]; });
+  });
+  function daysOf(s){ var out = []; (s || '').split(',').forEach(function(part){ var m = part.split('-'); var a = +m[0], z = m.length > 1 ? +m[1] : a; for (var i = a; i <= z; i++) out.push(i); }); return out; }
+  function fmt(min, es){ var h = Math.floor(min / 60), m = min % 60, h12 = h % 12 || 12; var mm = m ? ':' + (m < 10 ? '0' : '') + m : ''; return h12 + mm + (es ? (h < 12 ? ' a. m.' : ' p. m.') : (h < 12 ? ' am' : ' pm')); }
+  function alas(min){ var h = Math.floor(min / 60) % 12 || 12; return (h === 1 ? 'a la ' : 'a las ') + fmt(min, true); }
+  var DAY_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], DAY_ES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  function hoursStatus(){
+    if (!card || !Object.keys(sched).length) return;
+    var o = {};
+    try { new Intl.DateTimeFormat('en-US', { timeZone: card.dataset.tz || undefined, weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date()).forEach(function(p){ o[p.type] = p.value; }); } catch(e){ return; }
+    var day = { Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6 }[o.weekday], now = (+o.hour % 24) * 60 + (+o.minute);
+    var s = sched[day], state = 'closed', en, es;
+    if (s && now >= s[0] && now < s[1]) {
+      state = s[1] - now <= 60 ? 'soon' : 'open';
+      en = (state === 'soon' ? 'Closing soon · closes at ' : 'Open now · closes at ') + fmt(s[1]);
+      es = (state === 'soon' ? 'Cierra pronto · ' : 'Abierto ahora · cierra ') + alas(s[1]);
+    } else if (s && now < s[0]) {
+      en = 'Closed now · opens at ' + fmt(s[0]); es = 'Cerrado ahora · abre ' + alas(s[0]);
+    } else {
+      for (var k = 1; k <= 7; k++) { var d = (day + k) % 7; if (sched[d]) {
+        en = 'Closed · opens ' + (k === 1 ? 'tomorrow' : DAY_EN[d]) + ' at ' + fmt(sched[d][0]);
+        es = 'Cerrado · abre ' + (k === 1 ? 'mañana' : 'el ' + DAY_ES[d]) + ' ' + alas(sched[d][0]); break; } }
+    }
+    $$('[data-status]').forEach(function(el){
+      el.classList.remove('is-open','is-soon','is-closed'); el.classList.add('is-' + state);
+      var e1 = $('[data-en]', el), e2 = $('[data-es]', el); if (e1 && en) e1.textContent = en; if (e2 && es) e2.textContent = es;
+    });
+    $$('.hrow[data-days]').forEach(function(r){ r.classList.toggle('is-today', daysOf(r.dataset.days).indexOf(day) > -1); });
+  }
+  hoursStatus(); setInterval(hoursStatus, 60000);
+
+  /* Nombre gigante del pie: se ajusta al ancho sea cual sea el nombre */
+  function fitWord(){ $$('[data-fit]').forEach(function(el){ el.style.fontSize = '100px'; var w = el.getBoundingClientRect().width, cw = el.parentElement.clientWidth; if (w) el.style.fontSize = Math.min(100 * cw / w * .995, 900) + 'px'; }); }
+  setLang(params.get('lang') || saved || 'en');
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWord);
+  window.addEventListener('resize', fitWord);
+
+  /* Scroll: cabecera compacta + línea del proceso que se dibuja */
+  var header = $('#header'), stepsList = $('[data-steps]'), steps = stepsList ? $$('.step', stepsList) : [], ticking = false;
+  function onScroll(){
+    ticking = false;
+    header.classList.toggle('is-scrolled', window.scrollY > 12);
+    if (!stepsList) return;
+    var p = 1;
+    if (!reduce) { var r = stepsList.getBoundingClientRect(), vh = window.innerHeight; p = (vh * .82 - r.top) / Math.max(r.height, vh * .4); p = Math.max(0, Math.min(1, p)); }
+    var t = p * Math.max(1, steps.length - 1);
+    steps.forEach(function(st, i){ st.style.setProperty('--seg', Math.max(0, Math.min(1, t - i)).toFixed(3)); st.classList.toggle('on', p > 0 && t >= i - .001); });
+  }
+  window.addEventListener('scroll', function(){ if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  window.addEventListener('resize', onScroll); onScroll();
+
+  /* Aparición al hacer scroll (mejora progresiva) */
+  var rv = $$('.rv');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }); }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+    rv.forEach(function(el){ io.observe(el); });
+  } else rv.forEach(function(el){ el.classList.add('in'); });
+
+  /* Formulario (demo): validación en línea, estado de envío y confirmación. No envía nada. */
+  var form = $('.form');
+  function check(f){
+    var inp = $('input,select,textarea', f), v = inp.value.trim(), ok = !!v;
+    if (ok && inp.type === 'tel') ok = v.replace(/\D/g, '').length >= 10;
+    f.classList.toggle('invalid', !ok); f.classList.toggle('valid', ok); inp.setAttribute('aria-invalid', !ok); return ok;
+  }
+  $$('[data-validate]', form).forEach(function(f){
+    var inp = $('input', f);
+    inp.addEventListener('blur', function(){ if (inp.value.trim() || f.classList.contains('invalid')) check(f); });
+    inp.addEventListener('input', function(){ if (f.classList.contains('invalid') || f.classList.contains('valid')) check(f); });
+  });
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var bad = $$('[data-validate]', form).filter(function(f){ return !check(f); });
+    if (bad.length) { $('input', bad[0]).focus(); return; }
+    form.classList.add('is-loading');
+    setTimeout(function(){
+      form.classList.remove('is-loading'); form.classList.add('is-done');
+      $$('.js-name', form).forEach(function(s){ s.textContent = $('#f-name').value.trim().split(' ')[0]; });
+      $$('.js-phone', form).forEach(function(s){ s.textContent = $('#f-phone').value.trim(); });
+      $('.form-done', form).focus();
+    }, 900);
+  });
+  $('.js-again', form).addEventListener('click', function(){
+    form.reset(); form.classList.remove('is-done');
+    $$('.field', form).forEach(function(f){ f.classList.remove('valid','invalid'); });
+    $('#f-name').focus();
+  });
+  } catch(err) { $$('.rv').forEach(function(el){ el.classList.add('in'); }); }
+
+  if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.6 } });
+})();
+</script>
+</body>
+</html>

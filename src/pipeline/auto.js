@@ -1,6 +1,6 @@
 import slugify from 'slugify';
 import supabase from '../db/supabase.js';
-import { scrapeBusinessProfile } from '../services/gemini.js';
+import { scrapeBusinessProfile } from '../services/businessProfile.js';
 import { generateWebsite } from '../services/claude.js';
 import { deployToVercel } from '../services/vercel.js';
 import { sendOutreach } from '../services/outreach.js';
@@ -201,11 +201,16 @@ async function stageOutreach(stats, log) {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function isBusinessHours() {
-  const now = new Date();
-  const day = now.getDay(); // 0=Sun, 6=Sat
-  const hour = now.getHours();
-  return day >= 1 && day <= 5 && hour >= 8 && hour < 19;
+// Time zone of the "business hours" (and of the pipeline cron in cron/jobs.js). Fixed on purpose: the server's own clock
+// is UTC on Render, which would send at the wrong hours.
+export const PIPELINE_TIMEZONE = () => (process.env.PIPELINE_TIMEZONE || 'Europe/Madrid').trim();
+
+// Mon–Fri, 8:00–18:59 in PIPELINE_TIMEZONE
+export function isBusinessHours(now = new Date(), timeZone = PIPELINE_TIMEZONE()) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'short', hour: 'numeric', hourCycle: 'h23' })
+    .formatToParts(now).map(p => [p.type, p.value]));
+  const hour = Number(parts.hour);
+  return !['Sat', 'Sun'].includes(parts.weekday) && hour >= 8 && hour < 19;
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
