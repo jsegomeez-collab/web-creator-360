@@ -5,3 +5,6 @@ npm-install.log
 
 .DS_Store
 tmp/
+.vercel
+.env.local
+.env.*.local

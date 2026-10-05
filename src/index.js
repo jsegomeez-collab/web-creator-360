@@ -75,7 +75,12 @@ app.get('/api/config', (req, res) => res.json({
   saasMode: SAAS_MODE,
 }));
 
-app.listen(PORT, () => {
-  console.log(`Web Creator 360 running at http://localhost:${PORT}`);
-  startCronJobs();
-});
+// On Vercel the app runs as a serverless function: it can't listen on a port or keep cron jobs alive
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Web Creator 360 running at http://localhost:${PORT}`);
+    startCronJobs();
+  });
+}
+
+export default app;

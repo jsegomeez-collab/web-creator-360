@@ -1,0 +1,1 @@
+{ "functions": { "src/index.js": { "includeFiles": "public/**" } } }
