@@ -6,8 +6,8 @@ import { createCampaignApp } from './campaignApp.js';
 import { runCtIngest } from './services/ctIngest.js';
 import { loadInstantlyConfig, pushLeads } from './services/instantly.js';
 import { pollInstantlyEvents } from './services/instantlyPoll.js';
-import { getAutopilotSettings } from './services/autopilot.js';
-import { generateDemos, readyDemoCount } from './services/leadDemos.js';
+import { getAutopilotSettings, ALL_MODE_SEND_LIMIT } from './services/autopilot.js';
+import { generateDemos, generateAllDemos, readyDemoCount } from './services/leadDemos.js';
 import { alertCallRequest, alertReply, sendTelegram, loadTelegramConfig } from './services/telegram.js';
 
 const ownerId = (process.env.NEW_LEADS_OWNER_USER_ID || '').trim();
@@ -70,18 +70,24 @@ try { pushConfig = loadInstantlyConfig(process.env, { dryRun: false }); } catch 
 
 // Demo websites (LEAD_DEMOS=true): the email links to each lead's own site, so the sites are made ahead of the send.
 // Every 10 minutes it tops up the "ready" pile to the next send's size (pushLimit) — at most 3 per tick, one after
-// another — so money is only spent on sites that are about to be emailed.
+// another — so money is only spent on sites that are about to be emailed. In "all" mode (dashboard switch) it makes
+// every pending lead's site instead (up to 25 minutes per tick; the next tick continues).
 const demosOn = pushConfig?.demos;
 if (demosOn) {
   const missing = ['ANTHROPIC_API_KEY', 'VERCEL_TOKEN'].filter(k => !process.env[k]);
   if (missing.length) console.warn(`LEAD_DEMOS=true pero falta ${missing.join(' y ')}: no se crearán webs de demo y no se enviará ningún lead`);
   else {
     every('*/10 * * * *', 'la creación de webs de demo', async () => {
-      const { enabled, pushLimit } = await getAutopilotSettings(supabase, ownerId);
+      const { enabled, pushLimit, demoAll } = await getAutopilotSettings(supabase, ownerId);
       if (!enabled) return;
-      const want = Math.min(3, pushLimit - await readyDemoCount(supabase, ownerId));
-      if (want <= 0) return;
-      const r = await generateDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, limit: want, log: (m) => console.log(`[demos] ${m}`) });
+      const log = (m) => console.log(`[demos] ${m}`);
+      let r;
+      if (demoAll) r = await generateAllDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, log });
+      else {
+        const want = Math.min(3, pushLimit - await readyDemoCount(supabase, ownerId));
+        if (want <= 0) return;
+        r = await generateDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, limit: want, log });
+      }
       if (r.failed) await sendTelegram(`⚠️ ${r.failed} web(s) de demo no se pudieron crear. Míralo en el dashboard (LLCs nuevas → Leads).`);
     });
     console.log('Demos: crea las webs de los próximos leads cada 10 minutos (Claude Sonnet 5.5 + Vercel), si el autopilot está activado');
@@ -90,9 +96,9 @@ if (demosOn) {
 
 if (pushConfig) {
   every('0 */3 * * *', 'el envío automático a Instantly', async () => {
-    const { enabled, pushLimit } = await getAutopilotSettings(supabase, ownerId);
+    const { enabled, pushLimit, demoAll } = await getAutopilotSettings(supabase, ownerId);
     if (!enabled) return;
-    const r = await pushLeads({ db: supabase, ownerId, config: pushConfig, limit: pushLimit });
+    const r = await pushLeads({ db: supabase, ownerId, config: pushConfig, limit: demoAll ? ALL_MODE_SEND_LIMIT : pushLimit });
     if (!r.pushed && !r.rejected) return;
     console.log(`[autopilot] ${r.dryRun ? '(modo prueba) ' : ''}enviados a Instantly: ${r.pushed} · rechazados: ${r.rejected}`);
     if (r.pushed && !r.dryRun) await sendTelegram(`🤖 Autopilot: ${r.pushed} leads enviados a Instantly.`);

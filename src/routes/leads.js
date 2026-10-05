@@ -9,8 +9,8 @@
 //   GET   /import-batches          past CSV imports still with "new" leads, so you can pick one to send ({ batch, count })
 //   POST  /push                    send the newest "new" leads to the Instantly campaign ({ limit, source?, sector?, priority?, batch? })
 //   POST  /poll-instantly          check Instantly now for sent/bounced/unsubscribed/replied (the cron does this every 5 min)
-//   GET   /autopilot               unattended ingest + send, run by the campaign server's crons: { enabled, pushLimit }
-//   PUT   /autopilot               change it ({ enabled?, pushLimit? })
+//   GET   /autopilot               unattended ingest + send, run by the campaign server's crons: { enabled, pushLimit, demoAll }
+//   PUT   /autopilot               change it ({ enabled?, pushLimit?, demoAll? })
 //   GET   /email-template          the email text to paste in Instantly (the demo version when LEAD_DEMOS=true)
 //   POST  /demos                   make the demo websites of the newest "new" leads that don't have one ({ limit ≤ 5 })
 //   POST  /:id/demo                make (or remake) the demo website of one lead
@@ -166,12 +166,13 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
   }));
 
   router.put('/autopilot', guard(async (req, res) => {
-    const { enabled, pushLimit } = req.body || {};
+    const { enabled, pushLimit, demoAll } = req.body || {};
     if (enabled !== undefined && typeof enabled !== 'boolean') return res.status(400).json({ error: 'enabled debe ser true o false' });
+    if (demoAll !== undefined && typeof demoAll !== 'boolean') return res.status(400).json({ error: 'demoAll debe ser true o false' });
     if (pushLimit !== undefined && (!Number.isInteger(pushLimit) || pushLimit < 1 || pushLimit > 1000)) {
       return res.status(400).json({ error: 'pushLimit debe ser un entero entre 1 y 1000' });
     }
-    res.json(await setAutopilotSettings(db, ownerId, { enabled, pushLimit }));
+    res.json(await setAutopilotSettings(db, ownerId, { enabled, pushLimit, demoAll }));
   }));
 
   router.get('/email-template', (req, res) => {

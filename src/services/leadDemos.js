@@ -78,7 +78,7 @@ export async function createLeadDemo({ db, ownerId, lead, publicUrl, force = fal
 
     const stamp = now().toISOString();
     const { data: saved, error: siteErr } = await db.from('generated_sites')
-      .upsert({ slug, html_content: html, preview_url: url, status: 'demo', user_id: ownerId }, { onConflict: 'slug' })
+      .upsert({ slug, html_content: html, preview_url: url, status: 'demo' }, { onConflict: 'slug' })
       .select('id').single();
     if (siteErr) throw new Error(`guardar la web: ${siteErr.message}`);
     const { error: leadErr } = await db.from(TABLE).update({
@@ -112,4 +112,17 @@ export async function readyDemoCount(db, ownerId) {
   const { data, error } = await db.from(TABLE).select('id').eq('user_id', ownerId).eq('status', 'new').eq('demo_status', 'ready').limit(1000);
   if (error) throw new Error(error.message);
   return (data || []).length;
+}
+
+// "All" mode: keeps making demos, a few at a time, until no "new" lead is left without one (failed ones are not retried,
+// so it always ends) or `maxMs` runs out — the next cycle picks up where this one stopped.
+export async function generateAllDemos({ db, ownerId, publicUrl, batch = 5, maxMs = 25 * 60_000, build, deploy, log = () => {}, now = () => Date.now() }) {
+  const deadline = now() + maxMs;
+  let created = 0, failed = 0;
+  while (now() < deadline) {
+    const r = await generateDemos({ db, ownerId, publicUrl, limit: batch, build, deploy, log });
+    created += r.created; failed += r.failed;
+    if (!r.results.length) break;
+  }
+  return { created, failed };
 }

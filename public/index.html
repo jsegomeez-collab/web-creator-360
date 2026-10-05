@@ -662,6 +662,10 @@
                     <div><p class="text-[13px] font-semibold text-slate-800">Los envía a Instantly</p><p class="text-xs text-slate-500">Cada 3 horas</p></div>
                   </div>
                 </div>
+                <label class="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3">
+                  <input type="checkbox" id="autopilot-all" class="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+                  <span><span class="block text-[13px] font-semibold text-slate-800">Modo «todas»: crear todas las webs y enviar todos los leads listos</span><span class="block text-xs leading-relaxed text-slate-500">Sin el tope de 3 webs por ciclo ni el límite de «Leads por envío». Cada web cuesta unos 0,05–0,15 $. Instantly reparte los envíos según el límite diario de la campaña.</span></span>
+                </label>
                 <div class="mt-5 flex flex-wrap items-end gap-3 border-t border-slate-100 pt-5">
                   <div><label class="label" for="autopilot-limit">Leads por envío</label><input type="number" id="autopilot-limit" min="1" max="1000" class="input w-32" /></div>
                   <button id="autopilot-save-btn" class="btn-secondary"><i data-lucide="check"></i>Guardar</button>

@@ -413,7 +413,7 @@ async function renderOverviewCampaign() {
 }
 
 const autopilotStatusText = (s) => (s.enabled
-  ? `Activado: busca leads cada día a las 7:00 (Nueva York) y envía hasta ${nf(s.pushLimit)} cada 3 horas.`
+  ? `Activado: busca leads cada día a las 7:00 (Nueva York) y ${s.demoAll ? 'crea las webs de todos los leads pendientes y envía todos los que estén listos' : `envía hasta ${nf(s.pushLimit)}`} cada 3 horas.`
   : 'Desactivado: no busca ni envía nada por su cuenta; puedes seguir haciéndolo tú a mano.');
 
 async function loadAutopilot() {
@@ -421,6 +421,8 @@ async function loadAutopilot() {
   if (!s) return;
   setAutopilotToggle(s.enabled);
   $('autopilot-limit').value = s.pushLimit;
+  $('autopilot-all').checked = !!s.demoAll;
+  $('autopilot-limit').disabled = !!s.demoAll;
   $('autopilot-status').textContent = autopilotStatusText(s);
 }
 
@@ -431,6 +433,23 @@ async function toggleAutopilot(btn) {
     setAutopilotToggle(s.enabled);
     $('autopilot-status').textContent = autopilotStatusText(s);
     toast(s.enabled ? 'Autopilot activado' : 'Autopilot desactivado');
+  });
+}
+
+async function toggleAutopilotAll(box) {
+  const demoAll = box.checked;
+  if (demoAll && !await ask({
+    title: '¿Activar el modo «todas»?',
+    message: 'El autopilot creará las webs de TODOS los leads pendientes (cada una cuesta unos 0,05–0,15 $) y enviará todos los que estén listos a Instantly, sin límite por tanda.',
+    confirm: 'Activar', icon: 'rocket',
+  })) { box.checked = false; return; }
+  await withDisabled(box, async () => {
+    try {
+      const s = await leadsApi('/autopilot', { method: 'PUT', body: { demoAll } });
+      $('autopilot-limit').disabled = !!s.demoAll;
+      $('autopilot-status').textContent = autopilotStatusText(s);
+      toast(s.demoAll ? 'Modo «todas» activado' : 'Modo «todas» desactivado');
+    } catch (e) { box.checked = !demoAll; throw e; }
   });
 }
 
@@ -652,6 +671,7 @@ $('leads-table').addEventListener('click', async (e) => {
 });
 
 $('autopilot-toggle').addEventListener('click', (e) => toggleAutopilot(e.currentTarget));
+$('autopilot-all').addEventListener('change', (e) => toggleAutopilotAll(e.currentTarget));
 $('demos-btn').addEventListener('click', (e) => createDemos(e.currentTarget));
 $('autopilot-save-btn').addEventListener('click', (e) => saveAutopilotLimit(e.currentTarget));
 $('send-source').addEventListener('change', onSendSourceChange);

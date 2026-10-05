@@ -139,4 +139,6 @@ CREATE TABLE IF NOT EXISTS campaign_autopilot (
   push_limit  INT NOT NULL DEFAULT 20,           -- leads sent to Instantly per send cycle
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- "All" mode: make every pending demo site and send every ready lead (default OFF: 3 sites per cycle, push_limit per send)
+ALTER TABLE campaign_autopilot ADD COLUMN IF NOT EXISTS demo_all BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE campaign_autopilot ENABLE ROW LEVEL SECURITY;

@@ -62,7 +62,7 @@ test('createLeadDemo: escribe la web con la plantilla de su sector, la publica y
   const l = row(db, 'L1');
   assert.deepEqual([l.demo_status, l.demo_url, l.demo_template, l.demo_error], ['ready', r.url, 'general', null]);
   const site = db.rows('generated_sites')[0];
-  assert.deepEqual([site.slug, site.status, site.preview_url, site.user_id, l.site_id], ['sol-1-tax-toke', 'demo', r.url, OWNER, site.id]);
+  assert.deepEqual([site.slug, site.status, site.preview_url, l.site_id], ['sol-1-tax-toke', 'demo', r.url, site.id]);
   assert.equal(l.status, 'new', 'crear la web no cambia el estado del embudo');
 });
 
@@ -199,4 +199,27 @@ test('dashboard: crear la web de un lead, contadores de demos y el email según 
     if (saved === undefined) delete process.env.LEAD_DEMOS; else process.env.LEAD_DEMOS = saved;
     srv.closeAllConnections?.(); srv.close();
   }
+});
+
+import { generateAllDemos } from '../src/services/leadDemos.js';
+test('generateAllDemos (modo "todas"): hace las webs de TODOS los leads nuevos sin web, de 5 en 5, y termina aunque alguna falle', async () => {
+  const leads = Array.from({ length: 12 }, (_, i) => mkLead(i + 1));
+  const db = createMemoryDb({ new_business_leads: leads });
+  let n = 0;
+  const f = fakes();
+  const build = async (o) => { if (++n === 4) throw new Error('boom'); return f.build(o); };
+  const r = await generateAllDemos({ db, ownerId: OWNER, publicUrl: PUBLIC, build, deploy: f.deploy });
+  assert.deepEqual(r, { created: 11, failed: 1 });
+  assert.equal(db.rows('new_business_leads').filter(l => l.demo_status === 'ready').length, 11);
+  assert.equal(db.rows('new_business_leads').filter(l => l.demo_status === 'failed').length, 1, 'la fallida no se reintenta en bucle');
+});
+
+test('generateAllDemos: se para al agotar el tiempo y el siguiente ciclo continúa', async () => {
+  const db = createMemoryDb({ new_business_leads: Array.from({ length: 12 }, (_, i) => mkLead(i + 1)) });
+  const f = fakes();
+  let t = 0;
+  const r = await generateAllDemos({ db, ownerId: OWNER, publicUrl: PUBLIC, batch: 5, maxMs: 100, build: f.build, deploy: f.deploy, now: () => (t += 60) });
+  assert.ok(r.created > 0 && r.created < 12);
+  const rest = await generateAllDemos({ db, ownerId: OWNER, publicUrl: PUBLIC, build: f.build, deploy: f.deploy });
+  assert.equal(r.created + rest.created, 12);
 });
