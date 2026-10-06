@@ -67,13 +67,23 @@ export async function createLeadDemo({ db, ownerId, lead, publicUrl, force = fal
   const business = leadBusiness(lead);
   const template = chooseTemplate(business);
   try {
-    const site = await build({ business, template });
-    const html = decorateDemo(site.html, {
-      brand: brandName(lead.name).brand,
-      requestUrl: `${publicUrl}/c/${lead.link_token}`,
-      beaconUrl: `${publicUrl}/v/${lead.link_token}`,
-    });
     const slug = demoSlug(lead);
+    // A site already written (and paid for) whose publishing failed is published again, not written again — unless "force"
+    // asks for a fresh one. Such a row has its HTML but no address yet (preview_url null).
+    const { data: kept } = force ? { data: null } : await db.from('generated_sites').select('id, html_content, preview_url').eq('slug', slug).maybeSingle();
+    let html = kept && !kept.preview_url && kept.html_content ? kept.html_content : null;
+    let usedTemplate = template, usage = null, reused = !!html;
+    if (!html) {
+      const site = await build({ business, template });
+      usedTemplate = site.template; usage = site.usage;
+      html = decorateDemo(site.html, {
+        brand: brandName(lead.name).brand,
+        requestUrl: `${publicUrl}/c/${lead.link_token}`,
+        beaconUrl: `${publicUrl}/v/${lead.link_token}`,
+      });
+      // Save it BEFORE publishing: if Vercel fails, the paid HTML is not lost
+      await db.from('generated_sites').upsert({ slug, html_content: html, preview_url: null, status: 'demo' }, { onConflict: 'slug' });
+    }
     const url = await deploy(slug, html);
 
     const stamp = now().toISOString();
@@ -82,10 +92,10 @@ export async function createLeadDemo({ db, ownerId, lead, publicUrl, force = fal
       .select('id').single();
     if (siteErr) throw new Error(`guardar la web: ${siteErr.message}`);
     const { error: leadErr } = await db.from(TABLE).update({
-      demo_status: 'ready', demo_url: url, demo_template: site.template, demo_at: stamp, demo_error: null, site_id: saved?.id ?? null, updated_at: stamp,
+      demo_status: 'ready', demo_url: url, demo_template: usedTemplate, demo_at: stamp, demo_error: null, site_id: saved?.id ?? null, updated_at: stamp,
     }).eq('id', lead.id);
     if (leadErr) throw new Error(`guardar la demo en el lead: ${leadErr.message}`);
-    return { ok: true, url, template: site.template, usage: site.usage };
+    return { ok: true, url, template: usedTemplate, usage, reused };
   } catch (err) {
     const message = String(err.message || err).slice(0, 500);
     await db.from(TABLE).update({ demo_status: 'failed', demo_error: message, updated_at: now().toISOString() }).eq('id', lead.id);

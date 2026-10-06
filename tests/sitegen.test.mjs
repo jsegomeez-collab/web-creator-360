@@ -113,10 +113,12 @@ test('brandName: marca sin "LLC" para la web y nombre legal para el copyright', 
 // Redactor simulado: cambia las palabras del ejemplo según `swap` (lo que haría Claude), y cuenta las llamadas
 function fakeWriter(swap, { skipFirst = [] } = {}) {
   const calls = [];
-  const write = async ({ prompt, format }) => {
+  const write = async ({ prompt: variable, cachedPrefix, format }) => {
+    const prompt = `${cachedPrefix}\n\n${variable}`;   // lo que lee Claude: parte cacheable + parte del negocio
+    assert.ok(cachedPrefix && !cachedPrefix.includes('Sol Tax'), 'lo cacheable no lleva datos del negocio (igual para todos)');
     calls.push(prompt);
     assert.deepEqual(format, { type: 'json_schema', schema: OUTPUT_SCHEMA });
-    const items = JSON.parse(prompt.slice(prompt.lastIndexOf('ITEMS\n') + 6));
+    const items = JSON.parse(cachedPrefix.slice(cachedPrefix.lastIndexOf('ITEMS\n') + 6));
     const change = (s) => Object.entries(swap).reduce((t, [a, b]) => t.split(a).join(b), s ?? '');
     const units = items.map(i => (i.en !== undefined ? { id: i.id, en: change(i.en), es: change(i.es) } : { id: i.id, en: change(i.text), es: '' }))
       .filter(u => calls.length > 1 || !skipFirst.some(w => items.find(i => i.id === u.id) && JSON.stringify(items.find(i => i.id === u.id)).includes(w)));

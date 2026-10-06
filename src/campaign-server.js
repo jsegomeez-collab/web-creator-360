@@ -4,7 +4,7 @@ import cron from 'node-cron';
 import supabase from './db/supabase.js';
 import { createCampaignApp } from './campaignApp.js';
 import { runCtIngest } from './services/ctIngest.js';
-import { loadInstantlyConfig, pushLeads } from './services/instantly.js';
+import { loadInstantlyConfig, pushLeads, resumeIfCompleted } from './services/instantly.js';
 import { pollInstantlyEvents } from './services/instantlyPoll.js';
 import { getAutopilotSettings, ALL_MODE_SEND_LIMIT } from './services/autopilot.js';
 import { generateDemos, generateAllDemos, readyDemoCount, expireDemos } from './services/leadDemos.js';
@@ -115,6 +115,10 @@ if (pushConfig) {
     const r = await pushLeads({ db: supabase, ownerId, config: pushConfig, limit: demoAll ? ALL_MODE_SEND_LIMIT : pushLimit });
     if (!r.pushed && !r.rejected) return;
     console.log(`[autopilot] ${r.dryRun ? '(modo prueba) ' : ''}enviados a Instantly: ${r.pushed} · rechazados: ${r.rejected}`);
+    if (r.pushed && !r.dryRun) {
+      const resumed = await resumeIfCompleted(pushConfig);
+      if (resumed !== 'ok') console.log(`[autopilot] campaña de Instantly: ${resumed}`);
+    }
     if (r.pushed && !r.dryRun) await sendTelegram(`🤖 Autopilot: ${r.pushed} leads enviados a Instantly.`);
   });
   console.log('Autopilot: envía leads nuevos a Instantly cada 3 horas, si está activado (revisa el límite en el dashboard)');

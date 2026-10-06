@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createMemoryDb } from './helpers/memoryDb.mjs';
-import { loadInstantlyConfig, buildInstantlyLead, leadLinkUrl, pushLeads, API } from '../src/services/instantly.js';
+import { loadInstantlyConfig, buildInstantlyLead, leadLinkUrl, pushLeads, resumeIfCompleted, API } from '../src/services/instantly.js';
 
 const OWNER = 'owner-1';
 const CAMPAIGN = '5a1d6d4e-8a0b-4e9c-9a53-2f4c8e7f1b10';
@@ -197,4 +197,18 @@ test('si Instantly acepta pero falla el guardado local, avisa claramente de no r
   db.failNext('new_business_leads', 'update', 'timeout');
   const { fetchImpl } = fakeInstantly(acceptAll);
   await assert.rejects(() => pushLeads({ db, ownerId: OWNER, config: config(), dryRun: false, fetchImpl, sleep: noSleep }), /Instantly aceptó los leads pero no se pudo guardar.*No vuelvas a enviar/);
+});
+
+test('resumeIfCompleted: reanuda solo una campaña COMPLETADA; una activa o pausada a propósito no se toca; nunca lanza', async () => {
+  const run = async (status, activateStatus = 200) => {
+    const calls = [];
+    const fetchImpl = async (url, opts = {}) => { calls.push(`${opts.method || 'GET'} ${url.replace(API, '')}`); return url.endsWith('/activate') ? { ok: activateStatus < 300, status: activateStatus } : { json: async () => ({ status }) }; };
+    return { result: await resumeIfCompleted(config(), { fetchImpl }), calls };
+  };
+  const done = await run(3);
+  assert.equal(done.result, 'resumed');
+  assert.deepEqual(done.calls, [`GET /campaigns/${CAMPAIGN}`, `POST /campaigns/${CAMPAIGN}/activate`]);
+  for (const status of [1, 2]) assert.deepEqual(await run(status), { result: 'ok', calls: [`GET /campaigns/${CAMPAIGN}`] });
+  assert.match((await run(3, 500)).result, /^error: .*500/);
+  assert.match(await resumeIfCompleted(config(), { fetchImpl: async () => { throw new Error('sin red'); } }), /^error: sin red/);
 });

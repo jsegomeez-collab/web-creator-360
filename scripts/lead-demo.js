@@ -5,13 +5,14 @@
 import 'dotenv/config';
 import supabase from '../src/db/supabase.js';
 import { loadInstantlyConfig } from '../src/services/instantly.js';
+import { usageCost } from '../src/sitegen/index.js';
 import { createLeadDemo, generateDemos } from '../src/services/leadDemos.js';
 import { normEmail } from '../src/services/suppressions.js';
 import { demoLink } from '../src/prompts/newBusinessEmails.js';
 
 const args = process.argv.slice(2);
 const ownerId = (process.env.NEW_LEADS_OWNER_USER_ID || '').trim();
-const cost = (u) => (u ? ` · ${u.input_tokens} tokens de entrada, ${u.output_tokens} de salida ≈ $${((u.input_tokens * 2 + u.output_tokens * 10) / 1e6).toFixed(3)}` : '');
+const cost = (u) => (u ? ` · ${u.input_tokens} tokens de entrada (+${u.cache_creation_input_tokens || 0} a caché, ${u.cache_read_input_tokens || 0} leídos de caché), ${u.output_tokens} de salida ≈ $${usageCost(u).toFixed(3)}` : '');
 
 try {
   if (!ownerId) throw new Error('Falta NEW_LEADS_OWNER_USER_ID en tu .env');

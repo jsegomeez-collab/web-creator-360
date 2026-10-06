@@ -115,3 +115,18 @@ export async function pushLeads({ db, ownerId, config, limit = 100, filters = {}
   }
   return { dryRun: false, pushed, rejected };
 }
+
+// A campaign that has run out of leads goes to "completed" (status 3) and ignores leads added later until it is resumed.
+// After sending new leads, this resumes it. It only touches a COMPLETED campaign: one you paused on purpose (2) stays paused.
+// Never throws (the leads are already in): returns 'resumed' | 'ok' | 'error: …'.
+export async function resumeIfCompleted(config, { fetchImpl = globalThis.fetch } = {}) {
+  try {
+    const headers = { Authorization: `Bearer ${config.apiKey}` };
+    const campaign = await (await fetchImpl(`${API}/campaigns/${config.campaignId}`, { headers })).json();
+    if (campaign.status !== 3) return 'ok';
+    const r = await fetchImpl(`${API}/campaigns/${config.campaignId}/activate`, { method: 'POST', headers });
+    return r.ok ? 'resumed' : `error: Instantly respondió ${r.status}`;
+  } catch (err) {
+    return `error: ${err.message}`;
+  }
+}

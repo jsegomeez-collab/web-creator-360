@@ -13,12 +13,14 @@ let client;
 export const getClaude = () => (client ??= new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }));
 
 // → { text, stopReason, usage }. Throws on a refusal (with its category) so callers never publish a half answer.
-export async function writeWithClaude({ system, prompt, maxTokens = 16000, effort = 'low', format = null, anthropic = getClaude() }) {
+// cachedPrefix: text that is the same across many requests (rules + a template's texts): sent first and cached for an hour,
+// so the following requests read it from the cache at a tenth of the price. `prompt` is the part that changes.
+export async function writeWithClaude({ system, prompt, cachedPrefix = null, maxTokens = 16000, effort = 'low', format = null, anthropic = getClaude() }) {
   const stream = anthropic.beta.messages.stream({
     model: WRITER_MODEL,
     max_tokens: maxTokens,
     ...(system ? { system } : {}),
-    messages: [{ role: 'user', content: prompt }],
+    messages: [{ role: 'user', content: cachedPrefix ? [{ type: 'text', text: cachedPrefix, cache_control: { type: 'ephemeral', ttl: '1h' } }, { type: 'text', text: prompt }] : prompt }],
     output_config: { effort, ...(format ? { format } : {}) },
     betas: [FALLBACK_BETA],
     fallbacks: 'default',

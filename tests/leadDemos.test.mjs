@@ -76,8 +76,26 @@ test('createLeadDemo: si falla (motor o Vercel) el lead queda "failed" con el mo
     assert.equal(l.demo_status, 'failed');
     assert.match(l.demo_error, opts.failBuild ? /negocio de ejemplo/ : /Vercel/);
     assert.equal(l.demo_url, undefined);
-    assert.equal(db.rows('generated_sites').length, 0);
+    // Si falla Claude no hay nada; si falla solo Vercel, la web ya pagada queda guardada (sin dirección) para no volver a pagarla
+    assert.deepEqual(db.rows('generated_sites').map(s => s.preview_url), opts.failBuild ? [] : [null]);
   }
+});
+
+test('createLeadDemo: tras un fallo de Vercel, el reintento solo vuelve a publicar: NO llama otra vez a Claude', async () => {
+  const db = createMemoryDb({ new_business_leads: [mkLead(1)] });
+  const first = fakes({ failDeploy: true });
+  assert.equal((await createLeadDemo({ db, ownerId: OWNER, lead: mkLead(1), publicUrl: PUBLIC, build: first.build, deploy: first.deploy })).ok, false);
+  assert.equal(first.built.length, 1);
+  db.rows('new_business_leads')[0].demo_status = null;           // lo que hace "devolver a sin web"
+  const second = fakes();
+  const r = await createLeadDemo({ db, ownerId: OWNER, lead: row(db, 'L1'), publicUrl: PUBLIC, build: second.build, deploy: second.deploy });
+  assert.deepEqual([r.ok, r.reused, second.built.length], [true, true, 0]);
+  assert.equal(second.deployed[0].html, first.deployed[0].html, 'publica el mismo HTML ya escrito');
+  assert.equal(db.rows('generated_sites')[0].preview_url, r.url);
+  // "force" (Rehacer web) sí escribe una nueva
+  const third = fakes();
+  assert.equal((await createLeadDemo({ db, ownerId: OWNER, lead: row(db, 'L1'), publicUrl: PUBLIC, force: true, build: third.build, deploy: third.deploy })).reused, false);
+  assert.equal(third.built.length, 1);
 });
 
 test('createLeadDemo: nunca hace dos veces la misma web (ya lista, o creándose ahora mismo)', async () => {

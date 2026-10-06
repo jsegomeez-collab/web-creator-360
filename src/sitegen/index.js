@@ -33,7 +33,12 @@ export function businessFacts(business) {
   };
 }
 
-const addUsage = (a = {}, b = {}) => ({ input_tokens: (a.input_tokens || 0) + (b.input_tokens || 0), output_tokens: (a.output_tokens || 0) + (b.output_tokens || 0) });
+// input_tokens = not cached; cache writes and reads are priced differently (see usageCost)
+const USAGE_KEYS = ['input_tokens', 'output_tokens', 'cache_creation_input_tokens', 'cache_read_input_tokens'];
+const addUsage = (a = {}, b = {}) => Object.fromEntries(USAGE_KEYS.map(k => [k, (a[k] || 0) + (b[k] || 0)]).filter(([k, v]) => v || k === 'input_tokens' || k === 'output_tokens'));
+
+// Claude Sonnet 5.5 prices per million tokens: input $2, output $10, 1-hour cache write $4, cache read $0.20
+export const usageCost = (u = {}) => ((u.input_tokens || 0) * 2 + (u.output_tokens || 0) * 10 + (u.cache_creation_input_tokens || 0) * 4 + (u.cache_read_input_tokens || 0) * 0.2) / 1e6;
 
 export async function buildSite({ business, template = chooseTemplate(business), write } = {}) {
   const compiled = loadTemplate(template);

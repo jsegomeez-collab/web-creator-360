@@ -19,7 +19,7 @@ import { isDryRun } from '../lib/dryRun.js';
 import { selectAll } from '../lib/selectAll.js';
 import { runCtIngest, FIRST_RUN_DAYS } from '../services/ctIngest.js';
 import { previewCsv, importCsvLeads } from '../services/csvImport.js';
-import { loadInstantlyConfig, pushLeads } from '../services/instantly.js';
+import { loadInstantlyConfig, pushLeads, resumeIfCompleted } from '../services/instantly.js';
 import { pollInstantlyEvents } from '../services/instantlyPoll.js';
 import { getAutopilotSettings, setAutopilotSettings } from '../services/autopilot.js';
 import { createLeadDemo, generateDemos } from '../services/leadDemos.js';
@@ -145,7 +145,10 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     const dryRun = isDryRun();
     let config;
     try { config = loadInstantlyConfig(process.env, { dryRun }); } catch (err) { return res.status(400).json({ error: err.message }); }
-    res.json(await pushLeads({ db, ownerId, config, limit, filters, dryRun }));
+    const result = await pushLeads({ db, ownerId, config, limit, filters, dryRun });
+    // A campaign that had finished ("completada") ignores new leads until resumed
+    if (result.pushed && !dryRun) result.campaign = await resumeIfCompleted(config, { fetchImpl });
+    res.json(result);
   }));
 
   // Distinct CSV imports that still have leads waiting to send, most leads first — lets you pick "just this file" in Envío

@@ -580,6 +580,7 @@ async function pushToInstantly(btn) {
 
   await withBusy(btn, 'Enviando…', async () => {
     const r = await leadsApi('/push', { method: 'POST', body: { limit, ...filters } });
+    if (r.campaign === 'resumed') toast('La campaña de Instantly estaba completada: la he reanudado');
     const body = r.dryRun
       ? statLine('Leads que se habrían enviado', r.pushed)
       : statLine('Enviados a Instantly', r.pushed, 'text-emerald-700') + (r.rejected ? statLine('Rechazados por Instantly (ya en tu cuenta, bloqueados o email no válido)', r.rejected, 'text-red-600') : '');
