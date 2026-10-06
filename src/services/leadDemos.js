@@ -3,7 +3,7 @@
 // A lead is claimed first (demo_status 'generating'), so the autopilot and the dashboard never make the same demo twice.
 import slugify from 'slugify';
 import { buildSite, chooseTemplate, brandName } from '../sitegen/index.js';
-import { deployToVercel } from './vercel.js';
+import { deployToVercel, deleteVercelProject } from './vercel.js';
 import { esc } from '../lib/pages.js';
 
 const TABLE = 'new_business_leads';
@@ -125,4 +125,35 @@ export async function generateAllDemos({ db, ownerId, publicUrl, batch = 5, maxM
     if (!r.results.length) break;
   }
   return { created, failed };
+}
+
+// The email promises "la mantengo online 7 días": 7 days after the lead was sent (or after the demo was made, if later)
+// its site is deleted from Vercel — which also frees the project slot (Vercel's free plan allows 200). Leads that asked
+// for the call, were called, won, or replied keep theirs. Not yet sent leads ("new") are never expired.
+export const DEMO_DAYS = 7;
+const KEEP = ['requested', 'called', 'won', 'lost', 'replied', 'new'];
+
+export async function expireDemos({ db, ownerId, now = new Date(), remove = deleteVercelProject, log = () => {} }) {
+  const { data: leads, error } = await db.from(TABLE).select('id, name, status, demo_url, demo_at, pushed_at, site_id')
+    .eq('user_id', ownerId).eq('demo_status', 'ready').not('demo_url', 'is', null).limit(1000);
+  if (error) throw new Error(`cargar demos: ${error.message}`);
+  const cutoff = now.getTime() - DEMO_DAYS * 86_400_000;
+  let expired = 0, failed = 0;
+  for (const l of leads || []) {
+    if (KEEP.includes(l.status)) continue;
+    const since = Math.max(Date.parse(l.pushed_at || 0) || 0, Date.parse(l.demo_at || 0) || 0);
+    if (!since || since > cutoff) continue;
+    try {
+      await remove(new URL(l.demo_url).hostname.replace(/\.vercel\.app$/, ''));
+      const stamp = now.toISOString();
+      await db.from(TABLE).update({ demo_status: 'expired', updated_at: stamp }).eq('id', l.id);
+      if (l.site_id) await db.from('generated_sites').update({ status: 'expired' }).eq('id', l.site_id);
+      expired++;
+      log(`✓ caducada la web de ${l.name}`);
+    } catch (err) {
+      failed++;
+      log(`✗ ${l.name}: ${err.message}`);
+    }
+  }
+  return { expired, failed };
 }

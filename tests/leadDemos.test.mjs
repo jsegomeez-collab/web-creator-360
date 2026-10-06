@@ -223,3 +223,47 @@ test('generateAllDemos: se para al agotar el tiempo y el siguiente ciclo contin�
   const rest = await generateAllDemos({ db, ownerId: OWNER, publicUrl: PUBLIC, build: f.build, deploy: f.deploy });
   assert.equal(r.created + rest.created, 12);
 });
+
+import { expireDemos } from '../src/services/leadDemos.js';
+import { deleteVercelProject } from '../src/services/vercel.js';
+
+test('expireDemos: a los 7 días del envío se borra la web de Vercel y se marca caducada; las de quien pidió llamada, respondió o aún no se envió se quedan', async () => {
+  const NOW = new Date('2026-10-20T10:00:00Z');
+  const ago = (d) => new Date(NOW.getTime() - d * 86_400_000).toISOString();
+  const lead = (i, over) => mkLead(i, { demo_status: 'ready', demo_url: `https://web-${i}.vercel.app`, demo_at: ago(9), pushed_at: ago(8), status: 'emailed', ...over });
+  const db = createMemoryDb({
+    new_business_leads: [lead(1), lead(2, { status: 'engaged' }), lead(3, { status: 'requested' }), lead(4, { status: 'replied' }), lead(5, { status: 'new', pushed_at: null }),
+      lead(6, { pushed_at: ago(3) }), lead(7, { pushed_at: ago(9), demo_at: ago(2) }), lead(8, { site_id: 'S8' })],
+    generated_sites: [{ id: 'S8', slug: 'web-8', status: 'demo' }],
+  });
+  const removed = [];
+  const r = await expireDemos({ db, ownerId: OWNER, now: NOW, remove: async (name) => { removed.push(name); } });
+  assert.deepEqual(removed.sort(), ['web-1', 'web-2', 'web-8']);
+  assert.deepEqual(r, { expired: 3, failed: 0 });
+  const st = (id) => row(db, id).demo_status;
+  assert.deepEqual(['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map(st), ['expired', 'expired', 'ready', 'ready', 'ready', 'ready', 'ready', 'expired']);
+  assert.equal(db.rows('generated_sites')[0].status, 'expired');
+});
+
+test('expireDemos: si Vercel falla con una web, sigue con las demás y esa queda lista para el día siguiente', async () => {
+  const NOW = new Date('2026-10-20T10:00:00Z');
+  const old = new Date(NOW.getTime() - 9 * 86_400_000).toISOString();
+  const db = createMemoryDb({ new_business_leads: [1, 2].map(i => mkLead(i, { demo_status: 'ready', demo_url: `https://web-${i}.vercel.app`, demo_at: old, pushed_at: old, status: 'emailed' })) });
+  const r = await expireDemos({ db, ownerId: OWNER, now: NOW, remove: async (n) => { if (n === 'web-1') throw new Error('Vercel no borró web-1 (HTTP 500)'); } });
+  assert.deepEqual(r, { expired: 1, failed: 1 });
+  assert.deepEqual([row(db, 'L1').demo_status, row(db, 'L2').demo_status], ['ready', 'expired']);
+});
+
+test('deleteVercelProject: borra por nombre, un 404 (ya no existe) vale, otro error se avisa; usa el equipo si hay scope', async () => {
+  const calls = [];
+  const fetchImpl = (status) => async (url, opts) => { calls.push({ url, method: opts.method }); return url.endsWith('/v2/teams') ? { json: async () => ({ teams: [{ slug: 'mi-equipo', id: 'team_1' }] }) } : { ok: status < 300, status }; };
+  assert.equal(await deleteVercelProject('web-1', { token: 'T', scope: 'mi-equipo', fetchImpl: fetchImpl(204) }), true);
+  assert.deepEqual(calls.at(-1), { url: 'https://api.vercel.com/v9/projects/web-1?teamId=team_1', method: 'DELETE' });
+  assert.equal(await deleteVercelProject('web-2', { token: 'T', fetchImpl: fetchImpl(404) }), true);
+  await assert.rejects(deleteVercelProject('web-3', { token: 'T', fetchImpl: fetchImpl(500) }), /HTTP 500/);
+});
+
+test('/c/:token: una demo caducada ya no ofrece "Ver mi web"', async () => {
+  cdb.tables.new_business_leads = [mkLead(1, { status: 'emailed', demo_url: 'https://sol-1.vercel.app', demo_status: 'expired' })];
+  assert.doesNotMatch(await (await fetch(`${base}/c/${mkLead(1).link_token}`, { headers: UA })).text(), /Ver mi web/);
+});

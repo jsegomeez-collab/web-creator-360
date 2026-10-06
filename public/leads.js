@@ -516,7 +516,7 @@ async function loadLeadsSend() {
   const { dryRun, ready: configured } = stats.instantly;
   const mode = $('send-mode'), hint = $('send-hint');
   mode.className = `badge shrink-0 ${dryRun ? 'badge-pending' : configured ? 'badge-green' : 'badge-red'}`;
-  mode.textContent = dryRun ? 'Modo prueba' : configured ? 'Instantly listo' : 'Falta configurar';
+  mode.textContent = dryRun ? 'Modo prueba' : configured ? `Instantly listo · campaña ${stats.instantly.campaign || '?'}…` : 'Falta configurar';
   hint.className = `mt-4 rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed ${dryRun ? 'border-amber-200 bg-amber-50 text-amber-800' : 'border-rose-200 bg-rose-50 text-rose-700'}${!dryRun && configured ? ' hidden' : ''}`;
   hint.textContent = dryRun
     ? 'OUTREACH_DRY_RUN=true: al pulsar el botón no se envía nada a Instantly; solo se cuenta y se anota en el registro del servidor. Ponlo en false en tu .env para enviar de verdad.'

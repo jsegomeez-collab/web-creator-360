@@ -34,7 +34,7 @@ test('compile: textos emparejados EN/ES, textos sueltos, atributos, secciones, b
   assert.ok(c.units.some(u => u.kind === 'text' && u.text === 'Carmen Núñez'));
   assert.ok(!c.units.some(u => /Mon-Fri/.test(u.text)), 'el texto de los <script> no es contenido');
   assert.deepEqual(c.optional.map(o => o.name), ['reviews']);
-  assert.deepEqual(c.facts, { emails: ['hola@nuneztax.com'], phones: ['2035550142'], mapQueries: ['Waterbury,+CT'] });
+  assert.deepEqual(c.facts, { emails: ['hola@nuneztax.com'], phones: ['2035550142'], mapQueries: ['Waterbury,+CT'], directions: [] });
   // los textos del bloque de reseñas no se envían al redactor si ese bloque se quita
   assert.ok(writerItems(c).some(i => i.en === 'Great service'));
   assert.ok(!writerItems(c, { drop: ['reviews'] }).some(i => i.en === 'Great service'));
@@ -125,7 +125,7 @@ function fakeWriter(swap, { skipFirst = [] } = {}) {
   return { write, calls };
 }
 
-const SWAP_GENERAL = { 'Núñez Tax &amp; Insurance': 'Sol Tax &amp; Books', 'Núñez Tax & Insurance': 'Sol Tax & Books', 'Núñez': 'Sol', 'Nunez': 'Sol', 'Carmen': 'our team', 'Luis': 'our team', 'East Main St': 'downtown', 'Waterbury': 'Hartford' };
+const SWAP_GENERAL = { 'Núñez Tax &amp; Insurance': 'Sol Tax &amp; Books', 'Núñez Tax & Insurance': 'Sol Tax & Books', 'Núñez': 'Sol', 'Nunez': 'Sol', 'Carmen': 'our team', 'Luis': 'our team', 'East Main St': 'downtown', 'Waterbury': 'Hartford', '2019': '2026' };
 
 test('buildSite: escribe la plantilla general para un negocio real, sin rastro del ejemplo y con sus datos', async () => {
   const { write, calls } = fakeWriter(SWAP_GENERAL);
@@ -169,4 +169,30 @@ test('buildSite: errores claros si la respuesta se corta o no es JSON', async ()
 test('buildPrompt: sin teléfono conocido pide conservar el de ejemplo', () => {
   const p = buildPrompt({ brand: 'Sol', legalName: 'Sol LLC', city: 'Hartford', state: 'CT', email: 'a@b.com', phone: null }, [], { template: 'general' });
   assert.match(p, /unknown: keep the sample phone/);
+});
+
+test('el texto dentro de un SVG (sello giratorio) y el enlace "cómo llegar" también se adaptan al negocio', () => {
+  const page = `<html><body><!-- slot: story -->
+<svg viewBox="0 0 10 10"><defs><path id="c" d="M0 0"/></defs><text><textPath href="#c">DE PUEBLA · A BRIDGEPORT · DESDE 2004</textPath></text></svg>
+<a href="https://www.google.com/maps/dir/?api=1&amp;destination=742+East+Main+St+Bridgeport+CT+06608">Directions</a></body></html>`;
+  const c = compileTemplate(page);
+  const seal = c.units.find(u => /PUEBLA/.test(u.text));
+  assert.ok(seal, 'el texto del sello se extrae');
+  assert.deepEqual(c.facts.directions, ['742+East+Main+St+Bridgeport+CT+06608']);
+  const html = renderSite(c, { texts: { [seal.id]: { en: 'HECHO EN HARTFORD', es: '' } }, facts: { mapQuery: 'Hartford, CT' } });
+  assert.match(html, /<textPath href="#c">HECHO EN HARTFORD<\/textPath>/);
+  assert.match(html, /destination=Hartford\+CT"/);
+  assert.doesNotMatch(html, /Bridgeport|2004/);
+});
+
+test('findLeftovers: el email o el teléfono REAL del negocio no cuenta como resto del ejemplo ("ramirez11@gmail.com")', () => {
+  const html = '<a href="mailto:ramirez11mejia123@gmail.com">ramirez11mejia123@gmail.com</a>';
+  assert.deepEqual(findLeftovers(html, ['Ramirez']), ['Ramirez'], 'sin ignorar el email, sí lo marcaría');
+  assert.deepEqual(findLeftovers(html, ['Ramirez'], { ignore: ['ramirez11mejia123@gmail.com'] }), []);
+});
+
+test('sampleTerms: los años de fundación del ejemplo se vigilan, salvo el año real de registro del negocio', () => {
+  assert.ok(sampleTerms('comida', { name: 'Sol', city: 'Hartford' }).includes('2004'));
+  assert.ok(sampleTerms('general', { name: 'Sol', city: 'Hartford' }).includes('2019'));
+  assert.ok(!sampleTerms('general', { name: 'Sol', city: 'Hartford', year: '2019' }).includes('2019'), 'si se registró en 2019, decir 2019 es verdad');
 });

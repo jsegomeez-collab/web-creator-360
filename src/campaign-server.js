@@ -7,7 +7,7 @@ import { runCtIngest } from './services/ctIngest.js';
 import { loadInstantlyConfig, pushLeads } from './services/instantly.js';
 import { pollInstantlyEvents } from './services/instantlyPoll.js';
 import { getAutopilotSettings, ALL_MODE_SEND_LIMIT } from './services/autopilot.js';
-import { generateDemos, generateAllDemos, readyDemoCount } from './services/leadDemos.js';
+import { generateDemos, generateAllDemos, readyDemoCount, expireDemos } from './services/leadDemos.js';
 import { alertCallRequest, alertReply, sendTelegram, loadTelegramConfig } from './services/telegram.js';
 
 const ownerId = (process.env.NEW_LEADS_OWNER_USER_ID || '').trim();
@@ -17,7 +17,7 @@ if (!ownerId) {
 }
 
 // Filled in below as each unattended part starts (or is skipped, with the reason): read by GET /health
-const autopilotStatus = { ingest: false, poll: false, push: false, demos: false, notes: [] };
+const autopilotStatus = { ingest: false, poll: false, push: false, demos: false, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null, notes: [] };
 const app = createCampaignApp({ db: supabase, ownerId, onRequested: (lead, values) => alertCallRequest(lead, values), getStatus: () => autopilotStatus });
 
 const PORT = process.env.PORT || 3002;
@@ -97,6 +97,15 @@ if (demosOn) {
     console.log('Demos: crea las webs de los próximos leads cada 10 minutos (Claude Sonnet 5.5 + Vercel), si el autopilot está activado');
     autopilotStatus.demos = true;
   }
+}
+
+// Demo sites are kept online 7 days (what the email says) and then removed from Vercel, freeing its 200-project limit
+if (process.env.VERCEL_TOKEN) {
+  every('30 4 * * *', 'la caducidad de webs de demo', async () => {
+    const r = await expireDemos({ db: supabase, ownerId, log: (m) => console.log(`[demos] ${m}`) });
+    if (r.expired || r.failed) console.log(`[demos] caducadas: ${r.expired} · fallos: ${r.failed}`);
+  });
+  console.log('Demos: las webs se retiran de Vercel a los 7 días del envío (cada día a las 4:30 UTC)');
 }
 
 if (pushConfig) {

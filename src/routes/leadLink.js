@@ -19,7 +19,7 @@ const BOT_UA = /bot|crawl|spider|preview|scan|monitor|check|fetch|curl|wget|pyth
 export const isProbablyBot = (userAgent) => !userAgent || BOT_UA.test(userAgent);
 
 // Their demo website (when it exists) opens in a new tab, in Spanish
-const demoButton = (lead) => (lead.demo_url
+const demoButton = (lead) => (lead.demo_url && lead.demo_status !== 'expired'
   ? `<a class="btn" style="margin:0 0 22px;background:transparent;border:1px solid rgba(255,255,255,.25)" href="${esc(demoLink(lead.demo_url))}" target="_blank" rel="noopener">Ver mi web</a>`
   : '');
 

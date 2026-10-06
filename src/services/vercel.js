@@ -37,6 +37,19 @@ export async function deployToVercel(slug, htmlContent) {
   }
 }
 
+// A short, readable reason for a failed deploy. Never includes the command line (it carries the token): the real cause
+// is the "Error: …" line of the CLI output, which comes at the END of a long log.
+export function vercelFailure(out, err) {
+  const clean = String(out || '').replace(/vcp_\w+/g, '***').replace(/--token\s+\S+/g, '--token ***');
+  if (/not valid/i.test(clean)) return 'Token de Vercel inválido — crea uno en vercel.com/account/tokens';
+  const limit = clean.match(/reached the (\d+) project [A-Za-z]+ limit/i);
+  if (limit) return `Vercel: tu cuenta alcanzó el límite de ${limit[1]} proyectos; no se pueden publicar más webs (borra proyectos antiguos o pasa a un plan de pago)`;
+  const line = [...clean.matchAll(/^\s*Error:\s*(.+)$/gim)].pop()?.[1];
+  if (line) return `Vercel: ${line.trim().slice(0, 300)}`;
+  if (err?.killed) return 'Vercel: tardó más de 2 minutos y se canceló';
+  return `Vercel: sin dirección en la salida (${clean.trim().split('\n').slice(-3).join(' ').slice(0, 250)})`;
+}
+
 function runVercel(cwd) {
   return new Promise((resolve, reject) => {
     const scopeArg = process.env.VERCEL_SCOPE ? `--scope ${process.env.VERCEL_SCOPE}` : '';
@@ -58,8 +71,21 @@ function runVercel(cwd) {
         return;
       }
 
-      const errMsg = out.includes('not valid') ? 'Token de Vercel inválido — crea uno en vercel.com/account/tokens' : (err?.message || `Sin URL en output:\n${out.slice(-300)}`);
-      reject(new Error(errMsg));
+      reject(new Error(vercelFailure(out, err)));
     });
   });
+}
+
+// Deletes a Vercel project by name (the demos use their slug as project name). 404 = already gone = fine.
+export async function deleteVercelProject(name, { token = process.env.VERCEL_TOKEN, scope = process.env.VERCEL_SCOPE, fetchImpl = globalThis.fetch } = {}) {
+  const h = { Authorization: `Bearer ${String(token).trim()}` };
+  let q = '';
+  if (scope) {
+    const teams = await (await fetchImpl('https://api.vercel.com/v2/teams', { headers: h })).json();
+    const team = (teams.teams || []).find(t => t.slug === String(scope).trim());
+    if (team) q = `?teamId=${team.id}`;
+  }
+  const r = await fetchImpl(`https://api.vercel.com/v9/projects/${encodeURIComponent(name)}${q}`, { method: 'DELETE', headers: h });
+  if (r.ok || r.status === 404) return true;
+  throw new Error(`Vercel no borró ${name} (HTTP ${r.status})`);
 }

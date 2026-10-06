@@ -40,14 +40,15 @@ export async function buildSite({ business, template = chooseTemplate(business),
   const facts = businessFacts(business);
   const drop = business.reviews?.length ? [] : ['reviews'];
   const items = writerItems(compiled, { drop });
-  const terms = sampleTerms(template, { name: facts.brand, city: facts.city });
+  const terms = sampleTerms(template, { name: facts.brand, city: facts.city, year: facts.registeredYear });
   const renderFacts = { email: facts.email, phone: facts.phone, mapQuery: `${facts.city}, ${facts.state}` };
 
   const first = await writeTexts({ facts, items, template, sampleTerms: terms, write });
   let texts = first.texts;
   let usage = addUsage({}, first.usage);
   let html = renderSite(compiled, { texts, drop, facts: renderFacts });
-  let leftovers = findLeftovers(html, terms);
+  const own = [facts.email, facts.phone].filter(Boolean);   // the business's real contact data is never a leftover
+  let leftovers = findLeftovers(html, terms, { ignore: own });
 
   if (leftovers.length) {
     // Second pass with just the texts that still carry a sample word (as they stand after the first pass)
@@ -55,13 +56,13 @@ export async function buildSite({ business, template = chooseTemplate(business),
       const t = texts[i.id];
       const now = t ? { ...i, ...(i.en !== undefined ? { en: t.en || i.en, es: t.es || i.es } : { text: t.en || i.text }) } : i;
       return now;
-    }).filter(i => findLeftovers(`${i.en ?? ''} ${i.es ?? ''} ${i.text ?? ''}`, leftovers).length);
+    }).filter(i => findLeftovers(`${i.en ?? ''} ${i.es ?? ''} ${i.text ?? ''}`, leftovers, { ignore: own }).length);
     if (stillBad.length) {
       const second = await writeTexts({ facts, items: stillBad, template, sampleTerms: leftovers, write });
       texts = { ...texts, ...second.texts };
       usage = addUsage(usage, second.usage);
       html = renderSite(compiled, { texts, drop, facts: renderFacts });
-      leftovers = findLeftovers(html, terms);
+      leftovers = findLeftovers(html, terms, { ignore: own });
     }
   }
   if (leftovers.length) throw new Error(`La web aún menciona el negocio de ejemplo (${leftovers.join(', ')}): no se publica`);

@@ -70,6 +70,8 @@ export function renderSite(compiled, { texts = {}, drop = [], facts = {} } = {})
     }
   }
   if (facts.mapQuery) {
+    // The "Get directions" destination: the real city instead of the sample street
+    for (const sample of compiled.facts.directions || []) html = html.split(`destination=${sample}`).join(`destination=${encodeURIComponent(facts.mapQuery).replace(/%20/g, '+').replace(/%2C/gi, '')}`);
     const q = encodeURIComponent(facts.mapQuery).replace(/%20/g, '+').replace(/%2C/gi, ',');
     for (const sample of compiled.facts.mapQueries) html = html.split(`q=${sample}`).join(`q=${q}`);
   }
@@ -77,8 +79,10 @@ export function renderSite(compiled, { texts = {}, drop = [], facts = {} } = {})
 }
 
 // Words of the sample business still visible in the page (outside scripts, styles and tags) → [] when clean
-export function findLeftovers(html, terms) {
-  const visible = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<!--[\s\S]*?-->/gi, ' ')
+export function findLeftovers(html, terms, { ignore = [] } = {}) {
+  let text = html;
+  for (const s of ignore.filter(Boolean)) text = text.split(s).join(' ');   // the real email "ramirez11@gmail.com" is not the sample "Ramirez"
+  const visible = text.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<!--[\s\S]*?-->/gi, ' ')
     .replace(/<[^>]*\balt="([^"]*)"[^>]*>/gi, ' $1 ').replace(/<[^>]+>/g, ' ');
   return terms.filter(t => new RegExp(`(^|[^\\p{L}])${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^\\p{L}])`, 'iu').test(visible));
 }

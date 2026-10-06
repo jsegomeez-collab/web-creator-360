@@ -75,7 +75,8 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     const cfg = loadInstantlyConfig(process.env, { dryRun: true });
     const demoReady = !!process.env.ANTHROPIC_API_KEY && !!process.env.VERCEL_TOKEN;
     res.json({
-      total: data.length, byStatus, lastRun: runs?.[0] ?? null, instantly: { ready: instantlyReady, dryRun },
+      total: data.length, byStatus, lastRun: runs?.[0] ?? null,
+      instantly: { ready: instantlyReady, dryRun, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null },
       demos: { enabled: cfg.demos, configured: demoReady, columns: demoColumns, ...demos },
     });
   }));

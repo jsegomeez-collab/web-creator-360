@@ -9,10 +9,11 @@
 // Nothing here calls the network: compile once, render many times.
 import { parse } from 'parse5';
 
-const SKIP = new Set(['script', 'style', 'svg', 'noscript', 'math', 'iframe']);
+const SKIP = new Set(['script', 'style', 'noscript', 'math', 'iframe']);   // svg is NOT skipped: seals and badges carry text (<textPath>)
 const TEXT_ATTRS = ['alt', 'title', 'aria-label', 'placeholder', 'data-ph-en', 'data-ph-es'];
 const META_TEXT = /^(description|og:title|og:description|twitter:title|twitter:description)$/i;
-const hasLetters = (s) => /\p{L}/u.test(s);
+// A text is content if it has letters, or is a bare year ("Founded 2019" stores just "2019"): sample years are fake claims
+const hasLetters = (s) => /\p{L}/u.test(s) || /^\s*(19|20)\d\d\s*$/.test(s);
 
 const attr = (node, name) => node.attrs?.find(a => a.name === name)?.value;
 
@@ -114,6 +115,8 @@ export function compileTemplate(sourceRaw, { key = 'template' } = {}) {
     emails: [...new Set([...source.matchAll(/mailto:([^"'?\s>]+)/gi)].map(m => m[1].toLowerCase()))],
     phones: [...new Set([...source.matchAll(/tel:\+?1?(\d{10})/gi)].map(m => m[1]))],
     mapQueries: [...new Set([...source.matchAll(/maps\.google\.com\/(?:maps)?\?q=([^&"'\s]+)/gi)].map(m => m[1]))],
+    // "Get directions" links: google.com/maps/dir/?api=1&destination=742+East+Main+St+Bridgeport+CT+06608
+    directions: [...new Set([...source.matchAll(/destination=([^&"'\s]+)/gi)].map(m => m[1]))],
   };
 
   return { key, source, units, optional, facts };

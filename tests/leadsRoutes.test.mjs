@@ -89,7 +89,7 @@ test('stats: cuenta por estado solo los leads del propietario, última ingesta y
   assert.equal(r.body.total, 3);
   assert.deepEqual(r.body.byStatus, { new: 2, engaged: 1 });
   assert.equal(r.body.lastRun.inserted, 5);
-  assert.deepEqual(r.body.instantly, { ready: false, dryRun: false });
+  assert.deepEqual(r.body.instantly, { ready: false, dryRun: false, campaign: null });
   process.env.OUTREACH_DRY_RUN = 'true';
   assert.equal((await api('/stats')).body.instantly.dryRun, true);
 });
