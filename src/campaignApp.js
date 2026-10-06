@@ -6,12 +6,14 @@
 import express from 'express';
 import { leadLinkRouter } from './routes/leadLink.js';
 
-export function createCampaignApp({ db, ownerId, onRequested = null }) {
+// getStatus(): what the unattended parts are doing right now (see campaign-server.js), shown in /health so a wrong
+// setting on the server can be seen from the browser. Only on/off flags and the NAMES of missing variables, never values.
+export function createCampaignApp({ db, ownerId, onRequested = null, getStatus = null }) {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', true);                    // behind Render's proxy: real client IP for rate limits
   app.use(leadLinkRouter(db, { ownerId, onRequested }));
-  app.get('/health', (req, res) => res.json({ status: 'ok' }));
+  app.get('/health', (req, res) => res.json({ status: 'ok', ...(getStatus ? { autopilot: getStatus() } : {}) }));
   // Whatever fails before our own code (a body that is too large, broken JSON…): a short answer, never a stack trace
   app.use((err, req, res, next) => {
     console.error('[campaign]', err.message);

@@ -16,7 +16,9 @@ if (!ownerId) {
   process.exit(1);
 }
 
-const app = createCampaignApp({ db: supabase, ownerId, onRequested: (lead, values) => alertCallRequest(lead, values) });
+// Filled in below as each unattended part starts (or is skipped, with the reason): read by GET /health
+const autopilotStatus = { ingest: false, poll: false, push: false, demos: false, notes: [] };
+const app = createCampaignApp({ db: supabase, ownerId, onRequested: (lead, values) => alertCallRequest(lead, values), getStatus: () => autopilotStatus });
 
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => console.log(`Campaign server on port ${PORT}`));
@@ -46,6 +48,7 @@ if (instantlyConfig) {
     if (r.updated || r.suppressed) console.log(`[instantly] revisados ${r.checked} · actualizados ${r.updated} · bajas/rebotes ${r.suppressed} · respuestas ${r.replied}`);
   });
   console.log('Instantly: comprobando envíos, rebotes, bajas y respuestas cada 5 minutos');
+  autopilotStatus.poll = true;
 }
 
 // ─── Autopilot: find more leads and send them on, without you clicking anything ──────────────────────────────────
@@ -60,13 +63,14 @@ every('0 7 * * *', 'la ingesta diaria de Connecticut', async () => {
   if (r.inserted) await sendTelegram(`🤖 Autopilot: ${r.inserted} leads nuevos del registro de Connecticut.`);
 }, { timezone: 'America/New_York' });
 console.log('Autopilot: revisa el registro de Connecticut todos los días a las 7:00 (hora de Nueva York), si está activado');
+autopilotStatus.ingest = true;
 
 // Sends the newest "new" leads on a full Instantly config (needs CAMPAIGN_PUBLIC_URL too: it's baked into each lead's
 // own link). Respects OUTREACH_DRY_RUN like the dashboard's own button. Picks up CSV imports you do by hand too, not
 // just what the ingest above finds — a modest batch each time (pushLimit, 20 by default), so a brand-new, still-warming
 // mailbox never gets a sudden flood.
 let pushConfig = null;
-try { pushConfig = loadInstantlyConfig(process.env, { dryRun: false }); } catch (err) { console.warn(`Autopilot de envío a Instantly desactivado: ${err.message}`); }
+try { pushConfig = loadInstantlyConfig(process.env, { dryRun: false }); } catch (err) { console.warn(`Autopilot de envío a Instantly desactivado: ${err.message}`); autopilotStatus.notes.push(`envío y demos desactivados: ${err.message}`); }
 
 // Demo websites (LEAD_DEMOS=true): the email links to each lead's own site, so the sites are made ahead of the send.
 // Every 10 minutes it tops up the "ready" pile to the next send's size (pushLimit) — at most 3 per tick, one after
@@ -75,7 +79,7 @@ try { pushConfig = loadInstantlyConfig(process.env, { dryRun: false }); } catch 
 const demosOn = pushConfig?.demos;
 if (demosOn) {
   const missing = ['ANTHROPIC_API_KEY', 'VERCEL_TOKEN'].filter(k => !process.env[k]);
-  if (missing.length) console.warn(`LEAD_DEMOS=true pero falta ${missing.join(' y ')}: no se crearán webs de demo y no se enviará ningún lead`);
+  if (missing.length) { console.warn(`LEAD_DEMOS=true pero falta ${missing.join(' y ')}: no se crearán webs de demo y no se enviará ningún lead`); autopilotStatus.notes.push(`LEAD_DEMOS=true pero falta ${missing.join(' y ')}`); }
   else {
     every('*/10 * * * *', 'la creación de webs de demo', async () => {
       const { enabled, pushLimit, demoAll } = await getAutopilotSettings(supabase, ownerId);
@@ -91,6 +95,7 @@ if (demosOn) {
       if (r.failed) await sendTelegram(`⚠️ ${r.failed} web(s) de demo no se pudieron crear. Míralo en el dashboard (LLCs nuevas → Leads).`);
     });
     console.log('Demos: crea las webs de los próximos leads cada 10 minutos (Claude Sonnet 5.5 + Vercel), si el autopilot está activado');
+    autopilotStatus.demos = true;
   }
 }
 
@@ -104,4 +109,7 @@ if (pushConfig) {
     if (r.pushed && !r.dryRun) await sendTelegram(`🤖 Autopilot: ${r.pushed} leads enviados a Instantly.`);
   });
   console.log('Autopilot: envía leads nuevos a Instantly cada 3 horas, si está activado (revisa el límite en el dashboard)');
+  autopilotStatus.push = !demosOn || autopilotStatus.demos;   // with demos on but not configured, nothing is sent
+  if (demosOn && !autopilotStatus.demos) autopilotStatus.notes.push('envío parado: LEAD_DEMOS=true y no se pueden crear webs');
+  if (!demosOn) autopilotStatus.notes.push('LEAD_DEMOS no está en true: se envía el email clásico y no se crean webs');
 }
