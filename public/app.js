@@ -520,15 +520,63 @@ function money(cents, currency) {
   catch { return `${(cents / 100).toFixed(2)} ${String(currency || '').toUpperCase()}`; }
 }
 
-async function renderPayments() {
-  const res = await fetch('/api/dashboard/payments');
-  const rows = await res.json();
+let cashRows = [];
+let cashRange = { from: '', to: '' };
+
+const dayKey = (iso) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const shiftDay = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return dayKey(d); };
+const dayLabel = (k) => new Date(k + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+
+function setCashRange(range) {
+  const t = shiftDay(0);
+  cashRange = range === 'today' ? { from: t, to: t }
+    : range === 'yesterday' ? { from: shiftDay(-1), to: shiftDay(-1) }
+    : range === '7' ? { from: shiftDay(-6), to: t }
+    : range === '30' ? { from: shiftDay(-29), to: t }
+    : { from: '', to: '' };
+  drawPayments();
+}
+
+// Money is added up per currency (normally just one); only "completed" payments count as cash collected
+function drawPayments() {
+  document.getElementById('cash-from').value = cashRange.from;
+  document.getElementById('cash-to').value = cashRange.to;
+  const paid = cashRows.filter(p => p.status === 'completed');
+  const inRange = (p) => { const k = dayKey(p.created_at); return (!cashRange.from || k >= cashRange.from) && (!cashRange.to || k <= cashRange.to); };
+  const shown = paid.filter(inRange);
+
+  const byCurrency = {};
+  for (const p of shown) { const c = p.currency || 'usd'; byCurrency[c] = (byCurrency[c] || 0) + (p.amount || 0); }
+  document.getElementById('cash-total').textContent = shown.length ? Object.entries(byCurrency).map(([c, v]) => money(v, c)).join(' + ') : '0 US$';
+  document.getElementById('cash-count').textContent = shown.length;
+  const sum = shown.reduce((s, p) => s + (p.amount || 0), 0);
+  document.getElementById('cash-avg').textContent = shown.length ? money(Math.round(sum / shown.length), shown[0].currency) : '—';
+  document.getElementById('cash-range').textContent = !cashRange.from && !cashRange.to ? 'Desde el principio'
+    : cashRange.from === cashRange.to ? dayLabel(cashRange.from) : `${cashRange.from ? dayLabel(cashRange.from) : 'inicio'} → ${cashRange.to ? dayLabel(cashRange.to) : 'hoy'}`;
+
+  // One bar per day with sales: the chosen range, or the last 14 days with sales
+  const perDay = {};
+  for (const p of paid) perDay[dayKey(p.created_at)] = (perDay[dayKey(p.created_at)] || 0) + (p.amount || 0);
+  let days = Object.keys(perDay).sort();
+  if (cashRange.from || cashRange.to) days = days.filter(k => (!cashRange.from || k >= cashRange.from) && (!cashRange.to || k <= cashRange.to));
+  else days = days.slice(-14);
+  const max = Math.max(1, ...days.map(k => perDay[k]));
+  const cur = paid[0]?.currency;
+  document.getElementById('cash-chart').innerHTML = days.length ? days.map(k => {
+    const on = cashRange.from === k && cashRange.to === k;
+    return `<button data-day="${k}" title="${dayLabel(k)}: ${escHtml(money(perDay[k], cur))}" class="flex h-full min-w-[56px] flex-1 flex-col items-center justify-end gap-1">
+      <span class="text-[11px] font-semibold tabular-nums text-slate-600">${escHtml(money(perDay[k], cur))}</span>
+      <span class="w-full rounded-t-md ${on ? 'bg-emerald-600' : 'bg-emerald-400 hover:bg-emerald-500'}" style="height:${Math.max(6, Math.round(perDay[k] / max * 90))}px"></span>
+      <span class="text-[11px] text-slate-400">${dayLabel(k)}</span></button>`;
+  }).join('') : '<p class="m-auto text-sm text-slate-400">Sin ventas en este periodo</p>';
+
   const tbody = document.getElementById('payments-table');
-  if (!rows.length) {
-    tbody.innerHTML = emptyRow(5, 'Todavía no hay pagos. Llegarán aquí en cuanto un cliente pague.', 'credit-card');
+  const list = cashRows.filter(inRange);
+  if (!list.length) {
+    tbody.innerHTML = emptyRow(5, cashRows.length ? 'No hay pagos en este periodo.' : 'Todavía no hay pagos. Llegarán aquí en cuanto un cliente pague.', 'credit-card');
     return;
   }
-  tbody.innerHTML = rows.map(p => `
+  tbody.innerHTML = list.map(p => `
     <tr class="table-row">
       <td>${nameCell(p.businesses?.name)}</td>
       <td class="font-semibold tabular-nums text-emerald-600">${escHtml(money(p.amount, p.currency))}</td>
@@ -537,6 +585,24 @@ async function renderPayments() {
       <td class="hidden sm:table-cell text-[13px] text-slate-500">${fmtDate(p.created_at)}</td>
     </tr>`).join('');
 }
+
+async function renderPayments() {
+  const res = await fetch('/api/dashboard/payments');
+  cashRows = await res.json();
+  drawPayments();
+}
+
+document.addEventListener('click', (e) => {
+  const chip = e.target.closest('.cash-chip');
+  if (chip) { setCashRange(chip.dataset.range); return; }
+  const bar = e.target.closest('#cash-chart [data-day]');
+  if (bar) { cashRange = { from: bar.dataset.day, to: bar.dataset.day }; drawPayments(); }
+});
+document.addEventListener('change', (e) => {
+  if (e.target.id !== 'cash-from' && e.target.id !== 'cash-to') return;
+  cashRange = { from: document.getElementById('cash-from').value, to: document.getElementById('cash-to').value };
+  drawPayments();
+});
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
 

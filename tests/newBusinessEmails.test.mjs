@@ -45,8 +45,8 @@ test('sector "otro" o desconocido: dice "tu negocio" sin inventar un sector', ()
   assert.equal(sectorLabel('otro'), null);
 });
 
-test('ciudad ausente → "Connecticut"; nombre TODO en mayúsculas → título', () => {
-  assert.ok(renderEmail(lead({ city: '' }), URL_).body.includes('en Connecticut.'));
+test('ciudad ausente → "tu zona"; nombre TODO en mayúsculas → título', () => {
+  assert.ok(renderEmail(lead({ city: '' }), URL_).body.includes('en tu zona.'));
   assert.equal(renderEmail(lead({ name: 'EL RASPA ELECTROMECANICA LLC' }), URL_).subject, 'Enhorabuena por El Raspa Electromecanica LLC 🎉');
   assert.equal(displayName('MARIA DE LA CRUZ CLEANING LLC'), 'Maria de la Cruz Cleaning LLC');
   assert.equal(displayName('G&N transportation llc'), 'G&N transportation llc');   // mezcla de mayúsculas: se respeta
@@ -67,7 +67,7 @@ test('leadVariables: valores para Instantly', () => {
   });
   assert.equal(leadVariables(lead({ demo_url: 'https://limpieza-rivera-ab12.vercel.app' }), URL_).web, 'https://limpieza-rivera-ab12.vercel.app/?lang=es');
   const v = leadVariables(lead({ latino_strong: false, sector: 'otro', city: null }), URL_);
-  assert.deepEqual([v.latina, v.sector_de, v.ciudad], ['', '', 'Connecticut']);
+  assert.deepEqual([v.latina, v.sector_de, v.ciudad], ['', '', 'tu zona']);
   assert.ok(Object.values(v).every(x => typeof x === 'string'), 'Instantly solo admite texto/números/booleanos');
 });
 

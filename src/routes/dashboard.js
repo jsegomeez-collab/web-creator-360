@@ -98,7 +98,7 @@ router.get('/payments', async (req, res) => {
     .from('payments')
     .select('*, businesses(name), generated_sites(slug, preview_url)')
     .order('created_at', { ascending: false })
-    .limit(100);
+    .limit(1000);
 
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);

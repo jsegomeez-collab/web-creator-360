@@ -1,5 +1,5 @@
 // Dashboard: pipeline "LLCs nuevas" (leads from public sources and CSV files), separate from the Google Maps pipeline.
-// Tabs: Fuentes (Connecticut registry + CSV import with column mapping) · Leads (funnel and table) · Envío (Instantly).
+// Tabs: Fuentes (LLCs registry + CSV import with column mapping) · Leads (funnel and table) · Envío (Instantly).
 // Everything here comes from the public registry or from files, so every text is escaped before it goes into the page.
 
 const LEADS_API = '/api/leads';
@@ -110,7 +110,7 @@ async function loadLeadsSection(tab) {
   }
 }
 
-// ─── Tab: Fuentes · Connecticut ──────────────────────────────────────────────
+// ─── Tab: Fuentes · LLCs nuevas ──────────────────────────────────────────────
 
 const FILTER_LABELS = {
   noEmail: 'Sin email', gestoriaDomain: 'Email de gestoría o asesoría', sharedEmail: 'Email compartido por 4+ empresas',

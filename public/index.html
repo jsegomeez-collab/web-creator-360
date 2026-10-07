@@ -303,7 +303,7 @@
 
           <div class="card overflow-hidden">
             <div class="card-header">
-              <div><h2 class="card-title">Campaña LLCs nuevas</h2><p class="card-sub">Connecticut · Instantly</p></div>
+              <div><h2 class="card-title">Campaña LLCs nuevas</h2><p class="card-sub">Registros recientes · Instantly</p></div>
               <span id="ov-autopilot" class="badge badge-prospected">Autopilot</span>
             </div>
             <div class="card-body">
@@ -495,8 +495,39 @@
       <!-- ─── PAGOS ───────────────────────────────────────────────────────── -->
       <section id="tab-payments" class="tab-hidden">
         <div class="page-head">
-          <div><p class="eyebrow">Gestión</p><h1 class="page-title mt-1.5">Pagos</h1><p class="page-sub">Negocios que ya han pagado y están pendientes de activar en su dominio definitivo.</p></div>
+          <div><p class="eyebrow">Gestión</p><h1 class="page-title mt-1.5">Pagos</h1><p class="page-sub">Dinero recogido y negocios que ya han pagado.</p></div>
         </div>
+
+        <div class="card mb-5 overflow-hidden">
+          <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white sm:p-7">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-widest text-emerald-100">Cash collected · Dinero recogido</p>
+                <p id="cash-total" class="mt-2 text-4xl font-bold tabular-nums sm:text-6xl">—</p>
+                <p id="cash-range" class="mt-1 text-sm text-emerald-100"></p>
+              </div>
+              <div class="flex gap-6 text-right">
+                <div><p class="text-xs uppercase tracking-wide text-emerald-100">Ventas</p><p id="cash-count" class="text-2xl font-bold tabular-nums sm:text-3xl">0</p></div>
+                <div><p class="text-xs uppercase tracking-wide text-emerald-100">Ticket medio</p><p id="cash-avg" class="text-2xl font-bold tabular-nums sm:text-3xl">—</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 sm:p-5">
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+              <button class="cash-chip btn-secondary" data-range="today">Hoy</button>
+              <button class="cash-chip btn-secondary" data-range="yesterday">Ayer</button>
+              <button class="cash-chip btn-secondary" data-range="7">7 días</button>
+              <button class="cash-chip btn-secondary" data-range="30">30 días</button>
+              <button class="cash-chip btn-secondary" data-range="all">Todo</button>
+              <span class="mx-1 hidden h-5 w-px bg-slate-200 sm:block"></span>
+              <label class="flex items-center gap-1.5 text-xs text-slate-500">Desde <input id="cash-from" type="date" class="rounded-lg border border-slate-200 px-2 py-1 text-sm text-slate-700"></label>
+              <label class="flex items-center gap-1.5 text-xs text-slate-500">Hasta <input id="cash-to" type="date" class="rounded-lg border border-slate-200 px-2 py-1 text-sm text-slate-700"></label>
+            </div>
+            <div id="cash-chart" class="flex h-40 items-end gap-1.5 overflow-x-auto pb-1"></div>
+            <p class="mt-2 text-xs text-slate-400">Toca una barra para ver solo ese día.</p>
+          </div>
+        </div>
+
         <div class="card overflow-hidden">
           <div class="table-wrap">
             <table class="data-table">
@@ -520,7 +551,7 @@
             <div class="card-body">
               <div class="flex items-start gap-4">
                 <span class="icon-tile bg-sky-50 text-sky-600"><i data-lucide="landmark"></i></span>
-                <div class="min-w-0"><h2 class="card-title">Registro de Connecticut</h2><p class="card-sub">Descarga las LLCs recién registradas en data.ct.gov, se queda con las de dueños latinos con email propio y comprueba que el dominio del email existe.</p></div>
+                <div class="min-w-0"><h2 class="card-title">Registro de LLCs nuevas</h2><p class="card-sub">Descarga las LLCs recién registradas, se queda con las de dueños latinos con email propio y comprueba que el dominio del email existe.</p></div>
               </div>
               <div class="mt-5 flex items-start gap-2.5 rounded-xl bg-slate-50 px-3.5 py-3 text-[13px] text-slate-600">
                 <i data-lucide="clock" class="mt-0.5 h-4 w-4 shrink-0 text-slate-400"></i><span id="ct-last-run">Cargando…</span>
@@ -607,7 +638,7 @@
               </select>
               <select id="lf-source" class="input !py-2 lg:w-auto" aria-label="Origen">
                 <option value="">Todo origen</option>
-                <option value="ct_registry">Registro CT</option>
+                <option value="ct_registry">Registro oficial</option>
                 <option value="csv_import">CSV</option>
               </select>
             </div>
@@ -713,7 +744,7 @@
                     <label class="label" for="send-source">Origen</label>
                     <select id="send-source" class="input">
                       <option value="">Todo origen</option>
-                      <option value="ct_registry">Registro CT</option>
+                      <option value="ct_registry">Registro oficial</option>
                       <option value="csv_import">CSV</option>
                     </select>
                   </div>

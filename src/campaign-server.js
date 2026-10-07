@@ -55,14 +55,14 @@ if (instantlyConfig) {
 // On/off and the batch size live in the database (campaign_autopilot), set from the dashboard's Envío tab — read fresh
 // on every tick, so toggling it there takes effect within one cycle, no redeploy needed.
 // Ingest resumes on its own from the last successful run (see ctIngest.js), so this is safe to run forever unattended.
-every('0 7 * * *', 'la ingesta diaria de Connecticut', async () => {
+every('0 7 * * *', 'la ingesta diaria de LLCs nuevas', async () => {
   const { enabled } = await getAutopilotSettings(supabase, ownerId);
   if (!enabled) return;
   const r = await runCtIngest({ db: supabase, ownerId });
-  console.log(`[autopilot] registro CT: ${r.fetched} descargados · ${r.inserted} leads nuevos`);
-  if (r.inserted) await sendTelegram(`🤖 Autopilot: ${r.inserted} leads nuevos del registro de Connecticut.`);
+  console.log(`[autopilot] registro de LLCs: ${r.fetched} descargados · ${r.inserted} leads nuevos`);
+  if (r.inserted) await sendTelegram(`🤖 Autopilot: ${r.inserted} leads nuevos de LLCs nuevas.`);
 }, { timezone: 'America/New_York' });
-console.log('Autopilot: revisa el registro de Connecticut todos los días a las 7:00 (hora de Nueva York), si está activado');
+console.log('Autopilot: revisa el registro de LLCs nuevas todos los días a las 7:00 (hora de Nueva York), si está activado');
 autopilotStatus.ingest = true;
 
 // Sends the newest "new" leads on a full Instantly config (needs CAMPAIGN_PUBLIC_URL too: it's baked into each lead's

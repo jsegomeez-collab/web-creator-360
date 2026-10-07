@@ -96,7 +96,7 @@ export function leadVariables(lead, linkUrl) {
   const label = sectorLabel(lead.sector);
   return {
     empresa: displayName(lead.name),
-    ciudad: lead.city || 'Connecticut',
+    ciudad: lead.city || 'tu zona',
     latina: lead.latino_strong ? ' y por aportar a nuestra comunidad latina' : '',
     sector_de: label ? ` de ${label}` : '',
     calendario: linkUrl,
