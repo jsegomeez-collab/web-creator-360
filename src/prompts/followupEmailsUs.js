@@ -104,7 +104,7 @@ Jose`,
     body: `This is how your website would look once I finish it:
 
 • With your photos, phone number and services
-• In English and in Spanish
+• Written for your business and your town
 • So customers can find you on Google Maps and call you directly
 
 {{site}}

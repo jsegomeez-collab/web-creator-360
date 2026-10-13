@@ -3,7 +3,7 @@
 // sequence by itself when the lead replies (the campaign has "stop on reply"); our 5-minute poll then marks the reply.
 // Moving a lead that had finished the first campaign puts it back to "active" in the new one (checked against the real API),
 // and it keeps its Instantly id, so nothing else in the app changes.
-import { API, resumeIfCompleted } from './instantly.js';
+import { API, resumeIfCompleted, checkCampaignCopy } from './instantly.js';
 import { requestJson } from '../lib/http.js';
 import { selectAll } from '../lib/selectAll.js';
 import { isDryRun } from '../lib/dryRun.js';
@@ -56,7 +56,8 @@ async function waitForJob(config, jobId, { fetchImpl, sleep = sleepDefault, trie
 // Moves the eligible leads to the follow-up campaign. → { dryRun, eligible, moved, skipped }
 //   skipped: notInInstantly · bounced · unsubscribed · replied (Instantly has a reply we had not marked yet)
 //   audience: 'es' (default, config = the Spanish follow-up campaign) or 'us' (the "americanos", config = their English one)
-export async function moveToFollowup({ db, ownerId, config, audience = 'es', limit = 200, dryRun = isDryRun(), fetchImpl, sleep, now = new Date() }) {
+//   verifyCopy: before moving anyone, read the follow-up campaign and stop if its email copy does not match what we send (checkCampaignCopy)
+export async function moveToFollowup({ db, ownerId, config, audience = 'es', limit = 200, dryRun = isDryRun(), verifyCopy = false, fetchImpl, sleep, now = new Date() }) {
   let leads;
   try { leads = await eligible(db, ownerId, limit, audience); } catch (err) {
     throw new Error(`cargar leads para el seguimiento: ${err.message}${/followup_at|column/i.test(err.message) ? ' (¿has ejecutado src/db/schema-followup.sql en Supabase?)' : ''}`);
@@ -79,6 +80,11 @@ export async function moveToFollowup({ db, ownerId, config, audience = 'es', lim
   }
   const movable = [...toMove.values()].flat().length + alreadyThere.length;
   if (dryRun) return { dryRun: true, eligible: leads.length, moved: movable, skipped };
+
+  if (verifyCopy && movable) {
+    const check = await checkCampaignCopy(config, leads[0], { fetchImpl });
+    if (!check.ok) throw new Error(`No se pasan leads a la campaña de seguimiento porque su texto no coincide con lo que enviamos: ${check.problems.join('; ')}`);
+  }
 
   const stamped = [...alreadyThere];
   for (const [fromCampaign, group] of toMove) {

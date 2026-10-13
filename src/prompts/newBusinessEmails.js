@@ -65,7 +65,7 @@ export const EMAIL_BODY_MAPS = `Hi {{greeting}},
 I was looking at local businesses in {{city}} on Google Maps and found {{business}}{{reviews_phrase}}. I noticed you don't have a website yet.
 
 
-I went ahead and designed one for your business, in English and Spanish. You can see it here
+I went ahead and designed one for your business. You can see it here
 
 
 {{site}}

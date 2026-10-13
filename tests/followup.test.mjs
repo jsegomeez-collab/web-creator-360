@@ -86,6 +86,23 @@ test('si la campaña de seguimiento estaba "completada", se reanuda al meter lea
   assert.ok(calls.some(c => c.method === 'POST' && c.path === `/campaigns/${FU}/activate`));
 });
 
+test('con verifyCopy: si el texto del seguimiento en Instantly no encaja con lo que enviamos, no se mueve a nadie', async () => {
+  const db = createMemoryDb({ new_business_leads: [mk('A')] });
+  const state = { 'inst-A': inst() };
+  const base = fakeInstantly(state);
+  const calls = [];
+  const fetchImpl = async (url, opts = {}) => {
+    if (/\/campaigns\/[^/]+$/.test(url) && !opts.method) {                                            // GET de la campaña de seguimiento: con variables viejas y sin asunto
+      calls.push('GET campaña');
+      return { ok: true, status: 200, json: async () => ({ sequences: [{ steps: [{ delay: 1, variants: [{ subject: '', body: '<div>Hola {{nombre}} {{web}}</div>' }] }] }] }) };
+    }
+    return base.fetchImpl(url, opts);
+  };
+  await assert.rejects(() => moveToFollowup({ db, ownerId: OWNER, config: config(), dryRun: false, verifyCopy: true, fetchImpl, sleep: async () => {}, now: NOW }), /su texto no coincide con lo que enviamos/);
+  assert.equal(base.calls.filter(c => c.path === '/leads/move').length, 0);
+  assert.deepEqual(stamped(db), []);
+});
+
 test('sin nadie que mover no llama a Instantly', async () => {
   const db = createMemoryDb({ new_business_leads: [mk('B', { replied_at: ago(1) })] });
   const { fetchImpl, calls } = fakeInstantly({});
@@ -110,7 +127,7 @@ test('resumen: esperando, en secuencia (día N de 7), han respondido y enfriados
 test('ruta GET /followup: resumen, y avisa si falta INSTANTLY_CAMPAIGN_ID_FOLLOWUP', async () => {
   const db = createMemoryDb({ new_business_leads: [mk('W'), mk('A1', { followup_at: ago(1) })] });
   const app = express(); app.use(express.json());
-  app.use('/api/leads', createLeadsRouter({ db, ownerId: OWNER }));
+  app.use('/api/leads', createLeadsRouter({ db, ownerId: OWNER, verifyCopy: false }));
   const server = await new Promise(r => { const s = app.listen(0, () => r(s)); });
   const get = () => fetch(`http://127.0.0.1:${server.address().port}/api/leads/followup`).then(r => r.json());
   try {

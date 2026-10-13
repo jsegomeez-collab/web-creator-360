@@ -52,9 +52,13 @@ export const SAMPLE_CITY_AREA = {
   stamford: ['Greenwich', 'Darien', 'Norwalk', 'New Canaan', 'Westport', 'Wilton', 'Fairfield', 'Riverside', 'Cos Cob', 'Old Greenwich', 'Ridgefield'],
 };
 
-export function sampleTerms(key, { name = '', city = '', year = '' } = {}) {
+// English-only sites (the "americanos" and Google Maps campaigns): the templates were made for bilingual Latino businesses, so they say
+// "Hablamos español", "in English or Spanish"… which would be a FALSE claim for most of these owners. None of it may survive.
+export const ENGLISH_ONLY_TERMS = ['español', 'Hablamos', 'Atendemos', 'Spanish', 'bilingual', 'bilingüe'];
+
+export function sampleTerms(key, { name = '', city = '', year = '', audience = 'es' } = {}) {
   const t = TEMPLATES[key] || { sample: [] };
-  const terms = [...t.sample];
+  const terms = [...t.sample, ...(audience === 'en' ? ENGLISH_ONLY_TERMS : [])];
   const area = (SAMPLE_CITY_AREA[fold(t.sampleCity || '')] || []).map(fold);
   if (t.sampleCity && fold(t.sampleCity) !== fold(city) && !area.includes(fold(city))) terms.push(t.sampleCity);
   const own = fold(`${name} ${city}`);

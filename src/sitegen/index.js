@@ -45,12 +45,12 @@ export async function buildSite({ business, template = chooseTemplate(business),
   const facts = businessFacts(business);
   const drop = business.reviews?.length ? [] : ['reviews'];
   const items = writerItems(compiled, { drop });
-  const terms = sampleTerms(template, { name: facts.brand, city: facts.city, year: facts.registeredYear });
+  const audience = business.audience === 'en' ? 'en' : 'es';
+  const terms = sampleTerms(template, { name: facts.brand, city: facts.city, year: facts.registeredYear, audience });
   const renderFacts = { email: facts.email, phone: facts.phone, mapQuery: `${facts.city}, ${facts.state}` };
 
-  const audience = business.audience === 'en' ? 'en' : 'es';
   const first = await writeTexts({ facts, items, template, sampleTerms: terms, audience, write });
-  let texts = first.texts;
+  let texts = englishOnly(audience, items, first.texts);
   let usage = addUsage({}, first.usage);
   let html = renderSite(compiled, { texts, drop, facts: renderFacts });
   const own = [facts.email, facts.phone].filter(Boolean);   // the business's real contact data is never a leftover
@@ -65,12 +65,25 @@ export async function buildSite({ business, template = chooseTemplate(business),
     }).filter(i => findLeftovers(`${i.en ?? ''} ${i.es ?? ''} ${i.text ?? ''}`, leftovers, { ignore: own }).length);
     if (stillBad.length) {
       const second = await writeTexts({ facts, items: stillBad, template, sampleTerms: leftovers, audience, write });
-      texts = { ...texts, ...second.texts };
+      texts = englishOnly(audience, items, { ...texts, ...second.texts });
       usage = addUsage(usage, second.usage);
       html = renderSite(compiled, { texts, drop, facts: renderFacts });
       leftovers = findLeftovers(html, terms, { ignore: own });
     }
   }
-  if (leftovers.length) throw new Error(`La web aún menciona el negocio de ejemplo (${leftovers.join(', ')}): no se publica`);
+  if (leftovers.length) throw new Error(`La web aún menciona el negocio de ejemplo o el español (${leftovers.join(', ')}): no se publica`);
+  if (audience === 'en') html = html.replace(/<\/head>/i, `${ENGLISH_ONLY_CSS}</head>`);
   return { html, template, usage };
+}
+
+// English-only sites have no language switcher (each template marks it differently)
+const ENGLISH_ONLY_CSS = '<style>/* English-only demo */.lang-switch,.lang[role="group"],[data-set-lang],[data-lang-btn],button[data-lang]{display:none!important}</style>';
+
+// English-only: EVERY Spanish slot gets the English text (the one the writer returned, or the template's own English for the items it
+// left unchanged), so no Spanish sample text or "Hablamos español" is left anywhere on the page. Spanish sites are left as they are.
+function englishOnly(audience, items, texts) {
+  if (audience !== 'en') return texts;
+  const out = { ...texts };
+  for (const i of items) if (i.en !== undefined && !out[i.id]) out[i.id] = { en: i.en, es: i.en };
+  return out;
 }

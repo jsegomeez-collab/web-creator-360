@@ -200,7 +200,7 @@ import { createLeadsRouter } from '../src/routes/leads.js';
 async function withRoutes(fn, { db, mapsItems = null } = {}) {
   const app = express();
   app.use(express.json());
-  app.use('/api/leads', createLeadsRouter({ db, ownerId: OWNER, verifyOptions, mapsItems, fetchImpl: globalThis.fetch }));
+  app.use('/api/leads', createLeadsRouter({ db, ownerId: OWNER, verifyCopy: false, verifyOptions, mapsItems, fetchImpl: globalThis.fetch }));
   const server = await new Promise(r => { const s = app.listen(0, () => r(s)); });
   const api = (path, { method = 'GET', body } = {}) => fetch(`http://127.0.0.1:${server.address().port}/api/leads${path}`, {
     method, headers: body ? { 'content-type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined,

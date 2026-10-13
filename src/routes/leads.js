@@ -45,7 +45,7 @@ const asList = (v) => String(v ?? '').split(',').map(s => s.trim()).filter(Boole
 // onReply(lead): the Telegram alert for a lead's first reply, fired from /poll-instantly (the campaign server's cron also polls on its own)
 // demoBuild / demoDeploy: only for tests (a fake writer and a fake Vercel); production uses the real ones
 // mapsItems / mapsFacebook: only for tests (Apify results already downloaded, and a fake Facebook step)
-export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, onReply = null, demoBuild, demoDeploy, mapsItems = null, mapsFacebook = undefined, websiteOptions = {} }) {
+export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, onReply = null, demoBuild, demoDeploy, mapsItems = null, mapsFacebook = undefined, websiteOptions = {}, verifyCopy = true }) {
   const router = Router();
 
   router.use((req, res, next) => {
@@ -173,7 +173,11 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     const campaign = ['maps', 'us'].includes(body.campaign) ? body.campaign : 'llc';
     let config;
     try { config = loadInstantlyConfig(process.env, { dryRun, campaign }); } catch (err) { return res.status(400).json({ error: err.message }); }
-    const result = await pushLeads({ db, ownerId, config, limit, filters, dryRun });
+    let result;
+    try { result = await pushLeads({ db, ownerId, config, limit, filters, dryRun, verifyCopy, fetchImpl }); } catch (err) {
+      if (/su texto no coincide/.test(err.message)) return res.status(409).json({ error: err.message });   // nothing was sent
+      throw err;
+    }
     // A campaign that had finished ("completada") ignores new leads until resumed
     if (result.pushed && !dryRun) result.campaign = await resumeIfCompleted(config, { fetchImpl });
     res.json(result);
@@ -211,7 +215,10 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
       let config;
       try { config = loadInstantlyConfig(process.env, { dryRun, campaign }); } catch (err) { if (audience === 'es' || (process.env.INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US || '').trim()) return res.status(400).json({ error: err.message }); continue; }
       if (!config.campaignId && dryRun) continue;
-      lanes[audience] = await moveToFollowup({ db, ownerId, config, audience, dryRun, fetchImpl });
+      try { lanes[audience] = await moveToFollowup({ db, ownerId, config, audience, dryRun, verifyCopy, fetchImpl }); } catch (err) {
+        if (/su texto no coincide/.test(err.message)) return res.status(409).json({ error: err.message });   // nobody was moved
+        throw err;
+      }
     }
     const all = Object.values(lanes);
     const skipped = {};

@@ -221,6 +221,100 @@ test('carril en inglés: solo los americanos que abrieron la web pasan a SU camp
   assert.deepEqual([o.counts.waiting, o.counts.active, o.leads.map(l => [l.id, l.lang])], [1, 1, [['u1', 'en']]]);   // l1 espera en el carril español
 });
 
+// ─── protección: el texto de la campaña en Instantly debe coincidir con lo que enviamos ──────────────────
+import { checkCampaignCopy } from '../src/services/instantly.js';
+import { EMAIL_SUBJECT_US, EMAIL_SUBJECT_MAPS, EMAIL_BODY_MAPS } from '../src/prompts/newBusinessEmails.js';
+
+const campaignWith = (steps) => async () => ({ ok: true, status: 200, json: async () => ({ sequences: [{ steps }] }) });
+const usLead = { id: 'a', source: US_SOURCE, name: 'Cooper LLC', email: 'a@gmail.com', city: 'Hartford', demo_url: 'https://x.vercel.app', link_token: 't' };
+const usConfig = () => loadInstantlyConfig(env, { dryRun: false, campaign: 'us' });
+
+test('checkCampaignCopy: el texto correcto pasa; el caso real (variables en español + sin asunto, 12 negocios de Maps) se detecta', async () => {
+  const good = await checkCampaignCopy(usConfig(), usLead, { fetchImpl: campaignWith(toSteps([{ delay: 0, subject: EMAIL_SUBJECT_US, body: EMAIL_BODY_US }])) });
+  assert.deepEqual(good, { ok: true, problems: [] });
+  // lo que había en la campaña de Maps de Instantly: las variables antiguas {{nombre}} {{ciudad}} {{empresa}} {{web}} y el asunto vacío
+  const broken = toSteps([{ delay: 0, subject: '', body: 'Buenas {{nombre}}!\n\nEstaba mirando negocios de {{ciudad}} y encontré {{empresa}}.\n\n{{web}}' }]);
+  const mapsConfig = loadInstantlyConfig(env, { dryRun: false, campaign: 'maps' });
+  const bad = await checkCampaignCopy(mapsConfig, { ...usLead, source: MAPS_SOURCE }, { fetchImpl: campaignWith(broken) });
+  assert.equal(bad.ok, false);
+  assert.ok(bad.problems.some(p => /no tiene asunto/.test(p)));
+  assert.ok(bad.problems.some(p => /\{\{nombre\}\}, \{\{ciudad\}\}, \{\{empresa\}\}, \{\{web\}\}/.test(p)));
+  // el texto de Maps del repositorio sí encaja con lo que enviamos a Maps
+  const mapsOk = await checkCampaignCopy(mapsConfig, { ...usLead, source: MAPS_SOURCE }, { fetchImpl: campaignWith(toSteps([{ delay: 0, subject: EMAIL_SUBJECT_MAPS, body: EMAIL_BODY_MAPS }])) });
+  assert.deepEqual(mapsOk, { ok: true, problems: [] });
+  // una campaña sin emails, o ilegible, tampoco se da por buena
+  assert.equal((await checkCampaignCopy(usConfig(), usLead, { fetchImpl: campaignWith([]) })).ok, false);
+  await assert.rejects(() => checkCampaignCopy(usConfig(), usLead, { fetchImpl: async () => ({ ok: false, status: 500 }) }), /no se pudo leer la campaña/);
+});
+
+test('pushLeads con verifyCopy: si el texto de la campaña no coincide NO sube ningún lead; si coincide, los sube', async () => {
+  const mk = (id) => ({ id, user_id: OWNER, source: US_SOURCE, external_id: id, name: `N ${id}`, email: `${id}@gmail.com`, status: 'new', demo_status: 'ready', demo_url: `https://${id}.vercel.app`, link_token: `t-${id}`, created_at: '2026-10-01T00:00:00Z' });
+  const run = async (steps) => {
+    const adds = [];
+    const fetchImpl = async (url, opts = {}) => {
+      if (url.endsWith('/leads/add')) { const b = JSON.parse(opts.body); adds.push(b.leads.length); return { ok: true, status: 200, json: async () => ({ created_leads: b.leads.map((l, index) => ({ id: `i${index}`, index, email: l.email })) }) }; }
+      return { ok: true, status: 200, json: async () => ({ sequences: [{ steps }] }) };
+    };
+    const db = createMemoryDb({ new_business_leads: [mk('a'), mk('b')] });
+    const result = await pushLeads({ db, ownerId: OWNER, config: usConfig(), dryRun: false, verifyCopy: true, fetchImpl }).catch(e => e);
+    return { result, adds, status: db.rows('new_business_leads').map(l => l.status) };
+  };
+  const bad = await run(toSteps([{ delay: 0, subject: '', body: 'Buenas {{nombre}}! {{web}}' }]));
+  assert.match(bad.result.message, /su texto no coincide con lo que enviamos/);
+  assert.deepEqual([bad.adds, bad.status], [[], ['new', 'new']]);                                // no se envió nada y los leads siguen "nuevos"
+  const good = await run(toSteps([{ delay: 0, subject: EMAIL_SUBJECT_US, body: EMAIL_BODY_US }]));
+  assert.deepEqual([good.result.pushed, good.adds, good.status], [2, [2], ['queued', 'queued']]);
+});
+
+// ─── webs solo en inglés (ahorro de salida y sin afirmaciones falsas de "Hablamos español") ──────────────
+import { buildSite } from '../src/sitegen/index.js';
+
+// Redactor simulado: lee los textos que se le mandan en el prompt y reescribe TODOS (salvo los que `keep` decida dejar igual)
+function fakeWriter({ keep = () => false } = {}) {
+  const calls = [];
+  const write = async ({ system, cachedPrefix, prompt, format }) => {
+    const items = JSON.parse(cachedPrefix.split('\nITEMS\n')[1]);
+    calls.push({ system, cachedPrefix, prompt, format, items });
+    const units = items.map(i => ({ id: i.id, en: keep(i) ? (i.en ?? i.text) : `Text ${i.id}`, ...(format.schema.properties.units.items.required.includes('es') ? { es: `Texto ${i.id}` } : {}) }));
+    return { text: JSON.stringify({ units }), usage: { input_tokens: 300, output_tokens: 3000 }, stopReason: 'end_turn' };
+  };
+  return { write, calls };
+}
+const englishBusiness = { name: 'Cooper Consulting LLC', city: 'Hartford', state: 'CT', sector: 'otro', email: 'cooper@gmail.com', audience: 'en' };
+
+test('web solo en inglés: el redactor recibe solo el inglés y devuelve solo inglés; no queda español ni el botón de idioma', async () => {
+  const f = fakeWriter();
+  const { html } = await buildSite({ business: englishBusiness, write: f.write });
+  const call = f.calls[0];
+  assert.equal(call.system, SYSTEM_EN);
+  assert.ok(call.items.length > 100 && call.items.every(i => !('es' in i) && i.lang !== 'es'), 'ningún texto lleva lado español');
+  assert.match(call.cachedPrefix, /ENGLISH ONLY: write no Spanish at all/);
+  assert.match(call.cachedPrefix, /NEVER mention Spanish, "bilingual", "Hablamos español"/);
+  assert.deepEqual(call.format.schema.properties.units.items.required, ['id', 'en']);          // la salida pide solo id y en
+  assert.ok(!/español|Hablamos|Spanish/i.test(html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ')));
+  assert.match(html, /\.lang-switch,\.lang\[role="group"\],\[data-set-lang\]/);              // el botón EN/ES queda oculto
+  // los huecos en español de la página llevan el texto en inglés (si alguien añade ?lang=es no ve nada raro)
+  assert.match(html, /data-en[^>]*>Text u\d+<\/[a-z]+><[a-z]+[^>]*data-es[^>]*>Text u\d+</i);
+  assert.ok(f.calls.length === 1);
+});
+
+test('web solo en inglés: si el redactor deja "We speak Spanish" / "Hablamos español", la web NO se publica (afirmación falsa)', async () => {
+  const f = fakeWriter({ keep: (i) => /Spanish|español/i.test(i.en ?? i.text ?? '') });
+  await assert.rejects(() => buildSite({ business: englishBusiness, write: f.write }), /español|Spanish|Hablamos/);
+  assert.ok(f.calls.length === 2, 'hace una segunda pasada con solo esos textos antes de rendirse');
+  assert.ok(f.calls[1].items.length < 20);
+});
+
+test('webs en español (latinos): nada cambia — pares en/es y salida con los dos idiomas', async () => {
+  const f = fakeWriter();
+  const { html } = await buildSite({ business: { ...englishBusiness, audience: undefined, name: 'Limpieza Rivera LLC' }, write: f.write });
+  const call = f.calls[0];
+  assert.equal(call.system, SYSTEM);
+  assert.ok(call.items.some(i => 'es' in i));
+  assert.deepEqual(call.format.schema.properties.units.items.required, ['id', 'en', 'es']);
+  assert.ok(!html.includes('English-only demo'));
+});
+
 // ─── caso real: Cyrious Breaks LLC (Wolcott) falló con "aún menciona el negocio de ejemplo (Waterbury)" ──────
 import { sampleTerms } from '../src/sitegen/templates.js';
 import { findLeftovers } from '../src/sitegen/render.js';

@@ -35,7 +35,11 @@ function every(expression, name, task, cronOptions) {
   cron.schedule(expression, async () => {
     if (running) return;
     running = true;
-    try { await task(); } catch (err) { console.error(`[autopilot] ${name} falló:`, err.message); } finally { running = false; }
+    try { await task(); } catch (err) {
+      console.error(`[autopilot] ${name} falló:`, err.message);
+      // A campaign whose email text does not match what we send: nothing is sent, and you must know (see checkCampaignCopy)
+      if (/su texto no coincide/.test(err.message)) await sendTelegram(`⚠️ ${name}: ${err.message}`.slice(0, 900)).catch(() => {});
+    } finally { running = false; }
   }, cronOptions);
 }
 
@@ -171,7 +175,7 @@ if (usPushConfig) {
   every('40 */3 * * *', 'el envío automático a la campaña de americanos', async () => {
     const settings = await getAutopilotSettings(supabase, ownerId);
     if (!settings.enabled || !settings.usEnabled) return;           // their own switch, off by default
-    const r = await pushLeads({ db: supabase, ownerId, config: usPushConfig, limit: ALL_MODE_SEND_LIMIT });
+    const r = await pushLeads({ db: supabase, ownerId, config: usPushConfig, limit: ALL_MODE_SEND_LIMIT, verifyCopy: true });
     if (!r.pushed && !r.rejected) return;
     console.log(`[americanos] ${r.dryRun ? '(modo prueba) ' : ''}enviados a Instantly: ${r.pushed} · rechazados: ${r.rejected}`);
     if (r.pushed && !r.dryRun) {
@@ -188,7 +192,7 @@ if (mapsPushConfig) {
   every('20 */3 * * *', 'el envío automático a la campaña de Maps', async () => {
     const { enabled, pushLimit, demoAll } = await getAutopilotSettings(supabase, ownerId);
     if (!enabled) return;
-    const r = await pushLeads({ db: supabase, ownerId, config: mapsPushConfig, limit: demoAll ? ALL_MODE_SEND_LIMIT : pushLimit });
+    const r = await pushLeads({ db: supabase, ownerId, config: mapsPushConfig, limit: demoAll ? ALL_MODE_SEND_LIMIT : pushLimit, verifyCopy: true });
     if (!r.pushed && !r.rejected) return;
     console.log(`[maps] ${r.dryRun ? '(modo prueba) ' : ''}enviados a Instantly: ${r.pushed} · rechazados: ${r.rejected}`);
     if (r.pushed && !r.dryRun) {
@@ -217,7 +221,7 @@ if ((process.env.INSTANTLY_CAMPAIGN_ID_FOLLOWUP || '').trim()) {
       // One lane per language: the Spanish one and, if its campaign is set, the English one of the "americanos"
       for (const [audience, config, label] of [['es', followupConfig, 'español'], ['us', followupUsConfig, 'inglés (americanos)']]) {
         if (!config) continue;
-        const r = await moveToFollowup({ db: supabase, ownerId, config, audience });
+        const r = await moveToFollowup({ db: supabase, ownerId, config, audience, verifyCopy: true });
         if (!r.moved && !Object.values(r.skipped).some(Boolean)) continue;
         console.log(`[seguimiento ${label}] ${r.dryRun ? '(modo prueba) ' : ''}pasan al seguimiento: ${r.moved} · omitidos: ${JSON.stringify(r.skipped)}`);
         if (r.moved && !r.dryRun) await sendTelegram(`🤖 Seguimiento (${label}): ${r.moved} leads que abrieron la web pasan a la campaña de recordatorios.`);
@@ -232,7 +236,7 @@ if (pushConfig) {
   every('0 */3 * * *', 'el envío automático a Instantly', async () => {
     const { enabled, pushLimit, demoAll } = await getAutopilotSettings(supabase, ownerId);
     if (!enabled) return;
-    const r = await pushLeads({ db: supabase, ownerId, config: pushConfig, limit: demoAll ? ALL_MODE_SEND_LIMIT : pushLimit });
+    const r = await pushLeads({ db: supabase, ownerId, config: pushConfig, limit: demoAll ? ALL_MODE_SEND_LIMIT : pushLimit, verifyCopy: true });
     if (!r.pushed && !r.rejected) return;
     console.log(`[autopilot] ${r.dryRun ? '(modo prueba) ' : ''}enviados a Instantly: ${r.pushed} · rechazados: ${r.rejected}`);
     if (r.pushed && !r.dryRun) {

@@ -48,7 +48,7 @@ before(async () => {
   onReply = mock.fn(async () => {});
   const app = express();
   app.use(express.json({ limit: '10mb' }));
-  app.use('/api/leads', createLeadsRouter({ db, ownerId: OWNER, verifyOptions, fetchImpl, onReply: (...a) => onReply(...a) }));
+  app.use('/api/leads', createLeadsRouter({ db, ownerId: OWNER, verifyCopy: false, verifyOptions, fetchImpl, onReply: (...a) => onReply(...a) }));
   server = await new Promise(r => { const s = app.listen(0, () => r(s)); });
   base = `http://127.0.0.1:${server.address().port}`;
 });
