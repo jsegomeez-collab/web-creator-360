@@ -7,6 +7,11 @@ export const PREFERRED_TIMES = ['Lo antes posible', 'Hoy, más tarde', 'Mañana 
 
 export const CONSENT_TEXT = 'Acepto que Get ur Web me llame por teléfono al número indicado para enseñarme la web. Puedo pedir que no me contacten más.';
 
+// The Google Maps campaign is in English: its page, its menu and the consent wording saved as proof are English too
+export const PREFERRED_TIMES_EN = ['As soon as possible', 'Later today', 'Tomorrow morning', 'Tomorrow afternoon'];
+export const CONSENT_TEXT_EN = 'I agree that Get ur Web may call me at the number provided to show me my website. I can ask not to be contacted again.';
+export const isEnglishLead = (lead) => lead?.source === 'gmaps';
+
 // A lead moves to "requested" from any of these. A lead that already asked only gets its details refreshed.
 export const REQUESTABLE = ['new', 'queued', 'emailed', 'engaged', 'replied'];
 
@@ -21,15 +26,17 @@ export function normalizePhone(raw) {
 }
 
 // The form body → { errors, values }. `errors` is empty when it can be saved.
-export function parseRequest(body = {}) {
+export function parseRequest(body = {}, lang = 'es') {
+  const en = lang === 'en';
+  const times = en ? PREFERRED_TIMES_EN : PREFERRED_TIMES;
   const errors = {};
   const phone = normalizePhone(body.phone);
-  if (!phone) errors.phone = 'Revisa tu teléfono: necesito un número al que pueda llamarte (por ejemplo 860 555 0100).';
-  if (body.consent !== 'on') errors.consent = 'Necesito que aceptes que te llame para poder hacerlo.';
+  if (!phone) errors.phone = en ? 'Please check your phone number: I need a number I can call (for example 305 555 0100).' : 'Revisa tu teléfono: necesito un número al que pueda llamarte (por ejemplo 860 555 0100).';
+  if (body.consent !== 'on') errors.consent = en ? 'I need you to agree to the call so I can phone you.' : 'Necesito que aceptes que te llame para poder hacerlo.';
   const name = String(body.name ?? '').replace(/\s+/g, ' ').trim().slice(0, 80);
   return {
     errors,
-    values: { phone, name: name || null, preferred_time: PREFERRED_TIMES.includes(body.when) ? body.when : PREFERRED_TIMES[0] },
+    values: { phone, name: name || null, preferred_time: times.includes(body.when) ? body.when : times[0] },
   };
 }
 
@@ -37,7 +44,7 @@ export function parseRequest(body = {}) {
 // or 'ignored' (the lead is past that stage or unsubscribed: nothing changes).
 export async function saveRequest({ db, ownerId, lead, values, ip, now = new Date() }) {
   const stamp = now.toISOString();
-  const contact = { phone: values.phone, contact_name: values.name, preferred_time: values.preferred_time, consent_at: stamp, consent_text: CONSENT_TEXT, consent_ip: ip || null, updated_at: stamp };
+  const contact = { phone: values.phone, contact_name: values.name, preferred_time: values.preferred_time, consent_at: stamp, consent_text: isEnglishLead(lead) ? CONSENT_TEXT_EN : CONSENT_TEXT, consent_ip: ip || null, updated_at: stamp };
 
   if (REQUESTABLE.includes(lead.status)) {
     // The status filter makes a double submit harmless: only one of the two gets the row back

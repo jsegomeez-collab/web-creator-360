@@ -17,7 +17,8 @@ export function demoSlug(lead) {
 
 // What turns a site into the lead's demo: not indexed, a small bar that says it's a sample made for them (with the way to
 // ask for it), and a beacon that tells the campaign server the owner opened it (→ "engaged").
-export function decorateDemo(html, { brand, requestUrl, beaconUrl }) {
+export function decorateDemo(html, { brand, requestUrl, beaconUrl, lang = 'es' }) {
+  const en = lang === 'en';
   const bar = `
 <!-- demo: barra de muestra + aviso de visita (lo añade Web Creator 360 a cada demo) -->
 <style>
@@ -28,10 +29,10 @@ export function decorateDemo(html, { brand, requestUrl, beaconUrl }) {
 .wc-demo a:focus-visible,.wc-demo button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 @media (max-width:760px){.wc-demo{bottom:88px;width:calc(100vw - 24px);border-radius:18px;font-size:12.5px;gap:8px;padding-left:14px}.wc-demo span{white-space:normal;line-height:1.35}}
 </style>
-<div class="wc-demo" role="complementary" aria-label="Web de muestra">
-  <span>Web de muestra para ${esc(brand)} · fotos y datos de ejemplo</span>
-  <a href="${esc(requestUrl)}">La quiero</a>
-  <button type="button" aria-label="Cerrar" onclick="this.parentNode.remove()">×</button>
+<div class="wc-demo" role="complementary" aria-label="${en ? 'Sample website' : 'Web de muestra'}">
+  <span>${en ? `Sample website for ${esc(brand)} · photos and details are examples` : `Web de muestra para ${esc(brand)} · fotos y datos de ejemplo`}</span>
+  <a href="${esc(requestUrl)}">${en ? 'I want it' : 'La quiero'}</a>
+  <button type="button" aria-label="${en ? 'Close' : 'Cerrar'}" onclick="this.parentNode.remove()">×</button>
 </div>
 <script>
 setTimeout(function(){try{var u=${JSON.stringify(beaconUrl)};if(navigator.sendBeacon)navigator.sendBeacon(u);else fetch(u,{method:'POST',mode:'no-cors',keepalive:true});}catch(e){}},1500);
@@ -42,10 +43,12 @@ setTimeout(function(){try{var u=${JSON.stringify(beaconUrl)};if(navigator.sendBe
     .replace(/<\/body>(?![\s\S]*<\/body>)/i, `${bar}</body>`);
 }
 
-// The facts the engine gets from a lead (no phone: the registry doesn't give one, so the template's sample stays)
+// The facts the engine gets from a lead. LLC leads have no phone (the registry doesn't give one, so the template's sample stays);
+// Google Maps leads bring the business's real phone, state and category.
 export const leadBusiness = (lead) => ({
-  name: lead.name, city: lead.city, state: 'CT', email: lead.email, sector: lead.sector,
-  naics_code: lead.naics_code, activity: lead.naics_code || null, registered_at: lead.registered_at,
+  name: lead.name, city: lead.city, state: lead.state || 'CT', email: lead.email, sector: lead.sector,
+  naics_code: lead.naics_code, activity: lead.category || lead.naics_code || null, registered_at: lead.registered_at,
+  ...(lead.business_phone ? { phone: lead.business_phone } : {}),
 });
 
 // Makes, publishes and saves the demo of one lead → { ok, url?, template?, usage?, error?, skipped? }
@@ -80,6 +83,7 @@ export async function createLeadDemo({ db, ownerId, lead, publicUrl, force = fal
         brand: brandName(lead.name).brand,
         requestUrl: `${publicUrl}/c/${lead.link_token}`,
         beaconUrl: `${publicUrl}/v/${lead.link_token}`,
+        lang: lead.source === 'gmaps' ? 'en' : 'es',
       });
       // Save it BEFORE publishing: if Vercel fails, the paid HTML is not lost
       await db.from('generated_sites').upsert({ slug, html_content: html, preview_url: null, status: 'demo' }, { onConflict: 'slug' });
@@ -106,7 +110,7 @@ export async function createLeadDemo({ db, ownerId, lead, publicUrl, force = fal
 // Makes demos for the newest "new" leads that don't have one yet, one after another → { created, failed, results }
 export async function generateDemos({ db, ownerId, publicUrl, limit = 3, build, deploy, log = () => {} }) {
   const { data: leads, error } = await db.from(TABLE).select('*').eq('user_id', ownerId).eq('status', 'new').is('demo_status', null)
-    .order('registered_at', { ascending: false }).order('id').limit(limit);
+    .order('registered_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false }).order('id').limit(limit);
   if (error) throw new Error(`cargar leads: ${error.message}`);
   const results = [];
   for (const lead of leads || []) {
@@ -137,10 +141,11 @@ export async function generateAllDemos({ db, ownerId, publicUrl, batch = 5, maxM
   return { created, failed };
 }
 
-// The email promises "la mantengo online 7 días": 7 days after the lead was sent (or after the demo was made, if later)
-// its site is deleted from Vercel — which also frees the project slot (Vercel's free plan allows 200). Leads that asked
-// for the call, were called, won, or replied keep theirs. Not yet sent leads ("new") are never expired.
-export const DEMO_DAYS = 7;
+// The first email says "la mantengo online 7 días", but the sites stay up 30 days (the follow-up emails of the leads that opened
+// their site keep pointing to it): 30 days after the lead was sent (or after the demo was made, if later) its site is deleted
+// from Vercel, which also frees the project slot. Leads that asked for the call, were called, won, or replied keep theirs.
+// Not yet sent leads ("new") are never expired.
+export const DEMO_DAYS = 30;
 const KEEP = ['requested', 'called', 'won', 'lost', 'replied', 'new'];
 
 export async function expireDemos({ db, ownerId, now = new Date(), remove = deleteVercelProject, log = () => {} }) {

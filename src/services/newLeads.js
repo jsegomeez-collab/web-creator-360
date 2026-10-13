@@ -22,6 +22,8 @@ function fail(step, error) {
 export const newLinkToken = () => randomBytes(18).toString('base64url');
 export const LINK_TOKEN_RE = /^[A-Za-z0-9_-]{24}$/;
 
+const MAPS_FIELDS = ['state', 'business_phone', 'rating', 'reviews', 'maps_url', 'category'];
+
 // ─── Ingest bookkeeping ──────────────────────────────────────────────────────
 
 // Newest registration date seen by the last successful run (YYYY-MM-DD) or null on a first run
@@ -117,6 +119,8 @@ export async function insertLeads(db, ownerId, source, leads, statusOf = () => '
     notes: l.notes,
     status: statusOf(l),
     link_token: newLinkToken(),
+    // Google Maps leads only (columns from schema-maps-leads.sql): not sent at all for the others, so they work without it
+    ...Object.fromEntries(MAPS_FIELDS.filter(k => l[k] !== undefined).map(k => [k, l[k]])),
   }));
   for (const part of chunks(rows, 200)) {
     const { error } = await db.from('new_business_leads').upsert(part, { onConflict: 'user_id,source,external_id', ignoreDuplicates: true });

@@ -105,6 +105,7 @@ async function loadLeadsSection(tab) {
     if (tab === 'leads-sources') await loadLeadsSources();
     if (tab === 'leads-list') await loadLeadsList();
     if (tab === 'leads-send') await loadLeadsSend();
+    if (tab === 'leads-followup') await loadLeadsFollowup();
   } catch (e) {
     showLeadsError(e.message);
   }
@@ -163,9 +164,52 @@ function renderCtLastRun() {
     : 'Todavía no has importado nada del registro.';
 }
 
+const MAPS_SKIP_LABELS = {
+  'tiene web': 'Ya tienen web', cerrado: 'Cerrados', cadena: 'Cadenas', 'pocas reseñas': 'Con pocas reseñas', 'puntuación baja': 'Puntuación baja',
+  'sin email': 'Sin email (su Facebook no lo tiene o no es el mismo negocio)', 'sin email (no buscado)': 'Sin email (fuera del límite de búsquedas)', 'sin señal latina': 'Sin señal latina', 'sin nombre o id': 'Sin nombre',
+};
+
+function mapsResultHtml(r) {
+  const skips = Object.entries(r.skips || {}).map(([k, n]) => statLine(MAPS_SKIP_LABELS[k] || k, n, 'text-slate-500')).join('');
+  const body = `
+    ${statLine(`Negocios sin web que devolvió Google Maps (${r.zone})`, r.places)}
+    ${skips ? `<div class="mt-3 text-[11px] font-semibold uppercase tracking-[.08em] text-slate-400">Descartados</div>${skips}` : ''}
+    ${importSummaryHtml(r)}
+    ${r.facebook ? `<p class="mt-3 text-xs text-slate-500">Facebook: ${nf(r.facebook.searched)} buscados · ${nf(r.facebook.pages)} páginas encontradas · ${nf(r.facebook.matched)} son el mismo negocio · ${nf(r.facebook.withEmail)} con email</p>` : ''}
+    ${r.costUsd != null ? `<p class="mt-3 text-xs text-slate-500">Coste de Apify en esta búsqueda: $${Number(r.costUsd).toFixed(3)}</p>` : ''}
+    <p class="mt-1 text-xs text-slate-500">Búsquedas: ${esc((r.categories || []).join(', '))}</p>`;
+  return resultBox(r.dryRun ? 'Vista previa · no se ha guardado nada' : `Búsqueda terminada · ${nf(r.inserted)} leads guardados`, r.dryRun, body, r.notes);
+}
+
+async function runMapsIngest(dryRun, btn) {
+  const maxPerSearch = Number($('maps-max').value), lookups = Number($('maps-lookups').value);
+  if (!Number.isInteger(maxPerSearch) || maxPerSearch < 1 || maxPerSearch > 200) return toast('Los negocios por búsqueda deben ser un número entre 1 y 200', 'error');
+  if (!Number.isInteger(lookups) || lookups < 0 || lookups > 200) return toast('Las búsquedas de email deben ser un número entre 0 y 200', 'error');
+  await withBusy(btn, dryRun ? 'Buscando…' : 'Buscando y guardando…', async () => {
+    const r = await leadsApi('/ingest/maps', { method: 'POST', body: { dryRun, maxPerSearch, lookups } });
+    $('maps-result').innerHTML = mapsResultHtml(r);
+    $('maps-result').classList.remove('hidden');
+    if (!dryRun) { toast(`${nf(r.inserted)} leads nuevos de Google Maps`); await loadLeadStats(); }
+  });
+}
+
+function renderMapsCard() {
+  const apify = leadStats?.maps?.apify, campaign = leadStats?.instantly?.mapsCampaign;
+  const pill = $('maps-pill'), hint = $('maps-hint');
+  pill.className = `badge shrink-0 ${apify && campaign ? 'badge-green' : 'badge-prospected'}`;
+  pill.textContent = apify && campaign ? 'Lista' : 'Falta configurar';
+  const problems = [!apify && 'APIFY_TOKEN (la búsqueda en Google Maps usa Apify)', !campaign && 'INSTANTLY_CAMPAIGN_ID_MAPS (el ID de la campaña 2 en Instantly)'].filter(Boolean);
+  hint.className = `mt-4 rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed ${problems.length ? 'border-amber-200 bg-amber-50 text-amber-800' : 'hidden'}`;
+  hint.textContent = problems.length ? `Falta en tu .env (y en Render): ${problems.join(' y ')}.` : '';
+  $('maps-preview-btn').disabled = !apify;
+  $('maps-import-btn').disabled = !apify;
+  $('maps-last-run').textContent = 'Cada día a las 8:00 (Nueva York) el servidor de la campaña hace sus búsquedas solo, con el autopilot activado.';
+}
+
 async function loadLeadsSources() {
   await loadLeadStats();
   renderCtLastRun();
+  renderMapsCard();
 }
 
 // ─── Tab: Fuentes · CSV with column mapping ──────────────────────────────────
@@ -333,7 +377,7 @@ function leadRow(l) {
   // On a phone the Estado and Acción columns don't fit: they go under the name instead
   return `
     <tr class="table-row">
-      <td>${nameCell(l.name, `${l.city || '—'}${l.zip ? ` · ${l.zip}` : ''}`, true)}<div class="mt-1 max-w-[16rem] truncate pl-12 text-xs text-slate-400 lg:hidden">${esc(l.email)}</div>
+      <td>${nameCell(l.name, l.source === 'gmaps' ? `${l.city || '—'}${l.state ? `, ${l.state}` : ''}${l.reviews ? ` · ${l.rating ?? ''}★ ${l.reviews} reseñas` : ''}` : `${l.city || '—'}${l.zip ? ` · ${l.zip}` : ''}`, true)}<div class="mt-1 max-w-[16rem] truncate pl-12 text-xs text-slate-400 lg:hidden">${esc(l.email)}</div>
         <div class="mt-2.5 pl-12 sm:hidden">${status}${actions ? `<div class="mt-2 flex flex-wrap gap-1.5">${actions}</div>` : ''}</div></td>
       <td class="hidden lg:table-cell"><span class="text-[13px] text-slate-600">${esc(l.email)}</span></td>
       <td class="hidden md:table-cell"><div class="flex items-center gap-1.5 whitespace-nowrap text-[13px] text-slate-600">${esc(SECTORS[l.sector] || l.sector || '—')}${flags}</div></td>
@@ -465,7 +509,8 @@ async function saveAutopilotLimit(btn) {
 }
 
 // Which "new" leads the send targets. Empty string = no filter on that field.
-const sendFilters = () => ({ source: $('send-source').value, batch: $('send-batch').value, sector: $('send-sector').value, priority: $('send-priority').value });
+const sendCampaign = () => ($('send-campaign').value === 'maps' ? 'maps' : 'llc');
+const sendFilters = () => ({ source: sendCampaign() === 'maps' ? 'gmaps' : $('send-source').value, batch: $('send-batch').value, sector: $('send-sector').value, priority: $('send-priority').value });
 
 function fillSendFilterOptions() {
   if ($('send-sector').options.length) return;
@@ -495,6 +540,7 @@ async function updateSendCount() {
   const qs = new URLSearchParams({ status: 'new', limit: '1' });
   if (leadStats?.demos?.enabled) qs.set('demo', 'ready');   // with demos, only leads whose site is ready get sent
   for (const [k, v] of Object.entries(f)) if (v) qs.set(k, v);
+  if (sendCampaign() === 'llc') qs.set('notSource', 'gmaps');   // Google Maps leads have their own campaign
   const { total } = await leadsApi(`/?${qs}`).catch(() => ({ total: 0 }));
   $('send-new-count').textContent = nf(total);
   $('send-btn').disabled = total === 0;
@@ -503,9 +549,14 @@ async function updateSendCount() {
 
 async function loadLeadsSend() {
   fillSendFilterOptions();
-  const [stats, tpl] = await Promise.all([loadLeadStats(), leadsApi('/email-template'), loadSendBatches(), loadAutopilot()]);
+  const [stats, tpl] = await Promise.all([loadLeadStats(), leadsApi(`/email-template?campaign=${sendCampaign()}`), loadSendBatches(), loadAutopilot()]);
   renderDemosCard(stats?.demos);
-  $('tpl-version').textContent = tpl.demos ? 'Versión con demo: enlaza a la web de cada lead ({{web}}).' : 'Versión clásica: enlaza a la página para pedir la llamada.';
+  const mapsOn = sendCampaign() === 'maps';
+  $('send-source').disabled = mapsOn;
+  $('send-campaign-hint').textContent = mapsOn
+    ? (stats?.instantly?.mapsCampaign ? `Campaña de Google Maps ${stats.instantly.mapsCampaign}… · pega el texto de la derecha en ESA campaña de Instantly.` : 'Falta INSTANTLY_CAMPAIGN_ID_MAPS en tu .env: crea una campaña nueva en Instantly para esta y pon su ID.')
+    : 'Cada campaña tiene su propio texto de email en Instantly.';
+  $('tpl-version').textContent = mapsOn ? 'Campaña Google Maps: texto propio, siempre con la web de demo ({{web}}).' : tpl.demos ? 'Versión con demo: enlaza a la web de cada lead ({{web}}).' : 'Versión clásica: enlaza a la página para pedir la llamada.';
   $('tpl-subject').value = tpl.subject;
   $('tpl-body').value = tpl.body;
   $('tpl-vars').innerHTML = tpl.variables.map(v => `<code class="rounded-lg bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700 ring-1 ring-inset ring-brand-100">{{${esc(v)}}}</code>`).join('');
@@ -526,6 +577,63 @@ async function loadLeadsSend() {
   $('poll-hint').textContent = configured
     ? 'El servidor de la campaña lo comprueba solo cada 5 minutos; aquí puedes hacerlo ahora mismo.'
     : 'Necesita Instantly configurado (arriba).';
+}
+
+// ─── Tab: Seguimiento ────────────────────────────────────────────────────────
+// Those who opened their demo website and have not replied: a separate Instantly campaign, 7 emails, one a day.
+
+const FOLLOWUP_STATE = {
+  active:  { label: 'En la secuencia', badge: 'badge-blue' },
+  replied: { label: 'Respondió',       badge: 'badge-green' },
+  cold:    { label: 'Enfriado',        badge: 'badge-prospected' },
+};
+
+function renderFollowup(f) {
+  const pill = $('followup-pill'), hint = $('followup-hint');
+  pill.className = `badge ${f.configured ? 'badge-green' : 'badge-red'}`;
+  pill.textContent = f.configured ? `Campaña ${f.campaign}…` : 'Falta configurar';
+  hint.className = `mt-4 rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed ${f.configured ? 'hidden' : 'border-rose-200 bg-rose-50 text-rose-700'}`;
+  hint.textContent = f.configured ? '' : 'Falta INSTANTLY_CAMPAIGN_ID_FOLLOWUP en tu .env y en Render (el ID de la campaña de seguimiento en Instantly).';
+  $('fu-waiting').textContent = nf(f.counts.waiting);
+  $('fu-active').textContent = nf(f.counts.active);
+  $('fu-replied').textContent = nf(f.counts.replied);
+  $('fu-cold').textContent = nf(f.counts.cold);
+  set('count-followup', f.counts.waiting + f.counts.active);
+  $('followup-run-btn').disabled = !f.configured || !f.counts.waiting;
+
+  const tbody = $('followup-table');
+  if (!f.leads.length) {
+    tbody.innerHTML = emptyRow(5, f.counts.waiting ? 'Todavía no ha entrado nadie. Pulsa «Pasarlos ahora» o espera al próximo ciclo (cada 30 minutos).' : 'Cuando alguien abra su web y no responda, aparecerá aquí.', 'repeat');
+    return;
+  }
+  tbody.innerHTML = f.leads.map((l) => {
+    const st = FOLLOWUP_STATE[l.state];
+    return `<tr class="table-row">
+      <td>${nameCell(l.name, l.city || '', true)}</td>
+      <td class="hidden md:table-cell"><span class="text-[13px] text-slate-600">${esc(l.email)}</span></td>
+      <td class="text-[13px] font-semibold tabular-nums text-slate-700">${l.state === 'replied' ? '—' : `${l.day} de ${f.days}`}</td>
+      <td><span class="badge ${st.badge}">${esc(st.label)}</span></td>
+      <td class="hidden sm:table-cell text-[13px] text-slate-500">${fmtDate(l.followup_at)}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadLeadsFollowup() {
+  renderFollowup(await leadsApi('/followup'));
+}
+
+async function runFollowup(btn) {
+  await withBusy(btn, 'Pasando…', async () => {
+    const r = await leadsApi('/followup/run', { method: 'POST' });
+    const skipped = Object.entries({ notInInstantly: 'No están en Instantly', bounced: 'Rebotados', unsubscribed: 'Dados de baja', replied: 'Ya habían respondido en Instantly' })
+      .filter(([k]) => r.skipped?.[k]).map(([k, label]) => statLine(label, r.skipped[k], 'text-slate-500')).join('');
+    const body = (r.dryRun ? statLine('Leads que pasarían al seguimiento', r.moved) : statLine('Pasados al seguimiento', r.moved, 'text-emerald-700')) + skipped
+      + (r.campaign === 'resumed' ? '<p class="mt-2 text-xs text-slate-500">La campaña de seguimiento estaba terminada: la he reanudado.</p>' : '');
+    $('followup-result').innerHTML = resultBox(r.dryRun ? 'Modo prueba · no se ha movido nada' : 'Hecho', r.dryRun, body);
+    $('followup-result').classList.remove('hidden');
+    if (!r.dryRun && r.moved) toast(`${nf(r.moved)} leads pasan al seguimiento`);
+  });
+  await loadLeadsFollowup();
 }
 
 function renderDemosCard(d) {
@@ -579,7 +687,7 @@ async function pushToInstantly(btn) {
   })) return;
 
   await withBusy(btn, 'Enviando…', async () => {
-    const r = await leadsApi('/push', { method: 'POST', body: { limit, ...filters } });
+    const r = await leadsApi('/push', { method: 'POST', body: { limit, campaign: sendCampaign(), ...filters } });
     if (r.campaign === 'resumed') toast('La campaña de Instantly estaba completada: la he reanudado');
     const body = r.dryRun
       ? statLine('Leads que se habrían enviado', r.pushed)
@@ -606,6 +714,8 @@ async function copyField(id, btn) {
 
 // ─── Events ──────────────────────────────────────────────────────────────────
 
+$('maps-preview-btn').addEventListener('click', (e) => runMapsIngest(true, e.currentTarget));
+$('maps-import-btn').addEventListener('click', (e) => runMapsIngest(false, e.currentTarget));
 $('ct-preview-btn').addEventListener('click', (e) => runCtIngest(true, e.currentTarget));
 $('ct-import-btn').addEventListener('click', (e) => runCtIngest(false, e.currentTarget));
 
@@ -676,11 +786,13 @@ $('autopilot-all').addEventListener('change', (e) => toggleAutopilotAll(e.curren
 $('demos-btn').addEventListener('click', (e) => createDemos(e.currentTarget));
 $('autopilot-save-btn').addEventListener('click', (e) => saveAutopilotLimit(e.currentTarget));
 $('send-source').addEventListener('change', onSendSourceChange);
+$('send-campaign').addEventListener('change', loadLeadsSend);
 $('send-batch').addEventListener('change', onSendBatchChange);
 $('send-sector').addEventListener('change', updateSendCount);
 $('send-priority').addEventListener('change', updateSendCount);
 $('send-btn').addEventListener('click', (e) => pushToInstantly(e.currentTarget));
 $('poll-btn').addEventListener('click', (e) => pollInstantly(e.currentTarget));
+$('followup-run-btn').addEventListener('click', (e) => runFollowup(e.currentTarget));
 document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', () => copyField(btn.dataset.copy, btn)));
 
 loadLeadStats();

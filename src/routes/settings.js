@@ -5,7 +5,7 @@ import supabase from '../db/supabase.js';
 const router = Router();
 
 const ALLOWED_KEYS = [
-  'anthropic_api_key', 'resend_api_key', 'resend_from_email',
+  'anthropic_api_key',
   'google_places_api_key', 'vercel_token', 'vercel_scope',
 ];
 

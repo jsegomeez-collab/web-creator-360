@@ -57,25 +57,6 @@
         </div>
       </div>
 
-      <!-- Email -->
-      <div class="card rounded-2xl p-6">
-        <p class="section-label mb-4">Email (Resend)</p>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-slate-300 mb-1.5">
-              Resend API Key
-              <a href="https://resend.com/api-keys" target="_blank" class="ml-2 text-xs text-indigo-400 hover:text-indigo-300">Obtener →</a>
-            </label>
-            <input id="resend_api_key" type="password" placeholder="re_..." class="w-full px-4 py-2.5 rounded-xl text-sm" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-300 mb-1.5">Email remitente</label>
-            <input id="resend_from_email" type="email" placeholder="hola@tudominio.com" class="w-full px-4 py-2.5 rounded-xl text-sm" />
-            <p class="text-xs text-slate-600 mt-1">Debe ser un dominio verificado en Resend</p>
-          </div>
-        </div>
-      </div>
-
       <!-- Prospecting -->
       <div class="card rounded-2xl p-6">
         <p class="section-label mb-4">Prospección (Google Places)</p>
@@ -129,7 +110,7 @@
     const token = localStorage.getItem('wc360_token');
     if (!token) window.location.href = '/login.html';
 
-    const FIELDS = ['anthropic_api_key','resend_api_key','resend_from_email','google_places_api_key','vercel_token','vercel_scope'];
+    const FIELDS = ['anthropic_api_key','google_places_api_key','vercel_token','vercel_scope'];
 
     function showAlert(msg, type = 'success') {
       const el = document.getElementById('alert');

@@ -24,9 +24,7 @@ router.post('/run', async (req, res) => {
         status: 'done',
         scraped: result.scraped,
         generated: result.generated,
-        sent: result.sent,
         errors: result.errors,
-        skipped_no_email: result.skipped_no_email,
       }) + '\n');
     }
   } catch (err) {

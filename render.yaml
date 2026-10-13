@@ -30,10 +30,6 @@ services:
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
-      - key: RESEND_API_KEY
-        sync: false
-      - key: RESEND_FROM_EMAIL
-        sync: false
       - key: VERCEL_TOKEN
         sync: false
       - key: VERCEL_SCOPE
@@ -62,6 +58,12 @@ services:
       - key: INSTANTLY_API_KEY
         sync: false
       - key: INSTANTLY_CAMPAIGN_ID
+        sync: false
+      - key: INSTANTLY_CAMPAIGN_ID_MAPS
+        sync: false
+      - key: INSTANTLY_CAMPAIGN_ID_FOLLOWUP
+        sync: false
+      - key: APIFY_TOKEN
         sync: false
       - key: CAMPAIGN_PUBLIC_URL
         sync: false
@@ -97,6 +99,20 @@ services:
         sync: false
       - key: INSTANTLY_CAMPAIGN_ID
         sync: false
+      # Campaign 2 (Google Maps businesses without a website): its own Instantly campaign + its own copy. Apify does the search.
+      - key: INSTANTLY_CAMPAIGN_ID_MAPS
+        sync: false
+      # Campaign 3, follow-up: those who opened their demo website and have not replied (7 emails, one a day)
+      - key: INSTANTLY_CAMPAIGN_ID_FOLLOWUP
+        sync: false
+      - key: APIFY_TOKEN
+        sync: false
+      - key: MAPS_RUNS_PER_DAY            # searches per day (each = one city + 3 categories). Default 2
+        value: "2"
+      - key: MAPS_MAX_PER_SEARCH          # max places per search (caps the Apify cost). Default 40
+        value: "40"
+      - key: MAPS_LOOKUPS_PER_RUN         # places per run whose Facebook page is searched for an email (~$0.015 each). Default 60
+        value: "60"
       - key: CAMPAIGN_PUBLIC_URL              # this service's own https URL — needed for autopilot's send cron to build each lead's link
         sync: false
       - key: TELEGRAM_BOT_TOKEN

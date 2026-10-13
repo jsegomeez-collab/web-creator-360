@@ -245,13 +245,13 @@ test('generateAllDemos: se para al agotar el tiempo y el siguiente ciclo contin�
 import { expireDemos } from '../src/services/leadDemos.js';
 import { deleteVercelProject } from '../src/services/vercel.js';
 
-test('expireDemos: a los 7 días del envío se borra la web de Vercel y se marca caducada; las de quien pidió llamada, respondió o aún no se envió se quedan', async () => {
+test('expireDemos: a los 30 días del envío se borra la web de Vercel y se marca caducada; las de quien pidió llamada, respondió o aún no se envió se quedan', async () => {
   const NOW = new Date('2026-10-20T10:00:00Z');
   const ago = (d) => new Date(NOW.getTime() - d * 86_400_000).toISOString();
-  const lead = (i, over) => mkLead(i, { demo_status: 'ready', demo_url: `https://web-${i}.vercel.app`, demo_at: ago(9), pushed_at: ago(8), status: 'emailed', ...over });
+  const lead = (i, over) => mkLead(i, { demo_status: 'ready', demo_url: `https://web-${i}.vercel.app`, demo_at: ago(33), pushed_at: ago(32), status: 'emailed', ...over });
   const db = createMemoryDb({
     new_business_leads: [lead(1), lead(2, { status: 'engaged' }), lead(3, { status: 'requested' }), lead(4, { status: 'replied' }), lead(5, { status: 'new', pushed_at: null }),
-      lead(6, { pushed_at: ago(3) }), lead(7, { pushed_at: ago(9), demo_at: ago(2) }), lead(8, { site_id: 'S8' })],
+      lead(6, { pushed_at: ago(25) }), lead(7, { pushed_at: ago(33), demo_at: ago(2) }), lead(8, { site_id: 'S8' }), lead(9, { pushed_at: ago(8), status: 'engaged' })],
     generated_sites: [{ id: 'S8', slug: 'web-8', status: 'demo' }],
   });
   const removed = [];
@@ -259,13 +259,14 @@ test('expireDemos: a los 7 días del envío se borra la web de Vercel y se marca
   assert.deepEqual(removed.sort(), ['web-1', 'web-2', 'web-8']);
   assert.deepEqual(r, { expired: 3, failed: 0 });
   const st = (id) => row(db, id).demo_status;
-  assert.deepEqual(['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map(st), ['expired', 'expired', 'ready', 'ready', 'ready', 'ready', 'ready', 'expired']);
+  // L6 (25 días) y L9 (8 días, abrió la web: sigue en seguimiento) se quedan: ya no se borran a los 7 días
+  assert.deepEqual(['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'].map(st), ['expired', 'expired', 'ready', 'ready', 'ready', 'ready', 'ready', 'expired', 'ready']);
   assert.equal(db.rows('generated_sites')[0].status, 'expired');
 });
 
 test('expireDemos: si Vercel falla con una web, sigue con las demás y esa queda lista para el día siguiente', async () => {
   const NOW = new Date('2026-10-20T10:00:00Z');
-  const old = new Date(NOW.getTime() - 9 * 86_400_000).toISOString();
+  const old = new Date(NOW.getTime() - 33 * 86_400_000).toISOString();
   const db = createMemoryDb({ new_business_leads: [1, 2].map(i => mkLead(i, { demo_status: 'ready', demo_url: `https://web-${i}.vercel.app`, demo_at: old, pushed_at: old, status: 'emailed' })) });
   const r = await expireDemos({ db, ownerId: OWNER, now: NOW, remove: async (n) => { if (n === 'web-1') throw new Error('Vercel no borró web-1 (HTTP 500)'); } });
   assert.deepEqual(r, { expired: 1, failed: 1 });

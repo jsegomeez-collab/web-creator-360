@@ -182,15 +182,14 @@
       <button class="nav-item" data-tab="prospecting"><i data-lucide="search"></i><span>Prospección</span><span class="nav-count" id="count-prospected">0</span></button>
       <button class="nav-item" data-tab="scraping"><i data-lucide="scan-search"></i><span>Scraping</span><span class="nav-count" id="count-to-scrape">0</span></button>
       <button class="nav-item" data-tab="generation"><i data-lucide="wand-sparkles"></i><span>Crear webs</span><span class="nav-count" id="count-to-generate">0</span></button>
-      <button class="nav-item" data-tab="outreach"><i data-lucide="send"></i><span>Enviar</span><span class="nav-count" id="count-to-send">0</span></button>
 
       <div class="nav-group">LLCs nuevas</div>
       <button class="nav-item" data-tab="leads-sources"><i data-lucide="database"></i><span>Fuentes</span></button>
       <button class="nav-item" data-tab="leads-list"><i data-lucide="users"></i><span>Leads</span><span class="nav-count" id="count-leads-new">0</span></button>
       <button class="nav-item" data-tab="leads-send"><i data-lucide="rocket"></i><span>Envío</span></button>
+      <button class="nav-item" data-tab="leads-followup"><i data-lucide="repeat"></i><span>Seguimiento</span><span class="nav-count" id="count-followup">0</span></button>
 
       <div class="nav-group">Gestión</div>
-      <button class="nav-item" data-tab="followup"><i data-lucide="repeat"></i><span>Seguimiento</span></button>
       <button class="nav-item" data-tab="payments"><i data-lucide="credit-card"></i><span>Pagos</span><span class="nav-count" id="count-paid">0</span></button>
     </nav>
 
@@ -437,61 +436,6 @@
         </div>
       </section>
 
-      <!-- ─── ENVIAR (Google Maps) ────────────────────────────────────────── -->
-      <section id="tab-outreach" class="tab-hidden">
-        <div class="page-head">
-          <div><p class="eyebrow">Google Maps</p><h1 class="page-title mt-1.5">Enviar propuestas</h1><p class="page-sub">Cada negocio recibe un email profesional con el enlace a su nueva web.</p></div>
-        </div>
-
-        <div class="card mb-6">
-          <div class="card-body">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <span class="icon-tile bg-brand-50 text-brand-600"><i data-lucide="mails"></i></span>
-              <div class="flex-1">
-                <p class="text-sm font-semibold text-slate-900">Envío masivo</p>
-                <p class="mt-0.5 text-[13px] text-slate-500"><span id="bulk-ready-count" class="font-semibold text-slate-800">—</span> negocios con email listo. Los de EE. UU. lo reciben en inglés.</p>
-              </div>
-              <button id="send-all-btn" onclick="sendAll()" class="btn-primary"><i data-lucide="send"></i>Enviar a todos</button>
-            </div>
-          </div>
-          <div id="bulk-log" class="hidden overflow-hidden rounded-b-2xl">
-            <div class="flex items-center justify-between gap-3 border-y border-white/5 bg-[#0B1022] px-4 py-2.5">
-              <span class="text-xs font-medium text-slate-400">Progreso</span>
-              <span id="bulk-status-badge" class="badge badge-blue">Enviando…</span>
-            </div>
-            <div id="bulk-log-entries" class="console !rounded-none"></div>
-          </div>
-        </div>
-
-        <div class="card overflow-hidden">
-          <div class="card-header">
-            <h2 class="card-title">Listas para enviar</h2>
-            <button onclick="loadSection('outreach')" class="icon-btn" title="Actualizar" aria-label="Actualizar"><i data-lucide="refresh-cw"></i></button>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Negocio</th><th class="hidden md:table-cell">Email</th><th class="hidden sm:table-cell">Web</th><th class="text-right">Acción</th></tr></thead>
-              <tbody id="outreach-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- ─── SEGUIMIENTO ─────────────────────────────────────────────────── -->
-      <section id="tab-followup" class="tab-hidden">
-        <div class="page-head">
-          <div><p class="eyebrow">Gestión</p><h1 class="page-title mt-1.5">Seguimiento</h1><p class="page-sub">Todos los emails enviados a negocios de Google Maps y sus recordatorios automáticos.</p></div>
-        </div>
-        <div class="card overflow-hidden">
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Negocio</th><th class="hidden md:table-cell">Email</th><th>Envío</th><th class="hidden lg:table-cell">Próximo</th><th class="hidden sm:table-cell">Enviado</th></tr></thead>
-              <tbody id="followup-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       <!-- ─── PAGOS ───────────────────────────────────────────────────────── -->
       <section id="tab-payments" class="tab-hidden">
         <div class="page-head">
@@ -547,6 +491,28 @@
         <div class="leads-error alert-error mb-6 hidden"></div>
 
         <div class="grid items-start gap-6 xl:grid-cols-5">
+          <div class="card xl:col-span-5">
+            <div class="card-body">
+              <div class="flex items-start gap-4">
+                <span class="icon-tile bg-amber-50 text-amber-600"><i data-lucide="map-pin"></i></span>
+                <div class="min-w-0 flex-1"><h2 class="card-title">Google Maps · negocios sin web</h2><p class="card-sub">Busca en Google Maps negocios que no tienen página web (Florida, Texas y Nueva Jersey), saca su email de su página de Facebook (comprobando que es el mismo negocio) y los guarda como leads de la campaña 2, que se escribe en inglés. Cada búsqueda es una ciudad distinta, en rotación. Los dueños latinos salen marcados con una estrella.</p></div>
+                <span id="maps-pill" class="badge badge-prospected shrink-0">…</span>
+              </div>
+              <p id="maps-hint" class="mt-4 hidden rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed"></p>
+              <div class="mt-5 flex items-start gap-2.5 rounded-xl bg-slate-50 px-3.5 py-3 text-[13px] text-slate-600">
+                <i data-lucide="clock" class="mt-0.5 h-4 w-4 shrink-0 text-slate-400"></i><span id="maps-last-run">Cargando…</span>
+              </div>
+              <div class="mt-5 flex flex-wrap items-end gap-3">
+                <div><label class="label" for="maps-max">Negocios por búsqueda</label><input type="number" id="maps-max" min="1" max="200" value="20" class="input w-32" /></div>
+                <div><label class="label" for="maps-lookups">Búsquedas de email (Facebook)</label><input type="number" id="maps-lookups" min="0" max="200" value="20" class="input w-32" /></div>
+                <button id="maps-preview-btn" class="btn-secondary"><i data-lucide="eye"></i>Vista previa</button>
+                <button id="maps-import-btn" class="btn-primary"><i data-lucide="download"></i>Buscar y guardar</button>
+              </div>
+              <p class="hint">Las dos gastan crédito de Apify: unos $0,006 por negocio buscado en Maps más unos $0,015 por cada búsqueda de email (sale email en ~1 de cada 5). La vista previa busca igual, pero no guarda nada. Pon pocos para probar.</p>
+              <div id="maps-result" class="mt-5 hidden"></div>
+            </div>
+          </div>
+
           <div class="card xl:col-span-2">
             <div class="card-body">
               <div class="flex items-start gap-4">
@@ -640,6 +606,7 @@
                 <option value="">Todo origen</option>
                 <option value="ct_registry">Registro oficial</option>
                 <option value="csv_import">CSV</option>
+                <option value="gmaps">Google Maps (sin web)</option>
               </select>
             </div>
           </div>
@@ -660,6 +627,45 @@
       </section>
 
       <!-- ─── LLCs NUEVAS · ENVÍO ─────────────────────────────────────────── -->
+      <!-- ─── LLCs NUEVAS · SEGUIMIENTO ───────────────────────────────────── -->
+      <section id="tab-leads-followup" class="tab-hidden">
+        <div class="page-head">
+          <div><p class="eyebrow">LLCs nuevas</p><h1 class="page-title mt-1.5">Seguimiento</h1><p class="page-sub">Los que abren su web y no responden pasan solos a una campaña aparte de Instantly: un email al día durante 7 días. Si responden, Instantly corta la secuencia.</p></div>
+        </div>
+
+        <div class="leads-error alert-error mb-6 hidden"></div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-start gap-4">
+              <span class="icon-tile bg-violet-50 text-violet-600"><i data-lucide="repeat"></i></span>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2"><h2 class="card-title">Recordatorios a quien abrió su web</h2><span id="followup-pill" class="badge badge-prospected">…</span></div>
+                <p class="card-sub">El servidor de la campaña los pasa cada 30 minutos. También puedes hacerlo ahora mismo.</p>
+              </div>
+              <button id="followup-run-btn" class="btn-primary shrink-0"><i data-lucide="send"></i>Pasarlos ahora</button>
+            </div>
+            <p id="followup-hint" class="mt-4 hidden rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed"></p>
+            <div class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div class="rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3"><p class="text-xs font-medium text-slate-500">Esperando a entrar</p><p id="fu-waiting" class="mt-1 text-xl font-bold text-slate-800">—</p></div>
+              <div class="rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3"><p class="text-xs font-medium text-slate-500">En la secuencia</p><p id="fu-active" class="mt-1 text-xl font-bold text-violet-700">—</p></div>
+              <div class="rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3"><p class="text-xs font-medium text-slate-500">Han respondido</p><p id="fu-replied" class="mt-1 text-xl font-bold text-emerald-700">—</p></div>
+              <div class="rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3"><p class="text-xs font-medium text-slate-500">Enfriados (7 días sin respuesta)</p><p id="fu-cold" class="mt-1 text-xl font-bold text-slate-500">—</p></div>
+            </div>
+            <div id="followup-result" class="mt-5 hidden"></div>
+          </div>
+        </div>
+
+        <div class="card mt-6 overflow-hidden">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Negocio</th><th class="hidden md:table-cell">Email</th><th>Día</th><th>Estado</th><th class="hidden sm:table-cell">Entró</th></tr></thead>
+              <tbody id="followup-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <section id="tab-leads-send" class="tab-hidden">
         <div class="page-head">
           <div><p class="eyebrow">LLCs nuevas</p><h1 class="page-title mt-1.5">Envío con Instantly</h1><p class="page-sub">Instantly manda un solo email por lead desde sus propios buzones. Aquí decides qué se envía y cuándo, o dejas que el autopilot lo haga por ti.</p></div>
@@ -739,6 +745,15 @@
                 </div>
                 <p id="send-hint" class="hidden"></p>
 
+                <div class="mt-5">
+                  <label class="label" for="send-campaign">Campaña de Instantly</label>
+                  <select id="send-campaign" class="input">
+                    <option value="llc">LLCs nuevas</option>
+                    <option value="maps">Google Maps · negocios sin web</option>
+                  </select>
+                  <p id="send-campaign-hint" class="hint">Cada campaña tiene su propio texto de email en Instantly.</p>
+                </div>
+
                 <div class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
                   <div>
                     <label class="label" for="send-source">Origen</label>
@@ -746,6 +761,7 @@
                       <option value="">Todo origen</option>
                       <option value="ct_registry">Registro oficial</option>
                       <option value="csv_import">CSV</option>
+                <option value="gmaps">Google Maps (sin web)</option>
                     </select>
                   </div>
                   <div>
@@ -808,22 +824,6 @@
       </section>
 
     </main>
-  </div>
-
-  <!-- ─── EMAIL MODAL ───────────────────────────────────────────────────── -->
-  <div id="email-modal" class="modal-backdrop hidden">
-    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="email-modal-title">
-      <div class="flex items-start gap-4">
-        <span class="icon-tile bg-brand-50 text-brand-600"><i data-lucide="mail"></i></span>
-        <div><h2 id="email-modal-title" class="text-base font-semibold text-slate-900">Enviar propuesta</h2><p class="mt-1 text-[13px] text-slate-500">Escribe el email del negocio y le mandamos el enlace a su web.</p></div>
-      </div>
-      <label class="label mt-6" for="modal-email">Email de contacto</label>
-      <input type="email" id="modal-email" class="input" placeholder="hola@negocio.com" />
-      <div class="mt-6 flex gap-3">
-        <button id="modal-cancel" class="btn-secondary flex-1">Cancelar</button>
-        <button id="modal-send" class="btn-primary flex-1">Enviar email</button>
-      </div>
-    </div>
   </div>
 
   <div id="toast-stack" class="pointer-events-none fixed inset-x-4 top-4 z-[60] flex flex-col items-center gap-2 sm:inset-x-auto sm:right-6 sm:items-end" aria-live="polite"></div>

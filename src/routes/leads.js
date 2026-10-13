@@ -3,12 +3,15 @@
 //   GET   /stats                   funnel counts + last ingest + Instantly status
 //   GET   /                        leads (filters: status, sector, priority, source, batch, demo, q; limit, offset)
 //   PATCH /:id                     manual status: replied | called | won | lost
-//   POST  /ingest/ct               Connecticut registry ({ days?, dryRun? })
+//   POST  /ingest/ct               new-LLC registry ({ days?, dryRun? })
+//   POST  /ingest/maps             campaign 2: Google Maps businesses without a website, via Apify ({ dryRun?, maxPerSearch?, lookups? })
 //   POST  /import/csv/preview      read a CSV: columns, first rows and a suggested mapping
 //   POST  /import/csv              import a CSV with a column mapping ({ csv, mapping, filename?, dryRun? })
 //   GET   /import-batches          past CSV imports still with "new" leads, so you can pick one to send ({ batch, count })
-//   POST  /push                    send the newest "new" leads to the Instantly campaign ({ limit, source?, sector?, priority?, batch? })
+//   POST  /push                    send the newest "new" leads to the Instantly campaign ({ limit, campaign?: 'llc'|'maps', source?, sector?, priority?, batch? })
 //   POST  /poll-instantly          check Instantly now for sent/bounced/unsubscribed/replied (the cron does this every 5 min)
+//   GET   /followup                who opened their website: waiting / in the 7-day sequence / replied / cold
+//   POST  /followup/run            move to the follow-up campaign now those who opened their website and have not replied
 //   GET   /autopilot               unattended ingest + send, run by the campaign server's crons: { enabled, pushLimit, demoAll }
 //   PUT   /autopilot               change it ({ enabled?, pushLimit?, demoAll? })
 //   GET   /email-template          the email text to paste in Instantly (the demo version when LEAD_DEMOS=true)
@@ -18,6 +21,9 @@ import { Router } from 'express';
 import { isDryRun } from '../lib/dryRun.js';
 import { selectAll } from '../lib/selectAll.js';
 import { runCtIngest, FIRST_RUN_DAYS } from '../services/ctIngest.js';
+import { runMapsProspect } from '../services/mapsProspect.js';
+import { moveToFollowup, followupOverview } from '../services/followup.js';
+import { loadApifyConfig } from '../services/apify.js';
 import { previewCsv, importCsvLeads } from '../services/csvImport.js';
 import { loadInstantlyConfig, pushLeads, resumeIfCompleted } from '../services/instantly.js';
 import { pollInstantlyEvents } from '../services/instantlyPoll.js';
@@ -29,6 +35,7 @@ const TABLE = 'new_business_leads';
 const MANUAL_STATUSES = new Set(['replied', 'called', 'won', 'lost']);
 const LIST_COLUMNS = 'id, name, email, city, zip, sector, priority, status, registered_at, latino_signal, latino_strong, minority_owned, notes, source, pushed_at, emailed_at, engaged_at, replied_at, requested_at, phone, contact_name, preferred_time, site_id, created_at';
 const DEMO_COLUMNS = 'demo_url, demo_status, demo_template, demo_error';
+const MAPS_COLUMNS = 'state, rating, reviews, category';   // schema-maps-leads.sql
 // Before schema-new-business-leads.sql is run again, the demo columns don't exist yet: the dashboard keeps working without them
 const missingColumn = (err) => /column|schema cache/i.test(String(err?.message || err));
 
@@ -37,7 +44,8 @@ const asList = (v) => String(v ?? '').split(',').map(s => s.trim()).filter(Boole
 // verifyOptions / fetchImpl: only for tests (a fake DNS resolver and a fake registry download); production uses the real ones
 // onReply(lead): the Telegram alert for a lead's first reply, fired from /poll-instantly (the campaign server's cron also polls on its own)
 // demoBuild / demoDeploy: only for tests (a fake writer and a fake Vercel); production uses the real ones
-export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, onReply = null, demoBuild, demoDeploy }) {
+// mapsItems / mapsFacebook: only for tests (Apify results already downloaded, and a fake Facebook step)
+export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, onReply = null, demoBuild, demoDeploy, mapsItems = null, mapsFacebook = undefined }) {
   const router = Router();
 
   router.use((req, res, next) => {
@@ -76,7 +84,8 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     const demoReady = !!process.env.ANTHROPIC_API_KEY && !!process.env.VERCEL_TOKEN;
     res.json({
       total: data.length, byStatus, lastRun: runs?.[0] ?? null,
-      instantly: { ready: instantlyReady, dryRun, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null },
+      instantly: { ready: instantlyReady, dryRun, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null, mapsCampaign: (process.env.INSTANTLY_CAMPAIGN_ID_MAPS || '').trim().slice(0, 8) || null },
+      maps: { apify: !!loadApifyConfig().token },
       demos: { enabled: cfg.demos, configured: demoReady, columns: demoColumns, ...demos },
     });
   }));
@@ -94,12 +103,16 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
       if (req.query.sector) query = query.eq('sector', String(req.query.sector));
       if (req.query.priority) query = query.eq('priority', String(req.query.priority));
       if (req.query.source) query = query.eq('source', String(req.query.source));
+      if (req.query.notSource) query = query.neq('source', String(req.query.notSource));   // the LLC campaign = everything but Google Maps
       if (req.query.batch) query = query.eq('import_batch', String(req.query.batch));
       if (req.query.demo) query = query.eq('demo_status', String(req.query.demo));
-      return query.order(requests ? 'requested_at' : 'registered_at', { ascending: false }).order('id');
+      return query.order(requests ? 'requested_at' : 'registered_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false }).order('id');
     });
     let data;
-    try { data = await list(`${LIST_COLUMNS}, ${DEMO_COLUMNS}`); } catch (err) { if (!missingColumn(err)) throw err; data = await list(LIST_COLUMNS); }
+    try { data = await list(`${LIST_COLUMNS}, ${DEMO_COLUMNS}, ${MAPS_COLUMNS}`); } catch (err) {
+      if (!missingColumn(err)) throw err;
+      try { data = await list(`${LIST_COLUMNS}, ${DEMO_COLUMNS}`); } catch (err2) { if (!missingColumn(err2)) throw err2; data = await list(LIST_COLUMNS); }
+    }
 
     const q = String(req.query.q ?? '').trim().toLowerCase();
     const filtered = q ? data.filter(l => l.name.toLowerCase().includes(q) || l.email.includes(q) || (l.city || '').toLowerCase().includes(q)) : data;
@@ -120,6 +133,17 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     if (days !== null && (!Number.isInteger(days) || days < 1 || days > 3650)) return res.status(400).json({ error: 'days debe ser un entero entre 1 y 3650' });
     const r = await runCtIngest({ db, ownerId, days, dryRun: !!dryRun, verifyOptions, fetchImpl });
     res.json({ ...r, firstRunDays: FIRST_RUN_DAYS, leads: undefined, invalid: undefined, invalidEmailCount: r.invalid.length });   // no lists of emails to the screen
+  }));
+
+  // Campaign 2: one run of the Google Maps search (the next city + categories of the rotation). Costs Apify credit, so the
+  // cap per run is small; a dry run also searches (it needs the places) but writes nothing.
+  router.post('/ingest/maps', guard(async (req, res) => {
+    const { dryRun = false, maxPerSearch = 40, lookups = 20 } = req.body || {};
+    if (!Number.isInteger(maxPerSearch) || maxPerSearch < 1 || maxPerSearch > 200) return res.status(400).json({ error: 'maxPerSearch debe ser un entero entre 1 y 200' });
+    if (!Number.isInteger(lookups) || lookups < 0 || lookups > 200) return res.status(400).json({ error: 'lookups debe ser un entero entre 0 y 200' });
+    if (!mapsItems && !loadApifyConfig().token) return res.status(400).json({ error: 'Falta APIFY_TOKEN en tu .env (la búsqueda en Google Maps usa Apify)' });
+    const r = await runMapsProspect({ db, ownerId, dryRun: !!dryRun, maxPerSearch, lookups, items: mapsItems, facebook: mapsFacebook, verifyOptions, fetchImpl });
+    res.json({ ...r, leads: undefined, invalid: undefined, invalidEmailCount: r.invalid.length });   // no lists of emails to the screen
   }));
 
   router.post('/import/csv/preview', guard(async (req, res) => {
@@ -143,8 +167,9 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     const filters = {};
     for (const k of ['source', 'sector', 'priority', 'batch']) if (body[k]) filters[k] = String(body[k]);
     const dryRun = isDryRun();
+    const campaign = body.campaign === 'maps' ? 'maps' : 'llc';
     let config;
-    try { config = loadInstantlyConfig(process.env, { dryRun }); } catch (err) { return res.status(400).json({ error: err.message }); }
+    try { config = loadInstantlyConfig(process.env, { dryRun, campaign }); } catch (err) { return res.status(400).json({ error: err.message }); }
     const result = await pushLeads({ db, ownerId, config, limit, filters, dryRun });
     // A campaign that had finished ("completada") ignores new leads until resumed
     if (result.pushed && !dryRun) result.campaign = await resumeIfCompleted(config, { fetchImpl });
@@ -165,6 +190,21 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     res.json(await pollInstantlyEvents({ db, ownerId, config, fetchImpl, onReply }));
   }));
 
+  // Follow-up: those who opened their website and have not replied go to a separate Instantly campaign (7 emails, one a day).
+  // The campaign server does it by itself every 30 minutes; here you can see who is in it and run it now.
+  router.get('/followup', guard(async (req, res) => {
+    const cfg = loadInstantlyConfig(process.env, { dryRun: true, campaign: 'followup' });
+    const overview = await followupOverview({ db, ownerId });
+    res.json({ ...overview, configured: !cfg.warnings.some(w => w.startsWith('INSTANTLY_CAMPAIGN_ID_FOLLOWUP')), campaign: cfg.campaignId.slice(0, 8) || null });
+  }));
+
+  router.post('/followup/run', guard(async (req, res) => {
+    const dryRun = isDryRun();
+    let config;
+    try { config = loadInstantlyConfig(process.env, { dryRun, campaign: 'followup' }); } catch (err) { return res.status(400).json({ error: err.message }); }
+    res.json(await moveToFollowup({ db, ownerId, config, dryRun, fetchImpl }));
+  }));
+
   router.get('/autopilot', guard(async (req, res) => {
     res.json(await getAutopilotSettings(db, ownerId));
   }));
@@ -181,7 +221,8 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
 
   router.get('/email-template', (req, res) => {
     const demos = loadInstantlyConfig(process.env, { dryRun: true }).demos;
-    res.json({ ...emailTemplate({ demos }), variables: templateVariables({ demos }), demos });
+    const campaign = req.query.campaign === 'maps' ? 'maps' : 'llc';
+    res.json({ ...emailTemplate({ demos, campaign }), variables: templateVariables({ demos, campaign }), demos: demos || campaign === 'maps', campaign });
   });
 
   // Demo websites (template engine + Vercel). Each one takes about a minute, so the batch is kept small here; the

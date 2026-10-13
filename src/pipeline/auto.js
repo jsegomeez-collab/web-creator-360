@@ -3,8 +3,6 @@ import supabase from '../db/supabase.js';
 import { scrapeBusinessProfile } from '../services/businessProfile.js';
 import { generateWebsite } from '../services/claude.js';
 import { deployToVercel } from '../services/vercel.js';
-import { sendOutreach } from '../services/outreach.js';
-import { LEAD_BUSINESS_SOURCE } from '../services/newLeads.js';
 
 const BATCH = 3; // businesses per stage per run (keep API costs controlled)
 const INTER_DELAY = 3000; // ms between API calls
@@ -18,15 +16,14 @@ export async function runAutoPipeline() {
   }
 
   isRunning = true;
-  const stats = { scraped: 0, generated: 0, sent: 0, errors: 0, skipped_no_email: 0 };
+  const stats = { scraped: 0, generated: 0, errors: 0 };
   const log = [];
 
   try {
     console.log('[pipeline] ═══ Auto pipeline starting ═══');
     await stageScrap(stats, log);
     await stageGenerate(stats, log);
-    await stageOutreach(stats, log);
-    console.log(`[pipeline] ═══ Done — scraped:${stats.scraped} generated:${stats.generated} sent:${stats.sent} errors:${stats.errors} ═══`);
+    console.log(`[pipeline] ═══ Done — scraped:${stats.scraped} generated:${stats.generated} errors:${stats.errors} ═══`);
   } finally {
     isRunning = false;
   }
@@ -127,73 +124,6 @@ async function stageGenerate(stats, log) {
       stats.errors++;
       log.push({ stage: 'generate', name: biz.name, status: 'error', reason: err.message });
       console.error(`[pipeline] ✗ Generate failed for "${biz.name}":`, err.message);
-    }
-    await sleep(INTER_DELAY);
-  }
-}
-
-// ─── Stage 3: generated (preview) → sent ───────────────────────────────────
-
-async function stageOutreach(stats, log) {
-  // Only send emails during business hours Mon–Fri 8:00–19:00 (local time)
-  if (!isBusinessHours()) {
-    console.log('[pipeline] Outside business hours — skipping outreach');
-    return;
-  }
-
-  // Sites in preview state with a deployed Vercel URL, not yet sent
-  const { data: candidates } = await supabase
-    .from('generated_sites')
-    .select('id, slug, preview_url, business_id')
-    .eq('status', 'preview')
-    .not('preview_url', 'is', null);
-
-  // Demos of the new-business campaign leads are never sent from here: their contact is the campaign's own flow.
-  // (If the `source` column doesn't exist yet the query returns nothing and everything stays as before.)
-  const { data: leadBusinesses } = await supabase.from('businesses').select('id').eq('source', LEAD_BUSINESS_SOURCE);
-  const campaignOnly = new Set((leadBusinesses || []).map(b => b.id));
-  const sites = (candidates || []).filter(s => !campaignOnly.has(s.business_id)).slice(0, BATCH);
-
-  for (const site of sites) {
-    try {
-      // Check not already contacted
-      const { data: existing } = await supabase
-        .from('outreach_log')
-        .select('id')
-        .eq('site_id', site.id)
-        .limit(1);
-
-      if (existing?.length) {
-        await supabase.from('generated_sites').update({ status: 'sent' }).eq('id', site.id);
-        continue;
-      }
-
-      // Fetch business and email
-      const [{ data: biz }, { data: webData }] = await Promise.all([
-        supabase.from('businesses').select('*').eq('id', site.business_id).single(),
-        supabase.from('business_web_data').select('email, language').eq('business_id', site.business_id).single(),
-      ]);
-
-      const contactEmail = webData?.email || null;
-      const language = webData?.language || 'es';
-
-      if (!contactEmail) {
-        stats.skipped_no_email++;
-        log.push({ stage: 'outreach', name: biz?.name, status: 'skipped', reason: 'sin email' });
-        console.log(`[pipeline] ⚠ No email for "${biz?.name}" — skipping outreach`);
-        continue;
-      }
-
-      console.log(`[pipeline] Emailing ${contactEmail} for "${biz.name}"...`);
-      await sendOutreach(biz, site, contactEmail, language, 0);
-
-      stats.sent++;
-      log.push({ stage: 'outreach', name: biz.name, status: 'ok', email: contactEmail });
-      console.log(`[pipeline] ✓ Email sent to ${contactEmail}`);
-    } catch (err) {
-      stats.errors++;
-      log.push({ stage: 'outreach', name: sites.find(s => s.id === site.id)?.slug, status: 'error', reason: err.message });
-      console.error(`[pipeline] ✗ Outreach failed for site ${site.id}:`, err.message);
     }
     await sleep(INTER_DELAY);
   }

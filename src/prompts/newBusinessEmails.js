@@ -54,9 +54,42 @@ Get ur Web
 
 TRUDSALES LLC (dba Get ur Web) · 7901 4th St N, St. Petersburg, FL 33702, USA`;
 
-export const emailTemplate = ({ demos = false } = {}) => (demos
-  ? { subject: EMAIL_SUBJECT_DEMO, body: EMAIL_BODY_DEMO }
-  : { subject: EMAIL_SUBJECT, body: EMAIL_BODY });
+// CAMPAIGN 2 (Google Maps businesses without a website): its own copy, IN ENGLISH, in its own Instantly campaign. Always with a demo site.
+// It has its own English variables (see leadVariables): {{greeting}} {{business}} {{city}} {{reviews_phrase}} {{site}}
+export const EMAIL_SUBJECT_MAPS = 'A website for {{business}}';
+
+export const EMAIL_BODY_MAPS = `Hi {{greeting}},
+
+
+I was looking at local businesses in {{city}} on Google Maps and found {{business}}{{reviews_phrase}}. I noticed you don't have a website yet.
+
+
+I went ahead and designed one for your business, in English and Spanish. You can see it here
+
+
+{{site}}
+
+
+The photos and some details are samples. If you like it, I'll set it up with your own photos, phone number and services.
+
+
+People search Google before they call anyone, and the business with its own website is the one that gets the call.
+
+
+I'm keeping it online for 7 days. If you want it, reply "YES" with your phone number and I'll call you to fine-tune it.
+
+
+Best,
+Jose
+Get ur Web
+
+
+TRUDSALES LLC (dba Get ur Web) · 7901 4th St N, St. Petersburg, FL 33702, USA`;
+
+export const emailTemplate = ({ demos = false, campaign = 'llc' } = {}) => {
+  if (campaign === 'maps') return { subject: EMAIL_SUBJECT_MAPS, body: EMAIL_BODY_MAPS };
+  return demos ? { subject: EMAIL_SUBJECT_DEMO, body: EMAIL_BODY_DEMO } : { subject: EMAIL_SUBJECT, body: EMAIL_BODY };
+};
 
 // Sector key (from the registry NAICS mapping) → Spanish label. "otro" has none: the text then just says "tu negocio".
 const SECTOR_LABELS = {
@@ -88,11 +121,22 @@ export function displayName(raw) {
 }
 
 // The address of a lead's demo website as it goes in the email: opens in Spanish (the owner reads the email in Spanish)
-export const demoLink = (demoUrl) => (demoUrl ? `${String(demoUrl).replace(/\/+$/, '')}/?lang=es` : '');
+export const demoLink = (demoUrl, lang = 'es') => (demoUrl ? `${String(demoUrl).replace(/\/+$/, '')}/?lang=${lang}` : '');
 
 // The values Instantly puts into the {{variables}} for one lead. `linkUrl` is that lead's own link (the page to ask for the call).
 // `web` is its demo website ('' until it exists), so both versions of the email can be filled from the same values.
 export function leadVariables(lead, linkUrl) {
+  // Google Maps campaign: English email, English demo
+  if (lead.source === 'gmaps') {
+    return {
+      business: displayName(lead.name),
+      city: lead.city || 'your area',
+      greeting: String(lead.contact_name || '').trim().split(/\s+/)[0] || `${displayName(lead.name)} team`,
+      reviews_phrase: mapsReviewsPhrase(lead),
+      site: demoLink(lead.demo_url, 'en'),
+      link: linkUrl,
+    };
+  }
   const label = sectorLabel(lead.sector);
   return {
     empresa: displayName(lead.name),
@@ -106,9 +150,16 @@ export function leadVariables(lead, linkUrl) {
   };
 }
 
+// " (4.8★ from 62 reviews)" — only when Maps really shows both numbers
+export function mapsReviewsPhrase(lead) {
+  const rating = Number(lead.rating), reviews = Number(lead.reviews);
+  if (!rating || !reviews) return '';
+  return ` (${rating}★ from ${reviews} reviews)`;
+}
+
 // {{names}} used by the subject and body of one version
-export const templateVariables = ({ demos = false } = {}) => {
-  const { subject, body } = emailTemplate({ demos });
+export const templateVariables = ({ demos = false, campaign = 'llc' } = {}) => {
+  const { subject, body } = emailTemplate({ demos, campaign });
   return [...new Set([...`${subject}\n${body}`.matchAll(/\{\{(\w+)\}\}/g)].map(m => m[1]))];
 };
 
@@ -118,8 +169,8 @@ const fill = (text, vars) => text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
 });
 
 // What one lead will read (same substitution Instantly does) — for previews and tests
-export function renderEmail(lead, linkUrl, { demos = false } = {}) {
+export function renderEmail(lead, linkUrl, { demos = false, campaign = 'llc' } = {}) {
   const vars = leadVariables(lead, linkUrl);
-  const { subject, body } = emailTemplate({ demos });
+  const { subject, body } = emailTemplate({ demos, campaign });
   return { subject: fill(subject, vars), body: fill(body, vars) };
 }

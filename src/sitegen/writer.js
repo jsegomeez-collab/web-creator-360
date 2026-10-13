@@ -60,7 +60,7 @@ For this business:
 - Words of the sample that must not survive${sampleTerms.length ? `: ${sampleTerms.join(', ')}` : ''}.
 - Brand: "${facts.brand}"; legal name (copyright line only): "${facts.legalName}".
 - Place: ${facts.city}, ${facts.state}.
-- Activity: ${facts.activity || facts.sector}. Registered in ${facts.registeredYear || 'recent years'}: a new business.
+- Activity: ${facts.activity || facts.sector}.${facts.registeredYear ? ` Registered in ${facts.registeredYear}: a new business.` : ''}
 - Contact: email ${facts.email || '(keep the sample email)'}; phone ${facts.phone || '(unknown: keep the sample phone number exactly as it is)'}.`;
   return { stable, variable };
 }

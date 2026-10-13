@@ -24,7 +24,6 @@ fetch('/api/config').then(r => r.json()).then(cfg => {
 // ─── State ────────────────────────────────────────────────────────────────────
 let allBusinesses = [];
 let allSites = [];
-let pendingSiteId = null;
 
 // ─── UI helpers ───────────────────────────────────────────────────────────────
 
@@ -109,7 +108,6 @@ document.getElementById('sidebar-backdrop').addEventListener('click', () => open
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   openDrawer(false);
-  if (!document.getElementById('email-modal').classList.contains('hidden')) closeEmailModal();
 });
 
 // ─── Toasts ───────────────────────────────────────────────────────────────────
@@ -231,7 +229,6 @@ async function loadStats() {
     set('count-prospected', d.businesses.total);
     set('count-to-scrape', d.businesses.prospected);
     set('count-to-generate', d.businesses.scraped);
-    set('count-to-send', d.sites.preview);
     set('count-paid', d.payments.completed);
   } catch (e) {
     console.error('Stats error:', e);
@@ -280,8 +277,6 @@ async function loadSection(tab) {
   if (tab === 'overview' || tab === 'prospecting') renderProspecting();
   if (tab === 'scraping') renderScraping();
   if (tab === 'generation') renderGeneration();
-  if (tab === 'outreach') renderOutreach();
-  if (tab === 'followup') renderFollowup();
   if (tab === 'payments') renderPayments();
   loadStats();
 }
@@ -442,75 +437,6 @@ function renderGeneration() {
         </td>
       </tr>`).join('');
   }
-}
-
-function renderOutreach() {
-  const toSend = allSites.filter(s => s.status === 'preview');
-  const tbody = document.getElementById('outreach-table');
-
-  const readyCount = toSend.filter(s => s.scraped_email).length;
-  const countEl = document.getElementById('bulk-ready-count');
-  if (countEl) countEl.textContent = readyCount;
-
-  if (!toSend.length) {
-    tbody.innerHTML = emptyRow(4, 'No hay webs listas para enviar. Genera webs primero.', 'mail');
-    return;
-  }
-  tbody.innerHTML = toSend.map(s => {
-    const email = s.scraped_email;
-    const emailCell = email
-      ? `<span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-700">${ic('mail', 'h-3.5 w-3.5 text-emerald-500')}${escHtml(email)}</span>`
-      : `<span class="text-xs text-slate-400">Sin email</span>`;
-
-    const sendBtn = email
-      ? `<button class="action-btn btn-send" onclick="sendDirect('${escHtml(s.id)}', this)">${ic('send')}Enviar</button>`
-      : `<button class="action-btn btn-secondary" onclick="openEmailModal('${escHtml(s.id)}')">${ic('plus')}Añadir email</button>`;
-
-    return `
-    <tr class="table-row" id="outreach-row-${escHtml(s.id)}">
-      <td>${nameCell(s.businesses?.name, s.businesses?.category)}</td>
-      <td class="hidden md:table-cell">${emailCell}</td>
-      <td class="hidden sm:table-cell">${linkOut(s.preview_url, 'Ver web')}</td>
-      <td class="text-right">${sendBtn}</td>
-    </tr>`;
-  }).join('');
-}
-
-async function sendDirect(siteId, btn) {
-  const restore = busy(btn, 'Enviando…');
-  try {
-    const r = await fetch(`/api/outreach/${siteId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-    const d = await r.json();
-    if (d.success) {
-      toast(`Enviado a ${d.email}`);
-      const row = document.getElementById(`outreach-row-${siteId}`);
-      if (row) row.remove();
-    } else {
-      toast('Error: ' + d.error, 'error');
-      restore();
-    }
-  } catch (e) {
-    toast('Error de red', 'error');
-    restore();
-  }
-}
-
-async function renderFollowup() {
-  const res = await fetch('/api/dashboard/outreach');
-  const rows = await res.json();
-  const tbody = document.getElementById('followup-table');
-  if (!rows.length) {
-    tbody.innerHTML = emptyRow(5, 'Todavía no has enviado ningún email.', 'repeat');
-    return;
-  }
-  tbody.innerHTML = rows.map(o => `
-    <tr class="table-row">
-      <td>${nameCell(o.businesses?.name)}</td>
-      <td class="hidden md:table-cell">${muted(o.contact)}</td>
-      <td><span class="badge badge-${o.follow_up_number === 0 ? 'generated' : 'sent'}">${o.follow_up_number === 0 ? 'Inicial' : `Recordatorio ${escHtml(o.follow_up_number)}`}</span></td>
-      <td class="hidden lg:table-cell text-[13px] text-slate-500">${o.next_follow_up_at ? fmtDate(o.next_follow_up_at) : '<span class="text-slate-300">—</span>'}</td>
-      <td class="hidden sm:table-cell text-[13px] text-slate-500">${fmtDate(o.sent_at)}</td>
-    </tr>`).join('');
 }
 
 // 49700 + 'usd' → "497,00 US$" (in the currency Stripe charged, not always euros)
@@ -701,60 +627,6 @@ async function generateAll() {
   restore();
   await loadSection('generation');
 }
-
-// ─── Email Modal ──────────────────────────────────────────────────────────────
-
-function openEmailModal(siteId) {
-  pendingSiteId = siteId;
-  document.getElementById('email-modal').classList.remove('hidden');
-  document.getElementById('modal-email').value = '';
-  document.getElementById('modal-email').focus();
-}
-
-function closeEmailModal() {
-  document.getElementById('email-modal').classList.add('hidden');
-  pendingSiteId = null;
-}
-
-document.getElementById('modal-cancel').addEventListener('click', closeEmailModal);
-
-document.getElementById('email-modal').addEventListener('click', (e) => {
-  if (e.target === document.getElementById('email-modal')) closeEmailModal();
-});
-
-document.getElementById('modal-email').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') document.getElementById('modal-send').click();
-});
-
-document.getElementById('modal-send').addEventListener('click', async () => {
-  const email = document.getElementById('modal-email').value.trim();
-  if (!email || !pendingSiteId) return;
-
-  const btn = document.getElementById('modal-send');
-  const restore = busy(btn, 'Enviando…');
-
-  try {
-    const r = await fetch(`/api/outreach/${pendingSiteId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    const d = await r.json();
-
-    if (d.success) {
-      document.getElementById('email-modal').classList.add('hidden');
-      toast('Email enviado a ' + d.email);
-      await loadSection('outreach');
-    } else {
-      toast('Error: ' + d.error, 'error');
-    }
-  } catch {
-    toast('Error de red', 'error');
-  } finally {
-    restore();
-    pendingSiteId = null;
-  }
-});
 
 // ─── Prospect Form ────────────────────────────────────────────────────────────
 
@@ -960,82 +832,6 @@ async function runPipeline() {
     badge.className = 'badge badge-red';
     badge.textContent = 'Error';
     entries.innerHTML += logLine('text-rose-400', 'x', escHtml(e.message));
-  }
-
-  restore();
-}
-
-// ─── Bulk Send ────────────────────────────────────────────────────────────────
-async function sendAll() {
-  const ready = allSites.filter(s => s.status === 'preview' && s.scraped_email);
-  if (!ready.length) { toast('No hay negocios con email para enviar', 'error'); return; }
-
-  const n = ready.length;
-  const confirmed = await ask({
-    title: `¿Enviar ${n} email${n > 1 ? 's' : ''}?`,
-    message: `Cada negocio con email recibirá su propuesta con el enlace a su web. No se puede deshacer.`,
-    confirm: `Enviar ${n}`, icon: 'send',
-  });
-  if (!confirmed) return;
-
-  const btn = document.getElementById('send-all-btn');
-  const logBox = document.getElementById('bulk-log');
-  const entries = document.getElementById('bulk-log-entries');
-  const statusBadge = document.getElementById('bulk-status-badge');
-
-  const restore = busy(btn, 'Enviando…');
-  logBox.classList.remove('hidden');
-  entries.innerHTML = '';
-  statusBadge.className = 'badge badge-blue';
-  statusBadge.textContent = 'Enviando…';
-
-  try {
-    const res = await fetch('/api/outreach/batch', { method: 'POST' });
-    const reader = res.body.getReader();
-    const dec = new TextDecoder();
-    let buf = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buf += dec.decode(value, { stream: true });
-      const lines = buf.split('\n');
-      buf = lines.pop();
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        try {
-          const d = JSON.parse(line);
-          if (d.status === 'start') {
-            entries.innerHTML += logLine('text-slate-400', 'loader', `Procesando ${escHtml(d.total)} negocio${d.total !== 1 ? 's' : ''}…`);
-          } else if (d.status === 'ok') {
-            entries.innerHTML += logLine('text-emerald-400', 'check', `${escHtml(d.name)} — ${escHtml(d.email)}`);
-            entries.scrollTop = entries.scrollHeight;
-          } else if (d.status === 'skipped') {
-            entries.innerHTML += logLine('text-slate-500', 'minus', `${escHtml(d.slug)} — ${escHtml(d.reason)}`);
-            entries.scrollTop = entries.scrollHeight;
-          } else if (d.status === 'error') {
-            entries.innerHTML += logLine('text-rose-400', 'x', `${escHtml(d.slug)} — ${escHtml(d.reason)}`);
-            entries.scrollTop = entries.scrollHeight;
-          } else if (d.status === 'done') {
-            statusBadge.className = 'badge badge-green';
-            statusBadge.textContent = 'Completado';
-            entries.innerHTML += `<div class="mt-3 border-t border-white/10 pt-3 font-semibold text-slate-100">
-              Enviados: ${escHtml(d.sent)} · Omitidos: ${escHtml(d.skipped)} · Errores: ${escHtml(d.errors)}
-            </div>`;
-            toast(`${d.sent} email${d.sent !== 1 ? 's' : ''} enviado${d.sent !== 1 ? 's' : ''}`);
-            loadStats();
-            await fetchAll();
-            renderOutreach();
-          }
-        } catch {}
-      }
-    }
-  } catch (e) {
-    statusBadge.className = 'badge badge-red';
-    statusBadge.textContent = 'Error';
-    entries.innerHTML += logLine('text-rose-400', 'x', escHtml(e.message));
-    toast('Error: ' + e.message, 'error');
   }
 
   restore();

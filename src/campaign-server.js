@@ -4,6 +4,9 @@ import cron from 'node-cron';
 import supabase from './db/supabase.js';
 import { createCampaignApp } from './campaignApp.js';
 import { runCtIngest } from './services/ctIngest.js';
+import { runMapsProspect } from './services/mapsProspect.js';
+import { moveToFollowup } from './services/followup.js';
+import { loadApifyConfig } from './services/apify.js';
 import { loadInstantlyConfig, pushLeads, resumeIfCompleted } from './services/instantly.js';
 import { pollInstantlyEvents } from './services/instantlyPoll.js';
 import { getAutopilotSettings, ALL_MODE_SEND_LIMIT } from './services/autopilot.js';
@@ -17,7 +20,7 @@ if (!ownerId) {
 }
 
 // Filled in below as each unattended part starts (or is skipped, with the reason): read by GET /health
-const autopilotStatus = { ingest: false, poll: false, push: false, demos: false, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null, notes: [] };
+const autopilotStatus = { ingest: false, poll: false, push: false, demos: false, maps: false, followup: false, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null, notes: [] };
 const app = createCampaignApp({ db: supabase, ownerId, onRequested: (lead, values) => alertCallRequest(lead, values), getStatus: () => autopilotStatus });
 
 const PORT = process.env.PORT || 3002;
@@ -72,6 +75,13 @@ autopilotStatus.ingest = true;
 let pushConfig = null;
 try { pushConfig = loadInstantlyConfig(process.env, { dryRun: false }); } catch (err) { console.warn(`Autopilot de envío a Instantly desactivado: ${err.message}`); autopilotStatus.notes.push(`envío y demos desactivados: ${err.message}`); }
 
+// Campaign 2 (Google Maps businesses without a website): its own Instantly campaign and copy. Only active when its campaign id
+// (INSTANTLY_CAMPAIGN_ID_MAPS) is set; the search itself also needs APIFY_TOKEN.
+let mapsPushConfig = null;
+if ((process.env.INSTANTLY_CAMPAIGN_ID_MAPS || '').trim()) {
+  try { mapsPushConfig = loadInstantlyConfig(process.env, { dryRun: false, campaign: 'maps' }); } catch (err) { console.warn(`Campaña de Google Maps desactivada: ${err.message}`); autopilotStatus.notes.push(`campaña de Maps desactivada: ${err.message}`); }
+}
+
 // Demo websites (LEAD_DEMOS=true): the email links to each lead's own site, so the sites are made ahead of the send.
 // Every 10 minutes it tops up the "ready" pile to the next send's size (pushLimit) — at most 3 per tick, one after
 // another — so money is only spent on sites that are about to be emailed. In "all" mode (dashboard switch) it makes
@@ -88,7 +98,7 @@ if (demosOn) {
       let r;
       if (demoAll) r = await generateAllDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, log });
       else {
-        const want = Math.min(3, pushLimit - await readyDemoCount(supabase, ownerId));
+        const want = Math.min(3, pushLimit * (mapsPushConfig ? 2 : 1) - await readyDemoCount(supabase, ownerId));
         if (want <= 0) return;
         r = await generateDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, limit: want, log });
       }
@@ -99,13 +109,73 @@ if (demosOn) {
   }
 }
 
-// Demo sites are kept online 7 days (what the email says) and then removed from Vercel, freeing its 200-project limit
+// Demo sites are kept online 30 days after the send (the follow-up emails point to them) and then removed from Vercel
 if (process.env.VERCEL_TOKEN) {
   every('30 4 * * *', 'la caducidad de webs de demo', async () => {
     const r = await expireDemos({ db: supabase, ownerId, log: (m) => console.log(`[demos] ${m}`) });
     if (r.expired || r.failed) console.log(`[demos] caducadas: ${r.expired} · fallos: ${r.failed}`);
   });
-  console.log('Demos: las webs se retiran de Vercel a los 7 días del envío (cada día a las 4:30 UTC)');
+  console.log('Demos: las webs se retiran de Vercel a los 30 días del envío (cada día a las 4:30 UTC)');
+}
+
+// Campaign 2, search: every day at 8:00 (New York) it runs the next cities + categories of the rotation (MAPS_RUNS_PER_DAY, 2 by
+// default). Each run is capped (MAPS_MAX_PER_SEARCH places per search, MAPS_LOOKUPS_PER_RUN Facebook lookups ≈ $0.015 each, and a
+// hard cost cap in Apify), so the daily bill is small and known (≈ $3 a day by default).
+if (mapsPushConfig && loadApifyConfig().token) {
+  every('0 8 * * *', 'la búsqueda diaria en Google Maps', async () => {
+    const { enabled } = await getAutopilotSettings(supabase, ownerId);
+    if (!enabled) return;
+    const runs = Math.max(1, parseInt(process.env.MAPS_RUNS_PER_DAY, 10) || 2);
+    const maxPerSearch = Math.max(1, parseInt(process.env.MAPS_MAX_PER_SEARCH, 10) || 40);
+    const lookups = Math.max(0, Number.isFinite(parseInt(process.env.MAPS_LOOKUPS_PER_RUN, 10)) ? parseInt(process.env.MAPS_LOOKUPS_PER_RUN, 10) : 60);
+    let inserted = 0;
+    for (let i = 0; i < runs; i++) {
+      const r = await runMapsProspect({ db: supabase, ownerId, maxPerSearch, lookups });
+      inserted += r.inserted;
+      console.log(`[maps] ${r.zone}: ${r.places} negocios sin web encontrados · ${r.facebook?.withEmail ?? 0} emails por Facebook · ${r.inserted} leads nuevos · ${r.costUsd == null ? '' : `$${r.costUsd.toFixed(2)} de Apify`}`);
+    }
+    if (inserted) await sendTelegram(`🤖 Google Maps: ${inserted} leads nuevos de negocios sin web.`);
+  }, { timezone: 'America/New_York' });
+  console.log('Maps: busca negocios latinos sin web cada día a las 8:00 (hora de Nueva York), si el autopilot está activado');
+  autopilotStatus.maps = true;
+} else if (mapsPushConfig) {
+  autopilotStatus.notes.push('campaña de Maps: falta APIFY_TOKEN, no se buscan negocios nuevos');
+}
+
+if (mapsPushConfig) {
+  every('20 */3 * * *', 'el envío automático a la campaña de Maps', async () => {
+    const { enabled, pushLimit, demoAll } = await getAutopilotSettings(supabase, ownerId);
+    if (!enabled) return;
+    const r = await pushLeads({ db: supabase, ownerId, config: mapsPushConfig, limit: demoAll ? ALL_MODE_SEND_LIMIT : pushLimit });
+    if (!r.pushed && !r.rejected) return;
+    console.log(`[maps] ${r.dryRun ? '(modo prueba) ' : ''}enviados a Instantly: ${r.pushed} · rechazados: ${r.rejected}`);
+    if (r.pushed && !r.dryRun) {
+      const resumed = await resumeIfCompleted(mapsPushConfig);
+      if (resumed !== 'ok') console.log(`[maps] campaña de Instantly: ${resumed}`);
+      await sendTelegram(`🤖 Google Maps: ${r.pushed} leads enviados a Instantly.`);
+    }
+  });
+  console.log('Maps: envía sus leads a su campaña de Instantly cada 3 horas (a los :20), si el autopilot está activado');
+}
+
+// Follow-up: those who opened their demo website and have not replied are moved, every 30 minutes, to a separate Instantly campaign
+// with 7 emails (one a day). Only active when its campaign id (INSTANTLY_CAMPAIGN_ID_FOLLOWUP) is set. Instantly stops the sequence
+// by itself when the lead replies.
+if ((process.env.INSTANTLY_CAMPAIGN_ID_FOLLOWUP || '').trim()) {
+  let followupConfig = null;
+  try { followupConfig = loadInstantlyConfig(process.env, { dryRun: false, campaign: 'followup' }); } catch (err) { console.warn(`Seguimiento desactivado: ${err.message}`); autopilotStatus.notes.push(`seguimiento desactivado: ${err.message}`); }
+  if (followupConfig) {
+    every('*/30 * * * *', 'el seguimiento de los que abrieron la web', async () => {
+      const { enabled } = await getAutopilotSettings(supabase, ownerId);
+      if (!enabled) return;
+      const r = await moveToFollowup({ db: supabase, ownerId, config: followupConfig });
+      if (!r.moved && !Object.values(r.skipped).some(Boolean)) return;
+      console.log(`[seguimiento] ${r.dryRun ? '(modo prueba) ' : ''}pasan al seguimiento: ${r.moved} · omitidos: ${JSON.stringify(r.skipped)}`);
+      if (r.moved && !r.dryRun) await sendTelegram(`🤖 Seguimiento: ${r.moved} leads que abrieron la web pasan a la campaña de recordatorios.`);
+    });
+    console.log('Seguimiento: pasa a la campaña de recordatorios a los que abren la web, cada 30 minutos, si el autopilot está activado');
+    autopilotStatus.followup = true;
+  }
 }
 
 if (pushConfig) {
