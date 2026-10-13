@@ -9,6 +9,7 @@ import { moveToFollowup } from './services/followup.js';
 import { loadApifyConfig } from './services/apify.js';
 import { loadInstantlyConfig, pushLeads, resumeIfCompleted } from './services/instantly.js';
 import { pollInstantlyEvents } from './services/instantlyPoll.js';
+import { cleanupInstantly } from './services/instantlyCleanup.js';
 import { getAutopilotSettings, usDemoCap, ALL_MODE_SEND_LIMIT } from './services/autopilot.js';
 import { generateDemos, generateAllDemos, readyDemoCount, demosMadeToday, expireDemos } from './services/leadDemos.js';
 import { US_SOURCE } from './services/audience.js';
@@ -57,6 +58,15 @@ if (instantlyConfig) {
   });
   console.log('Instantly: comprobando envíos, rebotes, bajas y respuestas cada 5 minutos');
   autopilotStatus.poll = true;
+
+  // Instantly's plan allows 1,000 leads: once a day, if fewer than 250 slots are free, the oldest leads that can no longer matter
+  // are removed (see instantlyCleanup.js). Nothing happens while there is room. Telegram tells you when it removed something.
+  every('30 3 * * *', 'la limpieza de leads de Instantly', async () => {
+    const r = await cleanupInstantly({ db: supabase, ownerId, config: instantlyConfig, dryRun: false });
+    if (r.skipped) return console.log(`[limpieza] ${r.skipped}`);
+    console.log(`[limpieza] borrados ${r.removed} (sin abrir ${r.tier1} · rebotes/bajas ${r.tier2}) · ids ya inexistentes ${r.alreadyGone} · conservados ${r.kept}`);
+    if (r.removed) await sendTelegram(`🧹 Instantly: quitados ${r.removed} leads antiguos que no abrieron la web, para dejar huecos (el plan permite 1.000).`);
+  }, { timezone: 'America/New_York' });
 }
 
 // ─── Autopilot: find more leads and send them on, without you clicking anything ──────────────────────────────────

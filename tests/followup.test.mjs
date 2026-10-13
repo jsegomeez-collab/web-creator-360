@@ -32,7 +32,8 @@ function fakeInstantly(state, { moveWorks = true, campaignStatus = 1 } = {}) {
     else if (path === '/leads/move') {
       if (moveWorks) for (const id of body.ids) state[id] = { ...state[id], campaign: body.to_campaign_id, status: 1 };
       json = { id: 'job-1', status: 'pending' };
-    } else if (path === '/background-jobs/job-1') json = { id: 'job-1', status: 'success' };
+    } else if (path === '/leads/add') json = { created_leads: body.leads.map((l, index) => ({ id: `new-${l.email}`, index, email: l.email })) };
+    else if (path === '/background-jobs/job-1') json = { id: 'job-1', status: 'success' };
     else if (path.startsWith('/campaigns/')) json = { status: campaignStatus };
     return { ok: true, status: 200, json: async () => json };
   };
@@ -52,11 +53,16 @@ test('mueve solo a los que abrieron la web y no han respondido; omite rebotes, b
   };
   const { fetchImpl, calls } = fakeInstantly(state);
   const r = await moveToFollowup({ db, ownerId: OWNER, config: config(), dryRun: false, fetchImpl, sleep: async () => {}, now: NOW });
-  assert.deepEqual([r.eligible, r.moved, r.skipped], [6, 2, { notInInstantly: 1, bounced: 1, unsubscribed: 1, replied: 1 }]);
+  // F (su ID ya no existe en Instantly) y L (se le quitó el ID al limpiar Instantly) se vuelven a añadir directamente al seguimiento
+  assert.deepEqual([r.eligible, r.moved, r.readded, r.skipped], [7, 4, 2, { notInInstantly: 0, bounced: 1, unsubscribed: 1, replied: 1 }]);
+  const adds = calls.filter(c => c.path === '/leads/add');
+  assert.equal(adds.length, 1);
+  assert.deepEqual([adds[0].body.campaign_id, adds[0].body.skip_if_in_workspace, adds[0].body.leads.map(l => l.email).sort()], [FU, true, ['F@gmail.com', 'L@gmail.com']]);
+  assert.deepEqual(['F', 'L'].map(id => db.rows('new_business_leads').find(l => l.id === id).instantly_lead_id), ['new-F@gmail.com', 'new-L@gmail.com']);
   const moves = calls.filter(c => c.path === '/leads/move');
   assert.equal(moves.length, 1);
   assert.deepEqual([moves[0].body.ids, moves[0].body.campaign, moves[0].body.to_campaign_id], [['inst-A'], C1, FU]);
-  assert.deepEqual(stamped(db), ['A', 'I', 'K']);                    // K ya estaba de antes
+  assert.deepEqual(stamped(db), ['A', 'F', 'I', 'K', 'L']);          // K ya estaba de antes
   assert.equal(db.rows('new_business_leads').find(l => l.id === 'A').followup_at, NOW.toISOString());
   assert.equal(state['inst-A'].campaign, FU);
   assert.equal(r.campaign, 'ok');                                     // la campaña estaba activa: no hace falta reanudarla

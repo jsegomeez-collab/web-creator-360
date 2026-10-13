@@ -3,7 +3,7 @@
 // sequence by itself when the lead replies (the campaign has "stop on reply"); our 5-minute poll then marks the reply.
 // Moving a lead that had finished the first campaign puts it back to "active" in the new one (checked against the real API),
 // and it keeps its Instantly id, so nothing else in the app changes.
-import { API, resumeIfCompleted, checkCampaignCopy } from './instantly.js';
+import { API, resumeIfCompleted, checkCampaignCopy, buildInstantlyLead } from './instantly.js';
 import { requestJson } from '../lib/http.js';
 import { selectAll } from '../lib/selectAll.js';
 import { isDryRun } from '../lib/dryRun.js';
@@ -26,7 +26,7 @@ const call = (config, path, body, opts = {}) => requestJson({
 // "americanos", in English). Google Maps leads will have their own follow-up campaign: not here.
 const eligible = (db, ownerId, limit, audience = 'es') => selectAll(() => {
   let query = db.from(TABLE).select('*').eq('user_id', ownerId).eq('status', 'engaged')
-    .is('followup_at', null).is('replied_at', null).eq('demo_status', 'ready').not('instantly_lead_id', 'is', null);
+    .is('followup_at', null).is('replied_at', null).eq('demo_status', 'ready');   // also those removed from Instantly to free slots (they are added again)
   query = audience === 'us' ? query.eq('source', US_SOURCE) : query.neq('source', MAPS_SOURCE).neq('source', US_SOURCE);
   return query.order('engaged_at', { ascending: true }).order('id');
 }, { max: limit });
@@ -66,20 +66,22 @@ export async function moveToFollowup({ db, ownerId, config, audience = 'es', lim
   if (!leads.length) return { dryRun, eligible: 0, moved: 0, skipped };
 
   const opts = { fetchImpl, sleep };
-  const state = await instantlyState(config, leads, opts);
+  const withId = leads.filter(l => l.instantly_lead_id);
+  const state = withId.length ? await instantlyState(config, withId, opts) : new Map();
   const toMove = new Map();                      // the campaign they are in now → leads
   const alreadyThere = [];
+  const readd = [];                              // not in Instantly any more (removed to free slots): added again, straight into the follow-up
   for (const lead of leads) {
-    const x = state.get(lead.instantly_lead_id);
-    if (!x) skipped.notInInstantly++;
+    const x = lead.instantly_lead_id ? state.get(lead.instantly_lead_id) : null;
+    if (!x) readd.push(lead);
     else if (x.status === BOUNCED) skipped.bounced++;
     else if (x.status === UNSUBSCRIBED) skipped.unsubscribed++;
     else if ((x.email_reply_count || 0) > 0) skipped.replied++;
     else if (x.campaign === config.campaignId) alreadyThere.push(lead);
     else toMove.set(x.campaign, [...(toMove.get(x.campaign) || []), lead]);
   }
-  const movable = [...toMove.values()].flat().length + alreadyThere.length;
-  if (dryRun) return { dryRun: true, eligible: leads.length, moved: movable, skipped };
+  const movable = [...toMove.values()].flat().length + alreadyThere.length + readd.length;
+  if (dryRun) return { dryRun: true, eligible: leads.length, moved: movable, readded: readd.length, skipped };
 
   if (verifyCopy && movable) {
     const check = await checkCampaignCopy(config, leads[0], { fetchImpl });
@@ -100,16 +102,28 @@ export async function moveToFollowup({ db, ownerId, config, audience = 'es', lim
     }
   }
 
+  // Leads removed from Instantly earlier: they go straight into the follow-up campaign (skip_if_in_workspace: one that is still there
+  // under another id is not duplicated, so it is never emailed twice) and keep the new Instantly id
+  const newIds = new Map();
+  if (readd.length) {
+    const added = await call(config, '/leads/add', { campaign_id: config.campaignId, leads: readd.map(l => buildInstantlyLead(l, config)), skip_if_in_workspace: true }, opts);
+    for (const c of added.created_leads || []) {
+      const lead = Number.isInteger(c.index) ? readd[c.index] : readd.find(l => l.email === String(c.email || '').toLowerCase());
+      if (lead) { stamped.push(lead); newIds.set(lead.id, c.id); }
+    }
+    skipped.notInInstantly += readd.length - newIds.size;
+  }
+
   const stamp = now.toISOString();
   for (let i = 0; i < stamped.length; i += 20) {
     await Promise.all(stamped.slice(i, i + 20).map(async (lead) => {
-      const { error } = await db.from(TABLE).update({ followup_at: stamp, updated_at: stamp }).eq('id', lead.id);
+      const { error } = await db.from(TABLE).update({ followup_at: stamp, updated_at: stamp, ...(newIds.has(lead.id) ? { instantly_lead_id: newIds.get(lead.id) } : {}) }).eq('id', lead.id);
       if (error) throw new Error(`Instantly movió los leads pero no se pudo guardar el estado (${error.message}). Revisa new_business_leads.followup_at.`);
     }));
   }
   // A follow-up campaign that had sent everything is "completed" and ignores leads moved in later
   const campaign = stamped.length ? await resumeIfCompleted(config, { fetchImpl }) : 'ok';
-  return { dryRun: false, eligible: leads.length, moved: stamped.length, skipped, campaign };
+  return { dryRun: false, eligible: leads.length, moved: stamped.length, readded: newIds.size, skipped, campaign };
 }
 
 // For the panel: who is waiting to enter, who is in the sequence (day N of 7), who replied since, who went cold
