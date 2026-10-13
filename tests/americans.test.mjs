@@ -221,6 +221,39 @@ test('carril en inglés: solo los americanos que abrieron la web pasan a SU camp
   assert.deepEqual([o.counts.waiting, o.counts.active, o.leads.map(l => [l.id, l.lang])], [1, 1, [['u1', 'en']]]);   // l1 espera en el carril español
 });
 
+// ─── tope diario de demos de los americanos ──────────────────────────────────
+import { startOfDayNY, demosMadeToday, generateDemos, readyDemoCount } from '../src/services/leadDemos.js';
+
+test('startOfDayNY: el día se cuenta en hora de Nueva York (verano e invierno)', () => {
+  assert.equal(startOfDayNY(new Date('2026-10-13T15:00:00Z')).toISOString(), '2026-10-13T04:00:00.000Z');   // verano: UTC-4
+  assert.equal(startOfDayNY(new Date('2026-12-15T15:00:00Z')).toISOString(), '2026-12-15T05:00:00.000Z');   // invierno: UTC-5
+  assert.equal(startOfDayNY(new Date('2026-10-14T04:30:00Z')).toISOString(), '2026-10-14T04:00:00.000Z');   // ya es el día 14 en Nueva York
+  assert.equal(startOfDayNY(new Date('2026-10-14T03:30:00Z')).toISOString(), '2026-10-13T04:00:00.000Z');   // todavía es el 13
+});
+
+test('demosMadeToday cuenta solo las demos de ese origen hechas hoy; generateDemos puede apartar o elegir un origen', async () => {
+  const NOW = new Date('2026-10-13T15:00:00Z');
+  const lead = (id, source, over = {}) => ({ id, user_id: OWNER, source, external_id: id, name: `Negocio ${id} LLC`, email: `${id}@gmail.com`, city: 'Hartford', sector: 'otro', status: 'new', demo_status: null, link_token: `t${id}`.padEnd(24, '0'), registered_at: '2026-10-12', ...over });
+  const db = createMemoryDb({ new_business_leads: [
+    lead('u1', US_SOURCE, { demo_status: 'ready', demo_at: '2026-10-13T12:00:00Z' }), lead('u2', US_SOURCE, { demo_status: 'ready', demo_at: '2026-10-13T13:00:00Z' }),
+    lead('u3', US_SOURCE, { demo_status: 'ready', demo_at: '2026-10-12T20:00:00Z' }),                        // ayer: no cuenta
+    lead('l1', 'ct_registry', { demo_status: 'ready', demo_at: '2026-10-13T12:00:00Z' }),                    // otro origen: no cuenta
+    lead('u4', US_SOURCE), lead('l2', 'ct_registry'),
+  ] });
+  assert.equal(await demosMadeToday(db, OWNER, US_SOURCE, NOW), 2);
+  assert.equal(await readyDemoCount(db, OWNER), 4);
+  assert.equal(await readyDemoCount(db, OWNER, { excludeSources: [US_SOURCE] }), 1);
+
+  const made = [];
+  const build = async ({ business, template }) => { made.push(business.name); return { html: '<html><head></head><body></body></html>', template, usage: {} }; };
+  const deploy = async (slug) => `https://${slug}.vercel.app`;
+  await generateDemos({ db, ownerId: OWNER, publicUrl: 'https://c.example.com', limit: 5, build, deploy, excludeSources: [US_SOURCE] });
+  assert.deepEqual(made, ['Negocio l2 LLC']);                                                              // el americano pendiente (u4) no se toca
+  made.length = 0;
+  await generateDemos({ db, ownerId: OWNER, publicUrl: 'https://c.example.com', limit: 5, build, deploy, onlySource: US_SOURCE });
+  assert.deepEqual(made, ['Negocio u4 LLC']);
+});
+
 test('el seguimiento en español no recoge a los americanos (tendrán el suyo en inglés)', async () => {
   const lead = (id, source) => ({ id, user_id: OWNER, source, name: id, email: `${id}@gmail.com`, status: 'engaged', demo_status: 'ready', instantly_lead_id: `inst-${id}`, engaged_at: '2026-10-10T00:00:00Z', replied_at: null, followup_at: null });
   const db = createMemoryDb({ new_business_leads: [lead('a', 'ct_registry'), lead('c', US_SOURCE), lead('b', MAPS_SOURCE)] });

@@ -114,6 +114,8 @@ services:
         sync: false
       - key: INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US
         sync: false
+      - key: US_DAILY_DEMOS                # demos of the "americanos" made and sent per day. 0 = paused (default). e.g. 100 for the test
+        value: "0"
       - key: APIFY_TOKEN
         sync: false
       - key: MAPS_RUNS_PER_DAY            # searches per day (each = one city + 3 categories). Default 2

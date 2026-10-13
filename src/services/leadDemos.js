@@ -110,8 +110,13 @@ export async function createLeadDemo({ db, ownerId, lead, publicUrl, force = fal
 }
 
 // Makes demos for the newest "new" leads that don't have one yet, one after another → { created, failed, results }
-export async function generateDemos({ db, ownerId, publicUrl, limit = 3, build, deploy, log = () => {} }) {
-  const { data: leads, error } = await db.from(TABLE).select('*').eq('user_id', ownerId).eq('status', 'new').is('demo_status', null)
+//   onlySource: make demos only for leads of this source · excludeSources: skip leads of these sources
+//   (the "americanos" have their own daily cap, so they are made apart: see demosMadeToday)
+export async function generateDemos({ db, ownerId, publicUrl, limit = 3, build, deploy, log = () => {}, onlySource = null, excludeSources = [] }) {
+  let query = db.from(TABLE).select('*').eq('user_id', ownerId).eq('status', 'new').is('demo_status', null);
+  if (onlySource) query = query.eq('source', onlySource);
+  for (const s of excludeSources) query = query.neq('source', s);
+  const { data: leads, error } = await query
     .order('registered_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false }).order('id').limit(limit);
   if (error) throw new Error(`cargar leads: ${error.message}`);
   const results = [];
@@ -124,19 +129,36 @@ export async function generateDemos({ db, ownerId, publicUrl, limit = 3, build, 
 }
 
 // How many "new" leads already have their demo ready (waiting to be sent)
-export async function readyDemoCount(db, ownerId) {
-  const { data, error } = await db.from(TABLE).select('id').eq('user_id', ownerId).eq('status', 'new').eq('demo_status', 'ready').limit(1000);
+export async function readyDemoCount(db, ownerId, { excludeSources = [] } = {}) {
+  let query = db.from(TABLE).select('id').eq('user_id', ownerId).eq('status', 'new').eq('demo_status', 'ready');
+  for (const s of excludeSources) query = query.neq('source', s);
+  const { data, error } = await query.limit(1000);
+  if (error) throw new Error(error.message);
+  return (data || []).length;
+}
+
+// The start of today in New York (where "a day" is counted for the daily caps), as a Date
+export function startOfDayNY(now = new Date()) {
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);   // 2026-10-13
+  const offset = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', timeZoneName: 'shortOffset' }).formatToParts(now).find(p => p.type === 'timeZoneName')?.value || 'GMT-5';
+  const hours = Number(offset.replace('GMT', '').replace(':30', '.5')) || 0;                                                                         // -4 in summer, -5 in winter
+  return new Date(Date.parse(`${day}T00:00:00Z`) - hours * 3_600_000);
+}
+
+// How many demos of a source were finished today: what the daily cap counts
+export async function demosMadeToday(db, ownerId, source, now = new Date()) {
+  const { data, error } = await db.from(TABLE).select('id').eq('user_id', ownerId).eq('source', source).gte('demo_at', startOfDayNY(now).toISOString()).limit(5000);
   if (error) throw new Error(error.message);
   return (data || []).length;
 }
 
 // "All" mode: keeps making demos, a few at a time, until no "new" lead is left without one (failed ones are not retried,
 // so it always ends) or `maxMs` runs out — the next cycle picks up where this one stopped.
-export async function generateAllDemos({ db, ownerId, publicUrl, batch = 5, maxMs = 25 * 60_000, build, deploy, log = () => {}, now = () => Date.now() }) {
+export async function generateAllDemos({ db, ownerId, publicUrl, batch = 5, maxMs = 25 * 60_000, build, deploy, log = () => {}, now = () => Date.now(), excludeSources = [] }) {
   const deadline = now() + maxMs;
   let created = 0, failed = 0;
   while (now() < deadline) {
-    const r = await generateDemos({ db, ownerId, publicUrl, limit: batch, build, deploy, log });
+    const r = await generateDemos({ db, ownerId, publicUrl, limit: batch, build, deploy, log, excludeSources });
     created += r.created; failed += r.failed;
     if (!r.results.length) break;
   }

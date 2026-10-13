@@ -10,7 +10,8 @@ import { loadApifyConfig } from './services/apify.js';
 import { loadInstantlyConfig, pushLeads, resumeIfCompleted } from './services/instantly.js';
 import { pollInstantlyEvents } from './services/instantlyPoll.js';
 import { getAutopilotSettings, ALL_MODE_SEND_LIMIT } from './services/autopilot.js';
-import { generateDemos, generateAllDemos, readyDemoCount, expireDemos } from './services/leadDemos.js';
+import { generateDemos, generateAllDemos, readyDemoCount, demosMadeToday, expireDemos } from './services/leadDemos.js';
+import { US_SOURCE } from './services/audience.js';
 import { alertCallRequest, alertReply, sendTelegram, loadTelegramConfig } from './services/telegram.js';
 
 const ownerId = (process.env.NEW_LEADS_OWNER_USER_ID || '').trim();
@@ -87,6 +88,10 @@ if ((process.env.INSTANTLY_CAMPAIGN_ID_MAPS || '').trim()) {
 
 // Campaign 3 ("americanos": new LLCs with no Latino signal, emailed in English): its own Instantly campaign and copy. Active when its
 // campaign id (INSTANTLY_CAMPAIGN_ID_US) is set; the leads arrive with the daily registry download above.
+// US_DAILY_DEMOS = how many demos of the "americanos" are made (and so sent) per day. 0 or empty = PAUSED: their leads are imported
+// but no demo is created until you set it (e.g. 100 for a test). It is shown in /health.
+const usDailyDemos = Math.max(0, parseInt(process.env.US_DAILY_DEMOS, 10) || 0);
+autopilotStatus.usDailyDemos = usDailyDemos;
 let usPushConfig = null;
 if ((process.env.INSTANTLY_CAMPAIGN_ID_US || '').trim()) {
   try { usPushConfig = loadInstantlyConfig(process.env, { dryRun: false, campaign: 'us' }); } catch (err) { console.warn(`Campaña de americanos desactivada: ${err.message}`); autopilotStatus.notes.push(`campaña de americanos desactivada: ${err.message}`); }
@@ -105,16 +110,21 @@ if (demosOn) {
       const { enabled, pushLimit, demoAll } = await getAutopilotSettings(supabase, ownerId);
       if (!enabled) return;
       const log = (m) => console.log(`[demos] ${m}`);
-      let r;
-      if (demoAll) r = await generateAllDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, log });
+      // The "americanos" (English campaign) are made apart, under their own DAILY CAP (US_DAILY_DEMOS; 0 = paused, the default)
+      const apart = [US_SOURCE];
+      let failed = 0;
+      if (demoAll) failed += (await generateAllDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, log, excludeSources: apart })).failed;
       else {
-        // pile of ready demos to keep: one send per campaign, plus a bigger one for the "americanos" (~117 new LLCs a day)
-        const target = pushLimit * (mapsPushConfig ? 2 : 1) + (usPushConfig ? 100 : 0);
-        const want = Math.min(3, target - await readyDemoCount(supabase, ownerId));
-        if (want <= 0) return;
-        r = await generateDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, limit: want, log });
+        // pile of ready demos to keep: one send per campaign
+        const target = pushLimit * (mapsPushConfig ? 2 : 1);
+        const want = Math.min(3, target - await readyDemoCount(supabase, ownerId, { excludeSources: apart }));
+        if (want > 0) failed += (await generateDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, limit: want, log, excludeSources: apart })).failed;
       }
-      if (r.failed) await sendTelegram(`⚠️ ${r.failed} web(s) de demo no se pudieron crear. Míralo en el dashboard (LLCs nuevas → Leads).`);
+      if (usPushConfig && usDailyDemos > 0) {
+        const left = usDailyDemos - await demosMadeToday(supabase, ownerId, US_SOURCE);
+        if (left > 0) failed += (await generateDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, limit: Math.min(3, left), log, onlySource: US_SOURCE })).failed;
+      }
+      if (failed) await sendTelegram(`⚠️ ${failed} web(s) de demo no se pudieron crear. Míralo en el dashboard (LLCs nuevas → Leads).`);
     });
     console.log('Demos: crea las webs de los próximos leads cada 10 minutos (Claude Sonnet 5.5 + Vercel), si el autopilot está activado');
     autopilotStatus.demos = true;
