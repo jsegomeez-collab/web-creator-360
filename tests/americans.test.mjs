@@ -146,7 +146,7 @@ test('el email de americanos está en inglés, con las variables inglesas y la w
   const lead = { source: US_SOURCE, name: 'COOPER CONSULTING LLC', city: 'Hartford', sector: 'otro', demo_url: 'https://cooper-ab12.vercel.app', link_token: 'x' };
   const e = renderEmail(lead, 'https://c.example.com/c/x', { campaign: 'us' });
   assert.equal(e.subject, 'Congrats on Cooper Consulting LLC');
-  assert.match(e.body, /^Hi Cooper Consulting LLC team,/);
+  assert.match(e.body, /^Hi Cooper Consulting team,/);                       // el saludo sin "LLC"; el nombre legal se queda en el resto del email
   assert.match(e.body, /Congratulations on registering Cooper Consulting LLC in Hartford!/);
   assert.match(e.body, /https:\/\/cooper-ab12\.vercel\.app\/\?lang=en/);
   assert.ok(!/Buenas|registrar|Enhorabuena/.test(e.body));

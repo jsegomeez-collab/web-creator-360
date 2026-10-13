@@ -157,6 +157,9 @@ export function displayName(raw) {
 // The address of a lead's demo website as it goes in the email: opens in Spanish (the owner reads the email in Spanish)
 export const demoLink = (demoUrl, lang = 'es') => (demoUrl ? `${String(demoUrl).replace(/\/+$/, '')}/?lang=${lang}` : '');
 
+// "Malachi Burby LLC" → "Malachi Burby" (for a greeting: "Hi Malachi Burby team"). The legal form stays everywhere else.
+export const withoutLegalSuffix = (name) => String(name).replace(/[\s,]+(L\.?L\.?C\.?|P\.?L\.?L\.?C\.?|L\.?L\.?P\.?|L\.?P\.?|P\.?C\.?|INC\.?|CORP\.?|LTD\.?|CO\.?|LIMITED LIABILITY COMPANY)$/i, '').trim() || String(name);
+
 // The values Instantly puts into the {{variables}} for one lead. `linkUrl` is that lead's own link (the page to ask for the call).
 // `web` is its demo website ('' until it exists), so both versions of the email can be filled from the same values.
 export function leadVariables(lead, linkUrl) {
@@ -165,7 +168,7 @@ export function leadVariables(lead, linkUrl) {
     return {
       business: displayName(lead.name),
       city: lead.city || 'your area',
-      greeting: String(lead.contact_name || '').trim().split(/\s+/)[0] || `${displayName(lead.name)} team`,
+      greeting: String(lead.contact_name || '').trim().split(/\s+/)[0] || `${withoutLegalSuffix(displayName(lead.name))} team`,
       reviews_phrase: mapsReviewsPhrase(lead),
       site: demoLink(lead.demo_url, 'en'),
       link: linkUrl,
