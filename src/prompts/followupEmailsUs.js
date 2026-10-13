@@ -158,5 +158,10 @@ export const toInstantlyHtml = (text) => text.split(/\n\s*\n/)
   .map(p => p.split('\n').map(line => `<div>${line}</div>`).join(''))
   .join('<div><br /></div>');
 
-// One sequence step in the shape of the Instantly API
-export const toStep = ({ delay, subject, body }) => ({ type: 'email', delay, delay_unit: 'days', variants: [{ subject, body: toInstantlyHtml(body), v_disabled: false }] });
+// The steps in the shape of the Instantly API. CAREFUL with the meaning of `delay` there: it is the wait AFTER that email, before
+// the NEXT one is sent (not before it). Here `delay` of an email is "days to wait after the previous email", which reads better,
+// so each step takes the delay of the email that FOLLOWS it (the last step has nothing after it: 0).
+//   [email 1 (day 0), reminders with delays 2, 2, 3]  →  API delays [2, 2, 3, 0]  →  emails on days 0, 2, 4, 7
+export const toSteps = (emails) => emails.map(({ subject, body }, i) => ({
+  type: 'email', delay: emails[i + 1]?.delay ?? 0, delay_unit: 'days', variants: [{ subject, body: toInstantlyHtml(body), v_disabled: false }],
+}));

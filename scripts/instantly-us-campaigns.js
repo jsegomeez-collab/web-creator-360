@@ -8,7 +8,7 @@
 // Nothing is launched: campaigns stay as they are (draft/paused) until you start them in Instantly.
 import 'dotenv/config';
 import { EMAIL_SUBJECT_US, EMAIL_BODY_US } from '../src/prompts/newBusinessEmails.js';
-import { REMINDERS_US, OPENED_US, toStep } from '../src/prompts/followupEmailsUs.js';
+import { REMINDERS_US, OPENED_US, toSteps } from '../src/prompts/followupEmailsUs.js';
 import { API } from '../src/services/instantly.js';
 
 const dryRun = process.argv.includes('--dry-run');
@@ -30,8 +30,8 @@ try {
   if (!apiKey) throw new Error('Falta INSTANTLY_API_KEY en tu .env');
   if (!mainId) throw new Error('Falta INSTANTLY_CAMPAIGN_ID_US en tu .env (la campaña de americanos)');
 
-  const mainSteps = [toStep({ delay: 0, subject: EMAIL_SUBJECT_US, body: EMAIL_BODY_US }), ...REMINDERS_US.map(toStep)];
-  const followSteps = OPENED_US.map(toStep);
+  const mainSteps = toSteps([{ delay: 0, subject: EMAIL_SUBJECT_US, body: EMAIL_BODY_US }, ...REMINDERS_US]);
+  const followSteps = toSteps(OPENED_US);
   console.log(`Campaña de americanos (${mainId.slice(0, 8)}…): ${mainSteps.length} emails → día 0` + REMINDERS_US.reduce((acc, r) => { acc.d += r.delay; acc.s += `, día ${acc.d}`; return acc; }, { d: 0, s: '' }).s);
   console.log(`Seguimiento de los que abren la web: ${followSteps.length} emails, uno al día`);
   if (dryRun) { console.log('\n(vista previa: no se ha cambiado nada en Instantly)'); process.exit(0); }
@@ -52,7 +52,7 @@ try {
   for (const [label, id, expected] of [['americanos', mainId, mainSteps.length], ['seguimiento EN', followId, followSteps.length]]) {
     const c = await call(`/campaigns/${id}`, 'GET');
     const steps = c.sequences?.[0]?.steps || [];
-    console.log(`  ${label}: status ${c.status} · ${steps.length}/${expected} pasos · stop_on_reply ${c.stop_on_reply} · asuntos: ${steps.map(s => s.variants?.[0]?.subject).join(' | ').slice(0, 220)}`);
+    console.log(`  ${label}: status ${c.status} · ${steps.length}/${expected} pasos · stop_on_reply ${c.stop_on_reply} · esperas tras cada email (días): [${steps.map(s => s.delay).join(', ')}]`);
     if (steps.length !== expected) throw new Error(`${label}: Instantly guardó ${steps.length} pasos y debían ser ${expected}`);
   }
 } catch (err) {

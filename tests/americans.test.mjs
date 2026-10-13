@@ -172,7 +172,7 @@ test('la página de solicitud, la barra de la demo y el motor de webs tratan al 
 });
 
 // ─── seguimiento completo de los americanos ──────────────────────────────────
-import { REMINDERS_US, OPENED_US, toStep, toInstantlyHtml } from '../src/prompts/followupEmailsUs.js';
+import { REMINDERS_US, OPENED_US, toSteps, toInstantlyHtml } from '../src/prompts/followupEmailsUs.js';
 import { followupOverview } from '../src/services/followup.js';
 
 test('textos del seguimiento en inglés: 3 recordatorios (días 2, 4 y 7) + 7 diarios; todos piden el phone number y usan variables que existen', () => {
@@ -188,7 +188,10 @@ test('textos del seguimiento en inglés: 3 recordatorios (días 2, 4 y 7) + 7 di
     assert.ok(!/Buenas|Hola|nombre/.test(e.body), 'todo en inglés');
   }
   assert.equal(toInstantlyHtml('Hi,\n\nBye\nJose'), '<div>Hi,</div><div><br /></div><div>Bye</div><div>Jose</div>');
-  assert.deepEqual(toStep(REMINDERS_US[0]).delay, 2);
+  // En Instantly el "wait" de un paso es lo que se espera DESPUÉS de ese email: cada paso lleva la espera del email que le sigue
+  const delays = (emails) => toSteps(emails).map(s => s.delay);
+  assert.deepEqual(delays([{ delay: 0, subject: 's', body: 'b' }, ...REMINDERS_US]), [2, 2, 3, 0]);      // días 0, 2, 4 y 7 (antes se guardaba [0, 2, 2, 3]: el 2º email salía el día 0)
+  assert.deepEqual(delays(OPENED_US), [1, 1, 1, 1, 1, 1, 0]);
 });
 
 test('carril en inglés: solo los americanos que abrieron la web pasan a SU campaña de seguimiento (no a la española) y se marcan', async () => {

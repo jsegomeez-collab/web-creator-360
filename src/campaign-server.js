@@ -199,7 +199,7 @@ if ((process.env.INSTANTLY_CAMPAIGN_ID_FOLLOWUP || '').trim()) {
     try { followupUsConfig = loadInstantlyConfig(process.env, { dryRun: false, campaign: 'followup_us' }); } catch (err) { console.warn(`Seguimiento en inglés desactivado: ${err.message}`); autopilotStatus.notes.push(`seguimiento en inglés desactivado: ${err.message}`); }
   }
   if (followupConfig) {
-    every('*/30 * * * *', 'el seguimiento de los que abrieron la web', async () => {
+    every('*/10 * * * *', 'el seguimiento de los que abrieron la web', async () => {
       const { enabled } = await getAutopilotSettings(supabase, ownerId);
       if (!enabled) return;
       // One lane per language: the Spanish one and, if its campaign is set, the English one of the "americanos"
@@ -211,7 +211,7 @@ if ((process.env.INSTANTLY_CAMPAIGN_ID_FOLLOWUP || '').trim()) {
         if (r.moved && !r.dryRun) await sendTelegram(`🤖 Seguimiento (${label}): ${r.moved} leads que abrieron la web pasan a la campaña de recordatorios.`);
       }
     });
-    console.log('Seguimiento: pasa a la campaña de recordatorios a los que abren la web, cada 30 minutos, si el autopilot está activado');
+    console.log('Seguimiento: pasa a la campaña de recordatorios a los que abren la web, cada 10 minutos, si el autopilot está activado');
     autopilotStatus.followup = true;
   }
 }
