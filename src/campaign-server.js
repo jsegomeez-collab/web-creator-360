@@ -194,14 +194,22 @@ if (mapsPushConfig) {
 if ((process.env.INSTANTLY_CAMPAIGN_ID_FOLLOWUP || '').trim()) {
   let followupConfig = null;
   try { followupConfig = loadInstantlyConfig(process.env, { dryRun: false, campaign: 'followup' }); } catch (err) { console.warn(`Seguimiento desactivado: ${err.message}`); autopilotStatus.notes.push(`seguimiento desactivado: ${err.message}`); }
+  let followupUsConfig = null;
+  if ((process.env.INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US || '').trim()) {
+    try { followupUsConfig = loadInstantlyConfig(process.env, { dryRun: false, campaign: 'followup_us' }); } catch (err) { console.warn(`Seguimiento en inglés desactivado: ${err.message}`); autopilotStatus.notes.push(`seguimiento en inglés desactivado: ${err.message}`); }
+  }
   if (followupConfig) {
     every('*/30 * * * *', 'el seguimiento de los que abrieron la web', async () => {
       const { enabled } = await getAutopilotSettings(supabase, ownerId);
       if (!enabled) return;
-      const r = await moveToFollowup({ db: supabase, ownerId, config: followupConfig });
-      if (!r.moved && !Object.values(r.skipped).some(Boolean)) return;
-      console.log(`[seguimiento] ${r.dryRun ? '(modo prueba) ' : ''}pasan al seguimiento: ${r.moved} · omitidos: ${JSON.stringify(r.skipped)}`);
-      if (r.moved && !r.dryRun) await sendTelegram(`🤖 Seguimiento: ${r.moved} leads que abrieron la web pasan a la campaña de recordatorios.`);
+      // One lane per language: the Spanish one and, if its campaign is set, the English one of the "americanos"
+      for (const [audience, config, label] of [['es', followupConfig, 'español'], ['us', followupUsConfig, 'inglés (americanos)']]) {
+        if (!config) continue;
+        const r = await moveToFollowup({ db: supabase, ownerId, config, audience });
+        if (!r.moved && !Object.values(r.skipped).some(Boolean)) continue;
+        console.log(`[seguimiento ${label}] ${r.dryRun ? '(modo prueba) ' : ''}pasan al seguimiento: ${r.moved} · omitidos: ${JSON.stringify(r.skipped)}`);
+        if (r.moved && !r.dryRun) await sendTelegram(`🤖 Seguimiento (${label}): ${r.moved} leads que abrieron la web pasan a la campaña de recordatorios.`);
+      }
     });
     console.log('Seguimiento: pasa a la campaña de recordatorios a los que abren la web, cada 30 minutos, si el autopilot está activado');
     autopilotStatus.followup = true;

@@ -171,6 +171,53 @@ test('la página de solicitud, la barra de la demo y el motor de webs tratan al 
   assert.ok(!/Hispanic|Latino/.test(SYSTEM_EN) && /Hispanic/.test(SYSTEM));
 });
 
+// ─── seguimiento completo de los americanos ──────────────────────────────────
+import { REMINDERS_US, OPENED_US, toStep, toInstantlyHtml } from '../src/prompts/followupEmailsUs.js';
+import { followupOverview } from '../src/services/followup.js';
+
+test('textos del seguimiento en inglés: 3 recordatorios (días 2, 4 y 7) + 7 diarios; todos piden el phone number y usan variables que existen', () => {
+  assert.deepEqual(REMINDERS_US.reduce((acc, r) => [...acc, (acc.at(-1) ?? 0) + r.delay], []), [2, 4, 7]);   // con el email 1 en el día 0: 4 emails en 7 días
+  assert.equal(OPENED_US.length, 7);
+  assert.ok(OPENED_US.every(e => e.delay === 1));                                                          // uno al día
+  const vars = leadVariables({ source: US_SOURCE, name: 'Cooper LLC', city: 'Hartford', demo_url: 'https://x.vercel.app', link_token: 'x' }, 'u');
+  for (const e of [...REMINDERS_US, ...OPENED_US]) {
+    assert.match(e.body, /phone number/, e.subject);
+    assert.ok(e.body.includes('{{site}}'), `falta el enlace en: ${e.subject}`);
+    for (const m of `${e.subject}\n${e.body}`.matchAll(/\{\{(\w+)\}\}/g)) assert.ok(m[1] in vars, `{{${m[1]}}} no existe (${e.subject})`);
+    assert.ok(!e.subject.includes('{{greeting}}'), 'el asunto no lleva el saludo');
+    assert.ok(!/Buenas|Hola|nombre/.test(e.body), 'todo en inglés');
+  }
+  assert.equal(toInstantlyHtml('Hi,\n\nBye\nJose'), '<div>Hi,</div><div><br /></div><div>Bye</div><div>Jose</div>');
+  assert.deepEqual(toStep(REMINDERS_US[0]).delay, 2);
+});
+
+test('carril en inglés: solo los americanos que abrieron la web pasan a SU campaña de seguimiento (no a la española) y se marcan', async () => {
+  const lead = (id, source, over = {}) => ({ id, user_id: OWNER, source, name: id, email: `${id}@gmail.com`, status: 'engaged', demo_status: 'ready', instantly_lead_id: `inst-${id}`, engaged_at: '2026-10-10T00:00:00Z', replied_at: null, followup_at: null, ...over });
+  const FU_US = 'fdad4e55-1d2a-45d7-a236-fb890616fde8';
+  const db = createMemoryDb({ new_business_leads: [lead('u1', US_SOURCE), lead('u2', US_SOURCE, { replied_at: '2026-10-11T00:00:00Z' }), lead('l1', 'ct_registry'), lead('m1', MAPS_SOURCE)] });
+  const state = { 'inst-u1': { campaign: C.us, status: 3, email_reply_count: 0 } };
+  const calls = [];
+  const fetchImpl = async (url, opts = {}) => {
+    const path = url.replace('https://api.instantly.ai/api/v2', ''); const body = opts.body ? JSON.parse(opts.body) : null; calls.push({ path, body });
+    let json = {};
+    if (path === '/leads/list') json = { items: body.ids.filter(id => state[id]).map(id => ({ id, ...state[id] })) };
+    else if (path === '/leads/move') { for (const id of body.ids) state[id] = { ...state[id], campaign: body.to_campaign_id, status: 1 }; json = { id: 'job-1' }; }
+    else if (path === '/background-jobs/job-1') json = { status: 'success' };
+    else if (path.startsWith('/campaigns/')) json = { status: 1 };
+    return { ok: true, status: 200, json: async () => json };
+  };
+  const config = loadInstantlyConfig({ ...env, INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US: FU_US }, { dryRun: false, campaign: 'followup_us' });
+  assert.equal(config.campaignId, FU_US);
+  const r = await moveToFollowup({ db, ownerId: OWNER, config, audience: 'us', dryRun: false, fetchImpl, sleep: async () => {}, now: TODAY });
+  assert.deepEqual([r.eligible, r.moved], [1, 1]);
+  const move = calls.find(c => c.path === '/leads/move').body;
+  assert.deepEqual([move.ids, move.campaign, move.to_campaign_id], [['inst-u1'], C.us, FU_US]);
+  assert.deepEqual(db.rows('new_business_leads').filter(l => l.followup_at).map(l => l.id), ['u1']);
+  // el resumen junta los dos carriles e indica el idioma de cada lead
+  const o = await followupOverview({ db, ownerId: OWNER, now: TODAY });
+  assert.deepEqual([o.counts.waiting, o.counts.active, o.leads.map(l => [l.id, l.lang])], [1, 1, [['u1', 'en']]]);   // l1 espera en el carril español
+});
+
 test('el seguimiento en español no recoge a los americanos (tendrán el suyo en inglés)', async () => {
   const lead = (id, source) => ({ id, user_id: OWNER, source, name: id, email: `${id}@gmail.com`, status: 'engaged', demo_status: 'ready', instantly_lead_id: `inst-${id}`, engaged_at: '2026-10-10T00:00:00Z', replied_at: null, followup_at: null });
   const db = createMemoryDb({ new_business_leads: [lead('a', 'ct_registry'), lead('c', US_SOURCE), lead('b', MAPS_SOURCE)] });

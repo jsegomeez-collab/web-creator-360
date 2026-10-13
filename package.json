@@ -12,6 +12,7 @@
     "start:campaign": "node src/campaign-server.js",
     "leads:email-template": "node scripts/preview-lead-emails.js",
     "maps:ingest": "node scripts/maps-ingest.js",
+    "instantly:us-campaigns": "node scripts/instantly-us-campaigns.js",
     "leads:push": "node scripts/leads-push.js",
     "telegram:setup": "node scripts/telegram-setup.js",
     "leads:link": "node scripts/lead-link.js",

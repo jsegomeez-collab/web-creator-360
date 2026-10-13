@@ -596,16 +596,19 @@ const FOLLOWUP_STATE = {
 
 function renderFollowup(f) {
   const pill = $('followup-pill'), hint = $('followup-hint');
-  pill.className = `badge ${f.configured ? 'badge-green' : 'badge-red'}`;
-  pill.textContent = f.configured ? `Campaña ${f.campaign}…` : 'Falta configurar';
-  hint.className = `mt-4 rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed ${f.configured ? 'hidden' : 'border-rose-200 bg-rose-50 text-rose-700'}`;
-  hint.textContent = f.configured ? '' : 'Falta INSTANTLY_CAMPAIGN_ID_FOLLOWUP en tu .env y en Render (el ID de la campaña de seguimiento en Instantly).';
+  // Two lanes: Spanish (LLCs with a Latino signal) and English (the "americanos"); each needs its own Instantly campaign
+  const lanes = f.lanes || { es: { configured: f.configured, campaign: f.campaign }, us: { configured: false } };
+  const missing = [!lanes.es.configured && 'INSTANTLY_CAMPAIGN_ID_FOLLOWUP (español)', !lanes.us.configured && 'INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US (americanos, inglés)'].filter(Boolean);
+  pill.className = `badge ${!missing.length ? 'badge-green' : lanes.es.configured || lanes.us.configured ? 'badge-pending' : 'badge-red'}`;
+  pill.textContent = !missing.length ? `ES ${lanes.es.campaign}… · EN ${lanes.us.campaign}…` : lanes.es.configured || lanes.us.configured ? 'Incompleto' : 'Falta configurar';
+  hint.className = `mt-4 rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed ${missing.length ? 'border-amber-200 bg-amber-50 text-amber-800' : 'hidden'}`;
+  hint.textContent = missing.length ? `Falta en tu .env y en Render: ${missing.join(' y ')} (el ID de la campaña de seguimiento en Instantly).` : '';
   $('fu-waiting').textContent = nf(f.counts.waiting);
   $('fu-active').textContent = nf(f.counts.active);
   $('fu-replied').textContent = nf(f.counts.replied);
   $('fu-cold').textContent = nf(f.counts.cold);
   set('count-followup', f.counts.waiting + f.counts.active);
-  $('followup-run-btn').disabled = !f.configured || !f.counts.waiting;
+  $('followup-run-btn').disabled = !(lanes.es.configured || lanes.us.configured) || !f.counts.waiting;
 
   const tbody = $('followup-table');
   if (!f.leads.length) {
@@ -615,7 +618,7 @@ function renderFollowup(f) {
   tbody.innerHTML = f.leads.map((l) => {
     const st = FOLLOWUP_STATE[l.state];
     return `<tr class="table-row">
-      <td>${nameCell(l.name, l.city || '', true)}</td>
+      <td>${nameCell(l.name, `${l.city || '—'} · ${l.lang === 'en' ? 'inglés (americanos)' : 'español'}`, true)}</td>
       <td class="hidden md:table-cell"><span class="text-[13px] text-slate-600">${esc(l.email)}</span></td>
       <td class="text-[13px] font-semibold tabular-nums text-slate-700">${l.state === 'replied' ? '—' : `${l.day} de ${f.days}`}</td>
       <td><span class="badge ${st.badge}">${esc(st.label)}</span></td>

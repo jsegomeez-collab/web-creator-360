@@ -22,10 +22,14 @@ const call = (config, path, body, opts = {}) => requestJson({
 });
 
 // Leads that should enter the follow-up: opened their demo, did not reply, have a demo to link to, not entered yet.
-// Google Maps leads (English) will have their own follow-up campaign: not here.
-const eligible = (db, ownerId, limit) => selectAll(() => db.from(TABLE).select('*').eq('user_id', ownerId).eq('status', 'engaged')
-  .is('followup_at', null).is('replied_at', null).eq('demo_status', 'ready').neq('source', MAPS_SOURCE).neq('source', US_SOURCE).not('instantly_lead_id', 'is', null)
-  .order('engaged_at', { ascending: true }).order('id'), { max: limit });
+// Two lanes, each with its own Instantly campaign: 'es' (the Spanish one: everything but the English sources) and 'us' (the
+// "americanos", in English). Google Maps leads will have their own follow-up campaign: not here.
+const eligible = (db, ownerId, limit, audience = 'es') => selectAll(() => {
+  let query = db.from(TABLE).select('*').eq('user_id', ownerId).eq('status', 'engaged')
+    .is('followup_at', null).is('replied_at', null).eq('demo_status', 'ready').not('instantly_lead_id', 'is', null);
+  query = audience === 'us' ? query.eq('source', US_SOURCE) : query.neq('source', MAPS_SOURCE).neq('source', US_SOURCE);
+  return query.order('engaged_at', { ascending: true }).order('id');
+}, { max: limit });
 
 // What Instantly knows now about these leads → Map(id → lead)
 async function instantlyState(config, leads, opts) {
@@ -51,9 +55,10 @@ async function waitForJob(config, jobId, { fetchImpl, sleep = sleepDefault, trie
 
 // Moves the eligible leads to the follow-up campaign. → { dryRun, eligible, moved, skipped }
 //   skipped: notInInstantly · bounced · unsubscribed · replied (Instantly has a reply we had not marked yet)
-export async function moveToFollowup({ db, ownerId, config, limit = 200, dryRun = isDryRun(), fetchImpl, sleep, now = new Date() }) {
+//   audience: 'es' (default, config = the Spanish follow-up campaign) or 'us' (the "americanos", config = their English one)
+export async function moveToFollowup({ db, ownerId, config, audience = 'es', limit = 200, dryRun = isDryRun(), fetchImpl, sleep, now = new Date() }) {
   let leads;
-  try { leads = await eligible(db, ownerId, limit); } catch (err) {
+  try { leads = await eligible(db, ownerId, limit, audience); } catch (err) {
     throw new Error(`cargar leads para el seguimiento: ${err.message}${/followup_at|column/i.test(err.message) ? ' (¿has ejecutado src/db/schema-followup.sql en Supabase?)' : ''}`);
   }
   const skipped = { notInInstantly: 0, bounced: 0, unsubscribed: 0, replied: 0 };
@@ -105,12 +110,12 @@ export async function moveToFollowup({ db, ownerId, config, limit = 200, dryRun 
 export async function followupOverview({ db, ownerId, now = new Date() }) {
   const rows = await selectAll(() => db.from(TABLE).select('id, name, email, city, source, status, engaged_at, followup_at, replied_at, demo_url')
     .eq('user_id', ownerId).not('followup_at', 'is', null).order('followup_at', { ascending: false }).order('id'));
-  const waiting = await eligible(db, ownerId, 5000);
+  const waiting = [...await eligible(db, ownerId, 5000, 'es'), ...await eligible(db, ownerId, 5000, 'us')];
 
   const leads = rows.map((l) => {
     const days = Math.floor((now.getTime() - Date.parse(l.followup_at)) / DAY);
     const state = l.replied_at ? 'replied' : days >= FOLLOWUP_DAYS ? 'cold' : 'active';
-    return { ...l, day: Math.min(days + 1, FOLLOWUP_DAYS), state };
+    return { ...l, day: Math.min(days + 1, FOLLOWUP_DAYS), state, lang: l.source === US_SOURCE ? 'en' : 'es' };
   });
   const count = (s) => leads.filter(l => l.state === s).length;
   return { counts: { waiting: waiting.length, active: count('active'), replied: count('replied'), cold: count('cold') }, days: FOLLOWUP_DAYS, leads };

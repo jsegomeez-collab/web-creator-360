@@ -20,7 +20,7 @@ const REJECTED_NOTE = 'Instantly no lo aceptó (ya estaba en tu workspace, está
 // campaign: 'llc' (new LLCs with a Latino signal, INSTANTLY_CAMPAIGN_ID), 'maps' (Google Maps businesses without a website,
 // INSTANTLY_CAMPAIGN_ID_MAPS), 'us' (new LLCs with no Latino signal, in English, INSTANTLY_CAMPAIGN_ID_US) or 'followup'
 // (those who opened their website and have not replied, INSTANTLY_CAMPAIGN_ID_FOLLOWUP)
-const CAMPAIGN_ID_VARS = { llc: 'INSTANTLY_CAMPAIGN_ID', maps: 'INSTANTLY_CAMPAIGN_ID_MAPS', us: 'INSTANTLY_CAMPAIGN_ID_US', followup: 'INSTANTLY_CAMPAIGN_ID_FOLLOWUP' };
+const CAMPAIGN_ID_VARS = { llc: 'INSTANTLY_CAMPAIGN_ID', maps: 'INSTANTLY_CAMPAIGN_ID_MAPS', us: 'INSTANTLY_CAMPAIGN_ID_US', followup: 'INSTANTLY_CAMPAIGN_ID_FOLLOWUP', followup_us: 'INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US' };
 export function loadInstantlyConfig(env = process.env, { dryRun = isDryRun(), campaign = 'llc' } = {}) {
   const idVar = CAMPAIGN_ID_VARS[campaign] ?? CAMPAIGN_ID_VARS.llc;
   const apiKey = String(env.INSTANTLY_API_KEY || '').trim();

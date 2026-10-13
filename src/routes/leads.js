@@ -196,16 +196,27 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
   // Follow-up: those who opened their website and have not replied go to a separate Instantly campaign (7 emails, one a day).
   // The campaign server does it by itself every 30 minutes; here you can see who is in it and run it now.
   router.get('/followup', guard(async (req, res) => {
-    const cfg = loadInstantlyConfig(process.env, { dryRun: true, campaign: 'followup' });
+    const lane = (campaign) => { const c = loadInstantlyConfig(process.env, { dryRun: true, campaign }); return { configured: Boolean(c.campaignId) && !c.warnings.some(w => w.startsWith('INSTANTLY_CAMPAIGN_ID_FOLLOWUP')), campaign: c.campaignId.slice(0, 8) || null }; };
+    const es = lane('followup'), us = lane('followup_us');
     const overview = await followupOverview({ db, ownerId });
-    res.json({ ...overview, configured: !cfg.warnings.some(w => w.startsWith('INSTANTLY_CAMPAIGN_ID_FOLLOWUP')), campaign: cfg.campaignId.slice(0, 8) || null });
+    // top level = the Spanish lane (as before); `lanes` has both
+    res.json({ ...overview, configured: es.configured, campaign: es.campaign, lanes: { es, us } });
   }));
 
+  // Runs the lanes that have their campaign set: Spanish (LLCs with a Latino signal) and English (the "americanos")
   router.post('/followup/run', guard(async (req, res) => {
     const dryRun = isDryRun();
-    let config;
-    try { config = loadInstantlyConfig(process.env, { dryRun, campaign: 'followup' }); } catch (err) { return res.status(400).json({ error: err.message }); }
-    res.json(await moveToFollowup({ db, ownerId, config, dryRun, fetchImpl }));
+    const lanes = {};
+    for (const [audience, campaign] of [['es', 'followup'], ['us', 'followup_us']]) {
+      let config;
+      try { config = loadInstantlyConfig(process.env, { dryRun, campaign }); } catch (err) { if (audience === 'es' || (process.env.INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US || '').trim()) return res.status(400).json({ error: err.message }); continue; }
+      if (!config.campaignId && dryRun) continue;
+      lanes[audience] = await moveToFollowup({ db, ownerId, config, audience, dryRun, fetchImpl });
+    }
+    const all = Object.values(lanes);
+    const skipped = {};
+    for (const l of all) for (const [k, n] of Object.entries(l.skipped)) skipped[k] = (skipped[k] || 0) + n;
+    res.json({ dryRun, eligible: all.reduce((s, l) => s + l.eligible, 0), moved: all.reduce((s, l) => s + l.moved, 0), skipped, campaign: all.some(l => l.campaign === 'resumed') ? 'resumed' : 'ok', lanes });
   }));
 
   router.get('/autopilot', guard(async (req, res) => {
