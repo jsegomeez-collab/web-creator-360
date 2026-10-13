@@ -391,33 +391,33 @@ test('poll-instantly: quien ya está fuera (baja, rebote, llamado, ganado…) no
 test('autopilot: sin nada guardado, valores por defecto (activado, 20)', async () => {
   const r = await api('/autopilot');
   assert.equal(r.status, 200);
-  assert.deepEqual(r.body, { enabled: true, pushLimit: 20, demoAll: false });
+  assert.deepEqual(r.body, { enabled: true, pushLimit: 20, demoAll: false, usEnabled: false, usDailyDemos: 100 });
 });
 
 test('autopilot: guardar y volver a leer', async () => {
   const saved = await api('/autopilot', { method: 'PUT', body: { enabled: false, pushLimit: 7, demoAll: false } });
   assert.equal(saved.status, 200);
-  assert.deepEqual(saved.body, { enabled: false, pushLimit: 7, demoAll: false });
-  assert.deepEqual((await api('/autopilot')).body, { enabled: false, pushLimit: 7, demoAll: false });
+  assert.deepEqual(saved.body, { enabled: false, pushLimit: 7, demoAll: false, usEnabled: false, usDailyDemos: 100 });
+  assert.deepEqual((await api('/autopilot')).body, { enabled: false, pushLimit: 7, demoAll: false, usEnabled: false, usDailyDemos: 100 });
 });
 
 test('autopilot: guardar solo un campo no toca el otro', async () => {
   await api('/autopilot', { method: 'PUT', body: { enabled: false, pushLimit: 7, demoAll: false } });
   await api('/autopilot', { method: 'PUT', body: { enabled: true } });
-  assert.deepEqual((await api('/autopilot')).body, { enabled: true, pushLimit: 7, demoAll: false });
+  assert.deepEqual((await api('/autopilot')).body, { enabled: true, pushLimit: 7, demoAll: false, usEnabled: false, usDailyDemos: 100 });
 });
 
 test('autopilot: valores inválidos → 400, sin guardar nada', async () => {
-  for (const body of [{ enabled: 'sí' }, { enabled: 1 }, { pushLimit: 0 }, { pushLimit: 1001 }, { pushLimit: 1.5 }, { pushLimit: 'veinte' }]) {
+  for (const body of [{ enabled: 'sí' }, { enabled: 1 }, { pushLimit: 0 }, { pushLimit: 1001 }, { pushLimit: 1.5 }, { pushLimit: 'veinte' }, { usEnabled: 'sí' }, { usDailyDemos: 0 }, { usDailyDemos: 1001 }, { usDailyDemos: 2.5 }]) {
     const r = await api('/autopilot', { method: 'PUT', body });
     assert.equal(r.status, 400, JSON.stringify(body));
   }
-  assert.deepEqual((await api('/autopilot')).body, { enabled: true, pushLimit: 20, demoAll: false });
+  assert.deepEqual((await api('/autopilot')).body, { enabled: true, pushLimit: 20, demoAll: false, usEnabled: false, usDailyDemos: 100 });
 });
 
 test('autopilot: no mezcla los ajustes con los de otro usuario', async () => {
   db.tables.campaign_autopilot = [{ user_id: OTHER, enabled: false, push_limit: 1 }];
-  assert.deepEqual((await api('/autopilot')).body, { enabled: true, pushLimit: 20, demoAll: false });
+  assert.deepEqual((await api('/autopilot')).body, { enabled: true, pushLimit: 20, demoAll: false, usEnabled: false, usDailyDemos: 100 });
 });
 
 test('email-template: asunto, cuerpo y variables del texto único', async () => {

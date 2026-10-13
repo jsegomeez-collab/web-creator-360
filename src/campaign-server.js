@@ -9,7 +9,7 @@ import { moveToFollowup } from './services/followup.js';
 import { loadApifyConfig } from './services/apify.js';
 import { loadInstantlyConfig, pushLeads, resumeIfCompleted } from './services/instantly.js';
 import { pollInstantlyEvents } from './services/instantlyPoll.js';
-import { getAutopilotSettings, ALL_MODE_SEND_LIMIT } from './services/autopilot.js';
+import { getAutopilotSettings, usDemoCap, ALL_MODE_SEND_LIMIT } from './services/autopilot.js';
 import { generateDemos, generateAllDemos, readyDemoCount, demosMadeToday, expireDemos } from './services/leadDemos.js';
 import { US_SOURCE } from './services/audience.js';
 import { alertCallRequest, alertReply, sendTelegram, loadTelegramConfig } from './services/telegram.js';
@@ -88,10 +88,9 @@ if ((process.env.INSTANTLY_CAMPAIGN_ID_MAPS || '').trim()) {
 
 // Campaign 3 ("americanos": new LLCs with no Latino signal, emailed in English): its own Instantly campaign and copy. Active when its
 // campaign id (INSTANTLY_CAMPAIGN_ID_US) is set; the leads arrive with the daily registry download above.
-// US_DAILY_DEMOS = how many demos of the "americanos" are made (and so sent) per day. 0 or empty = PAUSED: their leads are imported
-// but no demo is created until you set it (e.g. 100 for a test). It is shown in /health.
-const usDailyDemos = Math.max(0, parseInt(process.env.US_DAILY_DEMOS, 10) || 0);
-autopilotStatus.usDailyDemos = usDailyDemos;
+// The "americanos" have their own switch and daily cap in the dashboard (Envío → Autopilot): OFF by default, their leads are imported
+// but no demo is made (nor sent) until it is on, and then at most that many per day. Read fresh on every cycle; shown in /health.
+autopilotStatus.usDailyDemos = 0;
 let usPushConfig = null;
 if ((process.env.INSTANTLY_CAMPAIGN_ID_US || '').trim()) {
   try { usPushConfig = loadInstantlyConfig(process.env, { dryRun: false, campaign: 'us' }); } catch (err) { console.warn(`Campaña de americanos desactivada: ${err.message}`); autopilotStatus.notes.push(`campaña de americanos desactivada: ${err.message}`); }
@@ -107,10 +106,13 @@ if (demosOn) {
   if (missing.length) { console.warn(`LEAD_DEMOS=true pero falta ${missing.join(' y ')}: no se crearán webs de demo y no se enviará ningún lead`); autopilotStatus.notes.push(`LEAD_DEMOS=true pero falta ${missing.join(' y ')}`); }
   else {
     every('*/10 * * * *', 'la creación de webs de demo', async () => {
-      const { enabled, pushLimit, demoAll } = await getAutopilotSettings(supabase, ownerId);
+      const settings = await getAutopilotSettings(supabase, ownerId);
+      const { enabled, pushLimit, demoAll } = settings;
+      const usDailyDemos = usDemoCap(settings);
+      autopilotStatus.usDailyDemos = usDailyDemos;
       if (!enabled) return;
       const log = (m) => console.log(`[demos] ${m}`);
-      // The "americanos" (English campaign) are made apart, under their own DAILY CAP (US_DAILY_DEMOS; 0 = paused, the default)
+      // The "americanos" (English campaign) are made apart, under their own switch and DAILY CAP (dashboard; off by default)
       const apart = [US_SOURCE];
       let failed = 0;
       if (demoAll) failed += (await generateAllDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, log, excludeSources: apart })).failed;
@@ -167,8 +169,8 @@ if (mapsPushConfig && loadApifyConfig().token) {
 // "Americanos": everything with a ready demo is sent (the mailboxes' daily limit in Instantly paces the actual sending)
 if (usPushConfig) {
   every('40 */3 * * *', 'el envío automático a la campaña de americanos', async () => {
-    const { enabled } = await getAutopilotSettings(supabase, ownerId);
-    if (!enabled) return;
+    const settings = await getAutopilotSettings(supabase, ownerId);
+    if (!settings.enabled || !settings.usEnabled) return;           // their own switch, off by default
     const r = await pushLeads({ db: supabase, ownerId, config: usPushConfig, limit: ALL_MODE_SEND_LIMIT });
     if (!r.pushed && !r.rejected) return;
     console.log(`[americanos] ${r.dryRun ? '(modo prueba) ' : ''}enviados a Instantly: ${r.pushed} · rechazados: ${r.rejected}`);

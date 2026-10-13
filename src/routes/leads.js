@@ -224,13 +224,17 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
   }));
 
   router.put('/autopilot', guard(async (req, res) => {
-    const { enabled, pushLimit, demoAll } = req.body || {};
+    const { enabled, pushLimit, demoAll, usEnabled, usDailyDemos } = req.body || {};
     if (enabled !== undefined && typeof enabled !== 'boolean') return res.status(400).json({ error: 'enabled debe ser true o false' });
     if (demoAll !== undefined && typeof demoAll !== 'boolean') return res.status(400).json({ error: 'demoAll debe ser true o false' });
+    if (usEnabled !== undefined && typeof usEnabled !== 'boolean') return res.status(400).json({ error: 'usEnabled debe ser true o false' });
+    if (usDailyDemos !== undefined && (!Number.isInteger(usDailyDemos) || usDailyDemos < 1 || usDailyDemos > 1000)) {
+      return res.status(400).json({ error: 'usDailyDemos debe ser un entero entre 1 y 1000' });
+    }
     if (pushLimit !== undefined && (!Number.isInteger(pushLimit) || pushLimit < 1 || pushLimit > 1000)) {
       return res.status(400).json({ error: 'pushLimit debe ser un entero entre 1 y 1000' });
     }
-    res.json(await setAutopilotSettings(db, ownerId, { enabled, pushLimit, demoAll }));
+    res.json(await setAutopilotSettings(db, ownerId, { enabled, pushLimit, demoAll, usEnabled, usDailyDemos }));
   }));
 
   router.get('/email-template', (req, res) => {

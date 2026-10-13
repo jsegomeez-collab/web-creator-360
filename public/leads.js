@@ -470,6 +470,42 @@ async function loadAutopilot() {
   $('autopilot-all').checked = !!s.demoAll;
   $('autopilot-limit').disabled = !!s.demoAll;
   $('autopilot-status').textContent = autopilotStatusText(s);
+  $('autopilot-us').checked = !!s.usEnabled;
+  $('autopilot-us-limit').value = s.usDailyDemos;
+  $('autopilot-us-status').textContent = usStatusText(s);
+}
+
+// The "americanos" (English campaign): their own switch and daily cap; the demos cost about $0.07 each
+const usStatusText = (s) => (s.usEnabled
+  ? `Activado: se crean y envían hasta ${nf(s.usDailyDemos)} demos al día (≈ ${nf(Math.round(s.usDailyDemos * 0.07))} $ al día)${s.enabled ? '.' : ', pero el autopilot general está desactivado.'}`
+  : 'Desactivado: sus leads se importan pero no se crea ninguna web ni se envía nada.');
+
+async function toggleAutopilotUs(box) {
+  const usEnabled = box.checked;
+  const limit = Number($('autopilot-us-limit').value) || 100;
+  if (usEnabled && !await ask({
+    title: '¿Activar la campaña de americanos?',
+    message: `Se crearán las webs de demo de las LLCs americanas (inglés), hasta ${nf(limit)} al día (≈ ${nf(Math.round(limit * 0.07))} $ al día), y se enviarán a su campaña de Instantly. Puedes apagarlo cuando quieras.`,
+    confirm: 'Activar', icon: 'rocket',
+  })) { box.checked = false; return; }
+  await withDisabled(box, async () => {
+    try {
+      const s = await leadsApi('/autopilot', { method: 'PUT', body: { usEnabled } });
+      $('autopilot-us-status').textContent = usStatusText(s);
+      toast(s.usEnabled ? 'Americanos activados' : 'Americanos desactivados');
+    } catch (e) { box.checked = !usEnabled; throw e; }
+  });
+}
+
+async function saveAutopilotUsLimit(btn) {
+  const usDailyDemos = Number($('autopilot-us-limit').value);
+  if (!Number.isInteger(usDailyDemos) || usDailyDemos < 1 || usDailyDemos > 1000) return toast('Indica un número entre 1 y 1000', 'error');
+  await withBusy(btn, 'Guardando…', async () => {
+    const s = await leadsApi('/autopilot', { method: 'PUT', body: { usDailyDemos } });
+    $('autopilot-us-limit').value = s.usDailyDemos;
+    $('autopilot-us-status').textContent = usStatusText(s);
+    toast('Guardado');
+  });
 }
 
 async function toggleAutopilot(btn) {
@@ -792,6 +828,8 @@ $('leads-table').addEventListener('click', async (e) => {
 
 $('autopilot-toggle').addEventListener('click', (e) => toggleAutopilot(e.currentTarget));
 $('autopilot-all').addEventListener('change', (e) => toggleAutopilotAll(e.currentTarget));
+$('autopilot-us').addEventListener('change', (e) => toggleAutopilotUs(e.currentTarget));
+$('autopilot-us-save-btn').addEventListener('click', (e) => saveAutopilotUsLimit(e.currentTarget));
 $('demos-btn').addEventListener('click', (e) => createDemos(e.currentTarget));
 $('autopilot-save-btn').addEventListener('click', (e) => saveAutopilotLimit(e.currentTarget));
 $('send-source').addEventListener('change', onSendSourceChange);
