@@ -221,6 +221,22 @@ test('carril en inglés: solo los americanos que abrieron la web pasan a SU camp
   assert.deepEqual([o.counts.waiting, o.counts.active, o.leads.map(l => [l.id, l.lang])], [1, 1, [['u1', 'en']]]);   // l1 espera en el carril español
 });
 
+// ─── caso real: Cyrious Breaks LLC (Wolcott) falló con "aún menciona el negocio de ejemplo (Waterbury)" ──────
+import { sampleTerms } from '../src/sitegen/templates.js';
+import { findLeftovers } from '../src/sitegen/render.js';
+
+test('una ciudad vecina de la ciudad de ejemplo de la plantilla puede nombrarla (Wolcott → Waterbury); lejos de ella sigue siendo un resto', () => {
+  const html = '<p>We serve Wolcott, Waterbury, Cheshire and Naugatuck.</p>';
+  const near = sampleTerms('general', { name: 'Cyrious Breaks LLC', city: 'Wolcott' });
+  assert.ok(!near.includes('Waterbury'));
+  assert.deepEqual(findLeftovers(html, near), []);                                              // antes: ['Waterbury'] y la web no se publicaba
+  const far = sampleTerms('general', { name: 'Ellington Family Chiropractic', city: 'Ellington' });
+  assert.ok(far.includes('Waterbury'));
+  assert.deepEqual(findLeftovers(html, far), ['Waterbury']);                                    // un negocio en Ellington no debe presumir de Waterbury
+  // lo importante sigue vigilado cerca de la ciudad de ejemplo: nombres de personas, calles, años
+  assert.ok(['Núñez', 'Carmen', 'East Main St', '2019'].every(t => near.includes(t) || t === '2019'));
+});
+
 // ─── tope diario de demos de los americanos ──────────────────────────────────
 import { startOfDayNY, demosMadeToday, generateDemos, readyDemoCount } from '../src/services/leadDemos.js';
 

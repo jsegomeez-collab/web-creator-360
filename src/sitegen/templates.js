@@ -42,10 +42,21 @@ const fold = (s) => String(s ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').to
 // The sample words to look for in a finished site. Words that are also part of the real business (its name or city)
 // are left out, so "Luna Barber LLC" can say Luna.
 // year: the real year the business was registered — a sample founding year equal to it would be true, so it isn't watched
+// Towns around each sample city. The writer is told to list real towns NEAR the business, so a business in Wolcott may truthfully
+// name Waterbury: that is not a leftover of the template. The sample city is only a leftover far from its own area.
+export const SAMPLE_CITY_AREA = {
+  waterbury: ['Wolcott', 'Cheshire', 'Naugatuck', 'Prospect', 'Watertown', 'Middlebury', 'Southbury', 'Oxford', 'Thomaston', 'Plymouth', 'Bristol', 'Beacon Falls', 'Woodbury', 'Bethlehem', 'Seymour', 'Southington', 'Waterville', 'Oakville'],
+  'new britain': ['Berlin', 'Kensington', 'Bristol', 'Plainville', 'Southington', 'Newington', 'Farmington', 'West Hartford', 'Wethersfield', 'Rocky Hill', 'Cromwell', 'Meriden', 'Middletown'],
+  hartford: ['West Hartford', 'East Hartford', 'Wethersfield', 'Newington', 'Bloomfield', 'Windsor', 'Manchester', 'Glastonbury', 'Farmington', 'Avon', 'South Windsor', 'Rocky Hill', 'New Britain', 'Canton', 'Simsbury', 'East Windsor'],
+  bridgeport: ['Stratford', 'Fairfield', 'Trumbull', 'Milford', 'Shelton', 'Monroe', 'Easton', 'Westport', 'Norwalk', 'Orange', 'Derby', 'Ansonia', 'Huntington', 'Devon'],
+  stamford: ['Greenwich', 'Darien', 'Norwalk', 'New Canaan', 'Westport', 'Wilton', 'Fairfield', 'Riverside', 'Cos Cob', 'Old Greenwich', 'Ridgefield'],
+};
+
 export function sampleTerms(key, { name = '', city = '', year = '' } = {}) {
   const t = TEMPLATES[key] || { sample: [] };
   const terms = [...t.sample];
-  if (t.sampleCity && fold(t.sampleCity) !== fold(city)) terms.push(t.sampleCity);
+  const area = (SAMPLE_CITY_AREA[fold(t.sampleCity || '')] || []).map(fold);
+  if (t.sampleCity && fold(t.sampleCity) !== fold(city) && !area.includes(fold(city))) terms.push(t.sampleCity);
   const own = fold(`${name} ${city}`);
   return terms.filter(term => !own.includes(fold(term)) && term !== String(year));
 }
