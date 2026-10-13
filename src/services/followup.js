@@ -7,6 +7,7 @@ import { API, resumeIfCompleted } from './instantly.js';
 import { requestJson } from '../lib/http.js';
 import { selectAll } from '../lib/selectAll.js';
 import { isDryRun } from '../lib/dryRun.js';
+import { MAPS_SOURCE, US_SOURCE } from './audience.js';
 
 const TABLE = 'new_business_leads';
 export const FOLLOWUP_DAYS = 7;                  // one email a day for 7 days
@@ -23,7 +24,7 @@ const call = (config, path, body, opts = {}) => requestJson({
 // Leads that should enter the follow-up: opened their demo, did not reply, have a demo to link to, not entered yet.
 // Google Maps leads (English) will have their own follow-up campaign: not here.
 const eligible = (db, ownerId, limit) => selectAll(() => db.from(TABLE).select('*').eq('user_id', ownerId).eq('status', 'engaged')
-  .is('followup_at', null).is('replied_at', null).eq('demo_status', 'ready').neq('source', 'gmaps').not('instantly_lead_id', 'is', null)
+  .is('followup_at', null).is('replied_at', null).eq('demo_status', 'ready').neq('source', MAPS_SOURCE).neq('source', US_SOURCE).not('instantly_lead_id', 'is', null)
   .order('engaged_at', { ascending: true }).order('id'), { max: limit });
 
 // What Instantly knows now about these leads → Map(id → lead)

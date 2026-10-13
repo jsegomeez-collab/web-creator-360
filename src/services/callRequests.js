@@ -1,5 +1,7 @@
 // A lead asking for a call from the page behind the link in the email (routes/leadLink.js): what they type is validated
 // here and saved on their lead. The consent to be called is stored with it (exact wording, moment and IP) as proof.
+import { isEnglishSource } from './audience.js';
+
 const TABLE = 'new_business_leads';
 
 // What the "when" menu offers. The text itself is what gets saved and shown in the dashboard and in the Telegram alert.
@@ -10,7 +12,7 @@ export const CONSENT_TEXT = 'Acepto que Get ur Web me llame por teléfono al nú
 // The Google Maps campaign is in English: its page, its menu and the consent wording saved as proof are English too
 export const PREFERRED_TIMES_EN = ['As soon as possible', 'Later today', 'Tomorrow morning', 'Tomorrow afternoon'];
 export const CONSENT_TEXT_EN = 'I agree that Get ur Web may call me at the number provided to show me my website. I can ask not to be contacted again.';
-export const isEnglishLead = (lead) => lead?.source === 'gmaps';
+export const isEnglishLead = (lead) => isEnglishSource(lead?.source);
 
 // A lead moves to "requested" from any of these. A lead that already asked only gets its details refreshed.
 export const REQUESTABLE = ['new', 'queued', 'emailed', 'engaged', 'replied'];

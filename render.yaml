@@ -63,6 +63,8 @@ services:
         sync: false
       - key: INSTANTLY_CAMPAIGN_ID_FOLLOWUP
         sync: false
+      - key: INSTANTLY_CAMPAIGN_ID_US
+        sync: false
       - key: APIFY_TOKEN
         sync: false
       - key: CAMPAIGN_PUBLIC_URL
@@ -104,6 +106,9 @@ services:
         sync: false
       # Campaign 3, follow-up: those who opened their demo website and have not replied (7 emails, one a day)
       - key: INSTANTLY_CAMPAIGN_ID_FOLLOWUP
+        sync: false
+      # Campaign 4, "americanos": new Connecticut LLCs with no Latino signal, emailed in English
+      - key: INSTANTLY_CAMPAIGN_ID_US
         sync: false
       - key: APIFY_TOKEN
         sync: false

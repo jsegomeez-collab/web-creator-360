@@ -3,8 +3,9 @@
 // from the values we push for each lead (see leadVariables). EDIT THE TEXT HERE, then paste it again in Instantly.
 // Two versions: the classic one (a link to ask for a call) and the DEMO one (LEAD_DEMOS=true: a link to the lead's own
 // website, already published). emailTemplate({ demos }) returns the one in use.
+import { isEnglishSource } from '../services/audience.js';
 
-export const EMAIL_SUBJECT = 'Enhorabuena por {{empresa}} 🎉';
+export const EMAIL_SUBJECT ='Enhorabuena por {{empresa}} 🎉';
 
 export const EMAIL_BODY = `Hola:
 
@@ -86,8 +87,41 @@ Get ur Web
 
 TRUDSALES LLC (dba Get ur Web) · 7901 4th St N, St. Petersburg, FL 33702, USA`;
 
+// CAMPAIGN 3 (new Connecticut LLCs with no Latino signal, "americanos"): English, with the same English variables as the Maps one
+// ({{greeting}} {{business}} {{city}} {{site}}). Always with a demo site.
+export const EMAIL_SUBJECT_US = 'Congrats on {{business}}';
+
+export const EMAIL_BODY_US = `Hi {{greeting}},
+
+
+Congratulations on registering {{business}} in {{city}}!
+
+
+I went ahead and designed a website for your new business, so you can see what it could look like:
+
+
+{{site}}
+
+
+The photos and some details are samples. If you like it, I'll set it up with your own photos, phone number and services, and get you listed on Google Maps so customers in {{city}} can find you.
+
+
+People search Google before they hire anyone, and the business with its own website is the one that gets the call. It also helps when you apply for financing: lenders look you up online.
+
+
+I'm keeping it online for 30 days. If you want it, reply "YES" with your phone number and I'll call you to fine-tune it.
+
+
+Best,
+Jose
+Get ur Web
+
+
+TRUDSALES LLC (dba Get ur Web) · 7901 4th St N, St. Petersburg, FL 33702, USA`;
+
 export const emailTemplate = ({ demos = false, campaign = 'llc' } = {}) => {
   if (campaign === 'maps') return { subject: EMAIL_SUBJECT_MAPS, body: EMAIL_BODY_MAPS };
+  if (campaign === 'us') return { subject: EMAIL_SUBJECT_US, body: EMAIL_BODY_US };
   return demos ? { subject: EMAIL_SUBJECT_DEMO, body: EMAIL_BODY_DEMO } : { subject: EMAIL_SUBJECT, body: EMAIL_BODY };
 };
 
@@ -126,8 +160,8 @@ export const demoLink = (demoUrl, lang = 'es') => (demoUrl ? `${String(demoUrl).
 // The values Instantly puts into the {{variables}} for one lead. `linkUrl` is that lead's own link (the page to ask for the call).
 // `web` is its demo website ('' until it exists), so both versions of the email can be filled from the same values.
 export function leadVariables(lead, linkUrl) {
-  // Google Maps campaign: English email, English demo
-  if (lead.source === 'gmaps') {
+  // English campaigns (Google Maps and the "americanos" LLCs): English email, English demo
+  if (isEnglishSource(lead.source)) {
     return {
       business: displayName(lead.name),
       city: lead.city || 'your area',

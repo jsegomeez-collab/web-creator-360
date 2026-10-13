@@ -2,6 +2,8 @@
 // Used by `npm run ct:ingest` and (phase 7) by the daily cron. With dryRun it never writes to the database.
 import { CT_SOURCE, fetchRegistrations, classifyRegistrations } from './ctRegistry.js';
 import { getWatermark, recordRun, storeLeads, summarizeLeads } from './newLeads.js';
+import { US_SOURCE } from './audience.js';
+import { dropLeadsWithWebsite } from './siteCheck.js';
 
 export const FIRST_RUN_DAYS = 90;   // first load: last 90 days
 export const MARGIN_DAYS = 2;       // later runs re-read the last 2 days (late registrations); dedupe makes it harmless
@@ -25,12 +27,14 @@ export function shiftDate(ymd, days) {
 //   days          force the window ("last N days"); otherwise: resume from the last run (minus MARGIN_DAYS) or FIRST_RUN_DAYS
 //   dryRun        no writes at all
 //   latinOnly     keep only leads with a Latino signal (default true)
+//   americans     also keep the companies with NO Latino signal, stored apart (source ct_registry_us) for the English campaign
+//   checkWebsites drop the owners whose own email domain already has a working website (websiteOptions: fetchImpl, lookup…)
 //   verify        DNS-check the email domains (default true)
 //   rows          already-downloaded registry rows (tests / --json), skips the download
 //   fetchImpl     replaces fetch for the download; fetchOptions: extra options for fetchRegistrations (pageSize, sleep…)
 //   verifyOptions passed to verifyMany (resolver, provider, concurrency)
 export async function runCtIngest({
-  db = null, ownerId = null, days = null, dryRun = false, latinOnly = true, verify = true,
+  db = null, ownerId = null, days = null, dryRun = false, latinOnly = true, americans = false, checkWebsites = false, websiteOptions = {}, verify = true,
   rows = null, today = new Date(), fetchImpl, fetchOptions = {}, verifyOptions = {},
 } = {}) {
   if (!dryRun && (!db || !ownerId)) {
@@ -59,16 +63,30 @@ export async function runCtIngest({
     const newest = raw.reduce((max, r) => { const d = String(r.date_registration ?? '').slice(0, 10); return d > max ? d : max; }, '') || null;
 
     // 3. Filter (port of the Python script)
-    const { leads: candidates, stats } = classifyRegistrations(raw, { latinOnly });
+    // With "americans" on, the companies with no Latino signal are kept too and go to their own source (English campaign)
+    const { leads: classified, stats } = classifyRegistrations(raw, { latinOnly: latinOnly && !americans });
 
-    // 4. Dedupe, verify email domains and store (never writes in dry-run)
-    const stored = await storeLeads({ db: canReadDb ? db : null, ownerId, source: CT_SOURCE, candidates, dryRun, verify, verifyOptions });
-    stats.invalidEmail = stored.invalid.length;
-    notes.push(...stored.notes);
+    // 3b. Owners whose own email domain already has a working website are not worth a demo
+    let candidates = classified;
+    if (checkWebsites) {
+      const checked = await dropLeadsWithWebsite(classified, websiteOptions);
+      candidates = checked.kept;
+      stats.alreadyHasWebsite = checked.dropped.length;
+    }
+    const latinos = candidates.filter(l => l.latino_signal);
+    const us = americans ? candidates.filter(l => !l.latino_signal) : [];
+
+    // 4. Dedupe, verify email domains and store (never writes in dry-run); each group in its own source = its own campaign
+    const stored = await storeLeads({ db: canReadDb ? db : null, ownerId, source: CT_SOURCE, candidates: latinos, dryRun, verify, verifyOptions });
+    const storedUs = americans ? await storeLeads({ db: canReadDb ? db : null, ownerId, source: US_SOURCE, candidates: us, dryRun, verify, verifyOptions }) : null;
+    stats.invalidEmail = stored.invalid.length + (storedUs?.invalid.length || 0);
+    notes.push(...stored.notes, ...(storedUs?.notes || []));
+    const insertedTotal = stored.inserted + (storedUs?.inserted || 0);
     if (!dryRun) {
       await recordRun(db, {
         user_id: ownerId, source: CT_SOURCE, from_date: since, newest_registration: newest,
-        fetched: raw.length, inserted: stored.inserted, ok: true, stats: { ...stats, skipped: stored.skipped, invalidReasons: stored.invalidReasons },
+        fetched: raw.length, inserted: insertedTotal, ok: true,
+        stats: { ...stats, skipped: stored.skipped, invalidReasons: stored.invalidReasons, ...(storedUs ? { americans: { inserted: storedUs.inserted, skipped: storedUs.skipped } } : {}) },
       });
     }
 
@@ -78,7 +96,12 @@ export async function runCtIngest({
       leads: stored.valid,                // what enters as status "new"
       invalid: stored.invalid,            // stored as "invalid_email" (not emailed)
       summary: summarizeLeads(stored.valid),
-      inserted: stored.inserted,
+      inserted: insertedTotal,                // both groups
+      insertedAmericans: storedUs?.inserted || 0,
+      americans: storedUs && {
+        leads: storedUs.valid, invalid: storedUs.invalid, skipped: storedUs.skipped, invalidReasons: storedUs.invalidReasons, summary: summarizeLeads(storedUs.valid),
+        inserted: storedUs.inserted,
+      },
     };
   } catch (err) {
     if (!dryRun && canReadDb) {

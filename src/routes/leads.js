@@ -45,7 +45,7 @@ const asList = (v) => String(v ?? '').split(',').map(s => s.trim()).filter(Boole
 // onReply(lead): the Telegram alert for a lead's first reply, fired from /poll-instantly (the campaign server's cron also polls on its own)
 // demoBuild / demoDeploy: only for tests (a fake writer and a fake Vercel); production uses the real ones
 // mapsItems / mapsFacebook: only for tests (Apify results already downloaded, and a fake Facebook step)
-export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, onReply = null, demoBuild, demoDeploy, mapsItems = null, mapsFacebook = undefined }) {
+export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, onReply = null, demoBuild, demoDeploy, mapsItems = null, mapsFacebook = undefined, websiteOptions = {} }) {
   const router = Router();
 
   router.use((req, res, next) => {
@@ -84,7 +84,7 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     const demoReady = !!process.env.ANTHROPIC_API_KEY && !!process.env.VERCEL_TOKEN;
     res.json({
       total: data.length, byStatus, lastRun: runs?.[0] ?? null,
-      instantly: { ready: instantlyReady, dryRun, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null, mapsCampaign: (process.env.INSTANTLY_CAMPAIGN_ID_MAPS || '').trim().slice(0, 8) || null },
+      instantly: { ready: instantlyReady, dryRun, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null, mapsCampaign: (process.env.INSTANTLY_CAMPAIGN_ID_MAPS || '').trim().slice(0, 8) || null, usCampaign: (process.env.INSTANTLY_CAMPAIGN_ID_US || '').trim().slice(0, 8) || null },
       maps: { apify: !!loadApifyConfig().token },
       demos: { enabled: cfg.demos, configured: demoReady, columns: demoColumns, ...demos },
     });
@@ -103,7 +103,7 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
       if (req.query.sector) query = query.eq('sector', String(req.query.sector));
       if (req.query.priority) query = query.eq('priority', String(req.query.priority));
       if (req.query.source) query = query.eq('source', String(req.query.source));
-      if (req.query.notSource) query = query.neq('source', String(req.query.notSource));   // the LLC campaign = everything but Google Maps
+      for (const s of asList(req.query.notSource)) query = query.neq('source', s);   // the LLC campaign = everything but the English sources
       if (req.query.batch) query = query.eq('import_batch', String(req.query.batch));
       if (req.query.demo) query = query.eq('demo_status', String(req.query.demo));
       return query.order(requests ? 'requested_at' : 'registered_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false }).order('id');
@@ -131,8 +131,11 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
   router.post('/ingest/ct', guard(async (req, res) => {
     const { days = null, dryRun = false } = req.body || {};
     if (days !== null && (!Number.isInteger(days) || days < 1 || days > 3650)) return res.status(400).json({ error: 'days debe ser un entero entre 1 y 3650' });
-    const r = await runCtIngest({ db, ownerId, days, dryRun: !!dryRun, verifyOptions, fetchImpl });
-    res.json({ ...r, firstRunDays: FIRST_RUN_DAYS, leads: undefined, invalid: undefined, invalidEmailCount: r.invalid.length });   // no lists of emails to the screen
+    // The "americanos" (no Latino signal) are only kept once their Instantly campaign exists; owners whose own domain already has a website are dropped
+    const americans = Boolean((process.env.INSTANTLY_CAMPAIGN_ID_US || '').trim());
+    const r = await runCtIngest({ db, ownerId, days, dryRun: !!dryRun, americans, checkWebsites: true, websiteOptions, verifyOptions, fetchImpl });
+    const us = r.americans && { inserted: r.americans.inserted, skipped: r.americans.skipped, summary: r.americans.summary, invalidEmailCount: r.americans.invalid.length };
+    res.json({ ...r, firstRunDays: FIRST_RUN_DAYS, leads: undefined, invalid: undefined, americans: us, invalidEmailCount: r.invalid.length });   // no lists of emails to the screen
   }));
 
   // Campaign 2: one run of the Google Maps search (the next city + categories of the rotation). Costs Apify credit, so the
@@ -167,7 +170,7 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
     const filters = {};
     for (const k of ['source', 'sector', 'priority', 'batch']) if (body[k]) filters[k] = String(body[k]);
     const dryRun = isDryRun();
-    const campaign = body.campaign === 'maps' ? 'maps' : 'llc';
+    const campaign = ['maps', 'us'].includes(body.campaign) ? body.campaign : 'llc';
     let config;
     try { config = loadInstantlyConfig(process.env, { dryRun, campaign }); } catch (err) { return res.status(400).json({ error: err.message }); }
     const result = await pushLeads({ db, ownerId, config, limit, filters, dryRun });
@@ -221,8 +224,8 @@ export function createLeadsRouter({ db, ownerId, verifyOptions = {}, fetchImpl, 
 
   router.get('/email-template', (req, res) => {
     const demos = loadInstantlyConfig(process.env, { dryRun: true }).demos;
-    const campaign = req.query.campaign === 'maps' ? 'maps' : 'llc';
-    res.json({ ...emailTemplate({ demos, campaign }), variables: templateVariables({ demos, campaign }), demos: demos || campaign === 'maps', campaign });
+    const campaign = ['maps', 'us'].includes(req.query.campaign) ? req.query.campaign : 'llc';
+    res.json({ ...emailTemplate({ demos, campaign }), variables: templateVariables({ demos, campaign }), demos: demos || campaign !== 'llc', campaign });
   });
 
   // Demo websites (template engine + Vercel). Each one takes about a minute, so the batch is kept small here; the

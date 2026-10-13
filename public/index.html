@@ -517,7 +517,7 @@
             <div class="card-body">
               <div class="flex items-start gap-4">
                 <span class="icon-tile bg-sky-50 text-sky-600"><i data-lucide="landmark"></i></span>
-                <div class="min-w-0"><h2 class="card-title">Registro de LLCs nuevas</h2><p class="card-sub">Descarga las LLCs recién registradas, se queda con las de dueños latinos con email propio y comprueba que el dominio del email existe.</p></div>
+                <div class="min-w-0"><h2 class="card-title">Registro de LLCs nuevas</h2><p class="card-sub">Descarga las LLCs recién registradas con email, comprueba que el dominio del email existe y descarta a quien ya tiene web propia. Los dueños latinos van a la campaña en español; si has puesto INSTANTLY_CAMPAIGN_ID_US, el resto (americanos) va a la campaña en inglés.</p></div>
               </div>
               <div class="mt-5 flex items-start gap-2.5 rounded-xl bg-slate-50 px-3.5 py-3 text-[13px] text-slate-600">
                 <i data-lucide="clock" class="mt-0.5 h-4 w-4 shrink-0 text-slate-400"></i><span id="ct-last-run">Cargando…</span>
@@ -606,6 +606,7 @@
                 <option value="">Todo origen</option>
                 <option value="ct_registry">Registro oficial</option>
                 <option value="csv_import">CSV</option>
+                <option value="ct_registry_us">LLCs · Americanos</option>
                 <option value="gmaps">Google Maps (sin web)</option>
               </select>
             </div>
@@ -749,6 +750,7 @@
                   <label class="label" for="send-campaign">Campaña de Instantly</label>
                   <select id="send-campaign" class="input">
                     <option value="llc">LLCs nuevas</option>
+                    <option value="us">LLCs nuevas · Americanos (en inglés)</option>
                     <option value="maps">Google Maps · negocios sin web</option>
                   </select>
                   <p id="send-campaign-hint" class="hint">Cada campaña tiene su propio texto de email en Instantly.</p>

@@ -26,6 +26,9 @@ export const OUTPUT_SCHEMA = {
   additionalProperties: false,
 };
 
+// For the English campaigns ("americanos", Google Maps) the owner is not assumed to be Latino
+export const SYSTEM_EN = `You adapt the copy of a hand-designed small-business website template to a real business. The design is fixed; you only rewrite texts. The result is a free demo website shown to the business owner (a small-business owner in the United States), so it must read as if written for their business by a good local copywriter: specific, warm, plain, never generic marketing talk.`;
+
 export const SYSTEM = `You adapt the copy of a hand-designed small-business website template to a real business. The design is fixed; you only rewrite texts. The result is a free demo website shown to the business owner (a Hispanic/Latino entrepreneur in the United States), so it must read as if written for their business by a good local copywriter: specific, warm, plain, never generic marketing talk.`;
 
 // The prompt in two parts. STABLE = rules + the template's texts: identical for every business that uses the same template,
@@ -72,9 +75,9 @@ export function buildPrompt(facts, items, options) {
 }
 
 // → { texts: { id: { en, es } }, usage }
-export async function writeTexts({ facts, items, template, sampleTerms, write = writeWithClaude }) {
+export async function writeTexts({ facts, items, template, sampleTerms, audience = 'es', write = writeWithClaude }) {
   const { text, usage, stopReason } = await write({
-    system: SYSTEM,
+    system: audience === 'en' ? SYSTEM_EN : SYSTEM,
     ...(({ stable, variable }) => ({ cachedPrefix: stable, prompt: variable }))(buildPromptParts(facts, items, { template, sampleTerms })),
     maxTokens: 32000,
     effort: 'low',

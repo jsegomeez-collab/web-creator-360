@@ -48,7 +48,8 @@ export async function buildSite({ business, template = chooseTemplate(business),
   const terms = sampleTerms(template, { name: facts.brand, city: facts.city, year: facts.registeredYear });
   const renderFacts = { email: facts.email, phone: facts.phone, mapQuery: `${facts.city}, ${facts.state}` };
 
-  const first = await writeTexts({ facts, items, template, sampleTerms: terms, write });
+  const audience = business.audience === 'en' ? 'en' : 'es';
+  const first = await writeTexts({ facts, items, template, sampleTerms: terms, audience, write });
   let texts = first.texts;
   let usage = addUsage({}, first.usage);
   let html = renderSite(compiled, { texts, drop, facts: renderFacts });
@@ -63,7 +64,7 @@ export async function buildSite({ business, template = chooseTemplate(business),
       return now;
     }).filter(i => findLeftovers(`${i.en ?? ''} ${i.es ?? ''} ${i.text ?? ''}`, leftovers, { ignore: own }).length);
     if (stillBad.length) {
-      const second = await writeTexts({ facts, items: stillBad, template, sampleTerms: leftovers, write });
+      const second = await writeTexts({ facts, items: stillBad, template, sampleTerms: leftovers, audience, write });
       texts = { ...texts, ...second.texts };
       usage = addUsage(usage, second.usage);
       html = renderSite(compiled, { texts, drop, facts: renderFacts });

@@ -9,7 +9,8 @@ import { storeLeads, recordRun, summarizeLeads } from './newLeads.js';
 import { senalesLatinas, limpiar, DOMINIOS_GESTORIA } from './ctRegistry.js';
 import { pickRun } from './mapsZones.js';
 
-export const MAPS_SOURCE = 'gmaps';
+import { MAPS_SOURCE } from './audience.js';
+export { MAPS_SOURCE };
 export const MIN_REVIEWS = 5;
 export const MIN_RATING = 3.5;
 export const DEFAULT_LOOKUPS = 60;      // Facebook lookups per run (≈ $0.015 each)

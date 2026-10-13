@@ -20,7 +20,7 @@ if (!ownerId) {
 }
 
 // Filled in below as each unattended part starts (or is skipped, with the reason): read by GET /health
-const autopilotStatus = { ingest: false, poll: false, push: false, demos: false, maps: false, followup: false, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null, notes: [] };
+const autopilotStatus = { ingest: false, poll: false, push: false, demos: false, maps: false, followup: false, us: false, campaign: (process.env.INSTANTLY_CAMPAIGN_ID || '').trim().slice(0, 8) || null, notes: [] };
 const app = createCampaignApp({ db: supabase, ownerId, onRequested: (lead, values) => alertCallRequest(lead, values), getStatus: () => autopilotStatus });
 
 const PORT = process.env.PORT || 3002;
@@ -61,9 +61,12 @@ if (instantlyConfig) {
 every('0 7 * * *', 'la ingesta diaria de LLCs nuevas', async () => {
   const { enabled } = await getAutopilotSettings(supabase, ownerId);
   if (!enabled) return;
-  const r = await runCtIngest({ db: supabase, ownerId });
-  console.log(`[autopilot] registro de LLCs: ${r.fetched} descargados · ${r.inserted} leads nuevos`);
-  if (r.inserted) await sendTelegram(`🤖 Autopilot: ${r.inserted} leads nuevos de LLCs nuevas.`);
+  // The "americanos" (no Latino signal, English campaign) are only kept once their Instantly campaign is set up; owners whose own
+  // email domain already has a website are dropped (they would not buy a demo)
+  const americans = Boolean((process.env.INSTANTLY_CAMPAIGN_ID_US || '').trim());
+  const r = await runCtIngest({ db: supabase, ownerId, americans, checkWebsites: true });
+  console.log(`[autopilot] registro de LLCs: ${r.fetched} descargados · ${r.inserted - r.insertedAmericans} leads latinos nuevos${americans ? ` · ${r.insertedAmericans} americanos` : ''} · con web propia descartados: ${r.stats.alreadyHasWebsite ?? 0}`);
+  if (r.inserted) await sendTelegram(`🤖 Autopilot: ${r.inserted - r.insertedAmericans} leads nuevos de LLCs${americans ? ` y ${r.insertedAmericans} americanos` : ''}.`);
 }, { timezone: 'America/New_York' });
 console.log('Autopilot: revisa el registro de LLCs nuevas todos los días a las 7:00 (hora de Nueva York), si está activado');
 autopilotStatus.ingest = true;
@@ -82,6 +85,13 @@ if ((process.env.INSTANTLY_CAMPAIGN_ID_MAPS || '').trim()) {
   try { mapsPushConfig = loadInstantlyConfig(process.env, { dryRun: false, campaign: 'maps' }); } catch (err) { console.warn(`Campaña de Google Maps desactivada: ${err.message}`); autopilotStatus.notes.push(`campaña de Maps desactivada: ${err.message}`); }
 }
 
+// Campaign 3 ("americanos": new LLCs with no Latino signal, emailed in English): its own Instantly campaign and copy. Active when its
+// campaign id (INSTANTLY_CAMPAIGN_ID_US) is set; the leads arrive with the daily registry download above.
+let usPushConfig = null;
+if ((process.env.INSTANTLY_CAMPAIGN_ID_US || '').trim()) {
+  try { usPushConfig = loadInstantlyConfig(process.env, { dryRun: false, campaign: 'us' }); } catch (err) { console.warn(`Campaña de americanos desactivada: ${err.message}`); autopilotStatus.notes.push(`campaña de americanos desactivada: ${err.message}`); }
+}
+
 // Demo websites (LEAD_DEMOS=true): the email links to each lead's own site, so the sites are made ahead of the send.
 // Every 10 minutes it tops up the "ready" pile to the next send's size (pushLimit) — at most 3 per tick, one after
 // another — so money is only spent on sites that are about to be emailed. In "all" mode (dashboard switch) it makes
@@ -98,7 +108,9 @@ if (demosOn) {
       let r;
       if (demoAll) r = await generateAllDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, log });
       else {
-        const want = Math.min(3, pushLimit * (mapsPushConfig ? 2 : 1) - await readyDemoCount(supabase, ownerId));
+        // pile of ready demos to keep: one send per campaign, plus a bigger one for the "americanos" (~117 new LLCs a day)
+        const target = pushLimit * (mapsPushConfig ? 2 : 1) + (usPushConfig ? 100 : 0);
+        const want = Math.min(3, target - await readyDemoCount(supabase, ownerId));
         if (want <= 0) return;
         r = await generateDemos({ db: supabase, ownerId, publicUrl: pushConfig.publicUrl, limit: want, log });
       }
@@ -140,6 +152,24 @@ if (mapsPushConfig && loadApifyConfig().token) {
   autopilotStatus.maps = true;
 } else if (mapsPushConfig) {
   autopilotStatus.notes.push('campaña de Maps: falta APIFY_TOKEN, no se buscan negocios nuevos');
+}
+
+// "Americanos": everything with a ready demo is sent (the mailboxes' daily limit in Instantly paces the actual sending)
+if (usPushConfig) {
+  every('40 */3 * * *', 'el envío automático a la campaña de americanos', async () => {
+    const { enabled } = await getAutopilotSettings(supabase, ownerId);
+    if (!enabled) return;
+    const r = await pushLeads({ db: supabase, ownerId, config: usPushConfig, limit: ALL_MODE_SEND_LIMIT });
+    if (!r.pushed && !r.rejected) return;
+    console.log(`[americanos] ${r.dryRun ? '(modo prueba) ' : ''}enviados a Instantly: ${r.pushed} · rechazados: ${r.rejected}`);
+    if (r.pushed && !r.dryRun) {
+      const resumed = await resumeIfCompleted(usPushConfig);
+      if (resumed !== 'ok') console.log(`[americanos] campaña de Instantly: ${resumed}`);
+      await sendTelegram(`🤖 Americanos: ${r.pushed} leads enviados a Instantly.`);
+    }
+  });
+  console.log('Americanos: envía sus leads a su campaña de Instantly cada 3 horas (a los :40), si el autopilot está activado');
+  autopilotStatus.us = true;
 }
 
 if (mapsPushConfig) {

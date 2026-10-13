@@ -140,7 +140,9 @@ function ctResultHtml(r) {
   const body = `
     ${statLine(`Registros descargados desde ${r.since}`, r.fetched)}
     ${filtered ? `<div class="mt-3 text-[11px] font-semibold uppercase tracking-[.08em] text-slate-400">Descartados por los filtros</div>${filtered}` : ''}
-    ${importSummaryHtml(r)}`;
+    ${r.stats?.alreadyHasWebsite ? statLine('Descartados: su dominio ya tiene una web', r.stats.alreadyHasWebsite, 'text-slate-500') : ''}
+    ${importSummaryHtml(r)}
+    ${r.americans ? `<div class="mt-4 text-[11px] font-semibold uppercase tracking-[.08em] text-slate-400">Americanos (sin señal latina · campaña en inglés)</div>${statLine(r.dryRun ? 'Leads nuevos que entrarían' : 'Leads nuevos listos para enviar', r.dryRun ? r.americans.summary?.total : r.americans.inserted, 'text-emerald-700')}` : ''}`;
   return resultBox(r.dryRun ? 'Vista previa · no se ha guardado nada' : `Importación terminada · ${nf(r.inserted)} leads guardados`, r.dryRun, body, r.notes);
 }
 
@@ -509,8 +511,10 @@ async function saveAutopilotLimit(btn) {
 }
 
 // Which "new" leads the send targets. Empty string = no filter on that field.
-const sendCampaign = () => ($('send-campaign').value === 'maps' ? 'maps' : 'llc');
-const sendFilters = () => ({ source: sendCampaign() === 'maps' ? 'gmaps' : $('send-source').value, batch: $('send-batch').value, sector: $('send-sector').value, priority: $('send-priority').value });
+const sendCampaign = () => (['maps', 'us'].includes($('send-campaign').value) ? $('send-campaign').value : 'llc');
+// The English campaigns send only their own source; "llc" sends everything else
+const CAMPAIGN_SOURCE = { maps: 'gmaps', us: 'ct_registry_us' };
+const sendFilters = () => ({ source: CAMPAIGN_SOURCE[sendCampaign()] || $('send-source').value, batch: $('send-batch').value, sector: $('send-sector').value, priority: $('send-priority').value });
 
 function fillSendFilterOptions() {
   if ($('send-sector').options.length) return;
@@ -540,7 +544,7 @@ async function updateSendCount() {
   const qs = new URLSearchParams({ status: 'new', limit: '1' });
   if (leadStats?.demos?.enabled) qs.set('demo', 'ready');   // with demos, only leads whose site is ready get sent
   for (const [k, v] of Object.entries(f)) if (v) qs.set(k, v);
-  if (sendCampaign() === 'llc') qs.set('notSource', 'gmaps');   // Google Maps leads have their own campaign
+  if (sendCampaign() === 'llc') qs.set('notSource', 'gmaps,ct_registry_us');   // the English campaigns have their own
   const { total } = await leadsApi(`/?${qs}`).catch(() => ({ total: 0 }));
   $('send-new-count').textContent = nf(total);
   $('send-btn').disabled = total === 0;
@@ -551,12 +555,14 @@ async function loadLeadsSend() {
   fillSendFilterOptions();
   const [stats, tpl] = await Promise.all([loadLeadStats(), leadsApi(`/email-template?campaign=${sendCampaign()}`), loadSendBatches(), loadAutopilot()]);
   renderDemosCard(stats?.demos);
-  const mapsOn = sendCampaign() === 'maps';
-  $('send-source').disabled = mapsOn;
-  $('send-campaign-hint').textContent = mapsOn
+  const mapsOn = sendCampaign() === 'maps', usOn = sendCampaign() === 'us';
+  $('send-source').disabled = mapsOn || usOn;
+  $('send-campaign-hint').textContent = usOn
+    ? (stats?.instantly?.usCampaign ? `Campaña de americanos ${stats.instantly.usCampaign}… · pega el texto de la derecha en ESA campaña de Instantly. Los envía solo el servidor cada 3 horas.` : 'Falta INSTANTLY_CAMPAIGN_ID_US en tu .env y en Render: crea una campaña nueva en Instantly para esta y pon su ID.')
+    : mapsOn
     ? (stats?.instantly?.mapsCampaign ? `Campaña de Google Maps ${stats.instantly.mapsCampaign}… · pega el texto de la derecha en ESA campaña de Instantly.` : 'Falta INSTANTLY_CAMPAIGN_ID_MAPS en tu .env: crea una campaña nueva en Instantly para esta y pon su ID.')
     : 'Cada campaña tiene su propio texto de email en Instantly.';
-  $('tpl-version').textContent = mapsOn ? 'Campaña Google Maps: texto propio, siempre con la web de demo ({{web}}).' : tpl.demos ? 'Versión con demo: enlaza a la web de cada lead ({{web}}).' : 'Versión clásica: enlaza a la página para pedir la llamada.';
+  $('tpl-version').textContent = usOn ? 'Campaña de americanos: texto en inglés, siempre con la web de demo ({{site}}).' : mapsOn ? 'Campaña Google Maps: texto propio en inglés, siempre con la web de demo ({{site}}).' : tpl.demos ? 'Versión con demo: enlaza a la web de cada lead ({{web}}).' : 'Versión clásica: enlaza a la página para pedir la llamada.';
   $('tpl-subject').value = tpl.subject;
   $('tpl-body').value = tpl.body;
   $('tpl-vars').innerHTML = tpl.variables.map(v => `<code class="rounded-lg bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700 ring-1 ring-inset ring-brand-100">{{${esc(v)}}}</code>`).join('');

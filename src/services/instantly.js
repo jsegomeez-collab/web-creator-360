@@ -7,7 +7,7 @@ import { requestJson } from '../lib/http.js';
 import { selectAll } from '../lib/selectAll.js';
 import { displayName, leadVariables } from '../prompts/newBusinessEmails.js';
 
-const MAPS_SOURCE = 'gmaps';   // same value as services/mapsProspect.js (not imported: that one imports this indirectly)
+import { MAPS_SOURCE, US_SOURCE } from './audience.js';
 
 export const API = 'https://api.instantly.ai/api/v2';
 const MAX_PER_REQUEST = 1000;
@@ -17,9 +17,10 @@ const REJECTED_NOTE = 'Instantly no lo aceptó (ya estaba en tu workspace, está
 
 // Settings for pushing leads. A real push needs an API key, a campaign, the public URL of the campaign server (the link
 // in each email points there). In dry-run placeholders are used.
-// campaign: 'llc' (new LLCs, INSTANTLY_CAMPAIGN_ID), 'maps' (Google Maps businesses without a website, INSTANTLY_CAMPAIGN_ID_MAPS)
-// or 'followup' (those who opened their website and have not replied, INSTANTLY_CAMPAIGN_ID_FOLLOWUP)
-const CAMPAIGN_ID_VARS = { llc: 'INSTANTLY_CAMPAIGN_ID', maps: 'INSTANTLY_CAMPAIGN_ID_MAPS', followup: 'INSTANTLY_CAMPAIGN_ID_FOLLOWUP' };
+// campaign: 'llc' (new LLCs with a Latino signal, INSTANTLY_CAMPAIGN_ID), 'maps' (Google Maps businesses without a website,
+// INSTANTLY_CAMPAIGN_ID_MAPS), 'us' (new LLCs with no Latino signal, in English, INSTANTLY_CAMPAIGN_ID_US) or 'followup'
+// (those who opened their website and have not replied, INSTANTLY_CAMPAIGN_ID_FOLLOWUP)
+const CAMPAIGN_ID_VARS = { llc: 'INSTANTLY_CAMPAIGN_ID', maps: 'INSTANTLY_CAMPAIGN_ID_MAPS', us: 'INSTANTLY_CAMPAIGN_ID_US', followup: 'INSTANTLY_CAMPAIGN_ID_FOLLOWUP' };
 export function loadInstantlyConfig(env = process.env, { dryRun = isDryRun(), campaign = 'llc' } = {}) {
   const idVar = CAMPAIGN_ID_VARS[campaign] ?? CAMPAIGN_ID_VARS.llc;
   const apiKey = String(env.INSTANTLY_API_KEY || '').trim();
@@ -38,8 +39,8 @@ export function loadInstantlyConfig(env = process.env, { dryRun = isDryRun(), ca
     apiKey, campaignId, campaign,
     publicUrl: publicUrl || 'http://localhost:3002',
     // LEAD_DEMOS=true: each lead gets its own demo website first, and only leads whose demo is ready are sent
-    // (the Maps campaign always has demos: its email is all about the site we made)
-    demos: campaign === 'maps' || String(env.LEAD_DEMOS || '').trim().toLowerCase() === 'true',
+    // (the Maps and "americanos" campaigns always have demos: their email is all about the site we made)
+    demos: campaign === 'maps' || campaign === 'us' || String(env.LEAD_DEMOS || '').trim().toLowerCase() === 'true',
     warnings: problems,
   };
 }
@@ -70,7 +71,10 @@ export async function pushLeads({ db, ownerId, config, limit = 100, filters = {}
   const eligible = () => {
     let query = db.from(LEADS_TABLE).select('*').eq('user_id', ownerId).eq('status', 'new');
     // each campaign only takes its own leads: Google Maps businesses go to the Maps campaign, everything else to the LLC one
-    query = config.campaign === 'maps' ? query.eq('source', MAPS_SOURCE) : query.neq('source', MAPS_SOURCE);
+    // (the "llc" campaign is everything that is neither of the two English ones)
+    if (config.campaign === 'maps') query = query.eq('source', MAPS_SOURCE);
+    else if (config.campaign === 'us') query = query.eq('source', US_SOURCE);
+    else query = query.neq('source', MAPS_SOURCE).neq('source', US_SOURCE);
     if (config.demos) query = query.eq('demo_status', 'ready');   // the email links to the demo: never send one without it
     if (filters.source) query = query.eq('source', filters.source);
     if (filters.sector) query = query.eq('sector', filters.sector);

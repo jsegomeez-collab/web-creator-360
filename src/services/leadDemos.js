@@ -5,6 +5,7 @@ import slugify from 'slugify';
 import { buildSite, chooseTemplate, brandName } from '../sitegen/index.js';
 import { deployToVercel, deleteVercelProject } from './vercel.js';
 import { esc } from '../lib/pages.js';
+import { isEnglishSource } from './audience.js';
 
 const TABLE = 'new_business_leads';
 
@@ -49,6 +50,7 @@ export const leadBusiness = (lead) => ({
   name: lead.name, city: lead.city, state: lead.state || 'CT', email: lead.email, sector: lead.sector,
   naics_code: lead.naics_code, activity: lead.category || lead.naics_code || null, registered_at: lead.registered_at,
   ...(lead.business_phone ? { phone: lead.business_phone } : {}),
+  ...(isEnglishSource(lead.source) ? { audience: 'en' } : {}),     // the owner is not assumed to be Latino
 });
 
 // Makes, publishes and saves the demo of one lead → { ok, url?, template?, usage?, error?, skipped? }
@@ -83,7 +85,7 @@ export async function createLeadDemo({ db, ownerId, lead, publicUrl, force = fal
         brand: brandName(lead.name).brand,
         requestUrl: `${publicUrl}/c/${lead.link_token}`,
         beaconUrl: `${publicUrl}/v/${lead.link_token}`,
-        lang: lead.source === 'gmaps' ? 'en' : 'es',
+        lang: isEnglishSource(lead.source) ? 'en' : 'es',
       });
       // Save it BEFORE publishing: if Vercel fails, the paid HTML is not lost
       await db.from('generated_sites').upsert({ slug, html_content: html, preview_url: null, status: 'demo' }, { onConflict: 'slug' });
