@@ -2,13 +2,13 @@
 //   npm run instantly:us-campaigns -- --dry-run   shows what it would write, changes nothing
 //   npm run instantly:us-campaigns                writes it
 // It updates two campaigns:
-//   INSTANTLY_CAMPAIGN_ID_US            email 1 + 3 reminders (days 2, 4, 7) for those who have NOT opened their website
+//   INSTANTLY_CAMPAIGN_ID_US            email 1 only (no reminders: only those who open their website get a follow-up)
 //   INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US   7 emails, one a day, for those who DID open it. If this one is empty, it is created by
 //                                       duplicating the Spanish follow-up campaign (same settings) and its id is printed: put it in .env and Render.
 // Nothing is launched: campaigns stay as they are (draft/paused) until you start them in Instantly.
 import 'dotenv/config';
 import { EMAIL_SUBJECT_US, EMAIL_BODY_US } from '../src/prompts/newBusinessEmails.js';
-import { REMINDERS_US, OPENED_US, toSteps } from '../src/prompts/followupEmailsUs.js';
+import { OPENED_US, toSteps } from '../src/prompts/followupEmailsUs.js';
 import { API } from '../src/services/instantly.js';
 
 const dryRun = process.argv.includes('--dry-run');
@@ -30,9 +30,9 @@ try {
   if (!apiKey) throw new Error('Falta INSTANTLY_API_KEY en tu .env');
   if (!mainId) throw new Error('Falta INSTANTLY_CAMPAIGN_ID_US en tu .env (la campaña de americanos)');
 
-  const mainSteps = toSteps([{ delay: 0, subject: EMAIL_SUBJECT_US, body: EMAIL_BODY_US }, ...REMINDERS_US]);
+  const mainSteps = toSteps([{ delay: 0, subject: EMAIL_SUBJECT_US, body: EMAIL_BODY_US }]);
   const followSteps = toSteps(OPENED_US);
-  console.log(`Campaña de americanos (${mainId.slice(0, 8)}…): ${mainSteps.length} emails → día 0` + REMINDERS_US.reduce((acc, r) => { acc.d += r.delay; acc.s += `, día ${acc.d}`; return acc; }, { d: 0, s: '' }).s);
+  console.log(`Campaña de americanos (${mainId.slice(0, 8)}…): ${mainSteps.length} email, sin recordatorios`);
   console.log(`Seguimiento de los que abren la web: ${followSteps.length} emails, uno al día`);
   if (dryRun) { console.log('\n(vista previa: no se ha cambiado nada en Instantly)'); process.exit(0); }
 

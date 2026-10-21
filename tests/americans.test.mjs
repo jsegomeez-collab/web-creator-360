@@ -172,15 +172,16 @@ test('la página de solicitud, la barra de la demo y el motor de webs tratan al 
 });
 
 // ─── seguimiento completo de los americanos ──────────────────────────────────
-import { REMINDERS_US, OPENED_US, toSteps, toInstantlyHtml } from '../src/prompts/followupEmailsUs.js';
+import * as followupUs from '../src/prompts/followupEmailsUs.js';
 import { followupOverview } from '../src/services/followup.js';
+const { OPENED_US, toSteps, toInstantlyHtml } = followupUs;
 
-test('textos del seguimiento en inglés: 3 recordatorios (días 2, 4 y 7) + 7 diarios; todos piden el phone number y usan variables que existen', () => {
-  assert.deepEqual(REMINDERS_US.reduce((acc, r) => [...acc, (acc.at(-1) ?? 0) + r.delay], []), [2, 4, 7]);   // con el email 1 en el día 0: 4 emails en 7 días
+test('textos del seguimiento en inglés: sin recordatorios para los que no abren la web + 7 diarios para los que la abren; todos piden el phone number y usan variables que existen', () => {
+  assert.ok(!('REMINDERS_US' in followupUs), 'los que no abren la web no reciben recordatorios');
   assert.equal(OPENED_US.length, 7);
   assert.ok(OPENED_US.every(e => e.delay === 1));                                                          // uno al día
   const vars = leadVariables({ source: US_SOURCE, name: 'Cooper LLC', city: 'Hartford', demo_url: 'https://x.vercel.app', link_token: 'x' }, 'u');
-  for (const e of [...REMINDERS_US, ...OPENED_US]) {
+  for (const e of OPENED_US) {
     assert.match(e.body, /phone number/, e.subject);
     assert.ok(e.body.includes('{{site}}'), `falta el enlace en: ${e.subject}`);
     for (const m of `${e.subject}\n${e.body}`.matchAll(/\{\{(\w+)\}\}/g)) assert.ok(m[1] in vars, `{{${m[1]}}} no existe (${e.subject})`);
@@ -190,7 +191,7 @@ test('textos del seguimiento en inglés: 3 recordatorios (días 2, 4 y 7) + 7 di
   assert.equal(toInstantlyHtml('Hi,\n\nBye\nJose'), '<div>Hi,</div><div><br /></div><div>Bye</div><div>Jose</div>');
   // En Instantly el "wait" de un paso es lo que se espera DESPUÉS de ese email: cada paso lleva la espera del email que le sigue
   const delays = (emails) => toSteps(emails).map(s => s.delay);
-  assert.deepEqual(delays([{ delay: 0, subject: 's', body: 'b' }, ...REMINDERS_US]), [2, 2, 3, 0]);      // días 0, 2, 4 y 7 (antes se guardaba [0, 2, 2, 3]: el 2º email salía el día 0)
+  assert.deepEqual(delays([{ delay: 0, subject: 's', body: 'b' }, { delay: 2, subject: 's', body: 'b' }]), [2, 0]);   // el 2º email sale el día 2 (antes se guardaba [0, 2]: salía el día 0)
   assert.deepEqual(delays(OPENED_US), [1, 1, 1, 1, 1, 1, 0]);
 });
 

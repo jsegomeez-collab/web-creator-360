@@ -1,59 +1,11 @@
-// Follow-up of the "americanos" campaign (English). Two paths, both ending when the lead replies (Instantly "stop on reply"):
-//   REMINDERS_US  for those who have NOT opened their demo website: steps 2-4 of the main campaign, on days 2, 4 and 7.
-//   OPENED_US     for those who DID open it: a separate Instantly campaign (INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US) with 7 emails, one a day.
-//                 The campaign server moves them there by itself (services/followup.js); the reminders above stop when they move.
+// Follow-up of the "americanos" campaign (English). Only those who opened their demo website get it (since 2026-10-21 the main
+// campaign sends email 1 alone, no reminders), and it ends when the lead replies (Instantly "stop on reply"):
+//   OPENED_US     a separate Instantly campaign (INSTANTLY_CAMPAIGN_ID_FOLLOWUP_US) with 7 emails, one a day.
+//                 The campaign server moves them there by itself (services/followup.js).
 // The variables are the English ones of leadVariables: {{business}} {{greeting}} {{city}} {{site}}.
 // EDIT THE TEXT HERE, then run `node scripts/instantly-us-campaigns.js` to put it in Instantly (or paste it by hand).
 
 // `delay` = days to wait after the previous email
-export const REMINDERS_US = [
-  {
-    delay: 2,
-    subject: 'Did you see the website for {{business}}?',
-    body: `Hi {{greeting}},
-
-Just checking that you saw the website I designed for {{business}}:
-
-{{site}}
-
-It takes a minute to look through. If you like it, reply "YES" with your phone number and I'll call you to set it up with your own photos and details.
-
-Jose
-Get ur Web`,
-  },
-  {
-    delay: 2,
-    subject: '{{business}} on Google',
-    body: `Hi {{greeting}},
-
-When people in {{city}} search Google for a business like yours, the ones with their own website get the call.
-
-Yours is already designed, it only needs your photos and details:
-
-{{site}}
-
-Want me to finish it? Reply "YES" with your phone number and I'll call you.
-
-Jose
-Get ur Web`,
-  },
-  {
-    delay: 3,
-    subject: 'Last note about your website',
-    body: `Hi {{greeting}},
-
-This is my last email about the website for {{business}}. It will stay online a while longer:
-
-{{site}}
-
-If you want it later, just reply "YES" with your phone number and I'll call you to finish it.
-
-Best,
-Jose
-Get ur Web`,
-  },
-];
-
 // Seven emails, one a day, for the ones who opened the website
 export const OPENED_US = [
   {
