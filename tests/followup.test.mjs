@@ -131,7 +131,9 @@ test('resumen: esperando, en secuencia (día N de 7), han respondido y enfriados
 });
 
 test('ruta GET /followup: resumen, y avisa si falta INSTANTLY_CAMPAIGN_ID_FOLLOWUP', async () => {
-  const db = createMemoryDb({ new_business_leads: [mk('W'), mk('A1', { followup_at: ago(1) })] });
+  // the route counts the days from the real clock (not NOW): "entered yesterday" must be relative to today
+  const yesterday = new Date(Date.now() - 86_400_000).toISOString();
+  const db = createMemoryDb({ new_business_leads: [mk('W'), mk('A1', { followup_at: yesterday })] });
   const app = express(); app.use(express.json());
   app.use('/api/leads', createLeadsRouter({ db, ownerId: OWNER, verifyCopy: false }));
   const server = await new Promise(r => { const s = app.listen(0, () => r(s)); });
